@@ -2946,7 +2946,7 @@ async function testApiConnection(){
   st.className='status'; st.textContent='בודק חיבור…';
   const t0=Date.now();
   try{
-    const out=await callGroq([{role:'user',content:'Reply with exactly: OK'}],{maxTokens:8,timeout:20000});
+const out=await callGroq([{role:'user',content:'Reply with exactly: OK'}],{maxTokens:128,timeout:20000});
     st.className='status ok';
     st.innerHTML='✓ החיבור עובד ('+(Date.now()-t0)+'ms) · תשובה: '+esc(out.slice(0,30));
   }catch(err){
