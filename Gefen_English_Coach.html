@@ -1,0 +1,3157 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080e18">
+<meta name="description" content="Gefen English Coach – אפליקציית אנגלית אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מדורג.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Gefen English Coach 💃</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23c6f24e'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+<style>
+/* ============ theme ============ */
+:root{
+  --bg:#080e18; --bg2:#0c1523; --card:#111d2f; --card2:#16243a; --card3:#1b2c46;
+  --line:#22344f; --line2:#2d4462; --tx:#f2f6fb; --mu:#93a4bb; --mu2:#6f8299;
+  --lime:#ff8fc7; --lime-d:#e56bad; --cyan:#3ddcf5; --gold:#ffc94d; --pink:#ff7bb0;
+  --purple:#b49bff; --red:#ff8080; --green:#4ade80; --orange:#ffa45c;
+  --r:22px; --r2:15px; --r3:11px;
+  --shadow:0 24px 55px -28px rgba(0,0,0,.9);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --fs:1;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--tx); min-height:100vh; line-height:1.65;
+  font-family:"Rubik","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  font-size:calc(16px * var(--fs)); padding-bottom:calc(94px + var(--safe-b));
+  overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 80% -10%,rgba(255,143,199,.10),transparent 65%),
+    radial-gradient(800px 500px at 5% 0%,rgba(61,220,245,.09),transparent 60%),
+    radial-gradient(700px 700px at 50% 110%,rgba(180,155,255,.08),transparent 60%),
+    var(--bg);
+}
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+  background-image:repeating-linear-gradient(90deg,transparent 0 118px,rgba(255,255,255,.018) 118px 120px);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 75%);
+}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+input,textarea,select{font:inherit;color:inherit}
+a{color:var(--cyan)}
+::selection{background:rgba(255,143,199,.3)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:6px}
+.en{direction:ltr;unicode-bidi:isolate;text-align:left;display:inline}
+.ltr{direction:ltr;text-align:left}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.muted{color:var(--mu)}
+.small{font-size:.85rem}
+.tiny{font-size:.76rem}
+.center{text-align:center}
+.hide{display:none!important}
+.spacer{flex:1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.col{display:flex;flex-direction:column;gap:8px}
+
+/* ============ top bar ============ */
+.topbar{
+  position:sticky;top:0;z-index:60;padding:10px 14px;
+  background:rgba(8,14,24,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(34,52,79,.7);
+}
+.topbar-in{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.brand-mark{
+  width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-size:1.25rem;
+  background:linear-gradient(140deg,var(--lime),#c44f93);color:#2a0a1c;
+  box-shadow:0 8px 22px -10px rgba(255,143,199,.8);flex:none;
+}
+.brand-txt{line-height:1.1;min-width:0}
+.brand-txt b{font-size:1rem;letter-spacing:.2px;display:block;white-space:nowrap}
+.brand-txt span{font-size:.68rem;color:var(--mu);letter-spacing:1.4px;text-transform:uppercase}
+.hstats{display:flex;align-items:center;gap:6px;margin-inline-start:auto}
+.hpill{
+  display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:99px;
+  background:rgba(22,36,58,.85);border:1px solid var(--line);font-weight:800;font-size:.8rem;white-space:nowrap;
+}
+.hpill b{color:var(--lime);font-weight:900}
+.hpill.streak b{color:var(--gold)}
+.hbtn{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;
+  background:rgba(22,36,58,.85);border:1px solid var(--line);flex:none;transition:.15s;
+}
+.hbtn:hover{background:var(--card3);transform:translateY(-1px)}
+@media(max-width:560px){
+  .brand-txt span{display:none}
+  .brand-txt b{font-size:.9rem}
+  .hpill{padding:5px 8px;font-size:.74rem}
+  .hbtn{width:34px;height:34px}
+}
+
+/* ============ layout ============ */
+.main{max-width:1060px;margin:0 auto;padding:16px 14px 26px;min-height:60vh}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page{animation:fadeUp .3s ease both}
+.page-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.page-title{font-size:1.32rem;font-weight:900;letter-spacing:-.2px}
+.page-sub{color:var(--mu);font-size:.86rem;width:100%;margin-top:-4px}
+.back{
+  width:38px;height:38px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+  display:grid;place-items:center;font-size:1.1rem;flex:none;
+}
+.section{margin-top:22px}
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.section-head h2{font-size:1.02rem;font-weight:900;letter-spacing:-.1px}
+.section-head .more{margin-inline-start:auto;font-size:.8rem;color:var(--cyan);font-weight:700}
+.card{
+  background:linear-gradient(160deg,rgba(22,36,58,.92),rgba(17,29,47,.92));
+  border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);
+}
+.card.flat{box-shadow:none;background:rgba(17,29,47,.65)}
+.grid{display:grid;gap:12px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:760px){.grid.three,.grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.grid.two{grid-template-columns:1fr}.grid.three{grid-template-columns:1fr}}
+.divider{height:1px;background:var(--line);margin:14px 0}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;
+  background:rgba(61,220,245,.1);border:1px solid rgba(61,220,245,.25);color:var(--cyan);
+  font-size:.71rem;font-weight:800;letter-spacing:.2px;white-space:nowrap;
+}
+.tag.lime{background:rgba(255,143,199,.1);border-color:rgba(255,143,199,.3);color:var(--lime)}
+.tag.gold{background:rgba(255,201,77,.1);border-color:rgba(255,201,77,.28);color:var(--gold)}
+.tag.pink{background:rgba(255,123,176,.1);border-color:rgba(255,123,176,.28);color:var(--pink)}
+.tag.purple{background:rgba(180,155,255,.1);border-color:rgba(180,155,255,.28);color:var(--purple)}
+.tag.red{background:rgba(255,128,128,.1);border-color:rgba(255,128,128,.28);color:var(--red)}
+
+/* ============ buttons ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:10px 16px;border-radius:13px;font-weight:800;font-size:.9rem;
+  background:var(--card3);border:1px solid var(--line2);transition:.16s;min-height:42px;
+}
+.btn:hover{background:#25395a;transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(135deg,var(--lime),var(--lime-d));border-color:transparent;color:#2a0a1c;box-shadow:0 10px 26px -14px rgba(255,143,199,.9)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.cyan{background:linear-gradient(135deg,#2cc7e6,#1b9fc9);border-color:transparent;color:#03141a}
+.btn.purple{background:linear-gradient(135deg,#b49bff,#8d6cf0);border-color:transparent;color:#120a2a}
+.btn.ghost{background:transparent;border-color:var(--line2)}
+.btn.ghost:hover{background:rgba(34,52,79,.6)}
+.btn.soft{background:rgba(255,143,199,.1);border-color:rgba(255,143,199,.3);color:var(--lime)}
+.btn.danger{background:rgba(255,128,128,.1);border-color:rgba(255,128,128,.3);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:.79rem;min-height:34px;border-radius:10px}
+.btn.xs{padding:4px 8px;font-size:.72rem;min-height:28px;border-radius:8px}
+.btn.wide{width:100%}
+.btn.icon{padding:0;width:42px;height:42px;border-radius:13px;font-size:1.05rem}
+.iconbtn{
+  width:34px;height:34px;border-radius:10px;display:inline-grid;place-items:center;
+  background:rgba(61,220,245,.08);border:1px solid rgba(61,220,245,.18);font-size:.9rem;
+}
+.iconbtn:hover{background:rgba(61,220,245,.18)}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{
+  padding:7px 12px;border-radius:99px;background:rgba(22,36,58,.9);border:1px solid var(--line);
+  font-size:.8rem;font-weight:700;color:var(--mu);transition:.15s;
+}
+.chip:hover,.chip.active{background:rgba(255,143,199,.12);border-color:rgba(255,143,199,.4);color:var(--lime)}
+
+/* ============ hero / dashboard ============ */
+.hero{
+  position:relative;overflow:hidden;border-radius:26px;padding:20px;
+  background:
+    radial-gradient(600px 240px at 90% -30%,rgba(255,143,199,.22),transparent 70%),
+    linear-gradient(135deg,#15253c,#0e1929 60%);
+  border:1px solid var(--line2);box-shadow:var(--shadow);
+}
+.hero::after{
+  content:"💃";position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.045;transform:rotate(-18deg);pointer-events:none;
+}
+.hero-top{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;position:relative;z-index:1}
+.hero h1{font-size:1.45rem;line-height:1.25;font-weight:900;letter-spacing:-.4px}
+.hero h1 span{color:var(--lime)}
+.hero p{color:var(--mu);font-size:.88rem;margin-top:4px;max-width:46ch}
+.hero-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ring-wrap{margin-inline-start:auto;display:flex;gap:12px;align-items:center}
+.ring{
+  --p:0;width:92px;height:92px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:conic-gradient(var(--lime) calc(var(--p)*1%),rgba(45,68,98,.65) 0);
+  transition:background .6s;
+}
+.ring>div{
+  width:72px;height:72px;border-radius:50%;background:#0f1b2c;display:grid;place-items:center;
+  text-align:center;line-height:1.05;font-weight:900;font-size:1.1rem;
+}
+.ring>div small{display:block;font-size:.58rem;color:var(--mu);font-weight:700;margin-top:2px}
+.mini-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+.stat-chip{
+  background:rgba(8,14,24,.45);border:1px solid var(--line);border-radius:12px;
+  padding:7px 11px;font-size:.78rem;color:var(--mu);font-weight:700;
+}
+.stat-chip b{color:var(--tx);font-size:.95rem;margin-inline-end:3px}
+@media(max-width:620px){
+  .hero{padding:16px}.hero h1{font-size:1.2rem}
+  .ring-wrap{margin-inline-start:0;width:100%;justify-content:space-between;margin-top:4px;gap:10px}
+  .ring{width:88px;height:88px}.ring>div{width:70px;height:70px;font-size:1.05rem}
+  .ring>div small{font-size:.53rem;letter-spacing:-.2px}
+  .hero .mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .hero .mini-stats .stat-chip{text-align:center}
+  .hero .hero-actions .btn{flex:1;min-width:130px}
+}
+
+/* task list */
+.task{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px dashed rgba(45,68,98,.7)}
+.task:last-child{border-bottom:0}
+.task-dot{
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;
+  background:var(--card3);border:1px solid var(--line2);font-size:.8rem;color:var(--mu);
+}
+.task.done .task-dot{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.4);color:var(--green)}
+.task.done .task-t{text-decoration:line-through;color:var(--mu)}
+.task-t{font-size:.88rem;font-weight:700}
+.task-s{font-size:.74rem;color:var(--mu2)}
+.task .btn{margin-inline-start:auto;flex:none}
+
+/* continue card */
+.continue{
+  display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;
+  background:linear-gradient(120deg,rgba(61,220,245,.1),rgba(255,143,199,.06));
+  border:1px solid rgba(61,220,245,.25);width:100%;text-align:start;
+}
+.continue:hover{background:linear-gradient(120deg,rgba(61,220,245,.16),rgba(255,143,199,.09))}
+.continue .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.4rem;background:rgba(8,14,24,.5);flex:none}
+.continue b{display:block;font-size:.94rem}
+.continue span{font-size:.78rem;color:var(--mu)}
+.continue .arr{margin-inline-start:auto;color:var(--cyan);font-size:1.2rem}
+
+/* word of day */
+.wotd{position:relative;overflow:hidden}
+.wotd .en{font-size:1.5rem;font-weight:900;color:var(--lime);letter-spacing:.5px}
+.wotd .he{font-size:1rem;font-weight:700}
+.wotd .ex{color:var(--mu);font-size:.86rem;margin-top:6px;border-inline-start:3px solid var(--line2);padding-inline-start:9px}
+.fact{
+  border-inline-start:3px solid var(--gold);background:rgba(255,201,77,.055);
+  border-radius:0 14px 14px 0;padding:12px 14px;font-size:.86rem;color:#e9eef7;
+}
+.fact b{color:var(--gold)}
+
+/* ============ units ============ */
+.route{
+  display:flex;gap:0;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:none;
+}
+.route::-webkit-scrollbar{display:none}
+.route-step{display:flex;align-items:center;flex:none}
+.route-dot{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;
+  background:var(--card2);border:1px solid var(--line2);color:var(--mu);font-weight:900;
+}
+.route-dot.done{background:rgba(255,143,199,.16);border-color:rgba(255,143,199,.5);color:var(--lime)}
+.route-dot.cur{background:var(--lime);border-color:var(--lime);color:#2a0a1c;box-shadow:0 0 0 5px rgba(255,143,199,.12)}
+.route-line{width:22px;height:2px;background:var(--line2)}
+@media(min-width:860px){.route-line{width:48px}}
+
+.unit-card{
+  display:flex;gap:14px;align-items:flex-start;padding:15px;border-radius:var(--r);
+  background:linear-gradient(160deg,rgba(22,36,58,.9),rgba(17,29,47,.9));
+  border:1px solid var(--line);text-align:start;width:100%;transition:.18s;position:relative;overflow:hidden;
+}
+.unit-card:hover{transform:translateY(-2px);border-color:var(--line2)}
+.unit-card.done{border-color:rgba(255,143,199,.35)}
+.unit-ic{
+  width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:1.5rem;flex:none;
+  background:rgba(8,14,24,.45);border:1px solid var(--line);
+}
+.unit-body{flex:1;min-width:0}
+.unit-kicker{font-size:.7rem;color:var(--mu2);font-weight:800;letter-spacing:.6px}
+.unit-title{font-size:1rem;font-weight:900;margin-top:1px}
+.unit-title .en{font-size:.88rem;color:var(--mu);font-weight:700}
+.unit-desc{font-size:.8rem;color:var(--mu);margin-top:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.unit-foot{display:flex;align-items:center;gap:8px;margin-top:9px}
+.bar{height:7px;border-radius:99px;background:rgba(45,68,98,.7);overflow:hidden;flex:1}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--lime));transition:width .5s}
+.unit-pct{font-size:.72rem;color:var(--mu);font-weight:800;white-space:nowrap}
+.unit-go{margin-inline-start:auto;font-size:1.1rem;color:var(--mu)}
+
+/* ============ unit page tabs ============ */
+.unit-hero{border-radius:24px;padding:18px;border:1px solid var(--line2);background:linear-gradient(135deg,rgba(22,36,58,.95),rgba(12,21,35,.95));position:relative;overflow:hidden}
+.unit-hero .big{font-size:2rem}
+.unit-hero h1{font-size:1.3rem;font-weight:900;margin-top:2px}
+.unit-hero .en-title{color:var(--mu);font-size:.92rem}
+.seg{display:flex;gap:4px;padding:4px;background:rgba(12,21,35,.8);border:1px solid var(--line);border-radius:14px;overflow-x:auto;scrollbar-width:none;margin:14px 0}
+.seg::-webkit-scrollbar{display:none}
+.seg button{
+  flex:1;padding:8px 10px;border-radius:10px;font-size:.82rem;font-weight:800;color:var(--mu);white-space:nowrap;
+}
+.seg button.active{background:var(--card3);color:var(--tx);box-shadow:0 2px 10px -4px #000}
+
+/* ============ rules / explanations ============ */
+.rule{
+  border:1px solid var(--line);border-radius:var(--r2);background:rgba(17,29,47,.75);
+  margin-bottom:10px;overflow:hidden;transition:.2s;
+}
+.rule[open]{border-color:rgba(61,220,245,.35);background:rgba(22,36,58,.9)}
+.rule summary{
+  list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:center;gap:9px;font-weight:800;font-size:.9rem;
+}
+.rule summary::-webkit-details-marker{display:none}
+.rule summary .n{
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;
+  background:rgba(61,220,245,.12);color:var(--cyan);font-size:.76rem;font-weight:900;
+}
+.rule summary .chev{margin-inline-start:auto;color:var(--mu);transition:.2s;font-size:.8rem}
+.rule[open] summary .chev{transform:rotate(180deg)}
+.rule-body{padding:0 14px 14px;font-size:.87rem;color:#dbe4f0}
+.rule-body p{margin-bottom:8px}
+.rule-body b{color:#fff}
+.formula{
+  direction:ltr;text-align:left;font-family:"Consolas",monospace;font-size:.86rem;
+  background:#0a1321;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+  color:var(--lime);margin:8px 0;overflow-x:auto;white-space:pre-wrap;line-height:1.5;
+}
+.ex-list{list-style:none;margin:8px 0}
+.ex-list li{padding:6px 0;border-bottom:1px dashed rgba(45,68,98,.5);font-size:.85rem}
+.ex-list li:last-child{border:0}
+.ex-list .he{display:block;color:var(--mu2);font-size:.76rem;direction:rtl;text-align:right}
+.mistake{
+  background:rgba(255,128,128,.07);border:1px solid rgba(255,128,128,.22);border-radius:10px;
+  padding:9px 11px;margin-top:8px;font-size:.82rem;
+}
+.mistake b{color:var(--red)}
+.hook{
+  background:rgba(255,143,199,.07);border:1px solid rgba(255,143,199,.2);border-radius:10px;
+  padding:9px 11px;margin-top:8px;font-size:.82rem;
+}
+.hook b{color:var(--lime)}
+.pron{color:var(--cyan);font-size:.78rem;font-weight:700}
+
+/* ============ words ============ */
+.word{
+  display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid rgba(45,68,98,.55);
+}
+.word:last-child{border:0}
+.word-main{flex:1;min-width:0}
+.word-en{font-weight:900;font-size:1rem;color:var(--tx);letter-spacing:.2px}
+.word-he{font-size:.8rem;color:var(--mu);margin-inline-start:7px}
+.word-ex{font-size:.78rem;color:var(--mu2);margin-top:2px}
+.word-ex .he{color:var(--mu2);font-size:.72rem;display:block;direction:rtl;text-align:right}
+.mastery{display:flex;gap:3px;flex:none;margin-top:5px}
+.mastery i{width:6px;height:6px;border-radius:50%;background:var(--line2)}
+.mastery i.on{background:var(--lime)}
+.mastery i.mid{background:var(--gold)}
+
+/* ============ exercise ============ */
+.ex-shell{max-width:760px;margin:0 auto}
+.ex-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ex-progress{height:6px;background:rgba(45,68,98,.7);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.ex-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--lime));border-radius:99px;transition:width .4s}
+.ex-card{
+  background:linear-gradient(165deg,rgba(22,36,58,.96),rgba(15,27,44,.96));
+  border:1px solid var(--line2);border-radius:24px;padding:18px;box-shadow:var(--shadow);
+}
+.ex-num{font-size:.72rem;color:var(--mu);font-weight:800;letter-spacing:.5px}
+.ex-q{font-size:1.02rem;font-weight:700;line-height:1.7;margin:8px 0 14px}
+.ex-q b{color:var(--lime)}
+.ex-sentence{
+  direction:ltr;text-align:left;font-size:1.05rem;line-height:1.9;background:#0a1321;border:1px solid var(--line);
+  border-radius:14px;padding:13px 14px;margin:10px 0;font-weight:600;
+}
+.blank{color:var(--lime);font-weight:900;letter-spacing:2px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.opt{
+  display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:12px;text-align:start;
+  background:rgba(12,21,35,.7);border:1px solid var(--line);font-size:.9rem;transition:.15s;width:100%;
+}
+.opt:hover:not(:disabled){border-color:var(--cyan);background:rgba(61,220,245,.06)}
+.opt .k{
+  width:22px;height:22px;border-radius:6px;background:var(--card3);display:grid;place-items:center;
+  font-size:.68rem;font-weight:900;color:var(--mu);flex:none;
+}
+.opt.correct{border-color:rgba(74,222,128,.6);background:rgba(74,222,128,.1)}
+.opt.correct .k{background:var(--green);color:#052012}
+.opt.wrong{border-color:rgba(255,128,128,.6);background:rgba(255,128,128,.09)}
+.opt.wrong .k{background:var(--red);color:#2a0808}
+.opt.dim{opacity:.55}
+.opt .en{font-size:.95rem}
+.input-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.txt{
+  width:100%;padding:12px 14px;border-radius:12px;background:#0a1321;border:1px solid var(--line2);
+  color:var(--tx);font-size:1rem;outline:none;direction:ltr;text-align:left;
+}
+.txt:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(61,220,245,.12)}
+.txt.he{direction:rtl;text-align:right}
+.txt::placeholder{color:var(--mu2);opacity:.7}
+.scr-zone{
+  min-height:56px;border:1px dashed var(--line2);border-radius:12px;padding:9px;display:flex;
+  flex-wrap:wrap;gap:6px;align-content:flex-start;direction:ltr;margin-bottom:8px;background:rgba(10,19,33,.5);
+}
+.tok{
+  padding:7px 11px;border-radius:9px;background:var(--card3);border:1px solid var(--line2);
+  font-size:.9rem;font-weight:700;direction:ltr;transition:.15s;
+}
+.tok:hover{border-color:var(--cyan)}
+.tok.used{opacity:.25;pointer-events:none}
+.tok.in-zone{background:rgba(61,220,245,.14);border-color:rgba(61,220,245,.4)}
+.fb{border-radius:14px;padding:12px 14px;margin-top:14px;font-size:.87rem;animation:fadeUp .25s ease both;scroll-margin-bottom:110px}
+.fb.ok{background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.32)}
+.fb.no{background:rgba(255,128,128,.08);border:1px solid rgba(255,128,128,.3)}
+.fb.info{background:rgba(61,220,245,.07);border:1px solid rgba(61,220,245,.22)}
+.fb.gold{background:rgba(255,201,77,.07);border:1px solid rgba(255,201,77,.25)}
+.fb h4{font-size:.95rem;margin-bottom:4px}
+.fb .why{color:#d5dfec;margin-top:5px;line-height:1.7}
+.fb .rule-link{font-size:.78rem;color:var(--cyan);font-weight:800;margin-top:6px;display:inline-block}
+.fb .answer-line{direction:ltr;text-align:left;background:rgba(8,14,24,.5);padding:7px 10px;border-radius:8px;margin:6px 0;font-weight:700}
+.ex-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.ex-actions .btn.primary{margin-inline-start:auto}
+.hintbox{
+  background:rgba(255,201,77,.06);border:1px solid rgba(255,201,77,.22);border-radius:10px;
+  padding:9px 11px;font-size:.82rem;margin-top:10px;
+}
+.listen-big{
+  display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;
+  background:rgba(61,220,245,.1);border:1px solid rgba(61,220,245,.3);color:var(--cyan);
+  font-weight:800;font-size:.92rem;margin:4px 0 8px;
+}
+.listen-big:hover{background:rgba(61,220,245,.18)}
+.ex-map{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.ex-map button{
+  width:32px;height:32px;border-radius:9px;font-size:.72rem;font-weight:800;
+  background:var(--card2);border:1px solid var(--line);color:var(--mu);
+}
+.ex-map button.done{background:rgba(74,222,128,.13);border-color:rgba(74,222,128,.35);color:var(--green)}
+.ex-map button.cur{outline:2px solid var(--lime);outline-offset:1px;color:var(--lime)}
+.ex-map button.wrong{border-color:rgba(255,201,77,.6);color:var(--gold)}
+.empty{text-align:center;padding:26px 12px;color:var(--mu);font-size:.88rem}
+.empty .big{font-size:2rem;display:block;margin-bottom:6px;opacity:.8}
+
+/* ============ review ============ */
+.rings-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.spiral{position:relative;width:150px;height:150px;flex:none}
+.spiral svg{width:100%;height:100%;transform:rotate(-90deg)}
+.spiral .core{
+  position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1;
+}
+.spiral .core b{font-size:1.5rem;color:var(--lime)}
+.spiral .core span{font-size:.63rem;color:var(--mu);display:block}
+.legend{display:grid;gap:7px;flex:1;min-width:190px}
+.legend-row{display:flex;align-items:center;gap:8px;font-size:.83rem}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.legend-row b{margin-inline-start:auto}
+.due-big{font-size:2.4rem;font-weight:900;color:var(--lime);line-height:1}
+.due-label{font-size:.78rem;color:var(--mu);font-weight:700}
+.upcoming{display:flex;flex-direction:column;gap:0}
+.up-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(45,68,98,.5);font-size:.84rem}
+.up-row:last-child{border:0}
+.up-row .en{font-weight:800}
+.up-row .when{margin-inline-start:auto;font-size:.72rem;color:var(--mu2);white-space:nowrap}
+
+/* ============ chat ============ */
+.chat-shell{
+  display:flex;flex-direction:column;height:calc(100dvh - 190px);min-height:420px;
+  background:rgba(10,19,33,.65);border:1px solid var(--line);border-radius:22px;overflow:hidden;
+}
+.chat-head{
+  display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);
+  background:rgba(22,36,58,.75);flex:none;flex-wrap:wrap;
+}
+.avatar{
+  width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:1.25rem;flex:none;
+  background:linear-gradient(140deg,rgba(255,143,199,.2),rgba(61,220,245,.14));border:1px solid var(--line2);
+}
+.chat-head .who b{display:block;font-size:.9rem;line-height:1.2}
+.chat-head .who span{font-size:.72rem;color:var(--mu)}
+.chat-head .tools{margin-inline-start:auto;display:flex;gap:5px;flex-wrap:wrap}
+.chat-head .tools .iconbtn{width:32px;height:32px}
+.msgs{
+  flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;
+  overscroll-behavior:contain;
+}
+.msg{display:flex;flex-direction:column;max-width:88%;animation:fadeUp .25s ease both}
+.msg.ai{align-self:flex-start;align-items:flex-start}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.bubble{
+  padding:10px 14px;border-radius:16px;font-size:.9rem;line-height:1.65;position:relative;
+}
+.msg.ai .bubble{background:var(--card2);border:1px solid var(--line);border-start-start-radius:5px}
+.msg.me .bubble{background:linear-gradient(135deg,#2b6f8f,#22506b);border:1px solid #357a99;border-start-end-radius:5px;color:#f4fbff}
+.bubble .en{display:block;font-size:.95rem;line-height:1.7}
+.bubble .he-tr{
+  display:none;margin-top:7px;padding-top:7px;border-top:1px dashed rgba(147,164,187,.28);
+  color:var(--mu);font-size:.8rem;line-height:1.6;
+}
+.msg.show-tr .bubble .he-tr{display:block}
+.bubble-actions{display:flex;gap:4px;margin-top:4px;opacity:.75}
+.bubble-actions .iconbtn{width:27px;height:27px;font-size:.75rem;border-radius:8px}
+.corr{
+  background:rgba(255,201,77,.07);border:1px solid rgba(255,201,77,.25);border-radius:12px;
+  padding:9px 11px;margin-top:6px;font-size:.8rem;max-width:100%;
+}
+.corr b{color:var(--gold)}
+.corr .fix{direction:ltr;text-align:left;margin:3px 0;font-size:.83rem}
+.corr .fix s{color:#ff9b9b;opacity:.8}
+.corr .fix em{color:var(--green);font-style:normal;font-weight:800}
+.suggest{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.suggest button{
+  text-align:start;padding:6px 10px;border-radius:10px;background:rgba(255,143,199,.08);
+  border:1px solid rgba(255,143,199,.25);font-size:.78rem;color:#e7f7c8;direction:ltr;
+}
+.suggest button:hover{background:rgba(255,143,199,.16)}
+.typing{display:inline-flex;gap:3px;padding:4px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--mu);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.composer{
+  border-top:1px solid var(--line);padding:9px 11px calc(9px + var(--safe-b));background:rgba(15,27,44,.96);flex:none;
+}
+.composer-tools{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.mini-chip{
+  padding:4px 9px;border-radius:8px;background:rgba(22,36,58,.9);border:1px solid var(--line);
+  font-size:.72rem;color:var(--mu);font-weight:700;
+}
+.mini-chip:hover{color:var(--lime);border-color:rgba(255,143,199,.35)}
+.composer-row{display:flex;gap:7px;align-items:flex-end}
+.composer textarea{
+  flex:1;resize:none;min-height:44px;max-height:120px;padding:11px 13px;border-radius:14px;
+  background:#0a1321;border:1px solid var(--line2);font-size:.92rem;line-height:1.5;outline:none;
+  direction:ltr;text-align:left;
+}
+.composer textarea:focus{border-color:var(--cyan)}
+.mic-btn{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.1rem;flex:none;
+  background:rgba(61,220,245,.1);border:1px solid rgba(61,220,245,.3);
+}
+.mic-btn.rec{background:rgba(255,128,128,.18);border-color:var(--red);animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,128,128,.35)}50%{box-shadow:0 0 0 9px rgba(255,128,128,0)}}
+.send-btn{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.15rem;flex:none;
+  background:linear-gradient(135deg,var(--lime),var(--lime-d));color:#2a0a1c;font-weight:900;
+}
+.send-btn:disabled{opacity:.4}
+.scenario-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:560px){.scenario-grid{grid-template-columns:1fr}}
+.scenario{
+  text-align:start;padding:14px;border-radius:16px;border:1px solid var(--line);
+  background:rgba(17,29,47,.8);transition:.16s;position:relative;overflow:hidden;
+}
+.scenario:hover{border-color:rgba(255,143,199,.45);transform:translateY(-2px)}
+.scenario .ic{font-size:1.5rem}
+.scenario b{display:block;font-size:.92rem;margin-top:4px}
+.scenario p{font-size:.76rem;color:var(--mu);margin-top:3px;line-height:1.5}
+.scenario .meta{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.scenario .start{margin-top:9px;font-size:.75rem;color:var(--lime);font-weight:800}
+.chat-note{font-size:.75rem;color:var(--mu2);padding:7px 11px;background:rgba(255,201,77,.05);border-bottom:1px solid rgba(255,201,77,.14)}
+.chat-note b{color:var(--gold)}
+.chat-summary{max-width:760px;margin:0 auto}
+
+/* ============ stats ============ */
+.stat-big{font-size:1.6rem;font-weight:900;line-height:1.1}
+.stat-big small{font-size:.72rem;color:var(--mu);font-weight:700}
+.skill-row{margin-bottom:11px}
+.skill-top{display:flex;align-items:center;gap:8px;font-size:.83rem;margin-bottom:4px}
+.skill-top b{margin-inline-start:auto;font-size:.78rem;color:var(--mu)}
+.week-chart{display:flex;align-items:flex-end;gap:7px;height:110px;padding-top:8px}
+.week-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.week-bar i{
+  width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--lime),rgba(255,143,199,.25));
+  min-height:3px;transition:height .5s;
+}
+.week-bar.today i{background:linear-gradient(180deg,var(--cyan),rgba(61,220,245,.25))}
+.week-bar span{font-size:.62rem;color:var(--mu2)}
+.week-bar b{font-size:.66rem;color:var(--mu)}
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+@media(max-width:560px){.badge-grid{grid-template-columns:repeat(2,1fr)}}
+.badge{
+  padding:11px 8px;border-radius:14px;text-align:center;background:rgba(17,29,47,.75);
+  border:1px solid var(--line);opacity:.45;filter:grayscale(1);
+}
+.badge.on{opacity:1;filter:none;border-color:rgba(255,143,199,.3);background:rgba(255,143,199,.05)}
+.badge .ic{font-size:1.35rem;display:block}
+.badge b{font-size:.72rem;display:block;margin-top:3px}
+.badge span{font-size:.62rem;color:var(--mu2)}
+
+/* ============ modals / toast ============ */
+.overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(4,8,14,.74);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeUp .18s ease both;
+}
+.overlay[hidden]{display:none}
+.modal{
+  width:100%;max-width:560px;max-height:88vh;overflow-y:auto;background:linear-gradient(165deg,#16243a,#0e1929);
+  border:1px solid var(--line2);border-radius:24px;padding:20px;box-shadow:0 30px 80px -20px #000;position:relative;
+}
+.modal h3{font-size:1.1rem;font-weight:900;margin-bottom:6px}
+.modal .x{
+  position:absolute;top:12px;inset-inline-end:12px;width:32px;height:32px;border-radius:10px;
+  background:var(--card3);display:grid;place-items:center;
+}
+.field{margin-top:12px}
+.field label{display:block;font-size:.8rem;font-weight:800;margin-bottom:5px;color:#dbe4f0}
+.field .help{font-size:.72rem;color:var(--mu2);margin-top:4px;line-height:1.55}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 12px;border-radius:11px;background:#0a1321;border:1px solid var(--line2);
+  color:var(--tx);outline:none;font-size:.9rem;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan)}
+.field input.ltr,.field textarea.ltr{direction:ltr;text-align:left}
+.radio-row{display:flex;flex-direction:column;gap:7px}
+.radio-opt{
+  display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(10,19,33,.5);cursor:pointer;font-size:.83rem;
+}
+.radio-opt:has(input:checked){border-color:rgba(255,143,199,.45);background:rgba(255,143,199,.05)}
+.radio-opt input{margin-top:3px;accent-color:var(--lime)}
+.radio-opt b{display:block;font-size:.85rem}
+.radio-opt span{color:var(--mu);font-size:.74rem}
+.status{font-size:.8rem;margin-top:8px;padding:8px 10px;border-radius:9px}
+.status.ok{background:rgba(74,222,128,.1);color:#b6f7cb;border:1px solid rgba(74,222,128,.3)}
+.status.bad{background:rgba(255,128,128,.1);color:#ffc4c4;border:1px solid rgba(255,128,128,.3)}
+#toast{
+  position:fixed;bottom:calc(98px + var(--safe-b));left:50%;transform:translate(-50%,20px);
+  z-index:200;background:#e9f7c8;color:#132004;padding:9px 17px;border-radius:99px;font-weight:800;
+  font-size:.82rem;box-shadow:0 15px 35px -12px #000;opacity:0;pointer-events:none;transition:.28s;max-width:90vw;
+  text-align:center;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.conf{position:fixed;top:-20px;font-size:1.2rem;z-index:300;pointer-events:none;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(320deg);opacity:.1}}
+.xpfloat{
+  position:fixed;z-index:210;font-weight:900;color:var(--lime);font-size:1rem;pointer-events:none;
+  animation:xpup 1s ease-out forwards;text-shadow:0 2px 12px #000;
+}
+@keyframes xpup{from{opacity:0;transform:translateY(10px) scale(.8)}30%{opacity:1}to{opacity:0;transform:translateY(-45px) scale(1.1)}}
+
+/* ============ bottom nav ============ */
+.bottomnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:70;padding:7px 10px calc(7px + var(--safe-b));
+  background:rgba(8,14,24,.92);backdrop-filter:blur(20px);border-top:1px solid var(--line);
+}
+.bottomnav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.navbtn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border-radius:12px;
+  color:var(--mu);font-size:.62rem;font-weight:800;transition:.15s;position:relative;
+}
+.navbtn .ic{font-size:1.15rem;line-height:1.2;filter:grayscale(.4);opacity:.85}
+.navbtn.active{color:var(--lime);background:rgba(255,143,199,.07)}
+.navbtn.active .ic{filter:none;opacity:1}
+.navbtn .dot{
+  position:absolute;top:5px;inset-inline-end:calc(50% - 16px);width:7px;height:7px;border-radius:50%;
+  background:var(--red);border:1px solid var(--bg);
+}
+@media(min-width:900px){
+  .bottomnav{max-width:620px;margin:0 auto 12px;border:1px solid var(--line);border-radius:20px;bottom:8px;background:rgba(12,21,35,.94)}
+}
+
+/* ============ exam ============ */
+.exam-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.timer{
+  padding:6px 12px;border-radius:99px;background:rgba(255,201,77,.1);border:1px solid rgba(255,201,77,.3);
+  color:var(--gold);font-weight:900;font-size:.85rem;font-variant-numeric:tabular-nums;
+}
+.timer.low{color:var(--red);border-color:rgba(255,128,128,.4);background:rgba(255,128,128,.1)}
+.result-hero{text-align:center;padding:26px 16px}
+.result-score{font-size:4rem;font-weight:900;line-height:1;color:var(--lime)}
+.result-hero h2{font-size:1.3rem;margin:8px 0 4px}
+.cert{
+  border:1px dashed rgba(255,201,77,.5);border-radius:18px;padding:16px;text-align:center;
+  background:linear-gradient(135deg,rgba(255,201,77,.07),transparent);margin-top:14px;
+}
+.cert .seal{font-size:2rem}
+.cert b{display:block;font-size:1.05rem;color:var(--gold)}
+.cert span{font-size:.78rem;color:var(--mu)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <div class="brand-mark">💃</div>
+        <div class="brand-txt"><b>Gefen English</b><span>DANCE & FRIENDS</span></div>
+      </div>
+      <div class="hstats">
+        <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
+        <div class="hpill" title="נקודות ניסיון">⭐ <b id="h-xp">0</b></div>
+        <button class="hbtn" id="btn-sound" data-act="toggle-sound" title="צליל" aria-label="הפעלת או כיבוי צליל">🔊</button>
+        <button class="hbtn" id="btn-settings" data-act="settings" title="הגדרות" aria-label="הגדרות">⚙️</button>
+      </div>
+    </div>
+  </header>
+  <main id="main" class="main"></main>
+  <nav class="bottomnav" aria-label="ניווט ראשי">
+    <div class="bottomnav-in">
+      <button class="navbtn" data-nav="home"><span class="ic">🏠</span><span>בית</span></button>
+      <button class="navbtn" data-nav="learn"><span class="ic">📚</span><span>מסלול</span></button>
+      <button class="navbtn" data-nav="review"><span class="ic">🔁</span><span>חזרה</span><span class="dot hide" id="nav-dot-review"></span></button>
+      <button class="navbtn" data-nav="chat"><span class="ic">💬</span><span>מאמנת AI</span></button>
+      <button class="navbtn" data-nav="stats"><span class="ic">📈</span><span>התקדמות</span></button>
+    </div>
+  </nav>
+</div>
+<div id="overlay" class="overlay" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><div style="padding:30px;text-align:center">האפליקציה צריכה JavaScript. אנא הפעל אותו בדפדפן.</div></noscript>
+<script>
+/* ============================================================
+   GEFEN ENGLISH COACH — curriculum (4 units) · dance & friends
+   Level: A1 → A1+ (continues from "to be" and pronouns)
+   ============================================================ */
+const UNITS = [
+{
+  id:'u1', n:1, icon:'🤝', color:'pink', cefr:'A1',
+  title:'Be – Questions', he:'מכירות חברות חדשות',
+  lead:'את כבר יודעת am / is / are. עכשיו לומדות לשאול שאלות – כדי להכיר חברות חדשות ולדבר על הסטודיו.',
+  canDo:['לשאול "האם את רקדנית?"','לענות בקצרה: Yes, I am / No, she isn\'t','לשאול איפה ומי: Where is…? Who is…?'],
+  fact:'כשרוקדים ביחד, המוח משחרר חומר שנקרא אוקסיטוצין – "הורמון החברות". לכן קל כל כך להתיידד בחוג ריקוד!',
+  rules:[
+    {id:'be-q', title:'שאלה עם Be – הפועל קופץ לפני הנושא', short:'Am / Is / Are + נושא ?',
+     formula:'She is a dancer.  →  Is she a dancer?\nYou are my friend.  →  Are you my friend?',
+     body:`באנגלית שואלים בלי מילת שאלה: פשוט <b>מחליפים מקום</b>. am / is / are עוברים להתחלה, והנושא אחריהם. תשובה קצרה: <b>Yes, she is.</b> או <b>No, she isn't.</b>`,
+     examples:[{en:'Is she a dancer?',he:'האם היא רקדנית?'},{en:'Are you and Dana friends?',he:'האם את ודנה חברות?'},{en:"No, we aren't.",he:'לא, אנחנו לא.'}],
+     mistake:'You are a dancer? → <b>Are you</b> a dancer?',
+     hook:'am / is / are הם כמו רקדנית ראשית – בשאלה הם נכנסים ראשונים לבמה.'},
+    {id:'be-wh', title:'Where / Who – מילות שאלה', short:'Where / Who + is / are',
+     formula:'Where + is / are + נושא ?\nWho + is / are + נושא ?',
+     body:`<b>Where</b> = איפה, <b>Who</b> = מי. מילת השאלה באה ראשונה, ואחריה am / is / are, ואז הנושא. אחד → <b>is</b>, יותר מאחד → <b>are</b>.`,
+     examples:[{en:'Where is the studio?',he:'איפה הסטודיו?'},{en:'Who is your best friend?',he:'מי החברה הכי טובה שלך?'},{en:'Where are my shoes?',he:'איפה הנעליים שלי?'}],
+     mistake:'Where <b>are</b> the studio? → Where <b>is</b> the studio?',
+     hook:'שואלים "איפה?" – מחפשים מקום. שואלים "מי?" – מחפשים אדם.'}
+  ],
+  words:[
+    {en:'friend',he:'חברה / חבר',pron:'FREND',ex:'She is my best friend.',exHe:'היא החברה הכי טובה שלי.'},
+    {en:'dancer',he:'רקדנית',pron:'DAN-ser',ex:'My sister is a dancer.',exHe:'אחותי רקדנית.'},
+    {en:'music',he:'מוזיקה',pron:'MYOO-zik',ex:'I love music.',exHe:'אני אוהבת מוזיקה.'},
+    {en:'studio',he:'סטודיו',pron:'STOO-dee-oh',ex:'The dance studio is big.',exHe:'סטודיו הריקוד גדול.'},
+    {en:'kind',he:'נחמדה / אדיבה',pron:'KAYND',ex:'My friend is kind.',exHe:'החברה שלי אדיבה.'},
+    {en:'funny',he:'מצחיקה',pron:'FUN-ee',ex:'Dana is funny.',exHe:'דנה מצחיקה.'},
+    {en:'together',he:'ביחד',pron:'too-GETH-er',ex:'We are together.',exHe:'אנחנו ביחד.'},
+    {en:'teacher',he:'מורה',pron:'TEE-cher',ex:'The teacher is nice.',exHe:'המורה נחמדה.'},
+    {en:'party',he:'מסיבה',pron:'PAR-tee',ex:'The party is on Friday.',exHe:'המסיבה ביום שישי.'},
+    {en:'new',he:'חדשה',pron:'NYOO',ex:'She is a new friend.',exHe:'היא חברה חדשה.',skipGap:true}
+  ],
+  grammar:[
+    {t:'mcq',id:'u1.x1',skill:'grammar',rule:'be-q',q:'___ she your best friend?',opts:['Is','Are','Am'],ans:'Is',why:'she = אחת, ולכן שואלים עם Is.',hint:'she הולכת עם is.'},
+    {t:'mcq',id:'u1.x2',skill:'grammar',rule:'be-q',q:'___ you a dancer?',opts:['Are','Is','Am'],ans:'Are',why:'you הולך תמיד עם are.',hint:'you → are.'},
+    {t:'type',id:'u1.x3',skill:'grammar',rule:'be-q',q:'תרגמי: "האם היא רקדנית?"',ans:['Is she a dancer'],why:'is עובר לפני she: Is she a dancer?',hint:'Is + she + a dancer.'},
+    {t:'scr',id:'u1.x4',skill:'grammar',rule:'be-q',q:'בני את השאלה: האם את בסטודיו?',sentence:'Are you at the studio?',why:'Are מתחיל, ואחריו you.',hint:'מתחילים ב-Are.'},
+    {t:'mcq',id:'u1.x5',skill:'grammar',rule:'be-wh',q:'Where ___ your dance shoes?',opts:['are','is','am'],ans:'are',why:'shoes = כמה, ולכן are.',hint:'נעליים = יותר מאחת.'},
+    {t:'type',id:'u1.x6',skill:'grammar',rule:'be-wh',q:'השלימי: ___ is your teacher? (מי)',ans:['Who'],why:'מי = Who.',hint:'מתחילה ב-W.'},
+    {t:'mcq',id:'u1.x7',skill:'grammar',rule:'be-q',q:'איזה משפט נכון?',opts:['Is she a dancer?','She is a dancer?','Does she a dancer?'],ans:'Is she a dancer?',why:'בשאלה am/is/are קופץ להתחלה.',hint:'מי בא ראשון?'}
+  ]
+},
+{
+  id:'u2', n:2, icon:'🎀', color:'purple', cefr:'A1',
+  title:'have / has', he:'מה יש לי בתיק של הריקוד',
+  lead:'באנגלית אומרים "אני מחזיקה" במקום "יש לי". לומדות מתי have ומתי has, ואיך אומרים "אין לי".',
+  canDo:['לספר מה יש לך: I have…','לספר מה יש לחברה: She has…','לומר מה אין: She doesn\'t have…'],
+  fact:'נעלי בלט מיוחדות נקראות "פוינט". רקדניות מקצועיות מחליפות זוג חדש אחרי כמה ימי ריקוד בלבד!',
+  rules:[
+    {id:'have-has', title:'have או has?', short:'I / you / we / they + have · he / she / it + has',
+     formula:'I / you / we / they  +  have\nhe / she / it  +  has',
+     body:`<b>have</b> = יש ל… עם I, you, we, they. עם <b>he, she, it</b> (או שם של אחת) אומרים <b>has</b>. זה כמו am ו-is: הפועל משתנה לפי מי מדבר.`,
+     examples:[{en:'I have a new dress.',he:'יש לי שמלה חדשה.'},{en:'She has ballet shoes.',he:'יש לה נעלי בלט.'},{en:'We have a secret.',he:'יש לנו סוד.'}],
+     mistake:'She <b>have</b> a phone. → She <b>has</b> a phone.',
+     hook:'has מתחבר רק לבנות ולבנים יחידים: she has, he has, it has.'},
+    {id:'have-neg', title:'אין לי – don\'t / doesn\'t have', short:"don't / doesn't + have",
+     formula:"I / you / we / they  +  don't have\nhe / she / it  +  doesn't have",
+     body:`כדי לומר "אין", מוסיפים <b>don't</b> (עם I, you, we, they) או <b>doesn't</b> (עם he, she, it). אחרי doesn't חוזרים ל-<b>have</b> – בלי s.`,
+     examples:[{en:"I don't have a ticket.",he:'אין לי כרטיס.'},{en:"She doesn't have a camera.",he:'אין לה מצלמה.'},{en:"We don't have time.",he:'אין לנו זמן.'}],
+     mistake:"She doesn't <b>has</b> a bag. → She doesn't <b>have</b> a bag.",
+     hook:"doesn't לוקחת את ה-s, ולכן אחריה רק have."}
+  ],
+  words:[
+    {en:'dress',he:'שמלה',pron:'DRES',ex:'I have a new dress.',exHe:'יש לי שמלה חדשה.'},
+    {en:'shoes',he:'נעליים',pron:'SHOOZ',ex:'She has dance shoes.',exHe:'יש לה נעלי ריקוד.'},
+    {en:'ticket',he:'כרטיס',pron:'TIK-it',ex:'We have a ticket.',exHe:'יש לנו כרטיס.'},
+    {en:'phone',he:'טלפון',pron:'FOHN',ex:'My friend has a phone.',exHe:'לחברה שלי יש טלפון.'},
+    {en:'picture',he:'תמונה',pron:'PIK-cher',ex:'I have a picture of us.',exHe:'יש לי תמונה שלנו.'},
+    {en:'costume',he:'תלבושת',pron:'KOS-tyoom',ex:'She has a red costume.',exHe:'יש לה תלבושת אדומה.'},
+    {en:'ballet',he:'בלט',pron:'BAL-ay',ex:'I have ballet on Monday.',exHe:'יש לי בלט ביום שני.'},
+    {en:'camera',he:'מצלמה',pron:'KAM-ra',ex:'They have a camera.',exHe:'יש להן מצלמה.'},
+    {en:'secret',he:'סוד',pron:'SEE-krit',ex:'We have a secret.',exHe:'יש לנו סוד.'},
+    {en:'sister',he:'אחות',pron:'SIS-ter',ex:'I have a sister.',exHe:'יש לי אחות.'}
+  ],
+  grammar:[
+    {t:'mcq',id:'u2.x1',skill:'grammar',rule:'have-has',q:'I ___ a new dress.',opts:['have','has','having'],ans:'have',why:'I → have.',hint:'I הולכת עם have.'},
+    {t:'mcq',id:'u2.x2',skill:'grammar',rule:'have-has',q:'She ___ ballet shoes.',opts:['has','have','is'],ans:'has',why:'she → has.',hint:'she + has.'},
+    {t:'mcq',id:'u2.x3',skill:'grammar',rule:'have-has',q:'Dana and I ___ a secret.',opts:['have','has','are'],ans:'have',why:'Dana and I = we → have.',hint:'Dana and I = we.'},
+    {t:'type',id:'u2.x4',skill:'grammar',rule:'have-has',q:'תרגמי: "יש לי חברה טובה"',ans:['I have a good friend','I have a best friend'],why:'I have + a good friend.',hint:'I have…'},
+    {t:'scr',id:'u2.x5',skill:'grammar',rule:'have-has',q:'בני את המשפט: יש לה טלפון חדש.',sentence:'She has a new phone.',why:'she → has.',hint:'מתחילים ב-She.'},
+    {t:'mcq',id:'u2.x6',skill:'grammar',rule:'have-neg',q:'She ___ a camera.',opts:["doesn't have","don't have","doesn't has"],ans:"doesn't have",why:"she → doesn't, ואחריה have בלי s.",hint:"doesn't לוקחת את ה-s."},
+    {t:'type',id:'u2.x7',skill:'grammar',rule:'have-has',q:'השלימי: My friend ___ (have) a picture of us.',ans:['has'],why:'My friend = she → has.',hint:'my friend = she.'}
+  ]
+},
+{
+  id:'u3', n:3, icon:'💃', color:'cyan', cefr:'A1+',
+  title:'can · like + ing', he:'מה אני יודעת ואוהבת לעשות',
+  lead:'לומדות לספר מה את יודעת לעשות (I can dance) ומה את אוהבת (I love dancing).',
+  canDo:['לומר מה אפשר: I can spin','לומר מה אי אפשר: I can\'t swim','לספר על תחביבים: I love singing'],
+  fact:'ריקוד הוא אחד התרגילים הכי מהנים לגוף: שעה של ריקוד שורפת כמו ריצה קלה – וגם משפרת מצב רוח!',
+  rules:[
+    {id:'can-form', title:'can – אני יכולה', short:'can / can\'t + פועל בסיס',
+     formula:"Subject  +  can / can't  +  verb\nCan  +  subject  +  verb ?",
+     body:`<b>can</b> = יכולה / יודעת. אחריו בא פועל רגיל <b>בלי s ובלי to</b>, לכל נושא. שלילה: <b>can't</b>. שאלה: <b>Can</b> קופץ להתחלה.`,
+     examples:[{en:'I can spin very fast.',he:'אני יודעת להסתובב מהר מאוד.'},{en:"She can't swim.",he:'היא לא יודעת לשחות.'},{en:'Can you dance?',he:'את יודעת לרקוד?'}],
+     mistake:'She <b>cans</b> sing. → She <b>can</b> sing. · I can <b>to</b> dance. → I can dance.',
+     hook:'can הוא "חלק מילה" – הוא לא משתנה בכלל, לא מוסיפים לו s.'},
+    {id:'like-ing', title:'like / love + ing', short:'like / love + פועל + ing',
+     formula:'I like / love  +  verb + ing',
+     body:`כשמספרים מה אוהבים לעשות, מוסיפים <b>ing</b> לפועל שאחרי like / love. עם he / she / it: <b>likes / loves</b>.`,
+     examples:[{en:'I love dancing.',he:'אני אוהבת לרקוד.'},{en:'She likes singing.',he:'היא אוהבת לשיר.'},{en:'We like jumping.',he:'אנחנו אוהבות לקפוץ.'}],
+     mistake:'I love <b>dance</b> with my friends. → I love <b>dancing</b> with my friends.',
+     hook:'ing הוא ההפיכה של פועל ל"דבר שאוהבים לעשות".'}
+  ],
+  words:[
+    {en:'sing',he:'לשיר',pron:'SING',ex:'I can sing.',exHe:'אני יודעת לשיר.'},
+    {en:'jump',he:'לקפוץ',pron:'JUMP',ex:'She can jump high.',exHe:'היא יודעת לקפוץ גבוה.'},
+    {en:'spin',he:'להסתובב',pron:'SPIN',ex:'I can spin fast.',exHe:'אני יודעת להסתובב מהר.'},
+    {en:'clap',he:'למחוא כפיים',pron:'KLAP',ex:'We clap to the music.',exHe:'אנחנו מוחאות כפיים למוזיקה.'},
+    {en:'smile',he:'לחייך',pron:'SMAYL',ex:'I smile when I dance.',exHe:'אני מחייכת כשאני רוקדת.'},
+    {en:'stage',he:'במה',pron:'STEYJ',ex:'She is on the stage.',exHe:'היא על הבמה.'},
+    {en:'step',he:'צעד',pron:'STEP',ex:'This step is easy.',exHe:'הצעד הזה קל.'},
+    {en:'song',he:'שיר',pron:'SONG',ex:'I love this song.',exHe:'אני אוהבת את השיר הזה.'},
+    {en:'move',he:'לזוז',pron:'MOOV',ex:'We can move together.',exHe:'אנחנו יכולות לזוז ביחד.'},
+    {en:'learn',he:'ללמוד',pron:'LURN',ex:'I learn a new dance.',exHe:'אני לומדת ריקוד חדש.'}
+  ],
+  grammar:[
+    {t:'mcq',id:'u3.x1',skill:'grammar',rule:'can-form',q:'She can ___ very fast.',opts:['spin','spins','spinning'],ans:'spin',why:'אחרי can – פועל בסיס, בלי s.',hint:'can לא משתנה.'},
+    {t:'mcq',id:'u3.x2',skill:'grammar',rule:'can-form',q:'Can she jump high? Yes, she ___.',opts:['can','is','does'],ans:'can',why:'עונים עם אותו עוזר: Yes, she can.',hint:'השאלה התחילה ב-Can.'},
+    {t:'type',id:'u3.x3',skill:'grammar',rule:'like-ing',q:'תרגמי: "אני אוהבת לרקוד"',ans:['I love dancing','I like dancing'],why:'love / like + dancing.',hint:'I love + dance + ing.'},
+    {t:'mcq',id:'u3.x4',skill:'grammar',rule:'like-ing',q:'I love ___ with my friends.',opts:['dancing','dance','dances'],ans:'dancing',why:'אחרי love – פועל עם ing.',hint:'צריך ing.'},
+    {t:'scr',id:'u3.x5',skill:'grammar',rule:'can-form',q:'בני את המשפט: אנחנו יכולות לשיר ביחד.',sentence:'We can sing together.',why:'We + can + sing + together.',hint:'מתחילים ב-We.'},
+    {t:'mcq',id:'u3.x6',skill:'grammar',rule:'can-form',q:'איזה משפט נכון?',opts:['She can sing.','She cans sing.','She can sings.'],ans:'She can sing.',why:'can בלי s, והפועל אחריו בלי s.',hint:'שתי ה-s מיותרות.'},
+    {t:'type',id:'u3.x7',skill:'grammar',rule:'like-ing',q:'השלימי: I like ___ (jump) on the stage.',ans:['jumping'],why:'like + jumping.',hint:'jump + ing.'}
+  ]
+},
+{
+  id:'u4', n:4, icon:'🗓️', color:'gold', cefr:'A1+',
+  title:'Present Simple – my week', he:'השבוע שלי עם הריקוד',
+  lead:'לומדות לספר על שגרה: מה עושים כל יום ובסוף השבוע. עם he / she נוסף s.',
+  canDo:['לספר על שגרה: I dance every day','לספר על חברה: She dances on Monday','להשתמש ב-always / sometimes'],
+  fact:'רקדנית מקצועית מתאמנת כמעט כל יום. אבל גם 15 דקות ביום מספיקות כדי להשתפר – באנגלית וגם בריקוד!',
+  rules:[
+    {id:'ps-base', title:'שגרה עם I / you / we / they', short:'I / you / we / they + פועל',
+     formula:'I / you / we / they  +  verb',
+     body:`כדי לספר על מה שקורה <b>כל יום</b>, משתמשים בפועל הבסיסי. עם <b>I, you, we, they</b> הפועל לא משתנה בכלל. מילות זמן: <b>every day</b>, <b>on Monday</b>, <b>after school</b>.`,
+     examples:[{en:'I practice every day.',he:'אני מתאמנת כל יום.'},{en:'We meet after school.',he:'אנחנו נפגשות אחרי בית ספר.'},{en:'They listen to music.',he:'הן מקשיבות למוזיקה.'}],
+     mistake:'I <b>am</b> practice every day. → I practice every day.',
+     hook:'בלי am ובלי is – הפועל לבד מספיק.'},
+    {id:'ps-s', title:'he / she מקבלות s', short:'he / she / it + פועל + s',
+     formula:'he / she / it  +  verb + s',
+     body:`כשהנושא הוא <b>he, she, it</b> (או שם של אחת), מוסיפים <b>s</b> לפועל: dance → dances. פועלים מיוחדים: <b>go → goes</b>, <b>watch → watches</b>.`,
+     examples:[{en:'Dana dances every day.',he:'דנה רוקדת כל יום.'},{en:'She meets her friends on Friday.',he:'היא פוגשת את החברות שלה ביום שישי.'},{en:'My sister goes to ballet.',he:'אחותי הולכת לבלט.'}],
+     mistake:'She <b>dance</b> every day. → She <b>dances</b> every day.',
+     hook:'s היא כמו סרט של כוכבת: רק she / he / it מקבלות אותו.'}
+  ],
+  words:[
+    {en:'practice',he:'להתאמן',pron:'PRAK-tis',ex:'We practice every day.',exHe:'אנחנו מתאמנות כל יום.'},
+    {en:'class',he:'שיעור / חוג',pron:'KLAS',ex:'She has a dance class.',exHe:'יש לה חוג ריקוד.'},
+    {en:'lesson',he:'שיעור',pron:'LES-en',ex:'The lesson starts at four.',exHe:'השיעור מתחיל בארבע.'},
+    {en:'weekend',he:'סוף שבוע',pron:'WEEK-end',ex:'We dance on the weekend.',exHe:'אנחנו רוקדות בסוף השבוע.'},
+    {en:'always',he:'תמיד',pron:'AWL-weyz',ex:'I always smile on stage.',exHe:'אני תמיד מחייכת על הבמה.'},
+    {en:'sometimes',he:'לפעמים',pron:'SUM-taymz',ex:'We sometimes watch videos.',exHe:'לפעמים אנחנו רואות סרטונים.'},
+    {en:'listen',he:'להקשיב',pron:'LIS-en',ex:'I listen to music.',exHe:'אני מקשיבה למוזיקה.'},
+    {en:'wear',he:'ללבוש',pron:'WER',ex:'She wears a pink dress.',exHe:'היא לובשת שמלה ורודה.'},
+    {en:'meet',he:'להיפגש',pron:'MEET',ex:'We meet at the studio.',exHe:'אנחנו נפגשות בסטודיו.'},
+    {en:'watch',he:'לצפות',pron:'WOCH',ex:'I watch dance videos.',exHe:'אני צופה בסרטוני ריקוד.'}
+  ],
+  grammar:[
+    {t:'mcq',id:'u4.x1',skill:'grammar',rule:'ps-s',q:'My friend ___ in a dance class.',opts:['dances','dance','dancing'],ans:'dances',why:'My friend = she → dances.',hint:'she מקבלת s.'},
+    {t:'mcq',id:'u4.x2',skill:'grammar',rule:'ps-base',q:'We ___ together every Friday.',opts:['practice','practices','are practice'],ans:'practice',why:'we → פועל בסיס.',hint:'we לא מקבלת s.'},
+    {t:'type',id:'u4.x3',skill:'grammar',rule:'ps-s',q:'השלימי: She ___ (like) pop music.',ans:['likes'],why:'she → likes.',hint:'like + s.'},
+    {t:'scr',id:'u4.x4',skill:'grammar',rule:'ps-base',q:'בני את המשפט: אני מתאמנת עם חברות כל יום.',sentence:'I practice with my friends every day.',why:'I + practice + with my friends + every day.',hint:'מתחילים ב-I.'},
+    {t:'mcq',id:'u4.x5',skill:'grammar',rule:'ps-base',q:'I ___ to music after school.',opts:['listen','listens','listening'],ans:'listen',why:'I → listen.',hint:'I בלי s.'},
+    {t:'type',id:'u4.x6',skill:'grammar',rule:'ps-s',q:'תרגמי: "היא רוקדת כל יום"',ans:['She dances every day'],why:'she → dances.',hint:'She dance+s…'},
+    {t:'mcq',id:'u4.x7',skill:'grammar',rule:'ps-s',q:'איזה משפט נכון?',opts:['She meets her friends on Friday.','She meet her friends on Friday.','She is meet her friends on Friday.'],ans:'She meets her friends on Friday.',why:'she → meets, ובלי is.',hint:'she מקבלת s, ובלי is.'}
+  ]
+}
+];
+/* ============================================================
+   Conversation scenarios
+   ============================================================ */
+const SCENARIOS = [
+{
+  id:'newfriend', icon:'🤝', title:'חברה חדשה בכיתה', en:'A new friend',
+  who:'Lily', role:'חברה חדשה בכיתה', level:'A1', focus:'Be questions', unit:'u1',
+  desc:'ליילי חדשה בכיתה. שאלי אותה שאלות והכירו אחת את השנייה.',
+  opening:"Hi Gefen! I am Lily. I am new in your class. Are you a dancer?",
+  openingHe:'היי גפן! אני לילי. אני חדשה בכיתה שלך. את רקדנית?',
+  startWords:[{en:'new',he:'חדשה'},{en:'friend',he:'חברה'}],
+  steps:[
+    {bot:"Cool! I like music too. What is your favourite song?",he:'מגניב! גם אני אוהבת מוזיקה. מה השיר האהוב עליך?',suggestions:['My favourite song is a pop song.','I love music from the radio.','I like many songs.']},
+    {bot:"Nice! Is Dana your best friend?",he:'יפה! האם דנה החברה הכי טובה שלך?',suggestions:['Yes, she is my best friend.',"No, she isn't. Mia is my best friend.",'Yes, she is. She is funny.']},
+    {bot:"Where is the dance studio?",he:'איפה סטודיו הריקוד?',suggestions:['The studio is near my school.','It is next to the park.','It is in my town.']}
+  ],
+  more:['Are you happy today?','Who is your teacher?','Is your school big?'],
+  words:[{en:'new',he:'חדשה'},{en:'favourite',he:'אהוב'},{en:'funny',he:'מצחיקה'}]
+},
+{
+  id:'studio', icon:'💃', title:'בסטודיו לריקוד', en:'At the dance studio',
+  who:'Ms. Noa', role:'מורה לריקוד', level:'A1', focus:'can + like', unit:'u3',
+  desc:'המורה נועה שואלת מה את יודעת לרקוד ומה את אוהבת.',
+  opening:"Welcome to the dance studio, Gefen! I am Ms. Noa. Can you spin?",
+  openingHe:'ברוכה הבאה לסטודיו, גפן! אני המורה נועה. את יודעת להסתובב?',
+  startWords:[{en:'spin',he:'להסתובב'},{en:'stage',he:'במה'}],
+  steps:[
+    {bot:"Great! What do you love doing in class?",he:'נהדר! מה את אוהבת לעשות בשיעור?',suggestions:['I love dancing with my friends.','I like jumping and spinning.','I love learning new steps.']},
+    {bot:"Can you jump high?",he:'את יודעת לקפוץ גבוה?',suggestions:['Yes, I can jump high.',"No, I can't. But I can try!",'Yes, I can. I love jumping.']},
+    {bot:"What music do you like?",he:'איזו מוזיקה את אוהבת?',suggestions:['I like pop music.','I love songs with a fast beat.','I like music from movies.']}
+  ],
+  more:['Can you clap to the music?','Do you like the stage?','Can you smile and dance?'],
+  words:[{en:'step',he:'צעד'},{en:'jump',he:'לקפוץ'},{en:'clap',he:'למחוא כפיים'}]
+},
+{
+  id:'party', icon:'🎂', title:'מסיבת יום הולדת', en:'Birthday party',
+  who:'Maya', role:'החברה הכי טובה', level:'A1', focus:'have / has', unit:'u2',
+  desc:'מאיה מזמינה אותך למסיבה. מה יש לך ללבוש ולהביא?',
+  opening:"Hi Gefen! My birthday party is on Friday! Do you have a dress for the party?",
+  openingHe:'היי גפן! מסיבת יום ההולדת שלי ביום שישי! יש לך שמלה למסיבה?',
+  startWords:[{en:'party',he:'מסיבה'},{en:'dress',he:'שמלה'}],
+  steps:[
+    {bot:"Cool! What colour is your dress?",he:'מגניב! באיזה צבע השמלה שלך?',suggestions:['My dress is pink.','I have a blue dress.','My dress is red and white.']},
+    {bot:"Dana has a camera. Do you have a camera too?",he:'לדנה יש מצלמה. גם לך יש?',suggestions:["No, I don't have a camera.",'Yes, I have a camera.','I have a phone.']},
+    {bot:"We have a secret song for the party! Do you like it?",he:'יש לנו שיר סודי למסיבה! את אוהבת אותו?',suggestions:['Yes, I love it!','I like it. It is fun.','I love dancing to it.']}
+  ],
+  more:['Do you have a sister?','Who is at the party?','Do you have a gift?'],
+  words:[{en:'secret',he:'סוד'},{en:'camera',he:'מצלמה'},{en:'gift',he:'מתנה'}]
+},
+{
+  id:'week', icon:'🗓️', title:'השבוע שלי', en:'My week',
+  who:'Dana', role:'חברה מהחוג', level:'A1', focus:'Present Simple', unit:'u4',
+  desc:'דנה שואלת על השגרה שלך: מתי רוקדים ומה עושים בסוף השבוע.',
+  opening:"Hi Gefen! I practice dance every day. What do you do after school?",
+  openingHe:'היי גפן! אני מתאמנת בריקוד כל יום. מה את עושה אחרי בית ספר?',
+  startWords:[{en:'practice',he:'להתאמן'},{en:'weekend',he:'סוף שבוע'}],
+  steps:[
+    {bot:"Nice! Do you meet your friends after school?",he:'יפה! את נפגשת עם חברות אחרי בית ספר?',suggestions:['Yes, I meet my friends.','I meet Mia at the park.','Sometimes I meet my friends.']},
+    {bot:"What do you do on the weekend?",he:'מה את עושה בסוף השבוע?',suggestions:['I dance and watch videos.','I play with my friends.','I listen to music.']},
+    {bot:"My sister dances too. She has a class on Monday. Do you have a class?",he:'גם אחותי רוקדת. יש לה חוג ביום שני. יש לך חוג?',suggestions:['Yes, I have a dance class.',"No, I don't have a class.",'I have a class on Tuesday.']}
+  ],
+  more:['Do you always smile on stage?','Who dances with you?','What do you wear to class?'],
+  words:[{en:'sometimes',he:'לפעמים'},{en:'always',he:'תמיד'},{en:'class',he:'חוג'}]
+},
+{
+  id:'free', icon:'💬', title:'שיחה חופשית', en:'Free talk',
+  who:'Maya', role:'חברה לתרגול אנגלית', level:'A1–A2', focus:'Free conversation', unit:'',
+  desc:'בלי תסריט. דברי על ריקוד, חברות או סתם על היום שלך.',
+  opening:"Hi Gefen! I am Maya, your English friend. We can talk about dance, friends, music – anything you like. What do you want to talk about?",
+  openingHe:'היי גפן! אני מאיה, החברה שלך לאנגלית. אפשר לדבר על ריקוד, חברות, מוזיקה – מה שבא לך. על מה תרצי לדבר?',
+  startWords:[{en:'choose',he:'לבחור'},{en:'topic',he:'נושא'}],
+  steps:[
+    {bot:"Nice choice! Tell me one thing you love about it.",he:'בחירה טובה! ספרי לי דבר אחד שאת אוהבת בזה.',suggestions:['I love dancing with my friends.','I love the music.','I love it because it is fun.']},
+    {bot:"What is your best friend like?",he:'איך החברה הכי טובה שלך?',suggestions:['She is kind and funny.','She is my best friend. We dance together.','She is nice.']},
+    {bot:"Ask me a question now – I want to hear your English!",he:'עכשיו שאלי אותי שאלה – אני רוצה לשמוע את האנגלית שלך!',suggestions:['What is your favourite song?','Can you dance?','Do you have a best friend?']}
+  ],
+  more:['What do you do on the weekend?','Do you like music?','Who is your best friend?'],
+  words:[{en:'topic',he:'נושא'},{en:'favourite',he:'אהוב'},{en:'best',he:'הכי טוב'}]
+}
+];
+const QUICK_PHRASES = [
+  {en:'Can you repeat that, please?',he:'אפשר לחזור על זה?'},
+  {en:'How do you say … in English?',he:'איך אומרים … באנגלית?'},
+  {en:'I don’t understand. Can you help?',he:'לא הבנתי. אפשר לעזור?'},
+  {en:'Can I have a hint, please?',he:'אפשר רמז, בבקשה?'},
+  {en:'Can we talk slowly?',he:'אפשר לדבר לאט?'},
+  {en:'That’s fun! Tell me more.',he:'כיף! ספרי לי עוד.'}
+];
+const LOCAL_FIXES = [
+  {re:/\bi is\b/i, fix:()=>'I am', why:'עם I תמיד am: I am.'},
+  {re:/\b(he|she|it) are\b/i, fix:m=>m[1]+' is', why:'עם he / she / it אומרים is.'},
+  {re:/\b(we|you|they) (is|am)\b/i, fix:m=>m[1]+' are', why:'עם we / you / they אומרים are.'},
+  {re:/\bi has\b/i, fix:()=>'I have', why:'עם I אומרים have, לא has.'},
+  {re:/\b(he|she|it) have\b/i, fix:m=>m[1]+' has', why:'עם he / she / it אומרים has.'},
+  {re:/\b(he|she|it) (dance|like|love|go|play|want|practice|meet|watch|listen|sing)\b/i, fix:m=>{const v=m[2].toLowerCase();return m[1]+' '+({go:'goes',watch:'watches'}[v]||v+'s')}, why:'עם he / she / it הפועל מקבל s.'},
+  {re:/\b(he|she|it) don'?t\b/i, fix:m=>m[1]+" doesn't", why:"עם he / she / it אומרים doesn't."},
+  {re:/\bcan (to) (dance|sing|jump|spin|swim)\b/i, fix:m=>'can '+m[2], why:'אחרי can אין to.'},
+  {re:/\bcan (dances|sings|jumps|spins|swims|goes|plays)\b/i, fix:m=>'can '+({dances:'dance',sings:'sing',jumps:'jump',spins:'spin',swims:'swim',goes:'go',plays:'play'}[m[1].toLowerCase()]), why:'אחרי can הפועל נשאר בלי s.'},
+  {re:/\bi am (dance|sing|like|love|have|practice)\b/i, fix:m=>'I '+m[1], why:'עם פועל רגיל לא אומרים am.'},
+  {re:/\b(like|love) (dance|sing|swim|read|draw|jump)\b(?!ing)/i, fix:m=>m[1]+' '+({dance:'dancing',sing:'singing',swim:'swimming',read:'reading',draw:'drawing',jump:'jumping'}[m[2].toLowerCase()]), why:'אחרי like / love מוסיפים ing לפועל.'}
+];
+
+/* ============================================================
+   BEERI ENGLISH COACH — core: state, data, home, path, exercises
+   ============================================================ */
+const KEY = 'gefen_english_coach_v1';
+const DAY = 86400000;
+const INTERVALS = [0, 1, 3, 7, 16, 35]; // days by mastery box
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const escA = s => esc(s).replace(/'/g, '&#39;');
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
+function dateKey(ts){const d=new Date(ts==null?Date.now():ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const todayKey = () => dateKey();
+function dayIndex(){return Math.floor((Date.now()-(new Date().getTimezoneOffset()*-60000))/DAY)}
+const CONTR = {"i'm":'i am',"you're":'you are',"he's":'he is',"she's":'she is',"it's":'it is',"we're":'we are',"they're":'they are',"isn't":'is not',"aren't":'are not',"wasn't":'was not',"weren't":'were not',"don't":'do not',"doesn't":'does not',"didn't":'did not',"can't":'can not',"couldn't":'could not',"won't":'will not',"wouldn't":'would not',"haven't":'have not',"hasn't":'has not',"mustn't":'must not',"let's":'let us',"i'll":'i will',"i've":'i have',"i'd":'i would',"you'll":'you will',"we'll":'we will',"they'll":'they will',"he'll":'he will',"she'll":'she will',"it'll":'it will'};
+function normEN(s){s=String(s||'').toLowerCase().replace(/[’‘`´]/g,"'").replace(/[.,!?;:"“”]/g,' ').replace(/\s+/g,' ').trim();return s.split(' ').map(w=>CONTR[w]||w).join(' ').replace(/[’']/g,'').replace(/\s+/g,' ').trim()}
+function normHE(s){return String(s||'').replace(/[\u0591-\u05C7]/g,'').replace(/["'׳״.,!?()\-–—]/g,' ').replace(/\s+/g,' ').trim()}
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function compareAnswer(given, accepted){
+  const g=normEN(given);
+  for(const a of accepted){ if(g===normEN(a)) return {ok:true,near:false}; }
+  const target=normEN(accepted[0]);
+  if(target.indexOf(' ')===-1 && target.length>=5 && lev(g,target)<=1) return {ok:true,near:true};
+  return {ok:false,near:false};
+}
+function thinHint(target,lvl){
+  const words=String(target).split(' '), he=/[\u0590-\u05FF]/.test(target);
+  if(lvl<=1){
+    return words.length>1 ? `בתשובה יש <b>${words.length}</b> מילים. הראשונה מתחילה ב-<b>${words[0][0]}</b>.` : `במילה יש <b>${target.length}</b> אותיות, והיא מתחילה ב-<b>${target[0].toUpperCase()}</b>.`;
+  }
+  if(lvl===2){
+    return words.map(w=>w.length>2?w[0]+'•'.repeat(w.length-1):w).join(' ');
+  }
+  return words.map(w=>w.slice(0,Math.ceil(w.length/2))+'…').join(' ');
+}
+
+/* ================= state ================= */
+const ACHIEVEMENTS = [
+  {id:'first',icon:'🎯',name:'הצעד הראשון',desc:'תשובה ראשונה',test:S=>S.stats.answers>=1},
+  {id:'ten',icon:'🔟',name:'מתחמם',desc:'10 תשובות',test:S=>S.stats.answers>=10},
+  {id:'streak3',icon:'🔥',name:'רצף של 3',desc:'3 ימים ברצף',test:S=>S.streak>=3},
+  {id:'streak7',icon:'⚡',name:'שבוע שלם',desc:'7 ימים ברצף',test:S=>S.streak>=7},
+  {id:'words25',icon:'📚',name:'25 מילים',desc:'25 מילים במעגל החזרה',test:S=>Object.keys(S.words).length>=25},
+  {id:'words60',icon:'🧠',name:'60 מילים',desc:'60 מילים במעגל החזרה',test:S=>Object.keys(S.words).length>=60},
+  {id:'mastered20',icon:'🏆',name:'20 מילים יציבות',desc:'20 מילים ברמה 4+',test:S=>Object.values(S.words).filter(w=>(w.box||0)>=4).length>=20},
+  {id:'unit1',icon:'✅',name:'יחידה ראשונה',desc:'סיום יחידה 1',test:S=>{const u=UNITS[0];return u.exercises.every(e=>S.prog[e.id]&&S.prog[e.id].done)}},
+  {id:'unit4',icon:'🚀',name:'חצי מסלול',desc:'סיום 2 יחידות',test:S=>UNITS.slice(0,2).every(u=>u.exercises.every(e=>S.prog[e.id]&&S.prog[e.id].done))},
+  {id:'allunits',icon:'👑',name:'המסלול המלא',desc:'סיום כל 4 היחידות',test:S=>UNITS.every(u=>u.exercises.every(e=>S.prog[e.id]&&S.prog[e.id].done))},
+  {id:'chat1',icon:'💬',name:'שיחה ראשונה',desc:'שיחת AI ראשונה',test:S=>S.stats.chats>=1},
+  {id:'chat5',icon:'🗣️',name:'5 שיחות',desc:'5 שיחות עם המאמנת',test:S=>S.stats.chats>=5},
+  {id:'exam85',icon:'📝',name:'מבחן מצוין',desc:'85+ במבחן מסכם',test:S=>S.exam.best>=85},
+  {id:'review50',icon:'🔁',name:'50 חזרות',desc:'50 חזרות חכמות',test:S=>S.stats.reviews>=50},
+  {id:'speak',icon:'🎤',name:'קול של רקדנית',desc:'תרגול דיבור ראשון',test:S=>S.stats.speak>=1},
+  {id:'perfect10',icon:'💎',name:'בלי טעויות',desc:'10 תשובות נכונות ברצף',test:S=>S.stats.bestStreak>=10}
+];
+const RULES = new Set();
+const ALL_WORDS = {};
+const ALL_WORD_LIST = [];
+const RULE_MAP = {};
+const EX_MAP = {};
+const FACTS = [
+  'כשרוקדים ביחד המוח משחרר אוקסיטוצין – "הורמון החברות".',
+  'רקדנית בלט יכולה להסתובב על קצה האצבעות יותר מ-30 פעמים ברצף!',
+  'ריקוד משפר מצב רוח, שינה וזיכרון – גם באנגלית.',
+  'המילה Ballet באה מצרפתית, ובאנגלית אומרים אותה BAL-ay.',
+  'ריקוד הוא אחת הדרכים העתיקות ביותר שבהן אנשים מספרים סיפורים.',
+  'חיוך על הבמה גורם גם לקהל וגם לרקדנית להרגיש טוב יותר.',
+  'חברים טובים צוחקים יחד יותר, וצחוק עוזר ללמוד מילים חדשות.',
+  'המוח זוכר מילה חדשה טוב יותר כשמשלבים אותה בתנועה – נסי לרקוד את המילה!',
+  'באנגלית "Best friend" אפשר לומר גם BFF = Best Friends Forever.',
+  'עשר דקות אנגלית כל יום מנצחות שעה אחת פעם בשבוע.'
+];
+
+
+
+
+
+
+
+
+
+
+
+
+function freshState(){
+  return {
+    v:1, name:'גפן',
+    xp:0, streak:0, lastDay:'', activeDays:{},
+    daily:{date:todayKey(), xp:0, answers:0, reviews:0, chats:0},
+    settings:{sound:true, ttsRate:.9, autoSpeak:false, showTr:true, fontScale:1, goal:60, correction:'balanced', level:'A1'},
+    api:{mode:'local', key:'', model:'llama-3.3-70b-versatile', endpoint:'https://api.groq.com/openai/v1/chat/completions', proxy:''},
+    prog:{}, words:{}, rules:{}, unitPos:{}, seen:{intro:{},units:{}},
+    stats:{answers:0, correct:0, streak:0, bestStreak:0, reviews:0, chats:0, speak:0, speakScore:0, bySkill:{vocab:{a:0,c:0},grammar:{a:0,c:0},listening:{a:0,c:0}}},
+    badges:{}, exam:{last:null, best:0, attempts:0, active:null},
+    review:{lastDate:'', doneToday:0, queue:[], idx:0, results:[]},
+    chat:{scenario:'', messages:[], history:[], localTurn:0, sessionStart:0, learned:{}, sessions:0},
+    last:{route:'#/home',unit:'u1'}
+  };
+}
+let S = freshState();
+let lastSaved = 0;
+let saveTimer = null;
+function loadState(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const data = JSON.parse(raw);
+      const base = freshState();
+      S = {...base, ...data};
+      S.settings = {...base.settings, ...(data.settings||{})};
+      S.api = {...base.api, ...(data.api||{})};
+      S.stats = {...base.stats, ...(data.stats||{})};
+      S.stats.bySkill = {...base.stats.bySkill, ...((data.stats&&data.stats.bySkill)||{})};
+      S.review = {...base.review, ...(data.review||{})};
+      S.chat = {...base.chat, ...(data.chat||{})};
+      S.exam = {...base.exam, ...(data.exam||{})};
+      S.daily = {...base.daily, ...(data.daily||{})};
+      S.last = {...base.last, ...(data.last||{})};
+    }
+  }catch(e){ console.warn('load failed', e); }
+  if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
+  if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
+  if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
+  applyFontScale();
+}
+function saveNow(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
+}
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ saveNow(); updateHeader(); }, 160);
+}
+function markActive(){
+  const t = todayKey();
+  if(S.lastDay !== t){
+    S.streak = (S.lastDay === dateKey(Date.now()-DAY)) ? (S.streak||0)+1 : 1;
+    S.lastDay = t;
+  }
+  if(!S.activeDays[t]) S.activeDays[t] = 0;
+}
+function levelInfo(){ const lvl = Math.floor(S.xp/250)+1, into = S.xp%250; return {lvl, into, need:250, pct:Math.round(into/250*100)}; }
+function addXP(n, node){
+  if(!n) return;
+  S.xp += n;
+  S.daily.xp = (S.daily.xp||0)+n;
+  if(S.activeDays[todayKey()]==null) S.activeDays[todayKey()]=0;
+  S.activeDays[todayKey()] += n;
+  floatXP(n,node);
+  save();
+}
+function floatXP(n,node){
+  const r = (node && node.getBoundingClientRect) ? node.getBoundingClientRect() : {left:innerWidth/2,top:innerHeight/2,width:0};
+  const e = document.createElement('div');
+  e.className='xpfloat'; e.textContent='+'+n+' XP';
+  e.style.left = Math.max(20, r.left + r.width/2 - 18)+'px';
+  e.style.top = Math.max(70, Math.min(r.top, innerHeight-80))+'px';
+  document.body.appendChild(e); setTimeout(()=>e.remove(),1000);
+}
+function toast(t){
+  const el=$('#toast'); if(!el) return;
+  el.textContent=t; el.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function confetti(n=26){
+  const ems=['🎉','⭐','✨','🌟','🎊','💫','⚡'];
+  for(let i=0;i<n;i++){
+    const s=document.createElement('span'); s.className='conf'; s.textContent=rnd(ems);
+    s.style.left=Math.random()*100+'vw'; s.style.animationDelay=(Math.random()*.5)+'s';
+    document.body.appendChild(s); setTimeout(()=>s.remove(),2800);
+  }
+}
+
+/* ================= audio ================= */
+let VOICE=null, AC=null;
+function initVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const pick=()=>{ const v=speechSynthesis.getVoices(); VOICE=v.find(x=>/^en[-_]US/i.test(x.lang)&&/Google|Natural|Samantha|Aria|Jenny/i.test(x.name))||v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null; };
+  pick(); speechSynthesis.onvoiceschanged=pick;
+}
+function speak(text, rate){
+  if(!('speechSynthesis' in window)){ toast('הדפדפן לא תומך בהשמעה'); return; }
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]*>/g,''));
+    u.lang='en-US'; u.rate=rate || S.settings.ttsRate || .9;
+    if(VOICE) u.voice=VOICE;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function beep(ok){
+  if(S.settings && !S.settings.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const seq = ok ? [[660,0],[880,.11]] : [[210,0]];
+    seq.forEach(([f,d])=>{
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.frequency.value=f; o.type=ok?'sine':'triangle'; g.gain.value=.06;
+      o.connect(g); g.connect(AC.destination); o.start(AC.currentTime+d); o.stop(AC.currentTime+d+.16);
+    });
+  }catch(e){}
+}
+function listenOnce(lang,onRes,onErr,onEnd){
+  const R=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!R){ onErr&&onErr('unsupported'); return null; }
+  const r=new R(); r.lang=lang; r.interimResults=false; r.maxAlternatives=5;
+  let done=false;
+  r.onresult=ev=>{ done=true; const alts=[...ev.results[0]].map(x=>x.transcript); onRes&&onRes(alts); };
+  r.onerror=e=>{ if(!done){ done=true; onErr&&onErr(e.error||'error'); } };
+  r.onend=()=>{ onEnd&&onEnd(); };
+  try{ r.start(); }catch(e){ onErr&&onErr('start'); return null; }
+  return r;
+}
+function applyFontScale(){
+  const f=(S.settings&&S.settings.fontScale)||1;
+  document.documentElement.style.setProperty('--fs', f);
+}
+function speakBtn(text,label){
+  return `<button class="iconbtn" data-say="${escA(text)}" aria-label="השמעת ${escA(label||text)}" title="השמעה">🔊</button>`;
+}
+
+/* ================= build all exercises ================= */
+function buildData(){
+  UNITS.forEach(u=>{
+    u.rules.forEach(r=>{ RULE_MAP[r.id] = {...r, unitId:u.id, unitTitle:u.title}; });
+    u.words.forEach(w=>{
+      const key=w.en.toLowerCase();
+      if(!ALL_WORDS[key]){ ALL_WORDS[key]={...w, key}; ALL_WORD_LIST.push(ALL_WORDS[key]); }
+    });
+    const vocab = buildVocabExercises(u);
+    u.exercises = [...vocab, ...u.grammar.map(g=>({...g, unit:u.id, skill:g.skill||'grammar'}))];
+    u.exercises.forEach(e=>{ e.unit=u.id; EX_MAP[e.id]=e; });
+  });
+}
+function buildVocabExercises(u){
+  const exs=[];
+  const hePool = [...new Set(u.words.map(w=>w.he))];
+  const allHe = [...new Set(ALL_WORD_LIST.map(w=>w.he))];
+  const distractors = (correct, n) => {
+    const pool = shuffle([...new Set([...hePool, ...allHe])].filter(h=>h!==correct));
+    return pool.slice(0,n);
+  };
+  u.words.forEach((w,idx)=>{
+    exs.push({
+      t:'mcq', id:`${u.id}.m.${w.en}`, unit:u.id, skill:'vocab', word:w.en, rule:'',
+      q:`מה המשמעות של <b class="en">${w.en}</b>?`,
+      opts:shuffle([w.he,...distractors(w.he,3)]), ans:w.he,
+      why:`<b class="en">${w.en}</b> = ${w.he}. דוגמה: ${w.ex} — ${w.exHe}`,
+      hint:`המילה מופיעה בתחילת הדוגמה: ${w.ex}`
+    });
+  });
+  u.words.filter(w=>w.en.replace(/[^a-z]/gi,'').length>=5).slice(0,4).forEach(w=>{
+    exs.push({
+      t:'type', id:`${u.id}.t.${w.en}`, unit:u.id, skill:'vocab', word:w.en, rule:'',
+      q:`איך כותבים באנגלית: <b>${w.he}</b>?`,
+      ans:[w.en], why:`<b class="en">${w.en}</b> = ${w.he}. ${w.ex} — ${w.exHe}`,
+      hint:`${w.en.length} אותיות, מתחילה ב-${w.en[0].toUpperCase()}.${w.pron?` הגייה: ${w.pron}`:''}`
+    });
+  });
+  const gapWords = u.words.map(w=>{
+    if(w.skipGap || w.en.includes(' ')) return null;
+    const base=w.en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    let m=null;
+    try{ m=w.ex.match(new RegExp('\\b'+base+'\\w*\\b','i')); }catch(e){}
+    if(!m) return null;
+    return {w, form:m[0], sentence:w.ex.replace(m[0],'___')};
+  }).filter(Boolean).slice(0,3);
+  gapWords.forEach(g=>{
+    exs.push({
+      t:'gap', id:`${u.id}.g.${g.w.en}`, unit:u.id, skill:'vocab', word:g.w.en, rule:'',
+      q:`השלימי עם הצורה הנכונה של <b class="en">${g.w.en}</b> (${g.w.he}):`,
+      sentence:g.sentence, ans:[g.form],
+      why:`המשפט המלא: ${g.w.ex} — ${g.w.exHe} במשפט הזה הצורה היא <b>${g.form}</b>.`,
+      hint:`הצורה במשפט מתחילה ב-${g.form[0]}.`
+    });
+  });
+  const l1=u.words[0], l2=u.words[Math.min(6,u.words.length-1)];
+  if(l1) exs.push({
+    t:'listenmcq', id:`${u.id}.lc.${l1.en}`, unit:u.id, skill:'listening', word:l1.en, rule:'', audio:l1.en,
+    q:'לחצי על הכפתור, הקלידי מה שמעת – ובחרי את המשמעות.',
+    opts:shuffle([l1.he,...distractors(l1.he,3)]), ans:l1.he,
+    why:`שמעת <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`,
+    hint:`המילה מתחילה ב-${l1.en[0].toUpperCase()} (${l1.en.length} אותיות).`
+  });
+  if(l2) exs.push({
+    t:'listen', id:`${u.id}.lw.${l2.en}`, unit:u.id, skill:'listening', word:l2.en, rule:'', audio:l2.en,
+    q:'לחצי על הכפתור וכתבי את המילה ששמעת.',
+    ans:[l2.en], why:`<b class="en">${l2.en}</b> = ${l2.he}. ${l2.ex}`,
+    hint:`${l2.en.length} אותיות, מתחילה ב-${l2.en[0].toUpperCase()}.`
+  });
+  return exs;
+}
+buildData();
+
+/* ================= calculations ================= */
+function unitDoneCount(u){ return u.exercises.filter(e=>S.prog[e.id]&&S.prog[e.id].done).length; }
+function unitCorrectCount(u){ return u.exercises.filter(e=>S.prog[e.id]&&S.prog[e.id].correct>0).length; }
+function unitPct(u){ return Math.round(unitDoneCount(u)/u.exercises.length*100); }
+function unitComplete(u){ return unitDoneCount(u)===u.exercises.length; }
+function nextUnit(){ return UNITS.find(u=>!unitComplete(u)) || UNITS[UNITS.length-1]; }
+function dueWords(){ return Object.values(S.words).filter(w=>w.seen && (w.due||0)<=Date.now()).sort((a,b)=>(a.box||0)-(b.box||0)); }
+function wordStats(){
+  const vals=Object.values(S.words);
+  return {
+    total:vals.length,
+    due:vals.filter(w=>(w.due||0)<=Date.now()).length,
+    newW:vals.filter(w=>(w.box||0)===0).length,
+    learning:vals.filter(w=>(w.box||0)>0&&(w.box||0)<3).length,
+    stable:vals.filter(w=>(w.box||0)>=3&&(w.box||0)<5).length,
+    mastered:vals.filter(w=>(w.box||0)>=5).length
+  };
+}
+function ruleStrength(){
+  const vals=Object.values(S.rules);
+  if(!vals.length) return 0;
+  const correct=vals.reduce((a,r)=>a+(r.correct||0),0);
+  const all=vals.reduce((a,r)=>a+(r.seen||0),0);
+  return all?Math.round(correct/all*100):0;
+}
+function accuracy(){
+  const a=S.stats.answers||0;
+  return a?Math.round((S.stats.correct||0)/a*100):0;
+}
+function overallReadiness(){
+  const unitPart = UNITS.reduce((a,u)=>a+unitPct(u),0)/UNITS.length;
+  const ws=wordStats();
+  const masteredPart = ws.total?ws.mastered/ws.total*100:0;
+  const chatPart = Math.min(100,(S.stats.chats||0)*8);
+  const examPart = S.exam.best||0;
+  return Math.round(unitPart*.5 + masteredPart*.25 + chatPart*.1 + examPart*.15);
+}
+function masteryDots(en){
+  const box=(S.words[en.toLowerCase()]&&S.words[en.toLowerCase()].box)||0;
+  return `<span class="mastery" title="רמת שליטה ${box}/5">${[0,1,2,3,4].map(i=>`<i class="${i<box?(box>=4?'on':'mid'):''}"></i>`).join('')}</span>`;
+}
+
+/* ================= header / badges ================= */
+function updateHeader(){
+  const hs=$('#h-streak'), hx=$('#h-xp');
+  if(hs) hs.textContent=S.streak||0;
+  if(hx) hx.textContent=S.xp||0;
+  const snd=$('#btn-sound'); if(snd) snd.textContent=S.settings.sound?'🔊':'🔇';
+  const dot=$('#nav-dot-review'); if(dot) dot.classList.toggle('hide', dueWords().length===0);
+}
+function checkBadges(){
+  ACHIEVEMENTS.forEach(b=>{
+    if(!S.badges[b.id] && b.test(S)){
+      S.badges[b.id]=Date.now();
+      toast(`${b.icon} הישג חדש: ${b.name}`);
+    }
+  });
+}
+function trackAnswer(ex, ok){
+  S.stats.answers++; if(ok)S.stats.correct++;
+  S.stats.streak = ok ? (S.stats.streak||0)+1 : 0;
+  if(S.stats.streak>S.stats.bestStreak) S.stats.bestStreak=S.stats.streak;
+  const skill=ex.skill||'vocab';
+  S.stats.bySkill[skill]=S.stats.bySkill[skill]||{a:0,c:0};
+  S.stats.bySkill[skill].a++; if(ok)S.stats.bySkill[skill].c++;
+  S.daily.answers++;
+  if(ex.word) recordWord(ex.word,ok);
+  if(ex.rule) recordRule(ex.rule,ok);
+  markActive();
+  checkBadges();
+}
+function recordWord(en, ok){
+  const key=String(en).toLowerCase();
+  const w=S.words[key] || (S.words[key]={box:0,due:Date.now(),seen:0,correct:0,wrong:0,last:0});
+  w.key=key;
+  if(!w.en) w.en=(ALL_WORDS[key]&&ALL_WORDS[key].en)||en;
+  if(!w.he) w.he=(ALL_WORDS[key]&&ALL_WORDS[key].he)||'';
+  w.seen=(w.seen||0)+1; w.last=Date.now();
+  if(ok){
+    w.correct=(w.correct||0)+1;
+    w.box=Math.min(5,(w.box||0)+1);
+    w.due=Date.now()+INTERVALS[w.box]*DAY;
+  }else{
+    w.wrong=(w.wrong||0)+1;
+    w.box=Math.max(0,(w.box||0)-1);
+    w.due=Date.now()+15*60000;
+  }
+}
+function recordRule(id, ok){
+  if(!id) return;
+  const r=S.rules[id] || (S.rules[id]={seen:0,correct:0,wrong:0});
+  r.seen++; if(ok)r.correct++; else r.wrong++;
+}
+function hydrateExtraWords(){
+  Object.values(S.words||{}).forEach(w=>{
+    if(!w||!w.en) return;
+    const key=String(w.en).toLowerCase();
+    if(!ALL_WORDS[key]){
+      const obj={en:w.en,he:w.he||'',pron:'',ex:'From your conversation: '+w.en+'.',exHe:'מהשיחה שלך.'};
+      ALL_WORDS[key]=obj; ALL_WORD_LIST.push(obj);
+    }
+  });
+}
+
+/* ================= dashboard ================= */
+function praise(){ return rnd(['מעולה, גפן!','בול!','מדויק!','וואו, גפן!','יפה מאוד!','אלופה! 🏆','בדיוק כך!']) }
+function nope(){ return rnd(['כמעט, גפן 💪','לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']) }
+
+function pageHome(){
+  const li=levelInfo(), ds=wordStats();
+  const goal=S.settings.goal||60;
+  const pct=Math.min(100,Math.round((S.daily.xp||0)/goal*100));
+  const u=nextUnit();
+  const lastUnit=UNITS.find(x=>x.id===(S.last.unit||''))||u;
+  const lastPct=unitPct(lastUnit);
+  const word=ALL_WORD_LIST[dayIndex()%ALL_WORD_LIST.length] || ALL_WORD_LIST[0];
+  const fact=FACTS[dayIndex()%FACTS.length];
+  const reviewDone=S.review.doneToday||0;
+  const tasks=[
+    {done:reviewDone>=5, t:'חזרה חכמה', s:`${Math.min(reviewDone,5)}/5 מילים במעגל`, route:'#/review', btn:'לחזרה'},
+    {done:(S.daily.answers||0)>=10, t:'תרגול יומי', s:`${Math.min(S.daily.answers||0,10)}/10 תשובות`, route:`#/unit/${u.id}/practice`, btn:'לתרגל'},
+    {done:(S.daily.chats||0)>=1, t:'שיחה באנגלית', s:(S.daily.chats||0)>=1?'בוצע':'עוד לא דיברת היום', route:'#/chat', btn:'לדבר'}
+  ];
+  return `<div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div style="flex:1;min-width:220px">
+          <span class="tag lime">⚡ יום ${S.streak||1} ברצף · רמה ${li.lvl}</span>
+          <h1>היי <span>גפן</span> 👋<br>מוכנה לתרגל אנגלית?</h1>
+          <p>${accuracy()?`דיוק כללי ${accuracy()}% · ${ds.mastered} מילים יציבות · ${ds.due} ממתינות לחזרה`:`הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.`}</p>
+          <div class="hero-actions">
+            <button class="btn primary" data-go="#/unit/${u.id}/practice">▶ המשיכי ללמוד</button>
+            <button class="btn ghost" data-go="#/chat">💬 שיחה עם המאמנת</button>
+          </div>
+        </div>
+        <div class="ring-wrap">
+          <div class="ring" style="--p:${pct}" title="יעד יומי ${goal} XP">
+            <div>${pct}%<small>מהיעד היומי</small></div>
+          </div>
+          <div>
+            <div class="stat-chip"><b>${S.daily.xp||0}</b> / ${goal} XP היום</div>
+            <div class="stat-chip" style="margin-top:6px"><b>${li.into}</b> / 250 לרמה ${li.lvl+1}</div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <span class="stat-chip">📚 <b>${UNITS.filter(unitComplete).length}</b>/4 יחידות</span>
+        <span class="stat-chip">🔁 <b>${ds.due}</b> לחזרה</span>
+        <span class="stat-chip">🧠 <b>${ds.mastered}</b> מילים יציבות</span>
+        <span class="stat-chip">🔥 <b>${S.streak||0}</b> ימים</span>
+      </div>
+    </section>
+
+    <div class="grid two section" style="align-items:start">
+      <div class="card">
+        <div class="section-head"><h2>🎯 המשימות של היום</h2><span class="tag ${tasks.every(t=>t.done)?'lime':''}">${tasks.filter(t=>t.done).length}/3</span></div>
+        ${tasks.map(t=>`<div class="task ${t.done?'done':''}">
+          <div class="task-dot">${t.done?'✓':'•'}</div>
+          <div><div class="task-t">${t.t}</div><div class="task-s">${t.s}</div></div>
+          ${t.done?'':`<button class="btn xs" data-go="${t.route}">${t.btn}</button>`}
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>📍 ממשיכים מאיפה שעצרת</h2></div>
+        <button class="continue" data-go="#/unit/${lastUnit.id}/practice">
+          <span class="ic">${lastUnit.icon}</span>
+          <span style="flex:1"><b>${lastUnit.he}</b><span>${lastUnit.title} · ${lastPct}% הושלמו</span></span>
+          <span class="arr">←</span>
+        </button>
+        <div style="margin-top:10px" class="bar"><i style="width:${lastPct}%"></i></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn sm ghost" data-go="#/unit/${lastUnit.id}/explain">📖 חזרה על ההסבר</button>
+          <button class="btn sm ghost" data-go="#/learn">🗺️ כל המסלול</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid two section" style="align-items:start">
+      <div class="card wotd">
+        <div class="section-head"><h2>🌟 המילה של היום</h2><span class="tag">${word.pron?esc(word.pron):'Audio'}</span></div>
+        <div class="row"><span class="en" style="font-size:1.5rem;font-weight:900;color:var(--lime)">${word.en}</span>${speakBtn(word.en)}</div>
+        <div class="he" style="font-weight:700">${word.he}</div>
+        <div class="ex"><span class="en">${word.ex}</span><br>${word.exHe}</div>
+        <div class="row" style="margin-top:10px">${masteryDots(word.en)}<span class="tiny muted">${(S.words[word.key]&&S.words[word.key].box)?'במעגל החזרה':'עוד לא התאמנת עליה'}</span></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>💡 עובדה שכדאי לדעת</h2></div>
+        <div class="fact">${fact}</div>
+        <div class="row" style="margin-top:12px">
+          ${speakBtn(fact.replace(/[\u0590-\u05FF]/g,''),'העובדה')}
+          <span class="tiny muted">האזיני, ואז נסי לספר אותה באנגלית.</span>
+        </div>
+        <button class="btn sm purple" style="margin-top:12px" data-go="#/chat/science">🔬 נדבר על זה עם המאמנת</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h2>🔄 מעגל החזרה שלך</h2><span class="more" data-go="#/review">לכל החזרות ←</span></div>
+      <div class="card">
+        <div class="rings-card">
+          <div class="ring" style="--p:${ds.total?Math.round(ds.mastered/ds.total*100):0}">
+            <div>${ds.mastered}<small>מילים יציבות</small></div>
+          </div>
+          <div class="legend">
+            <div class="legend-row"><span class="legend-dot" style="background:var(--gold)"></span> ממתינות לחזרה <b>${ds.due}</b></div>
+            <div class="legend-row"><span class="legend-dot" style="background:var(--cyan)"></span> בהטמעה <b>${ds.learning}</b></div>
+            <div class="legend-row"><span class="legend-dot" style="background:var(--green)"></span> יציבות <b>${ds.stable}</b></div>
+            <div class="legend-row"><span class="legend-dot" style="background:var(--line2)"></span> חדשות במעגל <b>${ds.newW}</b></div>
+          </div>
+        </div>
+        <button class="btn primary wide" style="margin-top:14px" data-go="#/review">${ds.due?'🔁 התחילי חזרה ('+Math.min(ds.due,12)+' מילים)':'✅ אין חזרות ממתינות'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ================= path ================= */
+function pageLearn(){
+  const cur=nextUnit();
+  return `<div class="page">
+    <div class="page-head"><h1 class="page-title">🗺️ מסלול הלמידה</h1><p class="page-sub">4 יחידות, סדר מומלץ: כל יחידה בונה על הקודמת. אפשר לחזור לכל יחידה בכל רגע – החזרות מחזירות אותך למילים ולתחבירית שוב ושוב.</p></div>
+    <div class="route">${UNITS.map((u,i)=>{
+      const done=unitComplete(u), pct=unitPct(u);
+      return `<div class="route-step"><div class="route-dot ${done?'done':''} ${u.id===cur.id&&!done?'cur':''}" title="${u.he}">${done?'✓':u.n}</div>${i<UNITS.length-1?'<div class="route-line"></div>':''}</div>`;
+    }).join('')}</div>
+    <div class="grid two">
+      ${UNITS.map(u=>{
+        const pct=unitPct(u), done=unitComplete(u);
+        return `<button class="unit-card ${done?'done':''}" data-go="#/unit/${u.id}/explain">
+          <div class="unit-ic">${u.icon}</div>
+          <div class="unit-body">
+            <div class="unit-kicker">יחידה ${u.n} · ${u.cefr}</div>
+            <div class="unit-title">${u.he} <span class="en">· ${u.title}</span></div>
+            <div class="unit-desc">${u.lead}</div>
+            <div class="unit-foot"><div class="bar"><i style="width:${pct}%"></i></div><span class="unit-pct">${done?'הושלם ✓':pct+'%'}</span></div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-head"><h2>🏁 מבחן סוף מסלול</h2><span class="tag gold">${S.exam.best?S.exam.best+'/100':'טרם בוצע'}</span></div>
+      <p class="small muted">20 שאלות מכל היחידות, בלי לחץ זמן. בסוף תקבלי ציון, פירוט לפי נושא וטיפים לחזרה.</p>
+      <button class="btn gold" style="margin-top:10px;background:linear-gradient(135deg,#ffc94d,#e9a51f);border-color:transparent;color:#241a02" data-go="#/exam">📝 למבחן המסכם</button>
+    </div>
+  </div>`;
+}
+
+/* ================= unit ================= */
+function pageUnit(unitId, section){
+  const u=UNITS.find(x=>x.id===unitId);
+  if(!u){ go('#/learn'); return ''; }
+  section=section||'explain';
+  S.last.unit=u.id;
+  save();
+  const pct=unitPct(u), done=unitDoneCount(u);
+  const tabs=[['explain','📖 הסבר'],['words','📚 מילים'],['practice','✏️ תרגול'],['chat','💬 שיחה']];
+  const sc=SCENARIOS.find(s=>s.unit===u.id);
+  let inner='';
+  if(section==='explain'){
+    inner=`<div class="card flat" style="margin-bottom:12px">
+        <div class="row"><span class="tag lime">🎯 מה תדע לעשות</span></div>
+        <ul style="margin:10px 0 0 0;padding-inline-start:18px;font-size:.88rem;line-height:1.9">${u.canDo.map(x=>`<li>${x}</li>`).join('')}</ul>
+      </div>
+      <div class="section-head" style="margin-top:16px"><h2>📌 הכללים – בקצרה ולעומק</h2><span class="tiny muted">פתוח תמיד בתרגיל</span></div>
+      ${u.rules.map((r,i)=>`<details class="rule" ${i===0?'open':''}>
+        <summary><span class="n">${i+1}</span>${r.title}<span class="chev">▾</span></summary>
+        <div class="rule-body">
+          <p>${r.body}</p>
+          <div class="formula">${esc(r.formula)}</div>
+          <ul class="ex-list">${r.examples.map(ex=>`<li><span class="en">${ex.en}</span> ${speakBtn(ex.en)}<span class="he">${ex.he}</span></li>`).join('')}</ul>
+          <div class="mistake"><b>⚠️ הטעות הנפוצה:</b> ${r.mistake}</div>
+          <div class="hook"><b>💡 טריק לזכור:</b> ${r.hook}</div>
+        </div>
+      </details>`).join('')}
+      <div class="card" style="margin-top:14px"><div class="section-head"><h2>💡 עובדה שתדביק אותך</h2></div><div class="fact">${u.fact}</div></div>
+      <button class="btn primary wide" style="margin-top:14px" data-go="#/unit/${u.id}/practice">▶ ${done?'המשיכי לתרגל':'בואי נתרגל את היחידה'}</button>`;
+  }else if(section==='words'){
+    inner=`<div class="card">
+      <div class="section-head"><h2>📚 ${u.words.length} מילות מפתח</h2><span class="tag">${u.cefr}</span></div>
+      <p class="tiny muted" style="margin-bottom:6px">לחצי 🔊 לשמוע. כל מילה שנפגוש בתרגול נכנסת אוטומטית למעגל החזרות.</p>
+      ${u.words.map(w=>`<div class="word">
+        <div class="word-main">
+          <div><span class="en word-en">${w.en}</span>${w.pron?`<span class="pron"> · ${w.pron}</span>`:''}<span class="word-he">${w.he}</span></div>
+          <div class="word-ex"><span class="en">${w.ex}</span><span class="he">${w.exHe}</span></div>
+          <div class="row" style="margin-top:5px">${masteryDots(w.en)}<span class="tiny muted">${(S.words[w.en.toLowerCase()]&&S.words[w.en.toLowerCase()].box>=4)?'יציבה בזיכרון':'במעגל החזרה'}</span></div>
+        </div>
+        ${speakBtn(w.ex,w.en)}
+      </div>`).join('')}
+    </div>
+    <button class="btn primary wide" style="margin-top:12px" data-go="#/unit/${u.id}/practice">✏️ תרגלי את המילים בהקשר</button>`;
+  }else if(section==='practice'){
+    inner=`<div id="practice-host">${practiceHTML(u)}</div>`;
+  }else{
+    inner=`<div class="card">
+      <div class="section-head"><h2>💬 שיחה שקשורה ליחידה</h2><span class="tag purple">${sc?sc.level:'A2–B2'}</span></div>
+      ${sc?`<p class="small muted">${sc.desc}</p>
+        <div class="row" style="margin-top:12px"><span class="tag">${sc.icon} ${sc.who}</span><span class="tag">${sc.focus}</span></div>
+        <button class="btn primary wide" style="margin-top:14px" data-go="#/chat/${sc.id}">▶ פתח שיחה עם ${sc.who}</button>`
+      :`<p class="small muted">ביחידה הזו נתרגל שיחה חופשית – ספרי למאמנת מה למדת והשתמש במילים החדשות.</p>
+        <button class="btn primary wide" style="margin-top:14px" data-go="#/chat/free">▶ שיחה חופשית</button>`}
+      <div class="divider"></div>
+      <h3 style="font-size:.92rem;margin-bottom:6px">🎯 איך להפיק הכי הרבה</h3>
+      <ul style="font-size:.84rem;color:var(--mu);padding-inline-start:18px;line-height:1.9">
+        <li>ענה במשפט שלם – גם אם יש טעויות. המאמנת מתקנת בעדינות.</li>
+        <li>לחצי על 💡 רמז אם את תקועה, ועל 🌐 תרגום אם לא הבנת.</li>
+        <li>בסוף השיחה תקבלי דוח ומילים חדשות לחזרה.</li>
+      </ul>
+      <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-go="#/chat">לכל התרחישים</button></div>
+    </div>`;
+  }
+  return `<div class="page">
+    <div class="page-head">
+      <button class="back" data-go="#/learn" aria-label="חזרה למסלול">→</button>
+      <div><div class="unit-kicker">יחידה ${u.n} · ${u.cefr}</div><h1 class="page-title">${u.he}</h1><div class="page-sub" style="margin:0">${u.title}</div></div>
+      <span class="tag lime" style="margin-inline-start:auto">${pct}%</span>
+    </div>
+    <div class="bar" style="margin-bottom:14px"><i style="width:${pct}%"></i></div>
+    <div class="seg">
+      ${tabs.map(([k,label])=>`<button data-go="#/unit/${u.id}/${k}" class="${section===k?'active':''}">${label}</button>`).join('')}
+    </div>
+    ${inner}
+  </div>`;
+}
+
+/* ================= exercise engine ================= */
+let QS=null;
+function currentUnitExercise(u){
+  const pos=clamp(S.unitPos[u.id]||0,0,u.exercises.length-1);
+  return {ex:u.exercises[pos],index:pos};
+}
+function practiceHTML(u){
+  const {ex,index}=currentUnitExercise(u);
+  const done=unitDoneCount(u);
+  const allDone=done===u.exercises.length;
+  return `<div class="card flat" style="margin-bottom:12px">
+      <div class="row"><span class="tag">${u.icon} ${u.he}</span><span class="tag lime">${done}/${u.exercises.length} הושלמו</span>
+      <button class="btn xs ghost" style="margin-inline-start:auto" data-act="toggle-map">מפה</button></div>
+      <div class="ex-map ${S.seen.mapOpen?'':'hide'}" id="ex-map">${u.exercises.map((e,i)=>{
+        const p=S.prog[e.id];
+        return `<button data-act="jump" data-idx="${i}" class="${p&&p.done?'done':''} ${i===index?'cur':''} ${p&&p.wrong&&!p.correct?'wrong':''}" title="תרגיל ${i+1}">${i+1}</button>`;
+      }).join('')}</div>
+    </div>
+    ${allDone && !S.seen.retryPractice ? `<div class="card center">
+      <div style="font-size:2rem">🏁</div><h2 style="margin:6px 0">סיימת את היחידה!</h2>
+      <p class="muted small">${unitCorrectCount(u)} מתוך ${u.exercises.length} נכונים. המילים נכנסו למעגל החזרה – שם הן יהפכו ליציבות.</p>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" data-go="#/review">🔁 לחזרה החכמה</button><button class="btn ghost" data-act="re-practice">תרגלי שוב</button><button class="btn ghost" data-go="#/unit/${u.id}/chat">💬 שיחה</button></div>
+    </div>` : `<div id="ex-host"></div>`}
+    <div class="row" style="margin-top:12px"><button class="btn sm ghost" data-go="#/unit/${u.id}/explain">📖 חזרה על הכללים</button><button class="btn sm ghost" data-go="#/unit/${u.id}/words">📚 המילים</button></div>`;
+}
+function mountUnitPractice(u){
+  const host=$('#ex-host'); if(!host) return;
+  const idx=clamp(S.unitPos[u.id]||0,0,u.exercises.length-1);
+  mountExercise(host,u.exercises[idx],{scope:'unit',unitId:u.id,index:idx,total:u.exercises.length});
+}
+function mountExercise(host,ex,ctx){
+  QS={ex,ctx,attempts:0,hint:0,answered:false,tokens:null,zone:[],typed:'',choice:null,revealed:false};
+  if(ex.t==='scr'){
+    const words=ex.sentence.split(' ');
+    let sh=shuffle(words);
+    if(words.length>2){ let tries=0; while(sh.join(' ')===words.join(' ')&&tries++<10) sh=shuffle(words); }
+    QS.tokens=sh.map((w,i)=>({w,id:i,used:false}));
+  }
+  host.innerHTML=exerciseCardHTML();
+  const inp=$('#answer-input'); if(inp && innerWidth>760) setTimeout(()=>inp.focus(),80);
+}
+function exerciseCardHTML(){
+  const {ex,ctx}=QS;
+  const u=UNITS.find(x=>x.id===ex.unit)||{};
+  const badge = ctx.scope==='review'?'🔁 חזרה':ctx.scope==='exam'?'📝 מבחן':ctx.scope==='drill'?'🎯 תרגול':`${u.icon||'📘'} יחידה ${u.n||''}`;
+  const skillTag = ex.skill==='grammar'?'דקדוק':ex.skill==='listening'?'שמיעה':'אוצר מילים';
+  let body='';
+  const disabled=QS.answered?'disabled':'';
+  if(ex.t==='mcq'||ex.t==='listenmcq'){
+    body = `${ex.t==='listenmcq'?`<button class="listen-big" data-act="listen">🔊 השמע שוב</button>`:''}
+      <div class="opts">${ex.opts.map((o,i)=>`<button class="opt ${QS.choice===o?(QS.choiceCorrect?'correct':'wrong'):''}" data-opt="${escA(o)}" ${disabled}>
+        <span class="k">${'ABCD'[i]||i+1}</span><span class="${/[\u0590-\u05FF]/.test(o)?'':'en'}">${esc(o)}</span></button>`).join('')}</div>`;
+  }else if(ex.t==='gap'){
+    body=`<div class="ex-sentence">${ex.sentence.split('___').map((part,i,arr)=>esc(part)+(i<arr.length-1?'<span class="blank">______</span>':'')).join('')}</div>
+      <input class="txt" id="answer-input" placeholder="הקלד את הצורה החסרה…" value="${escA(QS.typed)}" ${disabled} autocomplete="off" autocapitalize="off" spellcheck="false">`;
+  }else if(ex.t==='type'||ex.t==='listen'){
+    body=`${ex.t==='listen'?`<button class="listen-big" data-act="listen">🔊 השמע</button>`:''}
+      <input class="txt" id="answer-input" placeholder="הקלד באנגלית…" value="${escA(QS.typed)}" ${disabled} autocomplete="off" autocapitalize="off" spellcheck="false">`;
+  }else if(ex.t==='scr'){
+    body=`<div class="scr-zone" id="scr-zone">${QS.zone.map(id=>{const t=QS.tokens.find(x=>x.id===id);return `<button class="tok in-zone" data-act="unpick" data-id="${id}">${esc(t.w)}</button>`}).join('')}</div>
+      <div class="scr-zone" style="border-style:solid;border-color:var(--line)">${QS.tokens.filter(t=>!QS.zone.includes(t.id)).map(t=>`<button class="tok" data-act="pick" data-id="${t.id}">${esc(t.w)}</button>`).join('')}</div>`;
+  }
+  const isExam=ctx.scope==='exam';
+  const actions = isExam
+    ? (ex.t==='mcq'||ex.t==='listenmcq' ? '' : `<button class="btn primary" data-act="check">✔ בדיקה</button>`)
+    : (ex.t==='mcq'||ex.t==='listenmcq'
+      ? `<button class="btn sm ghost" data-act="hint">💡 רמז</button>${ex.rule?`<button class="btn sm ghost" data-act="rule" data-rule="${ex.rule}">📘 הכלל</button>`:''}`
+      : `<button class="btn primary" data-act="check">✔ בדיקה</button>
+         <button class="btn sm ghost" data-act="hint">💡 רמז</button>
+         ${ex.t==='scr'?`<button class="btn sm ghost" data-act="clear">↩ ניקוי</button>`:''}
+         ${ex.rule?`<button class="btn sm ghost" data-act="rule" data-rule="${ex.rule}">📘 הכלל</button>`:''}`);
+  return `<div class="ex-shell">
+    <div class="ex-top">
+      <span class="tag">${badge}</span><span class="tag lime">${skillTag}</span>
+      ${ctx.total?`<span class="tiny muted">${ctx.index+1} מתוך ${ctx.total}</span>`:''}
+      ${ctx.scope==='unit'?`<button class="btn xs ghost" style="margin-inline-start:auto" data-act="unit-rules">📖 הסבר היחידה</button>`:''}
+    </div>
+    <div class="ex-progress"><i style="width:${ctx.total?Math.round((ctx.index)/ctx.total*100):0}%"></i></div>
+    <div class="ex-card">
+      <div class="ex-num">${ctx.scope==='exam'?'שאלת מבחן':ctx.scope==='review'?'כרטיס חזרה':'תרגיל'} ${ctx.index+1}${ctx.total?' / '+ctx.total:''}</div>
+      <div class="ex-q">${ex.q}</div>
+      ${body}
+      <div id="hint-slot"></div>
+      <div class="ex-actions">${actions}</div>
+      <div id="fb-slot" aria-live="polite"></div>
+    </div>
+  </div>`;
+}
+function renderQuestion(){
+  const host=$('#ex-host');
+  if(host) host.innerHTML=exerciseCardHTML();
+  else {
+    const shell=$('.ex-shell');
+    if(shell) shell.outerHTML=exerciseCardHTML();
+  }
+  const inp=$('#answer-input');
+  if(inp){ inp.addEventListener('input',e=>{QS.typed=e.target.value}); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); checkTyped(); } }); }
+}
+function currentAccepted(){
+  const ex=QS.ex;
+  return [].concat(ex.ans||[]);
+}
+function finalize(ok, given){
+  if(QS.answered) return;
+  QS.answered=true; QS.correct=ok; QS.given=given;
+  const ex=QS.ex, firstTry=QS.attempts===0;
+  trackAnswer(ex,ok);
+  markProg(ex,ok);
+  let gain=0;
+  if(ok){
+    gain = QS.ctx.scope==='review' ? (firstTry?5:2) : (firstTry?10:5);
+    if(QS.hint>0) gain=Math.min(gain,3);
+    addXP(gain,$('.ex-card')); beep(true);
+  }
+  else beep(false);
+  if(ex.t==='mcq'||ex.t==='listenmcq'){
+    $$('.opt').forEach(b=>{
+      b.disabled=true;
+      if(normHE(b.dataset.opt)===normHE(ex.ans)) b.classList.add('correct');
+      else if(b.dataset.opt===given) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+  }
+  const inp=$('#answer-input'); if(inp) inp.disabled=true;
+  if(ex.skill==='listening' && ok){}
+  if(QS.ctx.scope==='review' && typeof reviewAnswered==='function') reviewAnswered(ok);
+  if(QS.ctx.scope==='exam' && typeof examAnswered==='function') examAnswered(ok);
+  if(QS.ctx.scope==='drill' && typeof drillAnswered==='function') drillAnswered(ok);
+  showFeedback(ok,gain);
+  save();
+}
+function markProg(ex,ok){
+  if(QS.ctx.scope==='review'||QS.ctx.scope==='exam'||QS.ctx.scope==='drill') return;
+  const p=S.prog[ex.id] || (S.prog[ex.id]={done:false,correct:0,wrong:0,seen:0,first:false,ts:0});
+  p.done=true; p.seen=(p.seen||0)+1; p.ts=Date.now();
+  if(ok){ p.correct=(p.correct||0)+1; if(p.seen===1) p.first=true; }
+  else p.wrong=(p.wrong||0)+1;
+}
+function showFeedback(ok,gain){
+  const ex=QS.ex, slot=$('#fb-slot'); if(!slot) return;
+  const accepted=currentAccepted();
+  const answerLine=accepted.map(a=>`<span class="en">${esc(a)}</span>`).join(' / ');
+  const ruleBtn=(ex.rule&&QS.ctx.scope!=='exam')?`<button class="btn xs ghost" data-act="rule" data-rule="${ex.rule}">📘 פתח את הכלל</button>`:'';
+  const nextLabel=QS.ctx.scope==='exam'?'לשאלה הבאה ←':'הבא ←';
+  if(ok){
+    slot.innerHTML=`<div class="fb ok">
+      <h4>✅ ${praise()} ${gain?`<span style="color:var(--gold)">+${gain} XP</span>`:''}</h4>
+      ${QS.near?`<div class="small" style="color:var(--gold)">כמעט מושלם – שימי לב לאיות: <span class="en">${esc(accepted[0])}</span></div>`:''}
+      <div class="why">${ex.why||''}</div>
+      <div class="divider" style="margin:10px 0"></div>
+      <div class="row">${ruleBtn}<button class="btn sm primary" data-act="next">${nextLabel}</button></div>
+    </div>`;
+  }else{
+    slot.innerHTML=`<div class="fb no">
+      <h4>💪 ${nope()}</h4>
+      <div class="small">התשובה הנכונה:</div>
+      <div class="answer-line">${answerLine}</div>
+      <div class="why">${ex.why||''}</div>
+      <div class="row" style="margin-top:10px">${ruleBtn}<button class="btn sm ghost" data-act="retry">🔄 נסי שוב</button><button class="btn sm primary" data-act="next">${nextLabel}</button></div>
+    </div>`;
+  }
+  slot.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function checkCurrent(){
+  if(!QS||QS.answered) return;
+  if(QS.ex.t==='scr'){
+    const val=(QS.zone||[]).map(id=>{const t=QS.tokens.find(x=>x.id===id);return t?t.w:''}).join(' ');
+    if(!val.trim()){ toast('בחרי מילים כדי לבנות משפט 🙂'); return; }
+    const res=compareAnswer(val,[QS.ex.sentence]);
+    QS.near=res.near;
+    if(res.ok) finalize(true,val);
+    else { QS.attempts++; QS.typed=val; finalize(false,val); }
+    return;
+  }
+  checkTyped();
+}
+function checkTyped(){
+  if(!QS||QS.answered) return;
+  if(QS.ex.t==='scr'){ checkCurrent(); return; }
+  const input=$('#answer-input'); const val=input?input.value:'';
+  QS.typed=val;
+  if(!val.trim()){ toast('כתבי תשובה קודם 🙂'); return; }
+  const res=compareAnswer(val,currentAccepted());
+  QS.near=res.near;
+  if(res.ok) finalize(true,val);
+  else { QS.attempts++; finalize(false,val); }
+}
+function chooseOption(val){
+  if(!QS||QS.answered) return;
+  const ex=QS.ex;
+  const ok = /[\u0590-\u05FF]/.test(ex.ans) ? normHE(val)===normHE(ex.ans) : normEN(val)===normEN(ex.ans);
+  QS.choice=val; QS.choiceCorrect=ok;
+  if(!ok) QS.attempts++;
+  finalize(ok,val);
+}
+function showHint(){
+  if(!QS) return;
+  QS.hint++;
+  const slot=$('#hint-slot'); if(!slot) return;
+  const ex=QS.ex;
+  if(ex.t==='mcq'||ex.t==='listenmcq'){
+    if(QS.hint===1){
+      const wrong=[...$$('.opt')].filter(b=>normHE(b.dataset.opt)!==normHE(ex.ans));
+      if(wrong[0]){ wrong[0].classList.add('dim'); wrong[0].disabled=true; }
+      slot.innerHTML=`<div class="hintbox">💡 פסלתי תשובה אחת. נשארו ${ex.opts.length-1}. קראי שוב את המשפט ושאלי: מי עושה את הפעולה?</div>`;
+    }else{
+      slot.innerHTML=`<div class="hintbox">💡 ${thinHint(ex.ans,2)}<br><button class="btn xs ghost" style="margin-top:6px" data-act="rule" data-rule="${ex.rule||''}">📘 הכלל יעזור</button></div>`;
+    }
+  }else if(ex.t==='scr'){
+    const first=ex.sentence.split(' ')[0];
+    slot.innerHTML=`<div class="hintbox">💡 המשפט מתחילה ב-<b class="en">${esc(first)}</b> ובסך הכול ${ex.sentence.split(' ').length} מילים.</div>`;
+  }else if(ex.t==='listen'||ex.t==='listenmcq'){
+    slot.innerHTML=`<div class="hintbox">💡 ${thinHint(ex.ans,QS.hint)}<br><button class="btn xs ghost" style="margin-top:6px" data-act="listen">🔊 השמע שוב</button></div>`;
+  }else{
+    slot.innerHTML=`<div class="hintbox">💡 ${thinHint([].concat(ex.ans)[0],QS.hint)}</div>`;
+  }
+}
+function retryQuestion(){
+  if(!QS) return;
+  const ex=QS.ex, ctx=QS.ctx, attempts=QS.attempts, hint=QS.hint;
+  mountExercise($('#ex-host'),ex,ctx);
+  QS.attempts=attempts; QS.hint=hint;
+}
+function nextInUnit(){
+  const u=UNITS.find(x=>x.id===QS.ctx.unitId);
+  let idx=QS.ctx.index+1;
+  if(idx>=u.exercises.length){
+    S.unitPos[u.id]=u.exercises.length-1; save(); render();
+    toast('🏁 סיימת את היחידה! עכשיו לחזרה החכמה');
+    return;
+  }
+  S.unitPos[u.id]=idx; save(); render();
+}
+function jumpExercise(i){
+  const u=UNITS.find(x=>x.id===QS.ctx.unitId);
+  S.unitPos[u.id]=clamp(Number(i),0,u.exercises.length-1); save(); render();
+}
+function openRule(ruleId){
+  const r=RULE_MAP[ruleId];
+  if(!r){ toast('הכלל יופיע בהסבר היחידה'); return; }
+  const u=UNITS.find(x=>x.id===r.unitId);
+  openModal(`<button class="x" data-close>✕</button>
+    <span class="tag lime">📘 ${u?u.he:''}</span>
+    <h3 style="margin-top:8px">${r.title}</h3>
+    <p class="small muted">${r.short||''}</p>
+    <div class="rule-body" style="padding:0;margin-top:10px">
+      <p>${r.body}</p>
+      <div class="formula">${esc(r.formula)}</div>
+      <ul class="ex-list">${r.examples.map(ex=>`<li><span class="en">${ex.en}</span> ${speakBtn(ex.en)}<span class="he">${ex.he}</span></li>`).join('')}</ul>
+      <div class="mistake"><b>⚠️ שימי לב:</b> ${r.mistake}</div>
+      <div class="hook"><b>💡 טריק:</b> ${r.hook}</div>
+    </div>
+    <button class="btn primary wide" style="margin-top:12px" data-close>הבנתי, חזרה לתרגיל</button>`);
+}
+/* ============================================================
+   BEERI ENGLISH COACH — core 2: review, stats, exam, settings, router
+   ============================================================ */
+
+/* ================= review / spaced repetition ================= */
+function startReview(){
+  Object.keys(S.words).forEach(k=>{ if(S.words[k]) S.words[k].key=k; });
+  let keys=dueWords().map(w=>w.key);
+  if(!keys.length){
+    keys=Object.keys(S.words).filter(k=>((S.words[k].box||0)<4)).sort((a,b)=>(S.words[a].box||0)-(S.words[b].box||0)).slice(0,10);
+  }
+  if(!keys.length){
+    toast('עוד אין מילים במעגל – התחילי מיחידה 1');
+    go('#/learn'); return;
+  }
+  S.review.queue=keys.slice(0,12);
+  S.review.idx=0; S.review.results=[]; S.review.finished=false;
+  save(); go('#/review/session');
+}
+function wordByKey(k){
+  if(ALL_WORDS[k]) return ALL_WORDS[k];
+  return ALL_WORD_LIST.find(w=>w.en.toLowerCase()===k)||null;
+}
+function reviewExercise(word){
+  const key=word.en.toLowerCase();
+  const s=S.words[key]||{box:0};
+  const others=shuffle(ALL_WORD_LIST.filter(w=>w.he!==word.he&&w.en!==word.en));
+  const box=s.box||0;
+  const mode = box>=4 ? 'listen' : box>=3 ? 'gap' : box===2 ? 'type' : 'mcq';
+  if(mode==='type'){
+    return {t:'type', id:'rev.'+key, unit:'', skill:'vocab', word:key, q:`איך כותבים באנגלית: <b>${esc(word.he)}</b>?`, ans:[word.en],
+      why:`<b class="en">${word.en}</b> = ${word.he}. ${word.ex}`, hint:`${word.en.length} אותיות, מתחילה ב-${word.en[0].toUpperCase()}.`};
+  }
+  if(mode==='gap'){
+    const base=word.en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    let m=null; try{ m=word.ex.match(new RegExp('\\b'+base+'\\w*\\b','i')); }catch(e){}
+    if(m){
+      return {t:'gap', id:'rev.g.'+key, unit:'', skill:'vocab', word:key, q:`השלימי מהזיכרון: <b class="en">${word.en}</b> (${word.he})`,
+        sentence:word.ex.replace(m[0],'___'), ans:[m[0]], why:`${word.ex} — ${word.exHe}`, hint:`מתחילה ב-${m[0][0]}.`};
+    }
+  }
+  if(mode==='listen'){
+    return {t:'listen', id:'rev.l.'+key, unit:'', skill:'listening', word:key, audio:word.en,
+      q:'לחצי 🔊, הקלידי וכתבי את המילה ששמעת.', ans:[word.en], why:`<b class="en">${word.en}</b> = ${word.he}. ${word.ex}`,
+      hint:`${word.en.length} אותיות, מתחילה ב-${word.en[0].toUpperCase()}.`};
+  }
+  const otherHe=[...new Set(others.map(w=>w.he))].filter(h=>h!==word.he).slice(0,3);
+  return {t:'mcq', id:'rev.m.'+key, unit:'', skill:'vocab', word:key,
+    q:`מה המשמעות של <b class="en">${word.en}</b>?`,
+    opts:shuffle([word.he,...otherHe]), ans:word.he,
+    why:`<b class="en">${word.en}</b> = ${word.he}. ${word.ex}`, hint:`המילה מופיעה בדוגמה: ${word.ex}`};
+}
+function reviewAnswered(ok){
+  if(!Array.isArray(S.review.results)) S.review.results=[];
+  S.review.results.push(!!ok);
+  S.review.doneToday=(S.review.doneToday||0)+1;
+  S.daily.reviews=(S.daily.reviews||0)+1;
+  S.stats.reviews=(S.stats.reviews||0)+1;
+  if(ok) toast(rnd(['נכנס עמוק יותר לזיכרון 🧠','עוד צעד ליציבות ✨','חזרה טובה! +XP']));
+  checkBadges(); save();
+}
+function nextReview(){
+  S.review.idx=(S.review.idx||0)+1;
+  if(S.review.idx>=S.review.queue.length){
+    S.review.finished=true;
+    const good=S.review.results.filter(Boolean).length;
+    if(S.review.results.length) confetti(good>=S.review.results.length*.7?30:14);
+    save(); render(); return;
+  }
+  save(); render();
+}
+function reviewOverviewHTML(){
+  const ds=wordStats();
+  const next=S.review.queue.length && !S.review.finished;
+  return `<div class="page">
+    <div class="page-head"><h1 class="page-title">🔁 מעגל החזרה</h1><p class="page-sub">חזרה מרווחת: כל מילה חוזרת בדיוק כשהמוח עומד לשכוח אותה. זה מה שהופך מילה מ"הכרתי" ל"ידעתי".</p></div>
+    <div class="card">
+      <div class="rings-card">
+        <div class="ring" style="--p:${ds.total?Math.round(ds.mastered/ds.total*100):0}"><div>${ds.mastered}<small>מילים יציבות</small></div></div>
+        <div class="legend">
+          <div class="legend-row"><span class="legend-dot" style="background:var(--gold)"></span> ממתינות לחזרה <b>${ds.due}</b></div>
+          <div class="legend-row"><span class="legend-dot" style="background:var(--cyan)"></span> בהטמעה (1–2) <b>${ds.learning}</b></div>
+          <div class="legend-row"><span class="legend-dot" style="background:var(--green)"></span> יציבות (3–4) <b>${ds.stable}</b></div>
+          <div class="legend-row"><span class="legend-dot" style="background:var(--line2)"></span> חדשות <b>${ds.newW}</b></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row" style="justify-content:space-between">
+        <div><div class="due-big">${ds.due}</div><div class="due-label">מילים ממתינות לחזרה עכשיו</div></div>
+        <button class="btn primary" data-act="start-review">${ds.due?'▶ התחילי חזרה':'▶ חזרה על החלשות'}</button>
+      </div>
+    </div>
+    <div class="grid two section">
+      <div class="card">
+        <div class="section-head"><h2>⏳ מה חוזר בקרוב</h2></div>
+        <div class="upcoming">${upcomingHTML()}</div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>🎯 אימונים קצרים</h2></div>
+        <div class="col">
+          <button class="continue" data-go="#/drill/sprint"><span class="ic">⚡</span><span style="flex:1"><b>ספרינט 5 דקות</b><span>10 תרגילים מעורבים מכל מה שלמדת</span></span><span class="arr">←</span></button>
+          <button class="continue" data-go="#/drill/listen"><span class="ic">👂</span><span style="flex:1"><b>אוזן חדה</b><span>שמיעה – מילה שנשמעת, את מזהה</span></span><span class="arr">←</span></button>
+          <button class="continue" data-go="#/drill/errors"><span class="ic">🕵️</span><span style="flex:1"><b>ציד טעויות</b><span>מצאו את המשפט הנכון</span></span><span class="arr">←</span></button>
+          <button class="continue" data-go="#/speak"><span class="ic">🎤</span><span style="flex:1"><b>תרגול דיבור</b><span>אמרי בקול, קבלי ציון על ההגייה</span></span><span class="arr">←</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>🧠 למה דווקא במעגלים?</h2></div>
+      <p class="small" style="color:#dbe4f0;line-height:1.8">כשאת פוגשת מילה שוב אחרי יום, ואז אחרי שלושה, ואז אחרי שבוע – המוח מבין שזה חשוב ושומר אותה. אם מפספסים חזרה, המילה חוזרת מהר יותר. במסלול הזה כל מילה שלך עוברת בין 5 תחנות: פוגשת → מזהה → כותבת → משתמשת → יציב. את לא צריכה לנהל כלום – המערכת מזכירה לך.</p>
+      <div class="grid four" style="margin-top:12px">
+        ${[['1','פוגשת','בתרגיל'],['2','מזהה','בבחירה'],['3','כותבת','מהזיכרון'],['4','מיישם','בשיחה'],['5','יציב','חוזר רחוק']].map(([n,t,s])=>`<div class="stat-chip" style="text-align:center"><b>${n}</b> ${t}<div class="tiny muted">${s}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function upcomingHTML(){
+  const list=Object.entries(S.words).map(([k,w])=>({k,w})).sort((a,b)=>(a.w.due||0)-(b.w.due||0)).slice(0,7);
+  if(!list.length) return `<div class="empty"><span class="big">🌱</span> עדיין אין מילים במעגל.<br>כשתתרגל יחידה, המילים יופיעו כאן.</div>`;
+  return list.map(({k,w})=>{
+    const word=wordByKey(k); if(!word) return '';
+    const delta=(w.due||0)-Date.now();
+    const when=delta<=0?'עכשיו':delta<DAY?'היום':delta<2*DAY?'מחר':`בעוד ${Math.ceil(delta/DAY)} ימים`;
+    return `<div class="up-row"><span class="en">${esc(word.en)}</span><span class="tiny muted">${word.he}</span><span class="when">${when}</span></div>`;
+  }).join('');
+}
+function pageReviewSession(){
+  const done=S.review.finished;
+  if(done){
+    const results=S.review.results||[], good=results.filter(Boolean).length, total=results.length||1;
+    return `<div class="page"><div class="chat-summary">
+      <div class="card result-hero">
+        <div style="font-size:2.4rem">${good/total>=.8?'🏆':'💪'}</div>
+        <div class="result-score">${good}/${total}</div>
+        <h2>${good/total>=.8?'הזיכרון שלך מתחזק!':'עוד סיבוב והוא יתייצב'}</h2>
+        <p class="muted small">כל חזרה מעבירה את המילים צעד אחד במעגל. המילים שטעית בהן יחזרו מוקדם יותר – בדיוק בזמן הנכון.</p>
+        <div class="row" style="justify-content:center;margin-top:14px">
+          <button class="btn primary" data-go="#/home">🏠 לבית</button>
+          <button class="btn ghost" data-act="start-review">🔁 עוד סיבוב</button>
+          <button class="btn ghost" data-go="#/chat">💬 לשיחה</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="section-head"><h2>🔮 מתי נפגש שוב</h2></div>
+        ${upcomingHTML()}
+      </div>
+    </div></div>`;
+  }
+  const key=(S.review.queue||[])[S.review.idx];
+  const word=key?wordByKey(key):null;
+  if(!word){ startReview(); return ''; }
+  const ex=reviewExercise(word);
+  return `<div class="page"><div class="chat-summary">
+    <div class="page-head"><button class="back" data-go="#/review" aria-label="חזרה">→</button><div><h1 class="page-title">🔁 חזרה חכמה</h1><div class="page-sub" style="margin:0">${S.review.idx+1} מתוך ${S.review.queue.length} · ${word.he}</div></div></div>
+    <div id="ex-host"></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="end-review">סיימי חזרה</button><button class="btn sm ghost" data-go="#/review">לתפריט החזרות</button></div>
+  </div></div>`;
+}
+function mountReview(){
+  const key=(S.review.queue||[])[S.review.idx];
+  const word=key?wordByKey(key):null;
+  if(!word||!$('#ex-host')) return;
+  mountExercise($('#ex-host'),reviewExercise(word),{scope:'review',index:S.review.idx,total:S.review.queue.length});
+}
+
+/* ================= quick drills ================= */
+let DRILL=null;
+const DRILL_META={
+  sprint:{icon:'⚡',title:'ספרינט 5 דקות',desc:'10 שאלות מעורבות מכל המסלול. תרגול מהיר לכל המוחות.'},
+  listen:{icon:'👂',title:'אוזן חדה',desc:'שמיעה בלבד: הקשיבי, זהי ובחרי. תרגול לאוזן של רקדנית.'},
+  errors:{icon:'🕵️',title:'ציד טעויות',desc:'בכל שאלה מחכים שלושה משפטים – רק אחד נכון.'}
+};
+function startDrill(kind){
+  let pool=[];
+  if(kind==='sprint') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>['mcq','type','gap','scr'].includes(e.t))).slice(0,10);
+  if(kind==='listen') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>['listen','listenmcq'].includes(e.t))).slice(0,10);
+  if(kind==='errors') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>e.t==='mcq'&&e.q.includes('איזה משפט'))).slice(0,10);
+  if(pool.length<3) pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>e.t==='mcq')).slice(0,8);
+  DRILL={kind,list:pool,idx:0,correct:0};
+  go('#/drill/'+kind);
+}
+function drillAnswered(ok){
+  if(!DRILL) return;
+  if(ok) DRILL.correct++;
+}
+function pageDrill(kind){
+  const meta=DRILL_META[kind]||DRILL_META.sprint;
+  if(!DRILL||DRILL.kind!==kind){
+    return `<div class="page"><div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">${meta.icon} ${meta.title}</h1></div></div>
+      <div class="card center"><div style="font-size:2.6rem">${meta.icon}</div><h2 style="margin:6px 0">${meta.title}</h2><p class="muted small">${meta.desc}</p>
+      <button class="btn primary" style="margin-top:14px" data-act="start-drill" data-kind="${kind}">▶ התחילי תרגול</button></div></div>`;
+  }
+  if(DRILL.idx>=DRILL.list.length){
+    const pct=Math.round(DRILL.correct/DRILL.list.length*100);
+    return `<div class="page"><div class="chat-summary"><div class="card result-hero">
+      <div style="font-size:2.2rem">${pct>=80?'🔥':pct>=50?'💪':'🌱'}</div>
+      <div class="result-score">${pct}%</div><h2>${pct>=80?'תרגול חזק מאוד':'עוד תרגול קטן ואת שם'}</h2>
+      <p class="muted small">${DRILL.correct} מתוך ${DRILL.list.length} נכונות.</p>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" data-act="start-drill" data-kind="${kind}">🔁 עוד סיבוב</button><button class="btn ghost" data-go="#/review">לתפריט</button></div>
+    </div></div></div>`;
+  }
+  const ex=DRILL.list[DRILL.idx];
+  return `<div class="page"><div class="chat-summary">
+    <div class="page-head"><button class="back" data-go="#/review" aria-label="חזרה">→</button><div><h1 class="page-title">${meta.icon} ${meta.title}</h1><div class="page-sub" style="margin:0">${DRILL.idx+1} מתוך ${DRILL.list.length} · ${DRILL.correct} נכונות</div></div></div>
+    <div id="ex-host"></div>
+  </div></div>`;
+}
+function mountDrill(){
+  if(!DRILL||!$('#ex-host')) return;
+  const ex=DRILL.list[DRILL.idx];
+  if(!ex) return;
+  mountExercise($('#ex-host'),ex,{scope:'drill',index:DRILL.idx,total:DRILL.list.length});
+}
+function nextDrill(){
+  if(!DRILL) return;
+  DRILL.idx++; save(); render();
+}
+
+/* ================= speaking lab ================= */
+const SPEAK_SENTENCES=[
+  {en:'I am a dancer and I love music.',he:'אני רקדנית ואני אוהבת מוזיקה.'},
+  {en:'Dana is my best friend.',he:'דנה היא החברה הכי טובה שלי.'},
+  {en:'Is she your friend? Yes, she is.',he:'היא חברה שלך? כן, היא.'},
+  {en:'I have a pink dress and new shoes.',he:'יש לי שמלה ורודה ונעליים חדשות.'},
+  {en:'She has a camera and a phone.',he:'יש לה מצלמה וטלפון.'},
+  {en:'We can dance together on the stage.',he:'אנחנו יכולות לרקוד ביחד על הבמה.'},
+  {en:'I love dancing with my friends.',he:'אני אוהבת לרקוד עם החברות שלי.'},
+  {en:'She practices every day after school.',he:'היא מתאמנת כל יום אחרי בית ספר.'},
+  {en:'Where is the dance studio?',he:'איפה סטודיו הריקוד?'},
+  {en:'The party is on Friday. Are you ready?',he:'המסיבה ביום שישי. את מוכנה?'}
+];
+
+
+
+
+
+
+
+
+
+
+
+let SPEAK={idx:0,results:[],started:false,last:null};
+function pageSpeak(){
+  if(!SPEAK.started){
+    return `<div class="page"><div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">🎤 תרגול דיבור</h1></div></div>
+      <div class="card center"><div style="font-size:2.6rem">🎤</div><h2 style="margin:6px 0">תדבר כמו על המגרש</h2>
+      <p class="muted small">10 משפטים על ריקוד וחברות. הקשיבי, אמרי בקול, וקבלי ציון על מה שנקלט. הדפדפן צריך לאשר גישה למיקרופון.</p>
+      <div class="fact" style="text-align:start;margin-top:12px">טיפ: לאט וברור מנצח מהר ומבולגן. גם שופט לא שומע הילה.</div>
+      <button class="btn primary" style="margin-top:14px" data-act="speak-start">▶ להתחיל</button></div></div>`;
+  }
+  if(SPEAK.idx>=SPEAK_SENTENCES.length){
+    const avg=SPEAK.results.length?Math.round(SPEAK.results.reduce((a,b)=>a+b,0)/SPEAK.results.length):0;
+    return `<div class="page"><div class="chat-summary"><div class="card result-hero">
+      <div style="font-size:2.2rem">🎤</div><div class="result-score">${avg}%</div><h2>${avg>=80?'הגייה חזקה!':avg>=55?'יש בסיס טוב':'כל חזרה תשפר'}</h2>
+      <p class="muted small">הציון מבוסס על הטקסט שהדפדפן זיהה. מיקרופון טוב ועוד חזרות יעשו את ההבדל.</p>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" data-act="speak-start">🔁 עוד סיבוב</button><button class="btn ghost" data-go="#/review">לתפריט</button></div>
+    </div></div></div>`;
+  }
+  const s=SPEAK_SENTENCES[SPEAK.idx];
+  return `<div class="page"><div class="chat-summary">
+    <div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">🎤 תרגול דיבור</h1><div class="page-sub" style="margin:0">${SPEAK.idx+1} מתוך ${SPEAK_SENTENCES.length}</div></div></div>
+    <div class="ex-progress"><i style="width:${Math.round(SPEAK.idx/SPEAK_SENTENCES.length*100)}%"></i></div>
+    <div class="card">
+      <div class="ex-sentence" style="font-size:1.1rem">${esc(s.en)}</div>
+      <div class="small muted">${s.he}</div>
+      <div class="row" style="margin-top:12px"><button class="btn ghost" data-say="${escA(s.en)}">🔊 שמעי</button><button class="btn primary" data-act="speak-mic">🎤 דברי</button><button class="btn ghost" data-act="speak-next">דלג ←</button></div>
+      <div id="speak-result">${SPEAK.last?speakResultHTML(SPEAK.last):''}</div>
+    </div>
+  </div></div>`;
+}
+function similarity(a,b){
+  const A=normEN(a).split(' ').filter(Boolean), B=normEN(b).split(' ').filter(Boolean);
+  if(!B.length) return 0;
+  let hit=0; const used=new Set();
+  B.forEach(w=>{ const i=A.findIndex((x,j)=>!used.has(j)&&(x===w||lev(x,w)<=1)); if(i>=0){hit++;used.add(i);} });
+  return Math.round(hit/B.length*100);
+}
+function speakResultHTML(r){
+  return `<div class="fb ${r.score>=70?'ok':'info'}" style="margin-top:12px">
+    <h4>${r.score>=85?'🎯 נשמע מעולה!':r.score>=65?'👏 קרוב מאוד!':'💪 עוד חזרה אחת'}</h4>
+    <div class="small">מה שזוהה: <span class="en">${esc(r.heard||'—')}</span></div>
+    <div class="bar" style="margin-top:8px"><i style="width:${r.score}%"></i></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="speak-next">הבא ←</button><button class="btn sm ghost" data-act="speak-mic">נסי שוב</button></div>
+  </div>`;
+}
+function startSpeak(){
+  SPEAK={idx:0,results:[],started:true,last:null}; render();
+}
+function speakMic(){
+  const s=SPEAK_SENTENCES[SPEAK.idx];
+  const box=$('#speak-result');
+  if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">🎧 מקשיבה… דברי עכשיו</div>';
+  listenOnce('en-US',alts=>{
+    const heard=alts[0]||'';
+    const score=similarity(heard,s.en);
+    SPEAK.last={heard,score}; SPEAK.results.push(score);
+    S.stats.speak=(S.stats.speak||0)+1; S.stats.speakScore=(S.stats.speakScore||0)+score;
+    markActive(); addXP(score>=70?6:2); checkBadges(); save();
+    if(box) box.innerHTML=speakResultHTML(SPEAK.last);
+    if(score>=70) beep(true);
+  },err=>{
+    const msg=err==='unsupported'?'הדפדפן הזה לא תומך בזיהוי דיבור. אפשר להשתמש בווליום ולבדוק את עצמך.':'לא הצלחתי לשמוע. בדקי הרשאת מיקרופון ונסי שוב.';
+    if(box) box.innerHTML=`<div class="fb no" style="margin-top:12px">${msg}<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="speak-self">אמרתי את זה נכון</button><button class="btn sm ghost" data-act="speak-next">המשיכי ←</button></div></div>`;
+  });
+}
+function nextSpeak(){
+  SPEAK.idx++; SPEAK.last=null; save(); render();
+}
+
+/* ================= stats ================= */
+function pageStats(){
+  const li=levelInfo(), acc=accuracy(), ds=wordStats(), readiness=overallReadiness();
+  const bySkill=S.stats.bySkill||{};
+  const pct=(o)=>o&&o.a?Math.round(o.c/o.a*100):0;
+  const speakAvg=S.stats.speak?Math.round((S.stats.speakScore||0)/S.stats.speak):0;
+  const chatScore=Math.min(100,(S.stats.chats||0)*10);
+  const skills=[
+    ['📚 אוצר מילים',ds.total?Math.round(ds.mastered/ds.total*100):0,`${ds.mastered} מילים יציבות`],
+    ['📘 דקדוק',ruleStrength(),`${Object.keys(S.rules).length} כללים נפגשו`],
+    ['👂 שמיעה',pct(bySkill.listening),`${bySkill.listening?bySkill.listening.a:0} תרגילי שמיעה`],
+    ['🎤 דיבור',speakAvg,`${S.stats.speak||0} אימוני דיבור`],
+    ['💬 שיחה',chatScore,`${S.stats.chats||0} שיחות`]
+  ];
+  const week=[]; for(let i=6;i>=0;i--){ const t=Date.now()-i*DAY, k=dateKey(t); week.push({k,label:new Date(t).toLocaleDateString('he-IL',{weekday:'short'}),xp:S.activeDays[k]||0,today:i===0}); }
+  const max=Math.max(10,...week.map(w=>w.xp));
+  return `<div class="page">
+    <div class="page-head"><h1 class="page-title">📈 ההתקדמות שלך</h1><p class="page-sub">לא רק ציונים – תמונת מצב של איך את לומדת, זוכרת ומדברת.</p></div>
+    <div class="grid two">
+      <div class="card">
+        <div class="row"><span class="tag lime">רמה ${li.lvl}</span><span class="tag">${S.xp} XP</span></div>
+        <div class="stat-big" style="margin-top:10px">${readiness}% <small>מוכנות כללית</small></div>
+        <div class="bar" style="margin-top:10px"><i style="width:${readiness}%"></i></div>
+        <div class="small muted" style="margin-top:6px">${readiness<35?'בתחילת הדרך – כל יום מוסיף לבסיס 🌱':readiness<60?'מתקדם יפה – השגרה עובדת 🚀':readiness<80?'כמעט שם – עוד קצת חזרות 💪':'מוכנה – את מדברת ובוטחת 🏆'}</div>
+        <div class="divider"></div>
+        <div class="small muted">עוד ${250-li.into} XP לרמה ${li.lvl+1}</div>
+        <div class="bar" style="margin-top:5px"><i style="width:${li.pct}%"></i></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>🔥 השבוע שלך</h2><span class="tag gold">${S.streak||0} ימים ברצף</span></div>
+        <div class="week-chart">${week.map(w=>`<div class="week-bar ${w.today?'today':''}"><b>${w.xp||''}</b><i style="height:${Math.max(3,Math.round(w.xp/max*78))}%"></i><span>${w.label}</span></div>`).join('')}</div>
+        <div class="small muted" style="margin-top:8px">${acc}% דיוק · ${S.stats.answers||0} תשובות · ${S.stats.bestStreak||0} שיא רצף נכון</div>
+      </div>
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>📊 פרופיל כישורים</h2></div>
+      ${skills.map(([n,p,s])=>`<div class="skill-row"><div class="skill-top"><span>${n}</span><b>${p}%</b></div><div class="bar"><i style="width:${p}%"></i></div><div class="tiny muted">${s}</div></div>`).join('')}
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>🗺️ יחידות</h2><span class="more" data-go="#/learn">למסלול ←</span></div>
+      ${UNITS.map(u=>`<div class="up-row" style="cursor:pointer" data-go="#/unit/${u.id}/practice"><span>${u.icon}</span><span>${u.he}</span><span class="tiny muted">${u.title}</span><span class="when">${unitPct(u)}%</span></div>`).join('')}
+    </div>
+    <div class="section">
+      <div class="section-head"><h2>🏅 הישגים</h2><span class="tiny muted">${ACHIEVEMENTS.filter(a=>S.badges[a.id]).length}/${ACHIEVEMENTS.length}</span></div>
+      <div class="badge-grid">${ACHIEVEMENTS.map(a=>`<div class="badge ${S.badges[a.id]?'on':''}" title="${a.desc}"><span class="ic">${a.icon}</span><b>${a.name}</b><span>${a.desc}</span></div>`).join('')}</div>
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>📝 מבחן מסכם</h2><span class="tag ${S.exam.best>=85?'lime':'gold'}">${S.exam.best?S.exam.best+'/100':'טרם בוצע'}</span></div>
+      <p class="small muted">${S.exam.last?`בוצע לאחרונה ב-${new Date(S.exam.last.date).toLocaleDateString('he-IL')} · ${S.exam.last.correct}/${S.exam.last.total} נכונות`:'20 שאלות מכל המסלול. בסוף תקבלי ציון ופירוט.'}</p>
+      <button class="btn primary" style="margin-top:10px" data-go="#/exam">${S.exam.last?'נסי שוב':'התחילי מבחן'}</button>
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>💾 הנתונים והגיבוי</h2></div>
+      <p class="small muted">ההתקדמות נשמרת אוטומטית בדפדפן הזה. ליתר ביטחון אפשר לייצא גיבוי או ליצור קישור המשך למכשיר אחר.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn sm ghost" data-act="export">⬇️ ייצוא גיבוי</button>
+        <button class="btn sm ghost" data-act="backup-link">🔗 קישור המשך</button>
+        <button class="btn sm ghost" data-act="import-file">⬆️ ייבוא</button>
+        <button class="btn sm ghost" data-act="settings">⚙️ הגדרות</button>
+      </div>
+      <div class="tiny muted" style="margin-top:8px">המפתח של Groq לא נכלל בגיבוי או בקישור.</div>
+    </div>
+  </div>`;
+}
+
+/* ================= exam ================= */
+let EXAM=null, EXAM_RESULT=null, examTimer=null;
+function startExam(){
+  const pool=UNITS.flatMap(u=>u.exercises).filter(e=>['mcq','type','gap','scr'].includes(e.t));
+  const list=shuffle(pool).slice(0,20);
+  EXAM={list,idx:0,correct:0,answers:[],start:Date.now()};
+  S.exam.active={ids:list.map(e=>e.id),idx:0,correct:0,answers:[],start:EXAM.start};
+  EXAM_RESULT=null; save(); go('#/exam');
+}
+function hydrateExam(){
+  if(EXAM || !S.exam.active || !S.exam.active.ids) return;
+  const list=S.exam.active.ids.map(id=>EX_MAP[id]).filter(Boolean);
+  if(!list.length){ S.exam.active=null; return; }
+  EXAM={list,idx:S.exam.active.idx||0,correct:S.exam.active.correct||0,answers:S.exam.active.answers||[],start:S.exam.active.start||Date.now()};
+}
+function examAnswered(ok){
+  if(!EXAM) return;
+  if(ok) EXAM.correct++;
+  EXAM.answers[EXAM.idx]=ok;
+  S.exam.active={ids:EXAM.list.map(e=>e.id),idx:EXAM.idx,correct:EXAM.correct,answers:EXAM.answers,start:EXAM.start};
+  save();
+}
+function nextExam(){
+  if(!EXAM) return;
+  EXAM.idx++;
+  if(EXAM.idx>=EXAM.list.length){ finishExam(); return; }
+  S.exam.active.idx=EXAM.idx; save(); render();
+}
+function finishExam(){
+  if(!EXAM) return;
+  const total=EXAM.list.length, correct=EXAM.correct, score=Math.round(correct/total*100);
+  S.exam.last={score,correct,total,date:Date.now()};
+  S.exam.best=Math.max(S.exam.best||0,score); S.exam.attempts=(S.exam.attempts||0)+1;
+  S.exam.active=null;
+  EXAM_RESULT={score,correct,total};
+  addXP(Math.max(10,Math.round(score/3)),$('#ex-host'));
+  checkBadges(); saveNow(); EXAM=null;
+  confetti(score>=70?34:12);
+  render();
+}
+function pageExam(){
+  if(EXAM_RESULT){
+    const {score,correct,total}=EXAM_RESULT;
+    return `<div class="page"><div class="chat-summary"><div class="card result-hero">
+      <div style="font-size:2.4rem">${score>=85?'🏆':score>=60?'🎯':'🌱'}</div>
+      <div class="result-score">${score}</div>
+      <h2>${score>=85?'מצוין, גפן!':score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
+      <p class="muted small">${correct} מתוך ${total} נכונות · הציון נשמר בפרופיל שלך.</p>
+      <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>Gefen English Coach · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
+      <div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" data-act="start-exam">🔁 נסי שוב</button><button class="btn ghost" data-go="#/stats">📈 להתקדמות</button><button class="btn ghost" data-go="#/review">🔁 לחזרה</button></div>
+    </div></div></div>`;
+  }
+  hydrateExam();
+  if(!EXAM){
+    return `<div class="page"><div class="page-head"><button class="back" data-go="#/learn">→</button><div><h1 class="page-title">📝 מבחן סוף מסלול</h1></div></div>
+      <div class="card center"><div style="font-size:2.6rem">🏁</div><h2 style="margin:6px 0">מוכנה למבחן?</h2>
+      <p class="muted small" style="max-width:46ch;margin:0 auto">20 שאלות מכל 4 היחידות. אין לחץ זמן – המטרה היא לגלות מה יציב ומה עוד צריך לחזק. אחרי כל תשובה תקבלי הסבר.</p>
+      ${S.exam.last?`<div class="fact" style="margin-top:12px">הציון האחרון שלך: <b>${S.exam.last.score}/100</b> · השיא: ${S.exam.best}/100</div>`:''}
+      <button class="btn primary" style="margin-top:14px" data-act="start-exam">▶ התחילי מבחן</button></div>
+    </div>`;
+  }
+  const ex=EXAM.list[EXAM.idx];
+  if(!ex){ finishExam(); return ''; }
+  return `<div class="page"><div class="chat-summary">
+    <div class="exam-head"><button class="back" data-go="#/learn">→</button><div><h1 class="page-title" style="font-size:1.1rem">📝 מבחן מסכם</h1><div class="tiny muted">${EXAM.idx+1} מתוך ${EXAM.list.length}</div></div>
+    <span class="timer" id="exam-timer" style="margin-inline-start:auto">00:00</span><span class="tag lime">${EXAM.correct} נכונות</span></div>
+    <div id="ex-host"></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="abort-exam">צא מהמבחן</button></div>
+  </div></div>`;
+}
+function mountExam(){
+  if(!EXAM||!$('#ex-host')) return;
+  const ex=EXAM.list[EXAM.idx];
+  if(!ex) return;
+  mountExercise($('#ex-host'),ex,{scope:'exam',index:EXAM.idx,total:EXAM.list.length});
+  const t0=EXAM.start||Date.now();
+  clearInterval(examTimer);
+  const upd=()=>{const el=$('#exam-timer');if(!el)return;const s=Math.floor((Date.now()-t0)/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+  upd(); examTimer=setInterval(upd,1000);
+}
+
+/* ================= settings / data ================= */
+function openSettings(){
+  const a=S.api;
+  openModal(`<button class="x" data-close>✕</button>
+    <h3>⚙️ הגדרות</h3>
+    <p class="small muted">הכול נשמר אוטומטית במכשיר הזה.</p>
+    <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
+    <div class="grid two">
+      <div class="field"><label>גודל טקסט</label><select id="set-fs">${[['.92','קטן'],['1','רגיל'],['1.1','גדול'],['1.2','גדול מאוד']].map(([v,l])=>`<option value="${v}" ${String(S.settings.fontScale)===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>מהירות השמעה</label><select id="set-rate">${[['.7','איטי'],['.85','רגיל'],['1','מהיר']].map(([v,l])=>`<option value="${v}" ${String(S.settings.ttsRate)===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>צלילי משוב</label><label class="radio-opt"><input type="checkbox" id="set-sound" ${S.settings.sound?'checked':''}> <span><b>הפעל צלילים</b><span>צליל קצר לתשובה נכונה/שגויה</span></span></label></div>
+    <div class="field"><label>תרגום אוטומטי בשיחה</label><label class="radio-opt"><input type="checkbox" id="set-tr" ${S.settings.showTr?'checked':''}> <span><b>הצג תרגום לעברית</b><span>אפשר להסתיר בכל הודעה בנפרד</span></span></label></div>
+    <div class="field"><label class="radio-opt"><input type="checkbox" id="set-autospeak" ${S.settings.autoSpeak?'checked':''}> <span><b>הקראה אוטומטית של תשובות המאמנת</b><span>המאמנת תקריא כל תשובה באנגלית</span></span></label></div>
+    <div class="divider"></div>
+    <h3 style="font-size:1rem">🤖 חיבור המאמנת (Groq)</h3>
+    <p class="small muted">בחרי מצב. במצב מקומי המאמנת עובדת בלי אינטרנט; עם Groq השיחה חופשית באמת.</p>
+    <div class="radio-row" style="margin-top:8px">
+      <label class="radio-opt"><input type="radio" name="api-mode" value="local" ${a.mode==='local'?'checked':''}><span><b>מאמנת מקומית (בלי מפתח)</b><span>תרגול לפי תרחישים + תיקון טעויות נפוצות. עובד תמיד.</span></span></label>
+      <label class="radio-opt"><input type="radio" name="api-mode" value="proxy" ${a.mode==='proxy'?'checked':''}><span><b>Groq דרך Proxy (מומלץ לאתר ציבורי)</b><span>דף סטטי לא יכול להסתיר מפתח. Worker קטן של Cloudflare מחזיק את מפתח ה-Groq בצד השרת. הדביקי כאן את כתובת ה-Worker.</span></span></label>
+      <label class="radio-opt"><input type="radio" name="api-mode" value="direct" ${a.mode==='direct'?'checked':''}><span><b>Groq ישיר — מפתח בדפדפן</b><span>Groq מאפשר קריאות ישירות מהדפדפן, ולכן זה עובד מיד. המפתח נשמר רק במכשיר הזה, אבל בדף ציבורי הוא גלוי למי שפותח אותו.</span></span></label>
+    </div>
+    <div class="field"><label>מפתח Groq</label><input type="password" id="set-key" class="ltr" placeholder="הדביקי כאן את המפתח (לא נכלל בגיבוי)" value="${escA(a.key||'')}" autocomplete="off"><div class="help">משיגים ב-console.groq.com/keys (המפתח מתחילה ב-gsk_). באתר ציבורי עדיף Proxy – אחרת כל מי שפותח את הדף יכול לראות את המפתח.</div></div>
+    <div class="grid two">
+      <div class="field"><label>מודל</label><input id="set-model" class="ltr" list="model-list" value="${escA(a.model||'llama-3.3-70b-versatile')}"><datalist id="model-list"><option value="llama-3.3-70b-versatile"><option value="llama-3.1-8b-instant"></datalist><div class="help">llama-3.3-70b-versatile – חכם יותר. llama-3.1-8b-instant – מהיר מאוד. אפשר להקליד כל מודל שמופיע ב-console.groq.com.</div></div>
+      <div class="field"><label>כתובת Proxy</label><input id="set-proxy" class="ltr" placeholder="https://your-worker.workers.dev/chat" value="${escA(a.proxy||'')}"></div>
+    </div>
+    <div class="field"><label>Endpoint (מצב ישיר)</label><input id="set-endpoint" class="ltr" value="${escA(a.endpoint||'https://api.groq.com/openai/v1/chat/completions')}"></div>
+    <div class="row" style="margin-top:12px"><button class="btn sm cyan" data-act="test-api">🔌 בדקי חיבור</button><button class="btn sm ghost" data-act="guide">📖 מדריך Groq</button></div>
+    <div id="api-status"></div>
+    <div class="divider"></div>
+    <div class="row"><button class="btn primary" data-act="save-settings" style="flex:1">שמרי הגדרות</button><button class="btn ghost" data-close>סגור</button></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="export">⬇️ ייצוא גיבוי</button><button class="btn sm ghost" data-act="import-file">⬆️ ייבוא</button><button class="btn sm ghost" data-act="backup-link">🔗 קישור המשך</button></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm danger" data-act="reset-all">🔄 איפוס כל ההתקדמות</button></div>`);
+}
+function readSettings(){
+  const mode=(document.querySelector('input[name="api-mode"]:checked')||{}).value||'local';
+  S.settings.goal=clamp(Number($('#set-goal').value)||60,10,300);
+  S.settings.fontScale=Number($('#set-fs').value)||1;
+  S.settings.ttsRate=Number($('#set-rate').value)||.9;
+  S.settings.sound=$('#set-sound').checked;
+  S.settings.showTr=$('#set-tr').checked;
+  S.settings.autoSpeak=$('#set-autospeak').checked;
+  S.api.mode=mode;
+  S.api.key=$('#set-key').value.trim();
+  S.api.model=($('#set-model').value||'llama-3.3-70b-versatile').trim();
+  S.api.proxy=$('#set-proxy').value.trim();
+  S.api.endpoint=($('#set-endpoint').value||'https://api.groq.com/openai/v1/chat/completions').trim();
+  applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
+  if(mode==='direct' && !S.api.key) toast('שימי לב: במצב ישיר צריך מפתח Groq');
+  if(location.hash.includes('/chat')) render();
+}
+function openGuide(){
+  openModal(`<button class="x" data-close>✕</button>
+    <h3>📖 חיבור Groq – מדריך קצר</h3>
+    <ol style="font-size:.86rem;line-height:1.9;padding-inline-start:18px">
+      <li>היכנסי ל-<a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>, התחברי וצרי API Key. העתיקי אותו.</li>
+      <li>בהגדרות כאן בחרי <b>Groq ישיר</b>, הדביקי את המפתח, ובחרי מודל <b>llama-3.3-70b-versatile</b>. לחצי <b>בדקי חיבור</b>.</li>
+      <li>אם זה עובד – שמרי. המפתח נשמר רק בדפדפן הזה ולא נשלח לשום מקום חוץ מ-Groq.</li>
+      <li><b>לאתר ציבורי (GitHub Pages):</b> עדיף Worker של Cloudflare שמסתיר את המפתח. בחרי <b>Proxy</b> והדביקי את כתובת ה-Worker (הקוד בקובץ groq-proxy-worker.js).</li>
+    </ol>
+    <div class="fact" style="margin-top:10px"><b>חשוב:</b> דף סטטי לא יכול להסתיר מפתח. אם האתר פתוח לכולם – כל מי שמפתח את הדף יכול להעתיק אותו. לכן במצב ציבורי משתמשים ב-Proxy.</div>
+    <div class="divider"></div>
+    <p class="small muted">אם מודל מפסיק לעבוד או מוגבל – בחרי מודל אחר מהרשימה. לגפן מספיק מודל מהיר וקטן.</p>
+    <button class="btn primary wide" style="margin-top:12px" data-close>הבנתי</button>`);
+}
+function exportBackup(){
+  const copy=JSON.parse(JSON.stringify(S));
+  delete copy.api;
+  const blob=new Blob([JSON.stringify(copy,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='gefen-english-progress.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast('⬇️ הגיבוי הורד');
+}
+function miniState(){
+  const c=JSON.parse(JSON.stringify(S));
+  delete c.api; delete c.chat.messages; delete c.chat.history; delete c.chat.learned;
+  return c;
+}
+function backupLink(){
+  const json=JSON.stringify(miniState());
+  const b64=btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const url=location.origin+location.pathname+'#/import/'+b64;
+  if(url.length>8000){ toast('הקישור ארוך – עדיף ייצוא קובץ'); }
+  try{ navigator.clipboard.writeText(url); toast('🔗 הקישור הועתק'); }catch(e){}
+  openModal(`<button class="x" data-close>✕</button><h3>🔗 קישור המשך</h3>
+    <p class="small muted">פתח את הקישור הזה במכשיר אחר – ההתקדמות תיובא אחרי אישור. הקישור לא כולל את מפתח ה-API או את היסטוריית השיחות.</p>
+    <textarea class="txt ltr" style="height:90px;font-size:.7rem" readonly>${escA(url)}</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn sm" data-copy="${escA(url)}">📋 העתקה</button><button class="btn sm primary" data-go="${escA(url)}">פתח במכשיר הזה</button></div>`);
+}
+function importFilePicker(){
+  const input=document.createElement('input'); input.type='file'; input.accept='application/json,.json';
+  input.onchange=()=>{
+    const f=input.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{ try{ const obj=JSON.parse(r.result); if(!obj||typeof obj!=='object') throw 0; applyImport(obj); }catch(e){ toast('הקובץ לא תקין'); } };
+    r.readAsText(f);
+  };
+  input.click();
+}
+function applyImport(obj){
+  const api=S.api, name=S.name;
+  S={...freshState(), ...obj};
+  S.api=api; S.name=name;
+  S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0};
+  S.settings={...freshState().settings,...(obj.settings||{})};
+  S.review={...freshState().review,...(obj.review||{}),queue:[],idx:0,finished:false};
+  S.chat={...freshState().chat,...(obj.chat||{})};
+  S.exam.active=null;
+  hydrateExtraWords();
+  saveNow(); applyFontScale(); closeModal(); updateHeader(); toast('✅ ההתקדמות יובאה'); go('#/home');
+}
+function openReset(){
+  openModal(`<button class="x" data-close>✕</button><h3 style="color:var(--red)">לאפס הכול?</h3>
+    <p class="small muted">כל הנקודות, ההתקדמות, המילים, ההישגים והשיחות יימחקו מהמכשיר הזה. אין שחזור.</p>
+    <div class="row" style="margin-top:14px"><button class="btn" data-close>ביטול</button><button class="btn danger" data-act="confirm-reset">כן, אפס הכול</button></div>`);
+}
+function doReset(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  try{ history.replaceState(null,'',location.pathname); }catch(e){}
+  location.reload();
+}
+
+/* ================= modal ================= */
+function openModal(html){
+  const o=$('#overlay');
+  o.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  o.hidden=false; document.body.style.overflow='hidden';
+}
+function closeModal(){
+  const o=$('#overlay'); o.hidden=true; o.innerHTML=''; document.body.style.overflow='';
+}
+
+/* ================= chat report hooks (defined in chat.js) ================= */
+function openChatReport(){ if(typeof showChatReport==='function') showChatReport(); }
+
+/* ================= router ================= */
+function parts(){ return location.hash.replace(/^#\/?/,'').split('/').filter(Boolean); }
+function go(hash){ if(!hash) return; closeModal(); if(location.hash===hash){ render(); } else location.hash=hash; }
+function updateNav(){
+  const p=parts(), root=p[0]||'home';
+  const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats'};
+  $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===(map[root]||'home')));
+}
+function render(){
+  clearInterval(examTimer);
+  const p=parts(), root=p[0]||'home';
+  const main=$('#main'); if(!main) return;
+  let html='';
+  try{
+    if(root==='home') html=pageHome();
+    else if(root==='learn') html=pageLearn();
+    else if(root==='unit') html=pageUnit(p[1],p[2]||'explain');
+    else if(root==='review') html=p[1]==='session'?pageReviewSession():reviewOverviewHTML();
+    else if(root==='drill') html=pageDrill(p[1]||'sprint');
+    else if(root==='speak') html=pageSpeak();
+    else if(root==='chat') html=pageChat(p[1]||'');
+    else if(root==='stats') html=pageStats();
+    else if(root==='exam') html=pageExam();
+    else if(root==='import'){ handleImportRoute(p.slice(1).join('/')); return; }
+    else html=pageHome();
+  }catch(e){
+    console.error(e);
+    html=`<div class="page"><div class="card"><h3>משהו נתקע 🙂</h3><p class="small muted">נסי לרענן. השגיאה לא מוחקת את ההתקדמות.</p><button class="btn primary" data-go="#/home">לבית</button></div></div>`;
+  }
+  main.innerHTML=html;
+  updateHeader(); updateNav();
+  if(root==='unit' && p[2]==='practice'){ const u=UNITS.find(x=>x.id===p[1]); if(u) mountUnitPractice(u); }
+  if(root==='review' && p[1]==='session' && !S.review.finished) mountReview();
+  if(root==='drill') mountDrill();
+  if(root==='speak') {} // rendered directly
+  if(root==='exam') mountExam();
+  if(root==='chat' && typeof mountChat==='function') mountChat();
+  S.last.route=location.hash||'#/home'; save();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function handleImportRoute(data){
+  try{
+    let b64=data.replace(/-/g,'+').replace(/_/g,'/');
+    while(b64.length%4) b64+='=';
+    const json=decodeURIComponent(escape(atob(b64)));
+    const obj=JSON.parse(json);
+    PENDING_IMPORT=obj;
+    openModal(`<button class="x" data-close>✕</button><h3>📥 ייבאי התקדמות?</h3>
+      <p class="small muted">מצאתי בקישור התקדמות של Gefen English Coach. לייבא אותה למכשיר הזה? הנתונים הנוכחיים יוחלפו (מפתח ה-API נשמר).</p>
+      <div class="row" style="margin-top:12px"><button class="btn ghost" data-close>ביטול</button><button class="btn primary" data-act="confirm-import">ייבאי עכשיו</button></div>`);
+    history.replaceState(null,'','#/home');
+    render();
+  }catch(e){ toast('הקישור לא תקין'); go('#/home'); }
+}
+let PENDING_IMPORT=null;
+
+/* ================= global events ================= */
+function handleGlobalClick(e){
+  const t=e.target.closest('[data-say]');
+  if(t){ speak(t.dataset.say); return; }
+  const nav=e.target.closest('[data-nav]');
+  if(nav){ go('#/'+nav.dataset.nav); return; }
+  const g=e.target.closest('[data-go]');
+  if(g){ const href=g.dataset.go; if(href.startsWith('http')) window.location.href=href; else go(href); return; }
+  const cp=e.target.closest('[data-copy]');
+  if(cp){ try{ navigator.clipboard.writeText(cp.dataset.copy); toast('📋 הועתק'); }catch(err){} return; }
+  if(e.target.closest('[data-close]')){ closeModal(); return; }
+  if(e.target.id==='overlay'){ closeModal(); return; }
+  const opt=e.target.closest('[data-opt]');
+  if(opt && QS && !QS.answered){ chooseOption(opt.dataset.opt); return; }
+  const act=e.target.closest('[data-act]');
+  if(!act) return;
+  const a=act.dataset.act;
+  switch(a){
+    case 'check': checkCurrent(); break;
+    case 'hint': showHint(); break;
+    case 'next':
+      if(QS.ctx.scope==='review') nextReview();
+      else if(QS.ctx.scope==='drill') nextDrill();
+      else if(QS.ctx.scope==='exam') nextExam();
+      else nextInUnit();
+      break;
+    case 'retry': retryQuestion(); break;
+    case 'listen': if(QS){ const src=QS.ex.audio||QS.ex.ans[0]; speak(src); } break;
+    case 'rule': e.stopPropagation(); openRule(act.dataset.rule); break;
+    case 'unit-rules': { const u=UNITS.find(x=>x.id===QS.ctx.unitId); if(u) openUnitRules(u); break; }
+    case 'pick': if(QS){ QS.zone.push(Number(act.dataset.id)); renderQuestion(); } break;
+    case 'unpick': if(QS){ QS.zone=QS.zone.filter(x=>x!==Number(act.dataset.id)); renderQuestion(); } break;
+    case 'clear': if(QS){ QS.zone=[]; renderQuestion(); } break;
+    case 'jump': if(QS&&QS.ctx.unitId) jumpExercise(act.dataset.idx); break;
+    case 'toggle-map': S.seen.mapOpen=!S.seen.mapOpen; render(); break;
+    case 're-practice': S.seen.retryPractice=true; S.unitPos[UNITS.find(x=>x.id===QS?.ctx.unitId)?.id||'u1']=0; render(); break;
+    case 'start-review': startReview(); break;
+    case 'end-review': S.review.finished=true; S.review.queue=[]; save(); go('#/review'); break;
+    case 'start-drill': startDrill(act.dataset.kind); break;
+    case 'speak-start': startSpeak(); break;
+    case 'speak-mic': speakMic(); break;
+    case 'speak-next': nextSpeak(); break;
+    case 'speak-self': { SPEAK.results.push(80); SPEAK.last={heard:'(אישור עצמי)',score:80}; S.stats.speak++; S.stats.speakScore+=80; addXP(4); nextSpeak(); break; }
+    case 'start-exam': startExam(); break;
+    case 'abort-exam': if(confirm('לצאת מהמבחן? ההתקדמות במבחן לא תישמר.')){ EXAM=null; S.exam.active=null; save(); EXAM_RESULT=null; go('#/learn'); } break;
+    case 'settings': openSettings(); break;
+    case 'toggle-sound': S.settings.sound=!S.settings.sound; saveNow(); updateHeader(); toast(S.settings.sound?'🔊 צליל פעיל':'🔇 צליל כבוי'); break;
+    case 'save-settings': readSettings(); break;
+    case 'test-api': if(typeof testApiConnection==='function') testApiConnection(); break;
+    case 'guide': openGuide(); break;
+    case 'export': exportBackup(); break;
+    case 'import-file': importFilePicker(); break;
+    case 'backup-link': backupLink(); break;
+    case 'reset-all': openReset(); break;
+    case 'confirm-reset': doReset(); break;
+    case 'confirm-import': if(PENDING_IMPORT) applyImport(PENDING_IMPORT); break;
+    case 'chat-report': openChatReport(); break;
+    default: if(typeof handleChatAction==='function') handleChatAction(a,act);
+  }
+}
+function openUnitRules(u){
+  openModal(`<button class="x" data-close>✕</button><h3>📖 כללי ${u.he}</h3>
+    <p class="small muted">${u.lead}</p>
+    ${u.rules.map(r=>`<details class="rule" style="margin-top:10px"><summary><span class="n">📌</span>${r.title}<span class="chev">▾</span></summary><div class="rule-body"><p>${r.body}</p><div class="formula">${esc(r.formula)}</div><ul class="ex-list">${r.examples.map(ex=>`<li><span class="en">${ex.en}</span><span class="he">${ex.he}</span></li>`).join('')}</ul></div></details>`).join('')}
+    <button class="btn primary wide" style="margin-top:12px" data-close>חזרה לתרגיל</button>`);
+}
+function boot(){
+  loadState();
+  Object.keys(S.words).forEach(k=>{ if(S.words[k]) S.words[k].key=k; });
+  hydrateExtraWords();
+  buildData();
+  initVoice();
+  applyFontScale();
+  if(!location.hash){
+    const last=S.last.route&&S.last.route.startsWith('#/')?S.last.route:'#/home';
+    history.replaceState(null,'',last);
+  }
+  document.addEventListener('click',handleGlobalClick);
+  window.addEventListener('hashchange',render);
+  window.addEventListener('beforeunload',saveNow);
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); });
+  render();
+  setTimeout(()=>{ if(!S.stats.answers){ toast('ברוך הבא, גפן! מתחילים ביחידה 1 💃'); } updateHeader(); },700);
+  setInterval(()=>{ if(S.daily.date!==todayKey()){ S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0}; S.review.doneToday=0; S.review.lastDate=todayKey(); saveNow(); updateHeader(); } },60000);
+}
+/* ============================================================
+   BEERI ENGLISH COACH — the conversation coach (TalkPal style)
+   Groq connection + fully usable local coach + voice + report
+   ============================================================ */
+let CHAT_BUSY=false;
+let CHAT_INIT=false;
+const SCENARIO_MAP={}; SCENARIOS.forEach(s=>SCENARIO_MAP[s.id]=s);
+
+function getScenario(id){ return SCENARIO_MAP[id]||null; }
+function canUseAI(){
+  const a=S.api;
+  if(a.mode==='direct') return !!a.key;
+  if(a.mode==='proxy') return !!a.proxy;
+  return false;
+}
+function aiModeLabel(){
+  if(!canUseAI()) return 'מאמנת מקומית';
+  return S.api.mode==='proxy'?'Groq דרך Proxy':'Groq ישיר';
+}
+function scenarioById(id){ return SCENARIOS.find(s=>s.id===id); }
+
+/* ================= gallery ================= */
+function pageChat(scenarioId){
+  if(scenarioId){
+    const sc=scenarioById(scenarioId);
+    if(sc){ ensureChat(sc); return chatScreenHTML(sc); }
+  }
+  return chatGalleryHTML();
+}
+function ensureChat(sc){
+  if(S.chat.scenario!==sc.id || !S.chat.messages || !S.chat.messages.length){
+    S.chat.scenario=sc.id;
+    S.chat.messages=[{role:'ai',text:sc.opening,he:sc.openingHe,suggestions:(sc.steps[0]&&sc.steps[0].suggestions)||[],words:sc.startWords||[],ts:Date.now()}];
+    S.chat.localTurn=0; S.chat.sessionStart=Date.now(); S.chat.learned={}; S.chat.reported=false;
+    (sc.startWords||[]).forEach(w=>{ S.chat.learned[w.en]=w.he; });
+    saveNow();
+  }
+}
+function chatGalleryHTML(){
+  const saved=S.chat.scenario?scenarioById(S.chat.scenario):null;
+  const msgs=S.chat.messages||[];
+  const lastAI=[...msgs].reverse().find(m=>m.role==='ai');
+  return `<div class="page">
+    <div class="page-head"><h1 class="page-title">💬 המאמנת שלך</h1><p class="page-sub">שיחה אמיתית באנגלית – עם תיקון עדין, הצעות תשובה, תרגום והקראה. בחרי תרחיש, או דברי בחופשיות.</p></div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,143,199,.09),rgba(61,220,245,.05));border-color:rgba(255,143,199,.25)">
+      <div class="row">
+        <div class="avatar">🤖</div>
+        <div style="flex:1"><b style="font-size:.95rem">${aiModeLabel()}</b><div class="tiny muted">${canUseAI()?`מודל: ${esc(S.api.model)} · רמה ${S.settings.level}`:'עובד גם בלי אינטרנט. חברי Groq לשיחה חופשית באמת.'}</div></div>
+        <button class="btn xs ghost" data-act="settings">הגדרות</button>
+      </div>
+      ${canUseAI()?'':`<div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="settings">🔌 חברי Groq</button><span class="tiny muted">המאמנת המקומית מלמדת, אבל לא מבינה כל משפט.</span></div>`}
+      <div class="divider"></div>
+      <div class="row">
+        <span class="tiny muted">רמת שיחה:</span>
+        ${['A1','A2','B1'].map(l=>`<button class="chip ${S.settings.level===l?'active':''}" data-set-level="${l}">${l}</button>`).join('')}
+        <span class="tiny muted" style="margin-inline-start:auto">תיקון:</span>
+        ${[['gentle','עדין'],['balanced','מאוזן'],['strict','קפדן']].map(([v,l])=>`<button class="chip ${S.settings.correction===v?'active':''}" data-set-corr="${v}">${l}</button>`).join('')}
+      </div>
+    </div>
+
+    ${saved&&msgs.length>1?`<button class="continue section" data-go="#/chat/${saved.id}" style="width:100%">
+      <span class="ic">${saved.icon}</span>
+      <span style="flex:1"><b>המשיכי שיחה: ${saved.title}</b><span>${esc((lastAI&&lastAI.text||'').slice(0,70))}…</span></span>
+      <span class="arr">←</span>
+    </button>`:''}
+
+    <div class="section-head" style="margin-top:18px"><h2>🎭 בחרי תרחיש</h2><span class="tiny muted">${SCENARIOS.length} עולמות</span></div>
+    <div class="scenario-grid">
+      ${SCENARIOS.map(s=>`<button class="scenario" data-go="#/chat/${s.id}">
+        <div class="row"><span class="ic">${s.icon}</span><span class="tag" style="margin-inline-start:auto">${s.level}</span></div>
+        <b>${s.title}</b><p>${s.desc}</p>
+        <div class="meta"><span class="tag">${s.who}</span><span class="tag lime">${s.focus}</span></div>
+        <div class="start">▶ פתח שיחה</div>
+      </button>`).join('')}
+    </div>
+
+    <div class="card section">
+      <div class="section-head"><h2>✨ מה יש כאן</h2></div>
+      <div class="grid two">
+        ${[['🗣️','תיקון בזמן אמת','טעית? המאמנת מראה מה נכון ולמה, בעברית פשוטה.'],
+           ['💡','הצעות תשובה','תקועה? קבלי 3 דרכים לומר את מה שרצית – ברמה שלך.'],
+           ['🌐','תרגום בלחיצה','לא הבנת? תרגום לעברית מתחת לכל הודעה – רק אם את רוצה.'],
+           ['🎤','דיבור והקראה','דברי למיקרופון, והמאמנת מקריאה את התשובות בקול.'],
+           ['🧠','מילים לחזרה','מילים חדשות מהשיחה נכנסות למעגל החזרה.'],
+           ['📊','דוח סיום','בסוף שיחה: כמה דיברת, מה לתקן ומה הצעד הבא.']].map(([i,t,d])=>`<div class="stat-chip" style="text-align:start"><div style="font-size:1.2rem">${i}</div><b style="font-size:.82rem">${t}</b><div class="tiny muted">${d}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card section">
+      <div class="section-head"><h2>📜 שיחות אחרונות</h2></div>
+      ${(S.chat.history||[]).length?S.chat.history.slice(0,5).map(h=>{const sc=scenarioById(h.scenario);return `<div class="up-row"><span>${sc?sc.icon:'💬'}</span><span>${sc?sc.title:'שיחה'}</span><span class="tiny muted">${new Date(h.date).toLocaleDateString('he-IL')}</span><span class="when">${h.score}% · ${h.corrections} תיקונים</span></div>`}).join(''):'<div class="empty"><span class="big">💬</span> עוד לא הייתה שיחה. בחרי תרחיש למעלה – זה לוקח 30 שניות.</div>'}
+    </div>
+  </div>`;
+}
+function chatScreenHTML(sc){
+  return `<div class="page">
+    <div class="page-head">
+      <button class="back" data-go="#/chat" aria-label="כל התרחישים">→</button>
+      <div><h1 class="page-title" style="font-size:1.1rem">${sc.icon} ${sc.title}</h1><div class="page-sub" style="margin:0">${sc.who} · ${sc.focus} · ${S.settings.level}</div></div>
+      <div class="row" style="margin-inline-start:auto"><button class="btn xs ghost" data-act="chat-report">📊 סיום</button><button class="btn xs ghost" data-act="chat-new">✚ חדש</button></div>
+    </div>
+    ${canUseAI()?'':`<div class="chat-note">💡 <b>מצב מקומי:</b> המאמנת עוקבת אחרי התרחיש ומתקנת טעויות נפוצות. לחופש אמיתי – <button class="mini-chip" data-act="settings">חברי Groq</button></div>`}
+    <div class="chat-shell" id="chat-shell">
+      <div class="chat-head">
+        <div class="avatar">${sc.icon}</div>
+        <div class="who"><b>${sc.who}</b><span>${sc.role} · ${aiModeLabel()}</span></div>
+        <div class="tools">
+          <button class="iconbtn" data-tool="translate" title="תרגום">🌐</button>
+          <button class="iconbtn" data-tool="autospeak" title="הקראה אוטומטית">🔊</button>
+          <button class="iconbtn" data-tool="level" title="שנה רמה">${S.settings.level}</button>
+          <button class="iconbtn" data-tool="settings" title="הגדרות">⚙️</button>
+        </div>
+      </div>
+      <div class="msgs" id="msgs">${chatMessagesHTML()}</div>
+      <div class="composer">
+        <div class="composer-tools">
+          <button class="mini-chip" data-tool="hint">💡 רמז</button>
+          <button class="mini-chip" data-tool="fix">🛠 תקן אותי</button>
+          <button class="mini-chip" data-tool="question">❓ שאלי אותי</button>
+          <button class="mini-chip" data-tool="phrases">📖 ביטויים</button>
+          <button class="mini-chip" data-tool="translate">🌐 תרגום</button>
+        </div>
+        <div class="composer-row">
+          <button class="mic-btn" id="chat-mic" data-act="chat-mic" title="דברי" aria-label="קלט קולי">🎤</button>
+          <textarea id="chat-input" rows="1" placeholder="Write in English… (Enter לשליחה)" aria-label="הודעה"></textarea>
+          <button class="send-btn" id="chat-send" data-act="chat-send" title="שלחי" aria-label="שלחי">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function fmt(t){
+  return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+}
+function chatMessagesHTML(){
+  const msgs=S.chat.messages||[];
+  let out=msgs.map((m,i)=>{
+    if(m.role==='me'){
+      return `<div class="msg me" data-mi="${i}"><div class="bubble">${fmt(m.text)}</div></div>`;
+    }
+    const corr=(m.error?`<div class="corr" style="border-color:rgba(255,128,128,.35);background:rgba(255,128,128,.07)">⚠️ ${esc(m.error)} <button class="mini-chip" data-act="settings">הגדרות</button></div>`:'')+((m.corrections&&m.corrections.length)?`<div class="corr"><b>פידבק על מה שכתבת</b>${m.corrections.map(c=>`<div class="fix">${c.wrong?`<s>${esc(c.wrong)}</s> → `:''}<em>${esc(c.right)}</em></div>${c.why?`<div class="tiny muted">${esc(c.why)}</div>`:''}`).join('')}</div>`:'');
+    const words=(m.words&&m.words.length)?`<div class="suggest" style="margin-top:5px">${m.words.slice(0,2).map(w=>`<span class="tag lime">${esc(w.en)} = ${esc(w.he)}</span>`).join('')}</div>`:'';
+    const sugg=(m.suggestions&&m.suggestions.length && i===msgs.length-1 && !CHAT_BUSY)?`<div class="suggest">${m.suggestions.slice(0,3).map((s,j)=>`<button data-sug="${j}" title="שלחי את התשובה הזו">${esc(s)}</button>`).join('')}</div>`:'';
+    return `<div class="msg ai ${S.settings.showTr?'show-tr':''}" data-mi="${i}">
+      <div class="bubble"><span class="en">${fmt(m.text)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
+      <div class="bubble-actions">
+        <button class="iconbtn" data-chat-say="${i}" title="השמע">🔊</button>
+        <button class="iconbtn" data-chat-tr="${i}" title="תרגום">🌐</button>
+      </div>
+      ${corr}${words}${sugg}
+    </div>`;
+  }).join('');
+  if(CHAT_BUSY) out+=`<div class="msg ai"><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div></div>`;
+  return out;
+}
+function mountChat(){
+  const inp=$('#chat-input');
+  if(inp){
+    inp.addEventListener('input',()=>{ inp.style.height='auto'; inp.style.height=Math.min(120,inp.scrollHeight)+'px'; });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
+  }
+  if(!CHAT_INIT){
+    CHAT_INIT=true;
+    document.addEventListener('click',chatDelegatedClick);
+  }
+  scrollChat();
+}
+function scrollChat(){
+  const box=$('#msgs'); if(box) box.scrollTop=box.scrollHeight;
+}
+function renderChatMessages(){
+  const box=$('#msgs'); if(!box) return;
+  box.innerHTML=chatMessagesHTML();
+  scrollChat();
+}
+
+/* ================= sending ================= */
+function sendChat(){
+  const inp=$('#chat-input'); if(!inp) return;
+  const text=inp.value.trim(); if(!text) return;
+  sendText(text);
+  inp.value=''; inp.style.height='auto';
+}
+function sendText(text){
+  if(!text||CHAT_BUSY) return;
+  const wasFirst=!(S.chat.messages||[]).some(m=>m.role==='me');
+  S.chat.messages.push({role:'me',text,ts:Date.now()});
+  if(wasFirst){ S.stats.chats=(S.stats.chats||0)+1; S.chat.sessions=(S.chat.sessions||0)+1; }
+  S.chat.reported=false;
+  S.daily.chats=(S.daily.chats||0)+1;
+  S.daily.chatXp=S.daily.chatXp||0;
+  if(S.daily.chatXp<10){ addXP(2,$('#chat-shell')); S.daily.chatXp+=2; }
+  markActive(); saveNow();
+  CHAT_BUSY=true;
+  renderChatMessages();
+  const typing=document.createElement('div');
+  if(canUseAI()){
+    aiTurn(text).then(res=>{
+      CHAT_BUSY=false;
+      appendAI(res);
+      if(S.settings.autoSpeak) speak(res.reply);
+    }).catch(err=>{
+      CHAT_BUSY=false;
+      appendAI({reply:'I had a connection problem. Let’s keep going! You can try again, or we can continue with the local coach.',he:'הייתה בעיית חיבור. אפשר לנסות שוב, או להמשיך במאמנת המקומית.',corrections:[],suggestions:[],words:[],error:apiErrorHe(err)});
+    });
+  }else{
+    setTimeout(()=>{
+      CHAT_BUSY=false;
+      const res=localCoachReply(text);
+      appendAI(res);
+      if(S.settings.autoSpeak) speak(res.reply);
+    },650);
+  }
+}
+function appendAI(res){
+  const sc=scenarioById(S.chat.scenario);
+  const words=(res.words||[]).slice(0,2);
+  words.forEach(w=>{ if(w&&w.en) S.chat.learned[w.en]=w.he||''; });
+  S.chat.messages.push({
+    role:'ai', text:res.reply||'…', he:res.translation||res.he||'',
+    corrections:res.corrections||[], suggestions:res.suggestions||[], words,
+    praise:res.praise||'', error:res.error||'', ts:Date.now()
+  });
+  if(S.chat.messages.length>80) S.chat.messages=S.chat.messages.slice(-80);
+  saveNow(); renderChatMessages();
+}
+function apiErrorHe(err){
+  const c=err&&err.apiCode;
+  if(err&&err.name==='AbortError') return 'הבקשה לקחה יותר מדי זמן. נסי שוב.';
+  if(c===401||c===403) return 'המפתח לא תקין או שאין הרשאה. בדקי את המפתח בהגדרות.';
+  if(c===429) return 'חרגת ממכסת הבקשות של Groq. המתיני רגע ונסי שוב.';
+  if(c===400) return 'הבקשה לא התקבלה – ייתכן ששם המודל שגוי או שהמודל הוסר מ-Groq – נסי מודל אחר בהגדרות.';
+  if(c===0) return 'הדפדפן חסם את החיבור (CORS) או שאין אינטרנט. בדקי את החיבור לאינטרנט, או נסי מצב Proxy.';
+  if(c===404) return 'כתובת ה-API לא נמצאה. בדקי את ה-Endpoint.';
+  return 'שגיאת חיבור ('+(c||'?')+'). אפשר להמשיך במצב המקומי.';
+}
+async function aiTurn(userText){
+  const sc=scenarioById(S.chat.scenario)||SCENARIOS[SCENARIOS.length-1];
+  const sys=buildSystemPrompt(sc);
+  const msgs=[{role:'system',content:sys}];
+  (S.chat.messages||[]).slice(-14).forEach(m=>{
+    if(m.role==='me') msgs.push({role:'user',content:m.text});
+    else msgs.push({role:'assistant',content:m.text});
+  });
+  const raw=await callGroq(msgs,{maxTokens:800});
+  if(!raw||!raw.trim()) throw new Error('empty');
+  return parseAI(raw);
+}
+function buildSystemPrompt(sc){
+  const level=S.settings.level||'A1';
+  const style={gentle:'Only correct serious mistakes (max 1). Be very gentle.',balanced:'Correct up to 2 clear mistakes. Be encouraging.',strict:'Correct up to 3 mistakes, including small ones.'}[S.settings.correction]||'Correct up to 2 clear mistakes. Be encouraging.';
+  const target=sc.words.map(w=>w.en).join(', ');
+  return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for GEFEN, a 10-year-old Israeli girl in 5th grade. She is a beginner (A1): she knows 'to be' (am/is/are), the pronouns I/you/he/she/it/we/they, and about 150 basic words. She LOVES dancing and her friends.
+
+
+YOUR ROLE: Be a warm, funny, encouraging English conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
+Target vocabulary you may weave in naturally: ${target}.
+CEFR level: ${level}. Use VERY short, simple sentences (max 8 words each), basic words only, present simple. Reply with 2–3 sentences, then exactly ONE easy question. Talk about dance, friends, music, school and hobbies.
+Correction style: ${style}
+
+If GEFEN writes in Hebrew: understand it, reply in very simple English, and gently give her the English sentence he could use. Do not shame her.
+If she writes very little (one or two words), encourage a full sentence and give a model.
+Praise effort specifically (e.g. "Nice past tense!").
+Never ask for private information, never discuss anything inappropriate for a 10-year-old child. Keep it school-safe.
+Use only well-known, accurate facts; if you are not sure, say "I'm not sure" instead of inventing.
+
+Return ONLY valid JSON, with no markdown fences, exactly in this shape:
+{"reply":"English reply, 2-4 sentences, ends with one question","translation":"תרגום טבעי של reply לעברית","corrections":[{"wrong":"the learner's exact error","right":"the corrected English","why":"הסבר קצר בעברית פשוטה, מנוסח לילדה, עד 12 מילים"}],"suggestions":["short English reply GEFEN could say","...","..."],"words":[{"en":"useful word from your reply","he":"תרגום"}],"praise":"משפט עידוד קצר בעברית, בלשון נקבה"}
+
+Rules for fields:
+- "corrections": max 2, only real errors in GEFEN's latest message. If none, use [].
+- "suggestions": exactly 3 possible replies for GEFEN, 3–7 words each, at her level, directly answering your question.
+- "words": max 2 useful new words/phrases from your reply, with accurate Hebrew.
+- "translation" and "why" must be Hebrew. "reply" and "suggestions" must be English.
+- Do not put Hebrew inside "reply". Do not add any text outside the JSON object.`;
+}
+function parseAI(raw){
+  let t=String(raw).trim().replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+  let obj=null;
+  const a=t.indexOf('{'), b=t.lastIndexOf('}');
+  if(a>=0&&b>a){
+    try{ obj=JSON.parse(t.slice(a,b+1)); }catch(e){
+      try{ obj=JSON.parse(t.slice(a,b+1).replace(/,\s*}/g,'}').replace(/,\s*]/g,']')); }catch(e2){}
+    }
+  }
+  if(!obj){
+    const m=t.match(/"reply"\s*:\s*"((?:\\.|[^"\\])*)"/);
+    if(m){
+      try{
+        const reply=JSON.parse('"'+m[1]+'"');
+        const taxi=t.match(/"translation"\s*:\s*"((?:\\.|[^"\\])*)"/);
+        const translation=taxi?JSON.parse('"'+taxi[1]+'"'):'';
+        return {reply,translation,corrections:[],suggestions:[],words:[],praise:''};
+      }catch(e){}
+    }
+    return {reply:t.replace(/^["']|["']$/g,'').slice(0,1200)||'Let’s keep going! What do you think?',translation:'',corrections:[],suggestions:[],words:[],praise:''};
+  }
+  const cleanArr=x=>Array.isArray(x)?x.filter(Boolean):[];
+  const corrections=cleanArr(obj.corrections).map(c=>{
+    if(typeof c==='string') return {wrong:'',right:c,why:''};
+    return {wrong:String(c.wrong||c.original||''),right:String(c.right||c.correct||c.corrected||''),why:String(c.why||c.explanation||'')};
+  }).filter(c=>c.right).slice(0,3);
+  const suggestions=cleanArr(obj.suggestions).map(s=>typeof s==='string'?s:String(s.text||s.reply||'')).filter(Boolean).slice(0,3);
+  const words=cleanArr(obj.words).map(w=>typeof w==='string'?{en:w,he:''}:{en:String(w.en||w.word||''),he:String(w.he||w.meaning||'')}).filter(w=>w.en).slice(0,2);
+  return {
+    reply:String(obj.reply||obj.message||'').trim()||'Let’s keep going! What do you think?',
+    translation:String(obj.translation||obj.hebrew||''),
+    corrections,suggestions,words,praise:String(obj.praise||'')
+  };
+}
+
+/* ================= Groq transport ================= */
+async function callGroq(messages,opts={}){
+  const a=S.api;
+  const url=(a.mode==='proxy'?a.proxy:a.endpoint)||'';
+  if(!url) throw Object.assign(new Error('no url'),{apiCode:404});
+  const headers={'Content-Type':'application/json','Accept':'application/json'};
+  if(a.mode==='direct'){
+    if(!a.key) throw Object.assign(new Error('no key'),{apiCode:401});
+    headers.Authorization='Bearer '+a.key;
+  }
+  const body={model:a.model||'llama-3.3-70b-versatile',messages,temperature:.72,max_tokens:opts.maxTokens||800};
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),opts.timeout||45000);
+  let res;
+  try{
+    res=await fetch(url,{method:'POST',headers,body:JSON.stringify(body),signal:ctrl.signal});
+  }catch(err){
+    clearTimeout(timer);
+    if(err.name==='AbortError') throw err;
+    throw Object.assign(new Error('network'),{apiCode:0});
+  }
+  clearTimeout(timer);
+  const raw=await res.text();
+  if(!res.ok){
+    let msg=raw;
+    try{ const j=JSON.parse(raw); msg=(j.error&&(j.error.message||j.error.code))||j.message||raw; }catch(e){}
+    throw Object.assign(new Error(msg||'http '+res.status),{apiCode:res.status});
+  }
+  let data;
+  try{ data=JSON.parse(raw); }catch(e){ throw Object.assign(new Error('bad json'),{apiCode:502}); }
+  const ch=data.choices&&data.choices[0];
+  let content=ch&&ch.message&&ch.message.content;
+  if(Array.isArray(content)) content=content.map(p=>p.text||p.content||'').join('');
+  if(!content && data.data && data.data.choices) content=data.data.choices[0]?.message?.content;
+  if(typeof content!=='string'||!content.trim()) throw Object.assign(new Error('empty'),{apiCode:502});
+  return content;
+}
+async function testApiConnection(){
+  const st=$('#api-status'); if(!st) return;
+  const mode=(document.querySelector('input[name="api-mode"]:checked')||{}).value||'local';
+  S.api.mode=mode;
+  S.api.key=$('#set-key').value.trim();
+  S.api.model=($('#set-model').value||'llama-3.3-70b-versatile').trim();
+  S.api.proxy=$('#set-proxy').value.trim();
+  S.api.endpoint=($('#set-endpoint').value||'').trim();
+  if(mode==='local'){ st.className='status bad'; st.textContent='בחרי מצב Groq (ישיר או Proxy) כדי לבדוק חיבור.'; return; }
+  if(mode==='direct'&&!S.api.key){ st.className='status bad'; st.textContent='חסר מפתח Groq.'; return; }
+  if(mode==='proxy'&&!S.api.proxy){ st.className='status bad'; st.textContent='חסרה כתובת Proxy.'; return; }
+  st.className='status'; st.textContent='בודק חיבור…';
+  const t0=Date.now();
+  try{
+    const out=await callGroq([{role:'user',content:'Reply with exactly: OK'}],{maxTokens:8,timeout:20000});
+    st.className='status ok';
+    st.innerHTML='✓ החיבור עובד ('+(Date.now()-t0)+'ms) · תשובה: '+esc(out.slice(0,30));
+  }catch(err){
+    st.className='status bad';
+    st.innerHTML='✗ '+esc(apiErrorHe(err))+'<div style="margin-top:6px"><button class="btn xs ghost" data-act="guide">איך פותרים? 📖</button></div>';
+  }
+}
+
+/* ================= local coach ================= */
+function localCorrections(text){
+  const found=[]; const seen=new Set();
+  for(const rule of LOCAL_FIXES){
+    const m=text.match(rule.re);
+    if(m){
+      const right=rule.fix(m);
+      const wrong=m[0];
+      if(!right||normEN(right)===normEN(wrong)) continue;
+      const k=wrong.toLowerCase();
+      if(seen.has(k)) continue;
+      seen.add(k);
+      found.push({wrong,right,why:rule.why});
+      if(found.length>=2) break;
+    }
+  }
+  return found;
+}
+function localCoachReply(text){
+  const sc=scenarioById(S.chat.scenario)||SCENARIOS[SCENARIOS.length-1];
+  const hebrew=/[\u0590-\u05FF]/.test(text);
+  const words=text.trim().split(/\s+/).filter(Boolean);
+  let corrections=hebrew?[]:localCorrections(text);
+  let step=sc.steps[Math.min(S.chat.localTurn,sc.steps.length-1)];
+  let reply, he, suggestions;
+  if(S.chat.localTurn<sc.steps.length){
+    reply=step.bot; he=step.he; suggestions=step.suggestions.slice();
+  }else{
+    const more=(sc.more||['Tell me more about that.'])[S.chat.localTurn%sc.more.length];
+    reply=more; he='ספרי לי עוד על זה.'; suggestions=['I think it is really interesting.','I learned that from a video.','It happened last week.'];
+  }
+  S.chat.localTurn++;
+  if(hebrew){
+    reply='Good try! Let’s say it in English: "'+(step.suggestions[0]||'I want to talk about football.')+'". '+reply;
+    he='ניסיון טוב! נסי לומר את זה באנגלית, ואז: '+he;
+    corrections=[];
+  }else if(words.length<3){
+    reply='Good start! Try a full sentence – for example: "'+(step.suggestions[0]||'I think it was a great match.')+'". '+reply;
+    he='התחלה טובה! נסי משפט שלם, למשל: "'+(step.suggestions[0]||'')+'". '+he;
+  }
+  const scWords=(sc.words||[]).filter(w=>!S.chat.learned[w.en]).slice(0,1);
+  const praise=corrections.length?'כל הכבוד שניסית – תראה למעלה איך אומרים את זה נכון.':'יפה, גפן! משפט ברור.'
+  return {reply,translation:he,corrections,suggestions,words:scWords,praise};
+}
+function askCorrection(){
+  const msgs=S.chat.messages||[];
+  const last=[...msgs].reverse().find(m=>m.role==='me');
+  if(!last){ toast('עוד לא כתבת הודעה'); return; }
+  const fixes=localCorrections(last.text);
+  appendAI({
+    reply:'Here is my feedback on your last message. Keep going – you are doing well!',
+    translation:'הנה הפידבק שלי על ההודעה האחרונה שלך. תמשיכי כך – את עושה טוב!',
+    corrections:fixes.length?fixes:[{wrong:'',right:last.text,why:'לא מצאתי טעות ברורה – המשפט תקין. כל הכבוד!'}],
+    suggestions:[],words:[],praise:fixes.length?'':'משפט מדויק!'
+  });
+}
+
+/* ================= report ================= */
+function showChatReport(){
+  const sc=scenarioById(S.chat.scenario);
+  const msgs=S.chat.messages||[];
+  const turns=msgs.filter(m=>m.role==='me').length;
+  const corrections=msgs.reduce((a,m)=>a+((m.corrections&&m.corrections.length)||0),0);
+  const learned=Object.entries(S.chat.learned||{});
+  const score=clamp(55+turns*5-Math.min(25,corrections*2),25,100);
+  if(!S.chat.reported && turns>0){
+    addXP(turns>=3?20:10,$('#chat-shell'));
+    S.chat.reported=true;
+    S.chat.history=S.chat.history||[];
+    S.chat.history.unshift({scenario:sc?sc.id:'free',date:Date.now(),turns,corrections,score,words:learned.length});
+    S.chat.history=S.chat.history.slice(0,8);
+    checkBadges();
+  }
+  saveNow();
+  openModal(`<button class="x" data-close>✕</button>
+    <div class="center"><span class="tag lime">דוח שיחה</span></div>
+    <h3 style="text-align:center;margin-top:8px">${sc?sc.icon+' '+sc.title:'שיחה'}</h3>
+    <div class="result-hero" style="padding:10px 0 4px"><div class="result-score" style="font-size:3rem">${score}</div><div class="tiny muted">ציון שיחה</div></div>
+    <div class="grid three" style="text-align:center">
+      <div class="stat-chip"><b>${turns}</b><br><span class="tiny">תשובות שלך</span></div>
+      <div class="stat-chip"><b>${corrections}</b><br><span class="tiny">תיקונים שקיבלת</span></div>
+      <div class="stat-chip"><b>${learned.length}</b><br><span class="tiny">מילים חדשות</span></div>
+    </div>
+    <div class="fact" style="margin-top:12px">${turns===0?'עוד לא כתבת הודעה. גם משפט קצר הוא התחלה!':score>=80?'שיחה חזקה! את משתמשת באנגלית בביטחון.':'כל שיחה כזו משפרת את הזרימה. שימי לב לתיקונים – הם הזהב שלך.'}</div>
+    ${learned.length?`<div class="section-head" style="margin-top:14px"><h2>📚 מילים מהשיחה</h2></div><div class="row">${learned.slice(0,8).map(([en,he])=>`<span class="tag">${esc(en)}${he?' = '+esc(he):''}</span>`).join('')}</div>`:''}
+    ${corrections?`<div class="small muted" style="margin-top:10px">התיקונים מופיעים מתחת להודעות המאמנת בשיחה – אפשר לחזור אליהם בכל רגע.</div>`:''}
+    <div class="row" style="margin-top:16px">
+      ${learned.length?`<button class="btn primary" data-chat-learn style="flex:1">➕ הוסיפי ${learned.length} מילים לחזרה</button>`:''}
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn ghost" data-go="#/review">🔁 לחזרה</button>
+      <button class="btn ghost" data-act="chat-new">✚ שיחה חדשה</button>
+      <button class="btn ghost" data-close>סגור</button>
+    </div>`);
+}
+function addChatWordsToReview(){
+  const learned=S.chat.learned||{};
+  let added=0;
+  Object.entries(learned).forEach(([en,he])=>{
+    const key=String(en).toLowerCase();
+    if(!he) return;
+    if(!ALL_WORDS[key]){
+      const w={en,he,ex:'From your conversation: '+en+'.',exHe:'מהשיחה שלך.',pron:''};
+      ALL_WORDS[key]=w; ALL_WORD_LIST.push(w);
+    }
+    if(!S.words[key]){
+      S.words[key]={box:0,due:Date.now()+DAY,seen:1,correct:0,wrong:0,last:Date.now(),key,en,he};
+      added++;
+    }
+    if(!S.words[key].en) S.words[key].en=en;
+    if(!S.words[key].he) S.words[key].he=he;
+    if(!S.words[key].key) S.words[key].key=key;
+  });
+  saveNow(); toast(added?`➕ ${added} מילים נכנסו למעגל החזרה`:'המילים כבר במעגל');
+  closeModal();
+}
+
+/* ================= chat events ================= */
+function chatDelegatedClick(e){
+  const say=e.target.closest('[data-chat-say]');
+  if(say){ const i=+say.dataset.chatSay; const m=S.chat.messages[i]; if(m) speak(m.text); e.stopPropagation(); return; }
+  const tr=e.target.closest('[data-chat-tr]');
+  if(tr){ const i=+tr.dataset.chatTr; const el=document.querySelector('.msg[data-mi="'+i+'"]'); if(el) el.classList.toggle('show-tr'); e.stopPropagation(); return; }
+  const sug=e.target.closest('[data-sug]');
+  if(sug){ const msgEl=sug.closest('.msg'); const i=+msgEl.dataset.mi; const m=S.chat.messages[i]; const txt=m&&m.suggestions&&m.suggestions[+sug.dataset.sug]; if(txt) sendText(txt); e.stopPropagation(); return; }
+  const quick=e.target.closest('[data-quick]');
+  if(quick){ const q=QUICK_PHRASES[+quick.dataset.quick]; closeModal(); const inp=$('#chat-input'); if(q&&inp){ inp.value=q.en; inp.focus(); } e.stopPropagation(); return; }
+  const lvl=e.target.closest('[data-set-level]');
+  if(lvl){ S.settings.level=lvl.dataset.setLevel; saveNow(); render(); return; }
+  const corr=e.target.closest('[data-set-corr]');
+  if(corr){ S.settings.correction=corr.dataset.setCorr; saveNow(); render(); return; }
+  const tool=e.target.closest('[data-tool]');
+  if(tool){ chatTool(tool.dataset.tool); return; }
+  if(e.target.closest('[data-chat-learn]')){ addChatWordsToReview(); return; }
+}
+function chatTool(tool){
+  if(tool==='translate'){
+    S.settings.showTr=!S.settings.showTr; saveNow();
+    document.querySelectorAll('.msg.ai').forEach(m=>m.classList.toggle('show-tr',S.settings.showTr));
+    toast(S.settings.showTr?'🌐 תרגום מוצג':'תרגום מוסתר');
+  }else if(tool==='autospeak'){
+    S.settings.autoSpeak=!S.settings.autoSpeak; saveNow();
+    toast(S.settings.autoSpeak?'🔊 המאמנת תקריא תשובות':'הקראה אוטומטית כבויה');
+  }else if(tool==='level'){
+    const levels=['A1','A2','B1']; const i=levels.indexOf(S.settings.level);
+    S.settings.level=levels[(i+1)%levels.length]; saveNow(); toast('רמת שיחה: '+S.settings.level); render();
+  }else if(tool==='settings'){ openSettings();
+  }else if(tool==='hint'){
+    const sc=scenarioById(S.chat.scenario);
+    const step=sc&&sc.steps[Math.min(S.chat.localTurn,sc.steps.length-1)];
+    const s=step&&step.suggestions&&step.suggestions[0];
+    appendAI({reply:s?`Try saying: "${s}"`:'Take your time. Try a short sentence about how you feel.',translation:s?'נסי לומר: '+s:'קחי את הזמן. נסי משפט קצר על איך שאת מרגישה.',corrections:[],suggestions:step?step.suggestions:[],words:[],praise:''});
+  }else if(tool==='fix'){ askCorrection();
+  }else if(tool==='question'){
+    if(canUseAI()){ sendText('Ask me an interesting question about football, animals or science.'); }
+    else{
+      const sc=scenarioById(S.chat.scenario);
+      const q=(sc&&sc.more&&sc.more[Math.floor(Math.random()*sc.more.length)])||'What is your favourite animal, and why?';
+      appendAI({reply:q,translation:'שאלה בשבילך – ענה באנגלית.',corrections:[],suggestions:[],words:[],praise:''});
+      S.chat.localTurn++;
+    }
+  }else if(tool==='phrases'){
+    openModal(`<button class="x" data-close>✕</button><h3>📖 ביטויים שיעזרו לך</h3><p class="small muted">לחצי על ביטוי כדי להכניס אותו לשיחה, או 🔊 לשמוע.</p>
+      <div class="col" style="margin-top:10px">${QUICK_PHRASES.map((q,i)=>`<div class="word"><div class="word-main"><span class="en" style="font-weight:700">${q.en}</span><span class="word-he">${q.he}</span></div>${speakBtn(q.en)}<button class="btn xs ghost" data-quick="${i}">השתמש</button></div>`).join('')}</div>
+      <button class="btn primary wide" style="margin-top:10px" data-close>חזרה לשיחה</button>`);
+  }
+}
+function handleChatAction(a,el){
+  if(a==='chat-send') sendChat();
+  else if(a==='chat-mic') chatMic();
+  else if(a==='chat-report') showChatReport();
+  else if(a==='chat-new'){
+    if((S.chat.messages||[]).length>2 || confirm('להתחיל שיחה חדשה? השיחה הנוכחית תישאר בהיסטוריה.')){
+      closeModal();
+      S.chat.scenario=''; S.chat.messages=[]; S.chat.localTurn=0; S.chat.learned={}; S.chat.reported=false;
+      saveNow(); go('#/chat');
+    }
+  }
+}
+let RECOGNIZER=null;
+function chatMic(){
+  const btn=$('#chat-mic');
+  if(RECOGNIZER){ try{ RECOGNIZER.stop(); }catch(e){} RECOGNIZER=null; }
+  if(btn) btn.classList.add('rec');
+  RECOGNIZER=listenOnce('en-US',alts=>{
+    const heard=(alts&&alts[0])||'';
+    const inp=$('#chat-input'); if(inp&&heard){ inp.value=heard; inp.focus(); }
+    if(btn) btn.classList.remove('rec');
+    RECOGNIZER=null;
+    if(heard) setTimeout(()=>{ if($('#chat-input')) sendChat(); },250);
+  },err=>{
+    if(btn) btn.classList.remove('rec');
+    RECOGNIZER=null;
+    toast(err==='unsupported'?'הדפדפן לא תומך במיקרופון – השתמש במקלדת':'לא שמעתי. בדקי הרשאת מיקרופון');
+  },()=>{ if(btn) btn.classList.remove('rec'); RECOGNIZER=null; });
+}
+boot();
+</script>
+</body>
+</html>
