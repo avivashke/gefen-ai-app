@@ -1167,6 +1167,22 @@ function loadState(){
   // Force AI config to use proxy with specified model
   S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'};
 
+  // PocketBase: init auth and try load cloud progress
+  pbInit();
+  if(syncEnabled){
+    pbLoadProgress().then(cloud => {
+      if(cloud){
+        // Merge cloud state (cloud wins for persistent data)
+        const base = freshState();
+        S = {...base, ...cloud, settings:{...base.settings, ...(cloud.settings||{})}, 
+             api:{mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'}};
+        applyFontScale();
+        render();
+      }
+    });
+    scheduleSync();
+  }
+
   if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
   if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
   if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
@@ -1174,6 +1190,7 @@ function loadState(){
 }
 function saveNow(){
   try{ localStorage.setItem(KEY, JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
+  if(syncEnabled) pbSaveProgress(S);
 }
 function save(){
   clearTimeout(saveTimer);
