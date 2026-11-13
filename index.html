@@ -1071,7 +1071,7 @@ function freshState(){
     xp:0, streak:0, lastDay:'', activeDays:{},
     daily:{date:todayKey(), xp:0, answers:0, reviews:0, chats:0},
     settings:{sound:true, ttsRate:.9, autoSpeak:false, showTr:true, fontScale:1, goal:60, correction:'balanced', level:'A1'},
-    api:{mode:'local', key:'', model:'llama-3.3-70b-versatile', endpoint:'https://api.groq.com/openai/v1/chat/completions', proxy:''},
+    api:{mode:'proxy', key:'', model:'llama-3.3-70b-versatile', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'},
     prog:{}, words:{}, rules:{}, unitPos:{}, seen:{intro:{},units:{}},
     stats:{answers:0, correct:0, streak:0, bestStreak:0, reviews:0, chats:0, speak:0, speakScore:0, bySkill:{vocab:{a:0,c:0},grammar:{a:0,c:0},listening:{a:0,c:0}}},
     badges:{}, exam:{last:null, best:0, attempts:0, active:null},
@@ -1101,6 +1101,15 @@ function loadState(){
       S.last = {...base.last, ...(data.last||{})};
     }
   }catch(e){ console.warn('load failed', e); }
+  
+  // <--- הוסף את השורה בדיוק כאן:
+  S.api = {mode:'proxy', key:'', model:'llama-3.3-70b-versatile', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'};
+
+  if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
+  if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
+  if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
+  applyFontScale();
+}
   if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
   if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
   if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
@@ -2344,19 +2353,13 @@ function openSettings(){
     <div class="row" style="margin-top:10px"><button class="btn sm danger" data-act="reset-all">🔄 איפוס כל ההתקדמות</button></div>`);
 }
 function readSettings(){
-  const mode=(document.querySelector('input[name="api-mode"]:checked')||{}).value||'local';
   S.settings.goal=clamp(Number($('#set-goal').value)||60,10,300);
   S.settings.fontScale=Number($('#set-fs').value)||1;
   S.settings.ttsRate=Number($('#set-rate').value)||.9;
   S.settings.sound=$('#set-sound').checked;
   S.settings.showTr=$('#set-tr').checked;
   S.settings.autoSpeak=$('#set-autospeak').checked;
-  S.api.mode=mode;
-  S.api.key=$('#set-key').value.trim();
-  S.api.model=($('#set-model').value||'llama-3.3-70b-versatile').trim();
-  S.api.proxy=$('#set-proxy').value.trim();
-  S.api.endpoint=($('#set-endpoint').value||'https://api.groq.com/openai/v1/chat/completions').trim();
-  applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
+    applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
   if(mode==='direct' && !S.api.key) toast('שימי לב: במצב ישיר צריך מפתח Groq');
   if(location.hash.includes('/chat')) render();
 }
