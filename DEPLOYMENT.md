@@ -76,24 +76,23 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 
 כדי שהמשתמשים יוכלו להיכנס לחשבון ולסנכרן התקדמות בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך משתנה הסביבה `PB_URL`.
 
-### אפשרות א: PocketBase Cloud (הכי קל)
-1. הירשמי ב-[pocketbase.io](https://pocketbase.io) (יש טרי חינם: 1GB, 10k בקשות/יום).
-2. צרי פרויקט חדש והעתיקי את ה-URL (למשל `https://your-app.pocketbase.io`).
+### אפשרות א: PocketBase Cloud (הכי קל ומומלץ)
+1. הירשמי ב-[pocketbase.io](https://pocketbase.io) — יש שכבה חינמית (1GB, 10K בקשות/יום).
+2. צרי פרויקט חדש והעתיקי את ה-URL (למשל `https://gefen-ai-xyz.pocketbase.io`).
 3. ב-Netlify: Site settings → Build & deploy → Environment → הוסיפי `PB_URL` עם ה-URL הזה.
 4. Deploy מחדש.
 
-### אפשרות ב: Render.com (חינם)
+### אפשרות ב: Render.com (חינם עם Docker)
 1. צרי שירות חדש ב-Render בחירת **Docker**.
-2. השתמשי בתמונה: `ghcr.io/pocketbase/pocketbase:0.22.10`
+2. תמונה: `ghcr.io/pocketbase/pocketbase:0.22.10`
 3. פקודת הפעלה: `serve --http=0.0.0.0:10000`
-4. הוסיפי דיסק קבוע (Persistent Disk) כדי שהנתונים לא יימחקו בהפעלה חוזרת.
+4. הוסיפי **Persistent Disk** כדי שהנתונים לא יימחקו בהפעלה חוזרת.
 5. העתיקי את ה-URL של השירות ל-`PB_URL` ב-Netlify.
 
 ### אפשרות ג: Railway.app (חינם לניסיון)
-1. צרו פרויקט חדש → Deploy from DockerHub.
+1. צרו פרויקט חדש → Deploy מ-DockerHub.
 2. תמונה: `ghcr.io/pocketbase/pocketbase:0.22.10`
-3. הוסיפו משתנה סביבה `PB_PORT=8080` אם נדרש.
-4. חברו את ה-URL ל-`PB_URL` ב-Netlify.
+3. חברו את ה-URL ל-`PB_URL` ב-Netlify.
 
 ---
 
@@ -101,12 +100,43 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 
 | משתנה | חובה? | תיאור | דוגמה |
 |--------|--------|-------|--------|
-| `PB_URL` | לא | כתובת PocketBase לסנכרון ענן | `https://my-app.pocketbase.io` |
+| `PB_URL` | כן (לסנכרון ענן) | כתובת PocketBase לסנכרון ענן | `https://my-app.pocketbase.io` |
+| `PB_ADMIN_EMAIL` | כן (לסנכרון ענן) | אימייל מנהל PocketBase | `admin@gefen.ai` |
+| `PB_ADMIN_PASSWORD` | כן (לסנכרון ענן) | סיסמת מנהל PocketBase | `StrongPassword123!` |
 | `AI_PROXY_URL` | לא | פרוקסי לשיחת AI | `https://gefen-ai.avivashke95.workers.dev` |
 | `LOCAL_AUTH_SECRET` | לא | סוד לאימות מקומי fallback | כל מחרוזת אקראית |
 | `NODE_ENV` | לא | סביבת הפעלה | `production` |
 
 אם `PB_URL` לא מוגדר או לא נגיש, האפליקציה עובדת במצב **מקומי בלבד** — התקדמות נשמרת ב-`localStorage` בדפדפן, ויש כפתור איפוס מלא בהגדרות.
+
+### הגדרת Collections ב-PocketBase (פעם אחת)
+
+לאחר שהמסד רץ בענן, יש ליצור את collection `progress` ולהגדיר הרשאות גישה. אפשר דרך Admin UI של PocketBase, או להריץ את סקריפט ההגדרה שכבר כלול בפרויקט:
+
+```bash
+export PB_URL=https://your-pocketbase-url
+export PB_ADMIN_EMAIL=your-admin-email
+export PB_ADMIN_PASSWORD=your-admin-password
+node scripts/setup-pocketbase.mjs
+```
+
+**מה הסקריפט עושה:**
+- יוצר collection בשם `progress` עם השדות: `user` (קישור למשתמש), `data` (JSON עם ההתקדמות), `updated` (תאריך עדכון).
+- מגדיר כללי גישה כך שכל משתמש רואה ועורך רק את הנתונים שלו.
+- יוצר משתמש מנהל (superuser) אם לא קיים.
+
+**או באופן ידני דרך Admin UI:**
+1. Collections → Add Collection → Base → שם: `progress`
+2. שדות: `user` (Relation ל-users), `data` (JSON), `updated` (Date)
+3. כללי גישה: Create `@request.auth.id != ""`, Read/Update/Delete `@request.auth.id != "" && user = @request.auth.id`
+
+### בדיקה שהסינכרון עובד
+
+1. היכנסי לאתר ב-Netlify.
+2. בהגדרות (⚙️) המצב צריך להראות `☁️ בענן` במקום `💾 מקומי בדפדפן`.
+3. נרשמי / התחברי עם אימייל וסיסמה.
+4. התקדמי בכמה יחידות למידה.
+5. פתיחי את האתר במכשיר אחר או בדפדפן אחר והתחברי — ההתקדמות תופיע שם אוטומטית.
 
 ### Option 4: Your Always-On PC + Cloudflare Tunnel
 ```bash
@@ -114,6 +144,30 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 cloudflared tunnel --url http://localhost:3000
 # Gives you: https://random-name.trycloudflare.com
 ```
+
+## פיתוח מקומי
+
+```bash
+# 1. הפעלי PocketBase מקומית (במTerminal נפרד)
+cd pocketbase/pocketbase
+./pocketbase serve --http=0.0.0.0:8087
+
+# 2. הגדרי משתני סביבה
+export PB_URL=http://127.0.0.1:8087
+export PB_ADMIN_EMAIL=admin@gefen.ai
+export PB_ADMIN_PASSWORD=ChangeMe123!
+
+# 3. הפעלי סקריפט הגדרה ראשונית לפעמים הראשונות
+node scripts/setup-pocketbase.mjs
+
+# 4. הפעלי את השרת
+npm install
+npm run dev
+
+# 5. פתיחי http://localhost:3000
+```
+
+---
 
 ## PocketBase Hosting (Free)
 
