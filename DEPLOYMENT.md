@@ -40,6 +40,27 @@ fly launch --no-deploy
 fly deploy
 ```
 
+### Option 2.5: Netlify (recommended for this repo)
+
+This repo is already configured for Netlify via `netlify.toml`:
+
+1. Push the repo to GitHub.
+2. Go to netlify.com → **Add new site** → **Import an existing project** → connect GitHub.
+3. Netlify auto-detects:
+   - **Publish directory:** `public`
+   - **Functions directory:** `netlify/functions`
+   - **Build command:** (none — static site + functions)
+4. Add **Environment variables** (Site settings → Build & deploy → Environment):
+   - `PB_URL` = your PocketBase URL (required for cloud sync / auth)
+   - `AI_PROXY_URL` = https://gefen-ai.avivashke95.workers.dev (AI chat proxy)
+   - `LOCAL_AUTH_SECRET` = any random string (optional, for local fallback tokens)
+   - `NODE_ENV` = production
+5. Deploy.
+
+The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` calls are proxied automatically. All other routes serve `public/index.html` (SPA hash-router).
+
+PocketBase cannot run inside Netlify Functions — host PocketBase separately (PocketBase Cloud, Railway, Render, Docker) and point `PB_URL` at it. If `PB_URL` is unreachable, the app degrades to local-only mode (progress is stored in memory for that session).
+
 ### Option 4: Your Always-On PC + Cloudflare Tunnel
 ```bash
 # On your PC
