@@ -524,12 +524,12 @@ export async function handleAiChat(req, res) {
     try {
       payload = text ? JSON.parse(text) : {};
     } catch {
-      return res.status(502).json({ error: 'תשובת ה-AI אינה תקינה' });
+      return res.status(503).json({ error: 'שירות ה-AI אינו זמין כרגע' });
     }
 
     if (!response.ok) {
       const detail = payload?.error?.message || payload?.error || `HTTP ${response.status}`;
-      return res.status(502).json({
+      return res.status(503).json({
         error: typeof detail === 'string' ? detail : 'שגיאת AI',
         upstream_status: response.status,
       });
@@ -537,7 +537,7 @@ export async function handleAiChat(req, res) {
 
     res.json(payload);
   } catch (e) {
-    fail(res, 502, `חיבור לשירות ה-AI נכשל: ${e.message}`);
+    fail(res, 503, `שירות ה-AI אינו זמין: ${e.message}`);
   }
 }
 

@@ -3117,7 +3117,7 @@ async function aiTurn(userText){
     const err=new Error(data.error||('HTTP '+res.status));
     err.status=res.status;
     // A missing AI service is not a user error: switch to the local coach quietly.
-    if(res.status===503) AI_AVAILABLE=false;
+    if(res.status===503 || res.status===502) AI_AVAILABLE=false;
     throw err;
   }
   if(!data.choices?.[0]?.message?.content) throw new Error('empty response');
