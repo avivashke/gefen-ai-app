@@ -88,6 +88,43 @@
     return data.user;
   }
 
+  /* ---------- anonymous auto-account (zero-setup sync) ---------- */
+
+  function makeAnonymousId(){
+    return 'anon-' + crypto.randomUUID?.() || ('anon-' + Math.random().toString(36).slice(2));
+  }
+
+  async function autoSignupAnonymous(){
+    if(syncEnabled) return { skipped: true };
+    const id = makeAnonymousId();
+    const email = `${id}@gefen-ai.local`;
+    const password = 'anon-' + crypto.randomUUID?.() || Math.random().toString(36).slice(2) + 'A1!';
+    try{
+      const data = await apiRequest('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      setSession(data.token, data.user);
+      await apiLoadProgress();
+      return { created: true, user: data.user };
+    }catch(e){
+      // אם החשבון כבר קיים (הרצה חוזרת), ננסה התחברות אוטומטית עם אותם פרטים
+      if(e.status === 409){
+        try{
+          const data = await apiRequest('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+          });
+          setSession(data.token, data.user);
+          await apiLoadProgress();
+          return { created: false, user: data.user };
+        }catch(e2){ console.warn('[sync] anonymous login failed', e2.message); }
+      }
+      console.warn('[sync] anonymous signup failed', e.message);
+      return { created: false, error: e.message };
+    }
+  }
+
   async function apiLogin(email, password) {
     const data = await apiRequest('/auth/login', {
       method: 'POST',
@@ -216,19 +253,26 @@
   /* ---------- public API (used by index.html) ---------- */
 
   window.apiSync = {
-    init() {
-      // Validate an existing token in the background; drop it if rejected.
-      if (!syncEnabled) return;
-      apiRequest('/auth/me')
-        .then((data) => {
-          if (data && data.user) {
-            localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-            emit('session', { user: data.user, syncEnabled: true });
-          }
-        })
-        .catch(() => {
-          if (authToken) setSession(null, null);
-        });
+    async init(){
+      // אם יש טוקן קיים – מאמתים אותו ברקע; אם לא – נוצרת חשבון אנונימי אוטומטי
+      if(syncEnabled){
+        apiRequest('/auth/me')
+          .then((data) => {
+            if (data && data.user) {
+              localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+              emit('session', { user: data.user, syncEnabled: true });
+            }
+          })
+          .catch(() => {
+            if (authToken) setSession(null, null);
+          });
+      }else{
+        // אין חשבון – נוצרת חשבון אנונימי אוטומטי ताकि הסנכרון יעבוד חוצה מכשירים ללא התחברות
+        const result = await autoSignupAnonymous();
+        if(result.created || result.user){
+          emit('session', { user: currentUser(), syncEnabled: true });
+        }
+      }
     },
     isEnabled: () => syncEnabled,
     isOnline: () => online,
@@ -243,6 +287,7 @@
     flush,
     localUpdatedAt,
     on: onSync,
+    autoSignupAnonymous,
   };
 
   // Legacy globals kept for the existing inline handlers.

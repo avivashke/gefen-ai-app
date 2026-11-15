@@ -2486,13 +2486,14 @@ function renderSyncPanel(){
   const enabled=cloudReady();
   const user=window.apiSync && window.apiSync.user ? window.apiSync.user() : null;
   const last=window.apiSync && window.apiSync.lastSyncedAt ? window.apiSync.lastSyncedAt() : 0;
+  const anonId = (user && user.id && String(user.id).startsWith('anon-')) ? user.id : null;
   const badge = enabled
     ? `<span class="tag lime" id="sync-badge">✅ מחובר</span>`
     : `<span class="tag" id="sync-badge">💾 מקומי בלבד</span>`;
   // Update storage badge
   const storageEl = document.getElementById("storage-badge");
   if (storageEl) {
-    if (enabled) { storageEl.innerHTML = "☁️ בענן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "מסונכרן בין מכשירים דרך PocketBase"; }
+    if (enabled) { storageEl.innerHTML = "☁️ בענן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "מסונכרן אוטומטית בין מכשירים דרך PocketBase"; }
     else { storageEl.innerHTML = "💾 מקומי בדפדפן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "התקדמות נשמרת במכשיר הנוכחי בלבד"; }
   }
 
@@ -2511,13 +2512,22 @@ function renderSyncPanel(){
     </div>
     <div class="help" style="margin-top:6px">הסיסמה חייבת להכיל 8 תווים לפחות. אחרי ההתחברות ההתקדמות הנוכחית תעלה לענן אוטומטית.</div>`;
 
-  return `${head}${form}`;
+  const syncCode = anonId
+    ? `<div class="divider"></div>
+    <div class="field">
+      <label>קוד סנכרון למכשירים אחרים</label>
+      <input class="ltr txt" readonly value="${escA(anonId)}">
+      <div class="help">העתיקי את הקוד הזה והזיני אותו במכשיר אחר במסך ההתחברות כדי לאחד את ההתקדמות.</div>
+      <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-copy="${escA(anonId)}">📋 העתקת קוד</button></div>
+    </div>` : '';
+
+  return `${head}${syncCode}${form}`;
 }
 function openSettings(){
   const a=S.api;
   openModal(`<button class="x" data-close>✕</button>
     <h3>⚙️ הגדרות</h3>
-    <p class="small muted">התקדמות הלמידה נשמרת אוטומטית במכשיר הזה ב־localStorage של הדפדפן – בלי צורך בהרשמה או בתשתית חיצונית. כדי לעבור בין מכשירים, התחברי לחשבון בענן (PocketBase) או ייצאי גיבוי ידני.</p>
+    <p class="small muted">התקדמות הלמידה נשמרת אוטומטית במכשיר הזה ובענן (PocketBase) – החשבון נוצר בעצמו בלי הרשמה. כדי לעבור בין מכשירים, הזיני את קוד הסנכרון שמופיע למטה במכשיר האחר, או ייצאי גיבוי ידני.</p>
     
     <div class="field"><span class="tag" id="storage-badge">💾 מקומי בדפדפן</span> <span class="tiny muted">התקדמות נשמרת במכשיר הנוכחי בלבד</span></div>
 
