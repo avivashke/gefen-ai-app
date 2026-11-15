@@ -2,8 +2,12 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-const __fileUrl = fileURLToPath(import.meta.url);
-const __dir = path.dirname(__fileUrl);
+
+// Support both ESM (local dev) and CJS (Netlify Functions)
+const isESM = typeof import.meta !== 'undefined' && import.meta.url;
+const __dir = isESM
+  ? path.dirname(fileURLToPath(import.meta.url))
+  : process.cwd();
 
 export const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8087';
 export const PUBLIC_DIR = process.env.PUBLIC_DIR
