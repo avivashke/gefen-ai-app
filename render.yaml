@@ -7,7 +7,7 @@ services:
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
-        value: 20.x
+        value: 20
       - key: PB_URL
         sync: false
       - key: AI_PROXY_URL
