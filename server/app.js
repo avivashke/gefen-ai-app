@@ -2,8 +2,6 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import PocketBase from 'pocketbase';
-
 const __fileUrl = fileURLToPath(import.meta.url);
 const __dir = path.dirname(__fileUrl);
 
@@ -64,11 +62,18 @@ export function refreshAiTarget(env = process.env) {
 /* PocketBase                                                          */
 /* ------------------------------------------------------------------ */
 
-export function newPbClient() {
+export async function newPbClient() {
+  const { default: PocketBase } = await import('pocketbase');
   return new PocketBase(PB_URL);
 }
 
-export let adminClient = newPbClient();
+let adminClientPromise = null;
+export function getAdminClient() {
+  if (!adminClientPromise) {
+    adminClientPromise = newPbClient();
+  }
+  return adminClientPromise;
+}
 export let adminReady = false;
 export let pbReachable = false;
 
@@ -77,7 +82,8 @@ export async function connectAdmin(env = process.env) {
   const password = env.PB_ADMIN_PASSWORD;
   if (!email || !password) return false;
   try {
-    await adminClient.collection('_superusers').authWithPassword(email, password);
+    const client = await getAdminClient();
+    await client.collection('_superusers').authWithPassword(email, password);
     adminReady = true;
     console.log('[PocketBase] admin client authenticated');
     return true;
@@ -90,7 +96,7 @@ export async function connectAdmin(env = process.env) {
 
 export async function checkPocketBase() {
   try {
-    const client = newPbClient();
+    const client = await newPbClient();
     const health = await client.health.check();
     pbReachable = Boolean(health);
   } catch {
@@ -108,7 +114,7 @@ export async function callerId(authorization) {
   if (claims.type === 'admin') return null;
   if (claims.id) return claims.id;
 
-  const client = newPbClient();
+  const client = await newPbClient();
   client.authStore.save(token, null);
   try {
     const auth = await client.collection('users').authRefresh();
@@ -370,7 +376,7 @@ export async function handleSignup(req, res) {
     }
   }
 
-  const client = newPbClient();
+  const client = await newPbClient();
   try {
     const created = await client.collection('users').create({
       email: String(email).trim().toLowerCase(),
@@ -397,7 +403,7 @@ export async function handleLogin(req, res) {
     }
   }
 
-  const client = newPbClient();
+  const client = await newPbClient();
   try {
     const auth = await client.collection('users').authWithPassword(String(email).trim(), password);
     res.json({ token: auth.token, user: { id: auth.record.id, email: auth.record.email } });
@@ -428,7 +434,7 @@ export async function handleGetProgress(req, res) {
   }
 
   try {
-    const record = await findProgressRecord(newPbClient(), caller.id);
+    const record = await findProgressRecord(await newPbClient(), caller.id);
     if (!record) return res.json({ data: null, updated_at: null, storage: 'cloud' });
     res.json({
       data: parseJsonMaybe(record.data),
@@ -466,7 +472,7 @@ export async function handleSaveProgress(req, res) {
   }
 
   try {
-    const client = newPbClient();
+    const client = await newPbClient();
     const existing = await findProgressRecord(client, caller.id);
 
     if (existing?.updated) {
