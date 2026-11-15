@@ -51,7 +51,7 @@ This repo is already configured for Netlify via `netlify.toml`:
    - **Functions directory:** `netlify/functions`
    - **Build command:** (none — static site + functions)
 4. Add **Environment variables** (Site settings → Build & deploy → Environment):
-   - `PB_URL` = your PocketBase URL (required for cloud sync / auth)
+   - `PB_URL` = your PocketBase URL (required for cloud sync / auth across devices)
    - `AI_PROXY_URL` = https://gefen-ai.avivashke95.workers.dev (AI chat proxy)
    - `LOCAL_AUTH_SECRET` = any random string (optional, for local fallback tokens)
    - `NODE_ENV` = production
@@ -59,7 +59,54 @@ This repo is already configured for Netlify via `netlify.toml`:
 
 The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` calls are proxied automatically. All other routes serve `public/index.html` (SPA hash-router).
 
-PocketBase cannot run inside Netlify Functions — host PocketBase separately (PocketBase Cloud, Railway, Render, Docker) and point `PB_URL` at it. If `PB_URL` is unreachable, the app degrades to local-only mode (progress is stored in memory for that session).
+---
+
+## 💾 איפה נשמרת ההתקדמות של המשתמש?
+
+| מצב | איפה הנתונים נשמרים | סנכרון בין מכשירים | נדרש תשתית חיצונית |
+|-----|----------------------|---------------------|---------------------|
+| **ברירת מחדל (ללא PB_URL)** | `localStorage` בדפדפן של המשתמש | ❌ רק במכשיר הנוכחי | לא |
+| **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ כן, בין מכשירים | כן (חינמי) |
+
+ב-Netlify Functions לא ניתן לכתוב לקבצים מקומיים (מערכת קבצים לקריאה בלבד), אז אם לא מגדיר `PB_URL`, ההתקדמות נשמרת רק בדפדפן של המשתמש. יש אפשרות **איפוס מלא** מההגדרות (`איפוס כל ההתקדמות`) שיוחק את כל הנתונים מהמכשיר הנוכחי (ומהסנכרון בענן אם מחובר).
+
+---
+
+## 🆓 הקמת מסד חינמי לסנכרון בין מכשירים (מומלץ)
+
+כדי שהמשתמשים יוכלו להיכנס לחשבון ולסנכרן התקדמות בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך משתנה הסביבה `PB_URL`.
+
+### אפשרות א: PocketBase Cloud (הכי קל)
+1. הירשמי ב-[pocketbase.io](https://pocketbase.io) (יש טרי חינם: 1GB, 10k בקשות/יום).
+2. צרי פרויקט חדש והעתיקי את ה-URL (למשל `https://your-app.pocketbase.io`).
+3. ב-Netlify: Site settings → Build & deploy → Environment → הוסיפי `PB_URL` עם ה-URL הזה.
+4. Deploy מחדש.
+
+### אפשרות ב: Render.com (חינם)
+1. צרי שירות חדש ב-Render בחירת **Docker**.
+2. השתמשי בתמונה: `ghcr.io/pocketbase/pocketbase:0.22.10`
+3. פקודת הפעלה: `serve --http=0.0.0.0:10000`
+4. הוסיפי דיסק קבוע (Persistent Disk) כדי שהנתונים לא יימחקו בהפעלה חוזרת.
+5. העתיקי את ה-URL של השירות ל-`PB_URL` ב-Netlify.
+
+### אפשרות ג: Railway.app (חינם לניסיון)
+1. צרו פרויקט חדש → Deploy from DockerHub.
+2. תמונה: `ghcr.io/pocketbase/pocketbase:0.22.10`
+3. הוסיפו משתנה סביבה `PB_PORT=8080` אם נדרש.
+4. חברו את ה-URL ל-`PB_URL` ב-Netlify.
+
+---
+
+### משתני סביבה במלואם
+
+| משתנה | חובה? | תיאור | דוגמה |
+|--------|--------|-------|--------|
+| `PB_URL` | לא | כתובת PocketBase לסנכרון ענן | `https://my-app.pocketbase.io` |
+| `AI_PROXY_URL` | לא | פרוקסי לשיחת AI | `https://gefen-ai.avivashke95.workers.dev` |
+| `LOCAL_AUTH_SECRET` | לא | סוד לאימות מקומי fallback | כל מחרוזת אקראית |
+| `NODE_ENV` | לא | סביבת הפעלה | `production` |
+
+אם `PB_URL` לא מוגדר או לא נגיש, האפליקציה עובדת במצב **מקומי בלבד** — התקדמות נשמרת ב-`localStorage` בדפדפן, ויש כפתור איפוס מלא בהגדרות.
 
 ### Option 4: Your Always-On PC + Cloudflare Tunnel
 ```bash

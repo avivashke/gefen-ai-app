@@ -1146,55 +1146,123 @@ function freshState(){
 let S = freshState();
 let lastSaved = 0;
 let saveTimer = null;
+let syncing = false;
+
+function mergeState(base, incoming){
+  const out = {...base, ...incoming};
+  out.settings = {...base.settings, ...(incoming.settings||{})};
+  out.stats = {...base.stats, ...(incoming.stats||{})};
+  out.stats.bySkill = {...base.stats.bySkill, ...((incoming.stats&&incoming.stats.bySkill)||{})};
+  out.review = {...base.review, ...(incoming.review||{})};
+  out.chat = {...base.chat, ...(incoming.chat||{})};
+  out.exam = {...base.exam, ...(incoming.exam||{})};
+  out.daily = {...base.daily, ...(incoming.daily||{})};
+  out.last = {...base.last, ...(incoming.last||{})};
+  // Never restore the AI config from the cloud: it is pinned per-deployment.
+  out.api = {...base.api};
+  return out;
+}
+
+function isNewer(remote, local){
+  const r = Date.parse(remote || '') || 0;
+  const l = Date.parse(local || '') || 0;
+  return r > l + 1000;
+}
+
 function loadState(){
   try{
     const raw = localStorage.getItem(KEY);
     if(raw){
       const data = JSON.parse(raw);
-      const base = freshState();
-      S = {...base, ...data};
-      S.settings = {...base.settings, ...(data.settings||{})};
-      S.api = {...base.api, ...(data.api||{})};
-      S.stats = {...base.stats, ...(data.stats||{})};
-      S.stats.bySkill = {...base.stats.bySkill, ...((data.stats&&data.stats.bySkill)||{})};
-      S.review = {...base.review, ...(data.review||{})};
-      S.chat = {...base.chat, ...(data.chat||{})};
-      S.exam = {...base.exam, ...(data.exam||{})};
-      S.daily = {...base.daily, ...(data.daily||{})};
-      S.last = {...base.last, ...(data.last||{})};
+      S = mergeState(freshState(), data);
     }
   }catch(e){ console.warn('load failed', e); }
 
-  // Force AI config to use proxy with specified model
-  S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'};
-
-  // Backend API: init auth and try load cloud progress
-  apiInit();
-  if(syncEnabled){
-    apiLoadProgress().then(cloud => {
-      if(cloud){
-        const base = freshState();
-        S = {...base, ...cloud, settings:{...base.settings, ...(cloud.settings||{})}, 
-             api:{mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'}};
-        applyFontScale();
-        render();
-      }
-    });
-    scheduleSync();
-  }
+  // Force AI config to use the backend proxy with the pinned model
+  S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:''};
 
   if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
   if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
   if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
   applyFontScale();
 }
-function saveNow(){
+
+/* ---------------- cloud sync bridge ---------------- */
+function cloudReady(){
+  return !!(window.apiSync && window.apiSync.isEnabled());
+}
+function applyCloud(data, updatedAt){
+  if(!data || typeof data !== 'object') return;
+  const localTime = Date.parse(S.updated_at || '') || 0;
+  const remoteTime = Date.parse(updatedAt || '') || 0;
+  if(isNewer(updatedAt, S.updated_at)){
+    S = mergeState(freshState(), data);
+    S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:''};
+    S.updated_at = updatedAt || new Date().toISOString();
+    persistLocal();
+    applyFontScale();
+    if(typeof render === 'function') render();
+    if(typeof updateHeader === 'function') updateHeader();
+    if(typeof toast === 'function') toast('ההתקדמות נטענה מהענן ✓');
+  }else{
+    // Local is at least as new: push it up so both devices converge.
+    cloudPush(true);
+  }
+}
+function cloudPush(force){
+  if(!cloudReady() || typeof window.apiSync.save !== 'function') return;
+  S.updated_at = new Date().toISOString();
+  window.apiSync.save(S, {force:!!force});
+}
+function persistLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
-  if(syncEnabled) apiSaveProgress(S);
+}
+function saveNow(){
+  persistLocal();
+  cloudPush();
 }
 function save(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{ saveNow(); updateHeader(); }, 160);
+}
+
+function initCloudSync(){
+  if(!window.apiSync) return;
+  window.apiSync.init();
+  window.apiSync.on((event, payload) => {
+    if(event === 'loaded'){
+      applyCloud(payload && payload.data, payload && payload.updated_at);
+    }else if(event === 'conflict'){
+      applyCloud(payload && payload.data, payload && payload.updated_at);
+    }else if(event === 'saved'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge('saved');
+    }else if(event === 'offline'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge('offline');
+    }else if(event === 'online'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge('online');
+      if(syncing) cloudPush(true);
+    }else if(event === 'error'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge('error');
+    }else if(event === 'unauthorized' || event === 'session'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge(payload && payload.syncEnabled ? 'saved' : 'off');
+      if(typeof render === 'function' && (location.hash.includes('/settings'))) render();
+      // Update storage badge
+      const storageEl = document.getElementById('storage-badge');
+      if (storageEl) {
+        if (payload && payload.syncEnabled) { storageEl.innerHTML = '☁️ בענן'; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = 'מסונכרן בין מכשירים דרך PocketBase'; }
+        else { storageEl.innerHTML = '💾 מקומי בדפדפן'; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = 'התקדמות נשמרת במכשיר הנוכחי בלבד'; }
+      }
+    }
+  });
+
+  if(cloudReady()){
+    syncing = true;
+    window.apiSync.load().then(res => {
+      if(res && res.error){ if(typeof updateSyncBadge === 'function') updateSyncBadge('error'); return; }
+      if(res && res.data) applyCloud(res.data, res.updated_at);
+      else if(typeof updateSyncBadge === 'function') updateSyncBadge('saved');
+    });
+  }
 }
 function markActive(){
   const t = todayKey();
@@ -2397,28 +2465,57 @@ function mountExam(){
 }
 
 /* ================= settings / data ================= */
-function openSettings(){
-  const a=S.api;
-  const syncStatus = syncEnabled ? `<span class="tag lime">✅ מחובר</span><button class="btn xs danger" data-act="api-logout">התנתק</button>` : `<span class="tag gold">⚠️ לא מחובר</span>`;
-  openModal(`<button class="x" data-close>✕</button>
-    <h3>⚙️ הגדרות</h3>
-    <p class="small muted">הכול נשמר אוטומטית במכשיר הזה.</p>
-    
-    <div class="divider"></div>
-    <h3 style="font-size:1rem">☁️ סנכרון ענן (PocketBase)</h3>
-    <p class="small muted">התחברי כדי לשמור התקדמות בענן ולגשת מכל מכשיר.</p>
-    <div class="field">${syncStatus}</div>
-    ${!syncEnabled ? `
+function updateSyncBadge(state){
+  const el=document.getElementById('sync-badge');
+  if(!el) return;
+  const map={saved:['✅','מסונכרן'],syncing:['🔄','מסנכרן…'],offline:['📴','לא מקוון'],error:['⚠️','שגיאת סנכרון'],off:['💾','מקומי בלבד']};
+  const [icon,label]=map[state]||map.off;
+  el.textContent=`${icon} ${label}`;
+  el.className='tag '+(state==='saved'?'lime':state==='error'?'gold':'');
+}
+function renderSyncPanel(){
+  const enabled=cloudReady();
+  const user=window.apiSync && window.apiSync.user ? window.apiSync.user() : null;
+  const last=window.apiSync && window.apiSync.lastSyncedAt ? window.apiSync.lastSyncedAt() : 0;
+  const badge = enabled
+    ? `<span class="tag lime" id="sync-badge">✅ מחובר</span>`
+    : `<span class="tag" id="sync-badge">💾 מקומי בלבד</span>`;
+  // Update storage badge
+  const storageEl = document.getElementById("storage-badge");
+  if (storageEl) {
+    if (enabled) { storageEl.innerHTML = "☁️ בענן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "מסונכרן בין מכשירים דרך PocketBase"; }
+    else { storageEl.innerHTML = "💾 מקומי בדפדפן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "התקדמות נשמרת במכשיר הנוכחי בלבד"; }
+  }
+
+  const head = enabled
+    ? `<div class="field"><div class="row" style="align-items:center"><span style="flex:1"><b>${escA(user?.email||'מחובר')}</b> <span class="tiny muted">· ${last?new Date(last).toLocaleString('he-IL'):' ממתין לסנכרון'}</span></span>${badge}<button class="btn xs danger" data-act="api-logout">התנתק</button></div></div>`
+    : `<div class="field"><div class="row" style="align-items:center"><span style="flex:1 tiny muted">ההתקדמות נשמרת במכשיר. התחברי כדי לשמור בענן ולעבור בין מכשירים.</span>${badge}</div></div>`;
+
+  const form = enabled ? '' : `
     <div class="grid two">
-      <div class="field"><label>אימייל</label><input type="email" id="sync-email" placeholder="you@example.com" class="ltr"></div>
-      <div class="field"><label>סיסמה</label><input type="password" id="sync-pass" placeholder="••••••••"></div>
+      <div class="field"><label>אימייל</label><input type="email" id="sync-email" placeholder="you@example.com" class="ltr" autocomplete="username"></div>
+      <div class="field"><label>סיסמה</label><input type="password" id="sync-pass" placeholder="••••••••" autocomplete="current-password"></div>
     </div>
     <div class="row" style="margin-top:8px">
-      <button class="btn primary" data-act="api-login">התחברות</button>
-      <button class="btn cyan" data-act="api-signup">הרשמה</button>
+      <button class="btn primary" data-act="api-login" style="flex:1">התחברות</button>
+      <button class="btn cyan" data-act="api-signup" style="flex:1">יצירת חשבון</button>
     </div>
-    ` : ''}
+    <div class="help" style="margin-top:6px">הסיסמה חייבת להכיל 8 תווים לפחות. אחרי ההתחברות ההתקדמות הנוכחית תעלה לענן אוטומטית.</div>`;
+
+  return `${head}${form}`;
+}
+function openSettings(){
+  const a=S.api;
+  openModal(`<button class="x" data-close>✕</button>
+    <h3>⚙️ הגדרות</h3>
+    <p class="small muted">התקדמות הלמידה נשמרת אוטומטית במכשיר הזה ב־localStorage של הדפדפן – בלי צורך בהרשמה או בתשתית חיצונית. כדי לעבור בין מכשירים, התחברי לחשבון בענן (PocketBase) או ייצאי גיבוי ידני.</p>
     
+    <div class="field"><span class="tag" id="storage-badge">💾 מקומי בדפדפן</span> <span class="tiny muted">התקדמות נשמרת במכשיר הנוכחי בלבד</span></div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:1rem">☁️ סנכרון והתקדמות (ענן)</h3>
+    ${renderSyncPanel()}
+
     <div class="divider"></div>
     <h3 style="font-size:1rem">🤖 חיבור המאמנת (Groq)</h3>
     <p class="small muted">בחרי מצב. במצב מקומי המאמנת עובדת בלי אינטרנט; עם Groq השיחה חופשית באמת.</p>
@@ -2511,8 +2608,11 @@ function applyImport(obj){
   S.review={...freshState().review,...(obj.review||{}),queue:[],idx:0,finished:false};
   S.chat={...freshState().chat,...(obj.chat||{})};
   S.exam.active=null;
+  S.updated_at=new Date().toISOString();
   hydrateExtraWords();
-  saveNow(); applyFontScale(); closeModal(); updateHeader(); toast('✅ ההתקדמות יובאה'); go('#/home');
+  persistLocal(); closeModal(); updateHeader(); toast('✅ ההתקדמות יובאה');
+  cloudPush(true);
+  go('#/home');
 }
 function openReset(){
   openModal(`<button class="x" data-close>✕</button><h3 style="color:var(--red)">לאפס הכול?</h3>
@@ -2520,9 +2620,12 @@ function openReset(){
     <div class="row" style="margin-top:14px"><button class="btn" data-close>ביטול</button><button class="btn danger" data-act="confirm-reset">כן, אפס הכול</button></div>`);
 }
 function doReset(){
-  try{ localStorage.removeItem(KEY); }catch(e){}
+  const fresh=freshState();
+  fresh.updated_at=new Date().toISOString();
+  try{ localStorage.removeItem(KEY); localStorage.setItem(KEY, JSON.stringify(fresh)); }catch(e){}
+  cloudPush(true); // אם מחובר לענן – מאפס גם שם
   try{ history.replaceState(null,'',location.pathname); }catch(e){}
-  location.reload();
+  setTimeout(()=>location.reload(), cloudReady()?900:0);
 }
 
 /* ================= modal ================= */
@@ -2675,19 +2778,33 @@ function handleGlobalClick(e){
       const pass=$('#sync-pass').value;
       if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
       toast('מתחבר...');
-      apiLogin(email,pass).then(u=>{ toast('התחברת: '+u.email); closeModal(); openSettings(); }).catch(e=>toast('שגיאה: '+e.message));
+      window.apiSync.login(email,pass).then(async u=>{
+        toast('התחברת: '+u.email);
+        updateSyncBadge('saved');
+        await cloudPush(true);
+        closeModal(); openSettings();
+      }).catch(e=>toast('שגיאה: '+e.message));
       break;
     }
     case 'api-signup': {
       const email=$('#sync-email').value.trim();
       const pass=$('#sync-pass').value;
       if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
+      if(pass.length<8){ toast('הסיסמה חייבת להכיל 8 תווים לפחות'); break; }
       toast('יוצר חשבון...');
-      apiSignup(email,pass).then(u=>{ toast('נרשמת: '+u.email); closeModal(); openSettings(); }).catch(e=>toast('שגיאה: '+e.message));
+      window.apiSync.signup(email,pass).then(async u=>{
+        toast('נרשמת: '+u.email);
+        updateSyncBadge('saved');
+        await cloudPush(true);
+        closeModal(); openSettings();
+      }).catch(e=>toast('שגיאה: '+e.message));
       break;
     }
     case 'api-logout': {
-      apiLogout(); toast('התנתקת'); closeModal(); openSettings(); break;
+      window.apiSync.logout();
+      updateSyncBadge('off');
+      toast('התנתקת – ההתקדמות נשמרת במכשיר');
+      closeModal(); openSettings(); break;
     }
     case 'test-api': if(typeof testApiConnection==='function') testApiConnection(); break;
     case 'guide': openGuide(); break;
@@ -2721,10 +2838,14 @@ function boot(){
   document.addEventListener('click',handleGlobalClick);
   window.addEventListener('hashchange',render);
   window.addEventListener('beforeunload',saveNow);
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); else if(cloudReady()) cloudPush(); });
   render();
+  initCloudSync();
+  updateSyncBadge(cloudReady()?'saved':'off');
   setTimeout(()=>{ if(!S.stats.answers){ toast('ברוך הבא, גפן! מתחילים ביחידה 1 💃'); } updateHeader(); },700);
   setInterval(()=>{ if(S.daily.date!==todayKey()){ S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0}; S.review.doneToday=0; S.review.lastDate=todayKey(); saveNow(); updateHeader(); } },60000);
+  // Periodic background push keeps multi-device state fresh.
+  setInterval(()=>{ if(cloudReady()) cloudPush(); }, 60000);
 }
 /* ============================================================
    BEERI ENGLISH COACH — the conversation coach (TalkPal style)
@@ -2735,15 +2856,15 @@ let CHAT_INIT=false;
 const SCENARIO_MAP={}; SCENARIOS.forEach(s=>SCENARIO_MAP[s.id]=s);
 
 function getScenario(id){ return SCENARIO_MAP[id]||null; }
+/* The backend proxy is always available when the app is served by our server. */
+let AI_AVAILABLE = true;
 function canUseAI(){
-  const a=S.api;
-  if(a.mode==='direct') return !!a.key;
-  if(a.mode==='proxy') return !!a.proxy;
-  return false;
+  if(S.api.mode==='local') return false;
+  return AI_AVAILABLE;
 }
 function aiModeLabel(){
   if(!canUseAI()) return 'מאמנת מקומית';
-  return S.api.mode==='proxy'?'Groq דרך Proxy':'Groq ישיר';
+  return 'Groq דרך השרת';
 }
 function scenarioById(id){ return SCENARIOS.find(s=>s.id===id); }
 
@@ -2928,6 +3049,13 @@ function sendText(text){
       if(S.settings.autoSpeak) speak(res.reply);
     }).catch(err=>{
       CHAT_BUSY=false;
+      // The AI service is unreachable: keep the conversation alive locally.
+      if(err && (err.status===503 || err.status===502 || err.name==='AbortError')){
+        AI_AVAILABLE=false;
+        appendAI({...localCoachReply(text), error:'השירות המקוון לא זמין כרגע – ממשיכים במאמנת המקומית.'});
+        toast('עברנו למאמנת המקומית');
+        return;
+      }
       appendAI({reply:'I had a connection problem. Let’s keep going! You can try again, or we can continue with the local coach.',he:'הייתה בעיית חיבור. אפשר לנסות שוב, או להמשיך במאמנת המקומית.',corrections:[],suggestions:[],words:[],error:apiErrorHe(err)});
     });
   }else{
@@ -2969,13 +3097,29 @@ async function aiTurn(userText){
     if(m.role==='me') msgs.push({role:'user',content:m.text});
     else msgs.push({role:'assistant',content:m.text});
   });
-  const res=await fetch('/api/ai/chat',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:S.api.model||'openai/gpt-oss-120b',messages:msgs,temperature:0.72,max_tokens:800})
-  });
-  const data=await res.json();
-  if(!res.ok) throw new Error(data.error||'HTTP '+res.status);
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 30000);
+  let res;
+  try{
+    res=await fetch('/api/ai/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal:ctrl.signal,
+      body:JSON.stringify({model:S.api.model||'openai/gpt-oss-120b',messages:msgs,temperature:0.72,max_tokens:800})
+    });
+  } finally { clearTimeout(timer); }
+
+  let data={};
+  try{ data=await res.json(); }catch(e){ data={}; }
+
+  if(!res.ok){
+    const err=new Error(data.error||('HTTP '+res.status));
+    err.status=res.status;
+    // A missing AI service is not a user error: switch to the local coach quietly.
+    if(res.status===503) AI_AVAILABLE=false;
+    throw err;
+  }
   if(!data.choices?.[0]?.message?.content) throw new Error('empty response');
   return parseAI(data.choices[0].message.content);
 }

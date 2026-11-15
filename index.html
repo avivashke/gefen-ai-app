@@ -764,6 +764,7 @@ a{color:var(--cyan)}
 <div id="overlay" class="overlay" hidden></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <noscript><div style="padding:30px;text-align:center">האפליקציה צריכה JavaScript. אנא הפעל אותו בדפדפן.</div></noscript>
+<script src="api-sync.js"></script>
 <script>
 /* ============================================================
    GEFEN ENGLISH COACH — curriculum (4 units) · dance & friends
@@ -1167,12 +1168,11 @@ function loadState(){
   // Force AI config to use proxy with specified model
   S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'};
 
-  // PocketBase: init auth and try load cloud progress
-  pbInit();
+  // Backend API: init auth and try load cloud progress
+  apiInit();
   if(syncEnabled){
-    pbLoadProgress().then(cloud => {
+    apiLoadProgress().then(cloud => {
       if(cloud){
-        // Merge cloud state (cloud wins for persistent data)
         const base = freshState();
         S = {...base, ...cloud, settings:{...base.settings, ...(cloud.settings||{})}, 
              api:{mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'}};
@@ -1190,7 +1190,7 @@ function loadState(){
 }
 function saveNow(){
   try{ localStorage.setItem(KEY, JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
-  if(syncEnabled) pbSaveProgress(S);
+  if(syncEnabled) apiSaveProgress(S);
 }
 function save(){
   clearTimeout(saveTimer);
@@ -2399,9 +2399,36 @@ function mountExam(){
 /* ================= settings / data ================= */
 function openSettings(){
   const a=S.api;
+  const syncStatus = syncEnabled ? `<span class="tag lime">✅ מחובר</span><button class="btn xs danger" data-act="api-logout">התנתק</button>` : `<span class="tag gold">⚠️ לא מחובר</span>`;
   openModal(`<button class="x" data-close>✕</button>
     <h3>⚙️ הגדרות</h3>
     <p class="small muted">הכול נשמר אוטומטית במכשיר הזה.</p>
+    
+    <div class="divider"></div>
+    <h3 style="font-size:1rem">☁️ סנכרון ענן (PocketBase)</h3>
+    <p class="small muted">התחברי כדי לשמור התקדמות בענן ולגשת מכל מכשיר.</p>
+    <div class="field">${syncStatus}</div>
+    ${!syncEnabled ? `
+    <div class="grid two">
+      <div class="field"><label>אימייל</label><input type="email" id="sync-email" placeholder="you@example.com" class="ltr"></div>
+      <div class="field"><label>סיסמה</label><input type="password" id="sync-pass" placeholder="••••••••"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" data-act="api-login">התחברות</button>
+      <button class="btn cyan" data-act="api-signup">הרשמה</button>
+    </div>
+    ` : ''}
+    
+    <div class="divider"></div>
+    <h3 style="font-size:1rem">🤖 חיבור המאמנת (Groq)</h3>
+    <p class="small muted">בחרי מצב. במצב מקומי המאמנת עובדת בלי אינטרנט; עם Groq השיחה חופשית באמת.</p>
+    <div class="radio-row" style="margin-top:8px">
+      <label class="radio-opt"><input type="radio" name="api-mode" value="local" ${a.mode==='local'?'checked':''}><span><b>מאמנת מקומית (בלי מפתח)</b><span>תרגול לפי תרחישים + תיקון טעויות נפוצות. עובד תמיד.</span></span></label>
+      <label class="radio-opt"><input type="radio" name="api-mode" value="proxy" ${a.mode==='proxy'?'checked':''}><span><b>Groq דרך Backend Proxy (מומלץ)</b><span>הבקשות עוברות דרך השרת שלנו שמחזיק את המפתח בצד השרת.</span></span></label>
+    </div>
+    <div class="field"><label>מודל</label><input id="set-model" class="ltr" list="model-list" value="${escA(a.model||'openai/gpt-oss-120b')}"><datalist id="model-list"><option value="openai/gpt-oss-120b"><option value="llama-3.3-70b-versatile"><option value="llama-3.1-8b-instant"></datalist><div class="help">המודל המוגדר כברירת מחדל: openai/gpt-oss-120b</div></div>
+    
+    <div class="divider"></div>
     <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
     <div class="grid two">
       <div class="field"><label>גודל טקסט</label><select id="set-fs">${[['.92','קטן'],['1','רגיל'],['1.1','גדול'],['1.2','גדול מאוד']].map(([v,l])=>`<option value="${v}" ${String(S.settings.fontScale)===v?'selected':''}>${l}</option>`).join('')}</select></div>
@@ -2410,22 +2437,7 @@ function openSettings(){
     <div class="field"><label>צלילי משוב</label><label class="radio-opt"><input type="checkbox" id="set-sound" ${S.settings.sound?'checked':''}> <span><b>הפעל צלילים</b><span>צליל קצר לתשובה נכונה/שגויה</span></span></label></div>
     <div class="field"><label>תרגום אוטומטי בשיחה</label><label class="radio-opt"><input type="checkbox" id="set-tr" ${S.settings.showTr?'checked':''}> <span><b>הצג תרגום לעברית</b><span>אפשר להסתיר בכל הודעה בנפרד</span></span></label></div>
     <div class="field"><label class="radio-opt"><input type="checkbox" id="set-autospeak" ${S.settings.autoSpeak?'checked':''}> <span><b>הקראה אוטומטית של תשובות המאמנת</b><span>המאמנת תקריא כל תשובה באנגלית</span></span></label></div>
-    <div class="divider"></div>
-    <h3 style="font-size:1rem">🤖 חיבור המאמנת (Groq)</h3>
-    <p class="small muted">בחרי מצב. במצב מקומי המאמנת עובדת בלי אינטרנט; עם Groq השיחה חופשית באמת.</p>
-    <div class="radio-row" style="margin-top:8px">
-      <label class="radio-opt"><input type="radio" name="api-mode" value="local" ${a.mode==='local'?'checked':''}><span><b>מאמנת מקומית (בלי מפתח)</b><span>תרגול לפי תרחישים + תיקון טעויות נפוצות. עובד תמיד.</span></span></label>
-      <label class="radio-opt"><input type="radio" name="api-mode" value="proxy" ${a.mode==='proxy'?'checked':''}><span><b>Groq דרך Proxy (מומלץ לאתר ציבורי)</b><span>דף סטטי לא יכול להסתיר מפתח. Worker קטן של Cloudflare מחזיק את מפתח ה-Groq בצד השרת. הדביקי כאן את כתובת ה-Worker.</span></span></label>
-      <label class="radio-opt"><input type="radio" name="api-mode" value="direct" ${a.mode==='direct'?'checked':''}><span><b>Groq ישיר — מפתח בדפדפן</b><span>Groq מאפשר קריאות ישירות מהדפדפן, ולכן זה עובד מיד. המפתח נשמר רק במכשיר הזה, אבל בדף ציבורי הוא גלוי למי שפותח אותו.</span></span></label>
-    </div>
-    <div class="field"><label>מפתח Groq</label><input type="password" id="set-key" class="ltr" placeholder="הדביקי כאן את המפתח (לא נכלל בגיבוי)" value="${escA(a.key||'')}" autocomplete="off"><div class="help">משיגים ב-console.groq.com/keys (המפתח מתחילה ב-gsk_). באתר ציבורי עדיף Proxy – אחרת כל מי שפותח את הדף יכול לראות את המפתח.</div></div>
-    <div class="grid two">
-      <div class="field"><label>מודל</label><input id="set-model" class="ltr" list="model-list" value="${escA(a.model||'llama-3.3-70b-versatile')}"><datalist id="model-list"><option value="llama-3.3-70b-versatile"><option value="llama-3.1-8b-instant"></datalist><div class="help">llama-3.3-70b-versatile – חכם יותר. llama-3.1-8b-instant – מהיר מאוד. אפשר להקליד כל מודל שמופיע ב-console.groq.com.</div></div>
-      <div class="field"><label>כתובת Proxy</label><input id="set-proxy" class="ltr" placeholder="https://your-worker.workers.dev/chat" value="${escA(a.proxy||'')}"></div>
-    </div>
-    <div class="field"><label>Endpoint (מצב ישיר)</label><input id="set-endpoint" class="ltr" value="${escA(a.endpoint||'https://api.groq.com/openai/v1/chat/completions')}"></div>
-    <div class="row" style="margin-top:12px"><button class="btn sm cyan" data-act="test-api">🔌 בדקי חיבור</button><button class="btn sm ghost" data-act="guide">📖 מדריך Groq</button></div>
-    <div id="api-status"></div>
+    
     <div class="divider"></div>
     <div class="row"><button class="btn primary" data-act="save-settings" style="flex:1">שמרי הגדרות</button><button class="btn ghost" data-close>סגור</button></div>
     <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="export">⬇️ ייצוא גיבוי</button><button class="btn sm ghost" data-act="import-file">⬆️ ייבוא</button><button class="btn sm ghost" data-act="backup-link">🔗 קישור המשך</button></div>
@@ -2438,8 +2450,8 @@ function readSettings(){
   S.settings.sound=$('#set-sound').checked;
   S.settings.showTr=$('#set-tr').checked;
   S.settings.autoSpeak=$('#set-autospeak').checked;
-    applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
-  if(mode==='direct' && !S.api.key) toast('שימי לב: במצב ישיר צריך מפתח Groq');
+  S.api.model=$('#set-model').value.trim() || 'openai/gpt-oss-120b';
+  applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
   if(location.hash.includes('/chat')) render();
 }
 function openGuide(){
@@ -2658,6 +2670,25 @@ function handleGlobalClick(e){
     case 'settings': openSettings(); break;
     case 'toggle-sound': S.settings.sound=!S.settings.sound; saveNow(); updateHeader(); toast(S.settings.sound?'🔊 צליל פעיל':'🔇 צליל כבוי'); break;
     case 'save-settings': readSettings(); break;
+    case 'api-login': {
+      const email=$('#sync-email').value.trim();
+      const pass=$('#sync-pass').value;
+      if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
+      toast('מתחבר...');
+      apiLogin(email,pass).then(u=>{ toast('התחברת: '+u.email); closeModal(); openSettings(); }).catch(e=>toast('שגיאה: '+e.message));
+      break;
+    }
+    case 'api-signup': {
+      const email=$('#sync-email').value.trim();
+      const pass=$('#sync-pass').value;
+      if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
+      toast('יוצר חשבון...');
+      apiSignup(email,pass).then(u=>{ toast('נרשמת: '+u.email); closeModal(); openSettings(); }).catch(e=>toast('שגיאה: '+e.message));
+      break;
+    }
+    case 'api-logout': {
+      apiLogout(); toast('התנתקת'); closeModal(); openSettings(); break;
+    }
     case 'test-api': if(typeof testApiConnection==='function') testApiConnection(); break;
     case 'guide': openGuide(); break;
     case 'export': exportBackup(); break;
@@ -2938,9 +2969,15 @@ async function aiTurn(userText){
     if(m.role==='me') msgs.push({role:'user',content:m.text});
     else msgs.push({role:'assistant',content:m.text});
   });
-  const raw=await callGroq(msgs,{maxTokens:800});
-  if(!raw||!raw.trim()) throw new Error('empty');
-  return parseAI(raw);
+  const res=await fetch('/api/ai/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:S.api.model||'openai/gpt-oss-120b',messages:msgs,temperature:0.72,max_tokens:800})
+  });
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error||'HTTP '+res.status);
+  if(!data.choices?.[0]?.message?.content) throw new Error('empty response');
+  return parseAI(data.choices[0].message.content);
 }
 function buildSystemPrompt(sc){
   const level=S.settings.level||'A1';
@@ -3044,24 +3081,23 @@ async function callGroq(messages,opts={}){
 }
 async function testApiConnection(){
   const st=$('#api-status'); if(!st) return;
-  const mode=(document.querySelector('input[name="api-mode"]:checked')||{}).value||'local';
-  S.api.mode=mode;
-  S.api.key=$('#set-key').value.trim();
-  S.api.model=($('#set-model').value||'llama-3.3-70b-versatile').trim();
-  S.api.proxy=$('#set-proxy').value.trim();
-  S.api.endpoint=($('#set-endpoint').value||'').trim();
-  if(mode==='local'){ st.className='status bad'; st.textContent='בחרי מצב Groq (ישיר או Proxy) כדי לבדוק חיבור.'; return; }
-  if(mode==='direct'&&!S.api.key){ st.className='status bad'; st.textContent='חסר מפתח Groq.'; return; }
-  if(mode==='proxy'&&!S.api.proxy){ st.className='status bad'; st.textContent='חסרה כתובת Proxy.'; return; }
-  st.className='status'; st.textContent='בודק חיבור…';
+  const model=$('#set-model').value.trim() || 'openai/gpt-oss-120b';
+  S.api.model=model;
+  st.className='status'; st.textContent='בודק חיבור דרך הבקאנד…';
   const t0=Date.now();
   try{
-const out=await callGroq([{role:'user',content:'Reply with exactly: OK'}],{maxTokens:128,timeout:20000});
+    const res=await fetch('/api/ai/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model,messages:[{role:'user',content:'Reply with exactly: OK'}],max_tokens:128})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'HTTP '+res.status);
     st.className='status ok';
-    st.innerHTML='✓ החיבור עובד ('+(Date.now()-t0)+'ms) · תשובה: '+esc(out.slice(0,30));
+    st.innerHTML='✓ החיבור עובד ('+(Date.now()-t0)+'ms) · מודל: '+esc(model);
   }catch(err){
     st.className='status bad';
-    st.innerHTML='✗ '+esc(apiErrorHe(err))+'<div style="margin-top:6px"><button class="btn xs ghost" data-act="guide">איך פותרים? 📖</button></div>';
+    st.innerHTML='✗ '+esc(err.message)+'<div style="margin-top:6px"><button class="btn xs ghost" data-act="guide">איך פותרים? 📖</button></div>';
   }
 }
 
