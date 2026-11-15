@@ -4,13 +4,13 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import PocketBase from 'pocketbase';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __fileUrl = fileURLToPath(import.meta.url);
+const __dir = path.dirname(__fileUrl);
 
 export const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8087';
 export const PUBLIC_DIR = process.env.PUBLIC_DIR
   ? path.resolve(process.env.PUBLIC_DIR)
-  : path.join(__dirname, '..', 'public');
+  : path.join(__dir, '..', 'public');
 
 /* ------------------------------------------------------------------ */
 /* AI proxy target                                                     */
@@ -135,7 +135,7 @@ function decodeClaims(token) {
 
 const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
-  : path.join(__dirname, '..', 'data');
+  : path.join(__dir, '..', 'data');
 
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PROGRESS_FILE = path.join(DATA_DIR, 'progress.json');
