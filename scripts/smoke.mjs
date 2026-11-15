@@ -54,55 +54,64 @@ await new Promise((r) => setTimeout(r, 900));
 
 const afterReload = await page.evaluate(() => (typeof S !== 'undefined' ? S.xp : null));
 
-// open settings modal and attempt signup through the API
+// open settings and verify account login is replaced by learner profiles
 await page.evaluate(() => { location.hash = '#/home'; });
 await new Promise((r) => setTimeout(r, 400));
 await page.evaluate(() => openSettings());
 await new Promise((r) => setTimeout(r, 400));
 const settingsOpened = await page.evaluate(() => {
   const overlay = document.getElementById('overlay');
-  return { visible: overlay && !overlay.hidden, hasEmail: !!document.getElementById('sync-email') };
+  return {
+    visible: overlay && !overlay.hidden,
+    hasProfileManager: !!document.querySelector('[data-act="profile-manage"]'),
+    hasEmail: !!document.getElementById('sync-email'),
+  };
 });
 
-const email = `puppeteer${Date.now()}@example.com`;
-const signupResult = await page.evaluate(async (mail) => {
-  const pass = 'password123';
-  const res = await fetch('/api/auth/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: mail, password: pass }),
-  });
-  const body = await res.json();
-  if (!res.ok) return { ok: false, body };
-  localStorage.setItem('auth_token', body.token);
-  return { ok: true, user: body.user };
-}, email);
-
-const syncAfter = await page.evaluate(async () => {
-  const out = {};
-  out.enabled = window.apiSync?.isEnabled();
-  out.user = window.apiSync?.user();
-  out.hasSave = typeof window.apiSync?.save === 'function';
-  if (typeof S !== 'undefined') { S.xp = 777; }
-  window.apiSync.save(S);
-  await new Promise((r) => setTimeout(r, 1500));
-  const res = await fetch('/api/progress', { headers: { Authorization: `Bearer ${window.apiSync.token()}` } });
-  out.remote = await res.json();
-  return out;
+const profileSync = await page.evaluate(async () => {
+  const suffix = Date.now();
+  await createLearnerProfile(`Smoke ${suffix} A`, 'A2');
+  S.xp = 333;
+  S.updated_at = new Date().toISOString();
+  saveNow();
+  await window.apiSync.flush();
+  const firstProfileId = activeProfileId;
+  await createLearnerProfile(`Smoke ${suffix} B`, 'B1');
+  const secondProfileXp = S.xp;
+  const secondProfileId = activeProfileId;
+  await activateProfile(knownProfiles.find((profile) => profile.id === firstProfileId));
+  const firstProfileXp = S.xp;
+  return {
+    firstProfileId,
+    secondProfileId,
+    firstProfileXp,
+    secondProfileXp,
+    storage: window.apiSync.storage(),
+  };
 });
+await page.reload({ waitUntil: 'networkidle2' });
+await new Promise((r) => setTimeout(r, 900));
+const profileReloadXp = await page.evaluate(() => (typeof S !== 'undefined' ? S.xp : null));
+
+if (!settingsOpened.visible || !settingsOpened.hasProfileManager || settingsOpened.hasEmail) {
+  throw new Error('Settings did not expose the expected login-free profile manager');
+}
+if (profileSync.firstProfileId === profileSync.secondProfileId
+  || profileSync.firstProfileXp !== 333
+  || profileSync.secondProfileXp !== 0
+  || profileReloadXp !== 333) {
+  throw new Error(`Profile isolation/persistence failed: ${JSON.stringify({ profileSync, profileReloadXp })}`);
+}
+if (errors.length || consoleErrors.length || failed.length) {
+  throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors, failed })}`);
+}
 
 console.log(JSON.stringify({
   report,
   afterReload,
   settingsOpened,
-  signupResult: signupResult.ok ? { ok: true, email: signupResult.user.email } : signupResult,
-  syncAfter: {
-    enabled: syncAfter.enabled,
-    hasSave: syncAfter.hasSave,
-    email: syncAfter.user?.email,
-    remoteXp: syncAfter.remote?.data?.xp ?? null,
-    storage: syncAfter.remote?.storage ?? null,
-  },
+  profileSync,
+  profileReloadXp,
   errors,
   consoleErrors: consoleErrors.slice(0, 10),
   failed: failed.slice(0, 10),

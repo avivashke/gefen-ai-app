@@ -51,9 +51,8 @@ This repo is already configured for Netlify via `netlify.toml`:
    - **Functions directory:** `netlify/functions`
    - **Build command:** (none — static site + functions)
 4. Add **Environment variables** (Site settings → Build & deploy → Environment):
-   - `PB_URL` = your PocketBase URL (required for cloud sync / auth across devices)
+   - `PB_URL` = your PocketBase URL (required for cross-device profile sync)
    - `AI_PROXY_URL` = https://gefen-ai.avivashke95.workers.dev (AI chat proxy)
-   - `LOCAL_AUTH_SECRET` = any random string (optional, for local fallback tokens)
    - `NODE_ENV` = production
 5. Deploy.
 
@@ -61,20 +60,24 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 
 ---
 
-## 💾 איפה נשמרת ההתקדמות של המשתמש?
+## 👥 פרופילים והתקדמות
 
 | מצב | איפה הנתונים נשמרים | סנכרון בין מכשירים | נדרש תשתית חיצונית |
 |-----|----------------------|---------------------|---------------------|
-| **ברירת מחדל (ללא PB_URL)** | `localStorage` בדפדפן של המשתמש | ❌ רק במכשיר הנוכחי | לא |
-| **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ כן, בין מכשירים | כן (חינמי) |
+| **ללא PocketBase** | בדפדפן או באחסון המקומי של השרת | ❌ לא מובטח | לא |
+| **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ לפי פרופיל, בין מכשירים | כן |
 
-ב-Netlify Functions לא ניתן לכתוב לקבצים מקומיים (מערכת קבצים לקריאה בלבד), אז אם לא מגדיר `PB_URL`, ההתקדמות נשמרת רק בדפדפן של המשתמש. יש אפשרות **איפוס מלא** מההגדרות (`איפוס כל ההתקדמות`) שיוחק את כל הנתונים מהמכשיר הנוכחי (ומהסנכרון בענן אם מחובר).
+פותחים את האפליקציה ובוחרים פרופיל קיים או יוצרים פרופיל חדש עם שם ורמה. ההתקדמות של כל פרופיל נשמרת בנפרד ומתעדכנת אוטומטית. במכשיר אחר בוחרים את אותו פרופיל; אין צורך להתחבר.
+
+**הפרופילים ציבוריים במכוון:** כל מי שפותח את האפליקציה יכול לבחור, לקרוא ולערוך כל פרופיל. אין להשתמש בהם לשמירת מידע פרטי.
+
+ב-Netlify Functions אין אחסון מקומי מתמשך. כדי שהנתונים יישמרו בין הפעלות ובין מכשירים יש להגדיר `PB_URL` וליצור את אוסף `profiles` כמפורט בהמשך.
 
 ---
 
 ## 🆓 הקמת מסד חינמי לסנכרון בין מכשירים (מומלץ)
 
-כדי שהמשתמשים יוכלו להיכנס לחשבון ולסנכרן התקדמות בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך משתנה הסביבה `PB_URL`.
+כדי לסנכרן פרופילים בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך `PB_URL`.
 
 ### אפשרות א: PocketBase Cloud (הכי קל ומומלץ)
 1. הירשמי ב-[pocketbase.io](https://pocketbase.io) — יש שכבה חינמית (1GB, 10K בקשות/יום).
@@ -101,34 +104,25 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 | משתנה | חובה? | תיאור | דוגמה |
 |--------|--------|-------|--------|
 | `PB_URL` | כן (לסנכרון ענן) | כתובת PocketBase לסנכרון ענן | `https://my-app.pocketbase.io` |
-| `PB_ADMIN_EMAIL` | כן (לסנכרון ענן) | אימייל מנהל PocketBase | `admin@gefen.ai` |
-| `PB_ADMIN_PASSWORD` | כן (לסנכרון ענן) | סיסמת מנהל PocketBase | `StrongPassword123!` |
 | `AI_PROXY_URL` | לא | פרוקסי לשיחת AI | `https://gefen-ai.avivashke95.workers.dev` |
-| `LOCAL_AUTH_SECRET` | לא | סוד לאימות מקומי fallback | כל מחרוזת אקראית |
 | `NODE_ENV` | לא | סביבת הפעלה | `production` |
 
-אם `PB_URL` לא מוגדר או לא נגיש, האפליקציה עובדת במצב **מקומי בלבד** — התקדמות נשמרת ב-`localStorage` בדפדפן, ויש כפתור איפוס מלא בהגדרות.
+אם `PB_URL` לא מוגדר או לא נגיש, האפליקציה עובדת במצב מקומי, ללא הבטחת שמירה בענן או סנכרון בין מכשירים.
 
 ### הגדרת Collections ב-PocketBase (פעם אחת)
 
-לאחר שהמסד רץ בענן, יש ליצור את collection `progress` ולהגדיר הרשאות גישה. אפשר דרך Admin UI של PocketBase, או להריץ את סקריפט ההגדרה שכבר כלול בפרויקט:
+לאחר שהמסד רץ בענן, הריצי את סקריפט ההגדרה כדי ליצור את האוספים:
 
 ```bash
 export PB_URL=https://your-pocketbase-url
-export PB_ADMIN_EMAIL=your-admin-email
-export PB_ADMIN_PASSWORD=your-admin-password
-node scripts/setup-pocketbase.mjs
+PB_ADMIN_EMAIL=your-existing-superuser-email PB_ADMIN_PASSWORD=your-superuser-password node scripts/setup-pocketbase.mjs
 ```
 
-**מה הסקריפט עושה:**
-- יוצר collection בשם `progress` עם השדות: `user` (קישור למשתמש), `data` (JSON עם ההתקדמות), `updated` (תאריך עדכון).
-- מגדיר כללי גישה כך שכל משתמש רואה ועורך רק את הנתונים שלו.
-- יוצר משתמש מנהל (superuser) אם לא קיים.
+האפליקציה משתמשת באוסף `profiles` עם `profile_id`, `name`, `level`, `data` ו-`updated`. האוסף מאפשר קריאה, יצירה ועדכון ציבוריים כדי לאפשר שימוש ללא התחברות; מחיקה נעולה. האוסף הישן `progress` נשאר לתאימות לחשבונות קודמים.
 
-**או באופן ידני דרך Admin UI:**
-1. Collections → Add Collection → Base → שם: `progress`
-2. שדות: `user` (Relation ל-users), `data` (JSON), `updated` (Date)
-3. כללי גישה: Create `@request.auth.id != ""`, Read/Update/Delete `@request.auth.id != "" && user = @request.auth.id`
+יש ליצור מראש משתמש Superuser ב-PocketBase Admin UI. פרטי מנהל ה-PocketBase משמשים להרצת סקריפט ההגדרה בלבד; אין לשמור אותם במשתני הסביבה של האפליקציה.
+
+לפרטים על הגדרה ידנית, ראו [POCKETBASE_SETUP.md](./POCKETBASE_SETUP.md).
 
 ### הגדרת ALLOWED_ORIGINS ב-Cloudflare Worker (חובה לסנכרון AI)
 
@@ -151,7 +145,7 @@ node scripts/setup-pocketbase.mjs
 
 #### הגדרת כתובת פרוקסי Cloudflare Worker מתוך ההגדרות של האפליקציה (חוצה מכשירים)
 
-ניתן להגדיר את כתובת הפרוקסי של Cloudflare Worker ישירות ממסך ההגדרות של האפליקציה (⚙️ הגדרות → חיבור המאמנת), והיא תישמר באחסון המקומי ותסונכרן אוטומטית בין כל המכשירים שבהם את מחוברת לחשבון PocketBase בענן – כך לא צריך להגדיר אותה מחדש בכל מכשיר ונמנעות תקלות מכתובת שגויה או ריקה.
+ניתן להגדיר את כתובת הפרוקסי של Cloudflare Worker ישירות ממסך ההגדרות של האפליקציה (⚙️ הגדרות → חיבור המאמנת), והיא תישמר בפרופיל הפעיל ותסונכרן אוטומטית בין המכשירים שבהם נבחר אותו פרופיל.
 
 - בשדה "כתובת פרוקסי Cloudflare Worker" הדביקי את כתובת ה-Worker (לדוגמה `https://gefen-ai.avivashke95.workers.dev/`).
 - הקוד בודק שהכתובת תקינה לפני השמירה ומראה שגיאה אם היא לא תקינה.
@@ -167,10 +161,7 @@ node scripts/setup-pocketbase.mjs
 |--------|--------|-------------|--------|
 | `AI_PROXY_URL` | כן | `https://gefen-ai.avivashke95.workers.dev` | כתובת פרוקסי ה-AI ב-Cloudflare Worker |
 | `PB_URL` | כן (לסינכרון ענן) | `https://your-pocketbase-instance` | כתובת PocketBase בענן |
-| `PB_ADMIN_EMAIL` | כן (לסינכרון ענן) | `admin@gefen.ai` | אימייל מנהל PocketBase |
-| `PB_ADMIN_PASSWORD` | כן (לסינכרון ענן) | `StrongPassword123!` | סיסמת מנהל PocketBase |
 | `ALLOWED_ORIGINS` | כן | `https://wonderful-squirrel-816721.netlify.app` | מוגדר ב-Cloudflare Worker, לא ב-Netlify |
-| `LOCAL_AUTH_SECRET` | לא | כל מחרוזת אקראית | סוד לאימות מקומי fallback |
 | `NODE_ENV` | לא | `production` | סביבת הפעלה |
 
 ---
@@ -190,11 +181,9 @@ cd pocketbase/pocketbase
 
 # 2. הגדרי משתני סביבה
 export PB_URL=http://127.0.0.1:8087
-export PB_ADMIN_EMAIL=admin@gefen.ai
-export PB_ADMIN_PASSWORD=ChangeMe123!
 
-# 3. הפעלי סקריפט הגדרה ראשונית לפעמים הראשונות
-node scripts/setup-pocketbase.mjs
+# 3. הפעלי סקריפט הגדרה ראשונית (השתמשי ב-Superuser קיים)
+PB_ADMIN_EMAIL=your-existing-superuser-email PB_ADMIN_PASSWORD=your-superuser-password node scripts/setup-pocketbase.mjs
 
 # 4. הפעלי את השרת
 npm install

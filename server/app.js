@@ -149,10 +149,12 @@ const DATA_DIR = process.env.DATA_DIR
 
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PROGRESS_FILE = path.join(DATA_DIR, 'progress.json');
+const PROFILES_FILE = path.join(DATA_DIR, 'profiles.json');
 const SECRET = process.env.LOCAL_AUTH_SECRET || 'gefen-local-dev-secret';
 
 let usersCache = null;
 let progressCache = null;
+let profilesCache = null;
 
 function readJson(file, fallback) {
   try {
@@ -197,6 +199,15 @@ function loadProgress() {
 
 function saveProgress() {
   return writeJson(PROGRESS_FILE, loadProgress());
+}
+
+function loadProfiles() {
+  if (profilesCache === null) profilesCache = readJson(PROFILES_FILE, {});
+  return profilesCache;
+}
+
+function saveProfiles() {
+  return writeJson(PROFILES_FILE, loadProfiles());
 }
 
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -300,7 +311,7 @@ export function stampState(data) {
 }
 
 function filterValue(userId) {
-  return String(userId).replace(/"/g, '\\"');
+  return String(userId).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
 async function findProgressRecord(client, userId) {
@@ -509,6 +520,168 @@ export async function handleSaveProgress(req, res) {
   }
 }
 
+const PROFILE_LEVELS = new Set(['A1', 'A2', 'B1']);
+
+function validProfileId(value) {
+  return typeof value === 'string' && /^[a-zA-Z0-9_-]{1,64}$/.test(value);
+}
+
+function profileSummary(profile) {
+  return {
+    id: profile.profile_id || profile.id,
+    name: profile.name,
+    level: profile.level,
+    updated_at: profile.updated || null,
+  };
+}
+
+async function findProfileRecord(client, profileId) {
+  const page = await client.collection('profiles').getList(1, 1, {
+    filter: `profile_id = "${filterValue(profileId)}"`,
+  });
+  return page.items[0] || null;
+}
+
+async function findProfileByName(client, name) {
+  const page = await client.collection('profiles').getList(1, 1, {
+    filter: `name = "${filterValue(name)}"`,
+  });
+  return page.items[0] || null;
+}
+
+export async function handleListProfiles(req, res) {
+  if (!(await checkPocketBase())) {
+    const profiles = Object.values(loadProfiles())
+      .sort((a, b) => a.name.localeCompare(b.name, 'he'))
+      .map(profileSummary);
+    return res.json({ profiles, storage: 'local' });
+  }
+
+  try {
+    const result = await newPbClient().then((client) =>
+      client.collection('profiles').getFullList({ sort: 'name', fields: 'profile_id,name,level,updated' }),
+    );
+    res.json({ profiles: result.map(profileSummary), storage: 'cloud' });
+  } catch (e) {
+    fail(res, 503, `טעינת הפרופילים נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleCreateProfile(req, res) {
+  const { name, level, data } = req.body || {};
+  const cleanName = typeof name === 'string' ? name.trim() : '';
+  if (!cleanName || cleanName.length > 40) return fail(res, 400, 'יש להזין שם פרופיל באורך של עד 40 תווים');
+  if (!PROFILE_LEVELS.has(level)) return fail(res, 400, 'רמת לימוד לא תקינה');
+  if (data !== undefined && (!data || typeof data !== 'object' || Array.isArray(data))) {
+    return fail(res, 400, 'נתוני ההתקדמות אינם תקינים');
+  }
+
+  const profileId = crypto.randomUUID();
+  const updated = new Date().toISOString();
+  const profileData = stampState(data || { settings: { level } });
+  const record = {
+    profile_id: profileId,
+    name: cleanName,
+    level,
+    data: profileData,
+    updated,
+  };
+
+  if (!(await checkPocketBase())) {
+    const profiles = loadProfiles();
+    if (Object.values(profiles).some((profile) => profile.name.toLocaleLowerCase() === cleanName.toLocaleLowerCase())) {
+      return fail(res, 409, 'כבר קיים פרופיל בשם הזה');
+    }
+    profiles[profileId] = record;
+    if (!saveProfiles()) return fail(res, 503, 'שמירת הפרופיל נכשלה באחסון המקומי');
+    return res.status(201).json({ profile: profileSummary(record), data: profileData, storage: 'local' });
+  }
+
+  try {
+    const client = await newPbClient();
+    if (await findProfileByName(client, cleanName)) return fail(res, 409, 'כבר קיים פרופיל בשם הזה');
+    const created = await client.collection('profiles').create(record);
+    res.status(201).json({
+      profile: profileSummary(created),
+      data: parseJsonMaybe(created.data),
+      storage: 'cloud',
+    });
+  } catch (e) {
+    fail(res, 503, `יצירת הפרופיל נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleGetProfileProgress(req, res) {
+  const { profileId } = req.params;
+  if (!validProfileId(profileId)) return fail(res, 400, 'מזהה פרופיל לא תקין');
+
+  if (!(await checkPocketBase())) {
+    const profile = loadProfiles()[profileId];
+    if (!profile) return fail(res, 404, 'הפרופיל לא נמצא');
+    return res.json({
+      profile: profileSummary(profile),
+      data: parseJsonMaybe(profile.data),
+      updated_at: profile.updated || null,
+      storage: 'local',
+    });
+  }
+
+  try {
+    const record = await findProfileRecord(await newPbClient(), profileId);
+    if (!record) return fail(res, 404, 'הפרופיל לא נמצא');
+    res.json({
+      profile: profileSummary(record),
+      data: parseJsonMaybe(record.data),
+      updated_at: record.updated || null,
+      storage: 'cloud',
+    });
+  } catch (e) {
+    fail(res, 503, `טעינת ההתקדמות נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleSaveProfileProgress(req, res) {
+  const { profileId } = req.params;
+  if (!validProfileId(profileId)) return fail(res, 400, 'מזהה פרופיל לא תקין');
+
+  const { data, client_updated_at, level } = req.body || {};
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return fail(res, 400, 'חסר אובייקט התקדמות (data)');
+  }
+  if (!PROFILE_LEVELS.has(level)) return fail(res, 400, 'רמת לימוד לא תקינה');
+
+  const stamped = stampState(data);
+  const updated = stamped.updated_at;
+  if (!(await checkPocketBase())) {
+    const profiles = loadProfiles();
+    const existing = profiles[profileId];
+    if (!existing) return fail(res, 404, 'הפרופיל לא נמצא');
+    const storedTime = Date.parse(existing.updated || '');
+    const clientTime = Date.parse(client_updated_at || '');
+    if (!Number.isNaN(storedTime) && !Number.isNaN(clientTime) && storedTime > clientTime + 1000) {
+      return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: 'local' });
+    }
+    profiles[profileId] = { ...existing, level, data: stamped, updated };
+    if (!saveProfiles()) return fail(res, 503, 'שמירת ההתקדמות נכשלה באחסון המקומי');
+    return res.json({ ok: true, updated_at: updated, storage: 'local' });
+  }
+
+  try {
+    const client = await newPbClient();
+    const existing = await findProfileRecord(client, profileId);
+    if (!existing) return fail(res, 404, 'הפרופיל לא נמצא');
+    const storedTime = Date.parse(existing.updated || '');
+    const clientTime = Date.parse(client_updated_at || '');
+    if (!Number.isNaN(storedTime) && !Number.isNaN(clientTime) && storedTime > clientTime + 1000) {
+      return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: 'cloud' });
+    }
+    await client.collection('profiles').update(existing.id, { level, data: stamped, updated });
+    res.json({ ok: true, updated_at: updated, storage: 'cloud' });
+  } catch (e) {
+    fail(res, 503, `שמירת ההתקדמות נכשלה: ${e.message}`);
+  }
+}
+
 export async function handleAiChat(req, res) {
   if (AI_TARGET.kind === 'none' || AI_TARGET.kind === 'invalid') {
     return fail(res, 503, 'שירות ה-AI אינו מוגדר בשרת');
@@ -593,6 +766,10 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.post('/api/auth/logout', (req, res) => res.json({ ok: true }));
   app.get('/api/progress', handleGetProgress);
   app.post('/api/progress', handleSaveProgress);
+  app.get('/api/profiles', handleListProfiles);
+  app.post('/api/profiles', handleCreateProfile);
+  app.get('/api/profiles/:profileId/progress', handleGetProfileProgress);
+  app.post('/api/profiles/:profileId/progress', handleSaveProfileProgress);
   app.post('/api/ai/chat', handleAiChat);
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));

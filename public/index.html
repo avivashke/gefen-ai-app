@@ -1046,6 +1046,8 @@ const LOCAL_FIXES = [
    BEERI ENGLISH COACH — core: state, data, home, path, exercises
    ============================================================ */
 const KEY = 'gefen_english_coach_v1';
+let activeProfileId = localStorage.getItem('gefen_active_profile') || '';
+let knownProfiles = [];
 const DAY = 86400000;
 const INTERVALS = [0, 1, 3, 7, 16, 35]; // days by mastery box
 const $ = s => document.querySelector(s);
@@ -1148,6 +1150,10 @@ let lastSaved = 0;
 let saveTimer = null;
 let syncing = false;
 
+function stateStorageKey(){
+  return activeProfileId ? `${KEY}_${activeProfileId}` : KEY;
+}
+
 function mergeState(base, incoming){
   const out = {...base, ...incoming};
   out.settings = {...base.settings, ...(incoming.settings||{})};
@@ -1177,7 +1183,7 @@ function isNewer(remote, local){
 
 function loadState(){
   try{
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(stateStorageKey());
     if(raw){
       const data = JSON.parse(raw);
       S = mergeState(freshState(), data);
@@ -1223,8 +1229,69 @@ function cloudPush(force){
   S.updated_at = new Date().toISOString();
   window.apiSync.save(S, {force:!!force});
 }
+async function activateProfile(profile){
+  if(activeProfileId){
+    saveNow();
+    await window.apiSync.flush();
+  }
+  window.apiSync.select(profile.id);
+  activeProfileId = profile.id;
+  try{
+    const raw = localStorage.getItem(stateStorageKey());
+    S = raw ? mergeState(freshState(), JSON.parse(raw)) : freshState();
+  }catch(e){
+    console.warn('profile state load failed', e);
+    S = freshState();
+  }
+  S.name = profile.name || S.name;
+  if(profile.level) S.settings.level = profile.level;
+  applyFontScale();
+  await window.apiSync.load(profile.id);
+  closeModal();
+  render();
+  updateHeader();
+}
+async function createLearnerProfile(name, level){
+  if(activeProfileId){
+    saveNow();
+    await window.apiSync.flush();
+  }
+  const initial = activeProfileId ? freshState() : JSON.parse(JSON.stringify(S));
+  initial.name = name;
+  initial.settings.level = level;
+  initial.updated_at = new Date().toISOString();
+  const result = await window.apiSync.create(name, level, initial);
+  activeProfileId = result.profile.id;
+  knownProfiles = [result.profile, ...knownProfiles.filter(profile=>profile.id!==result.profile.id)];
+  try{ knownProfiles = (await window.apiSync.list()).profiles || knownProfiles; }
+  catch(e){ console.warn('[sync] profile list refresh failed:', e.message); }
+  S = mergeState(freshState(), result.data || initial);
+  S.name = result.profile.name;
+  S.settings.level = result.profile.level;
+  persistLocal();
+  applyFontScale();
+  closeModal();
+  render();
+  updateHeader();
+  toast(window.apiSync.storage()==='cloud'?'הפרופיל נשמר בענן ✓':'הפרופיל נשמר בשרת ✓');
+}
+function openProfilePicker(){
+  const items = knownProfiles.map(p => `<button class="btn wide" style="justify-content:space-between;margin-top:8px" data-act="profile-select" data-profile-select="${escA(p.id)}"><span>${esc(p.name)}</span><span class="tag lime">${esc(p.level)}</span></button>`).join('');
+  const syncDescription = window.apiSync.storage()==='cloud'
+    ? 'ההתקדמות נשמרת בענן ומסתנכרנת אוטומטית בין מכשירים.'
+    : 'ההתקדמות נשמרת בשרת המקומי. לסנכרון אמין בין מכשירים נדרש חיבור PocketBase בענן.';
+  openModal(`<h3>👤 בחירת פרופיל</h3>
+    <p class="small muted">בחרי פרופיל קיים או צרי חדש. כל פרופיל שומר התקדמות ורמה משלו. ${syncDescription}</p>
+    ${items || '<p class="tiny muted" style="margin-top:12px">עדיין אין פרופילים. צרי את הראשון.</p>'}
+    <div class="divider"></div>
+    <h3 style="font-size:1rem">${knownProfiles.length ? 'יצירת פרופיל חדש' : 'יצירת פרופיל'}</h3>
+    <div class="field"><label for="profile-name">שם</label><input id="profile-name" maxlength="40" placeholder="למשל: גפן"></div>
+    <div class="field"><label for="profile-level">רמת אנגלית</label><select id="profile-level">${['A1','A2','B1'].map(level=>`<option ${S.settings.level===level?'selected':''}>${level}</option>`).join('')}</select></div>
+    <button class="btn primary wide" data-act="profile-create">יצירת פרופיל</button>
+    <p class="tiny muted" style="margin-top:10px">ללא סיסמה: מי שפותח את האפליקציה יכול לבחור כל פרופיל ולערוך את ההתקדמות שלו.</p>`);
+}
 function persistLocal(){
-  try{ localStorage.setItem(KEY, JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
+  try{ localStorage.setItem(stateStorageKey(), JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
 }
 function saveNow(){
   persistLocal();
@@ -1237,14 +1304,13 @@ function save(){
 
 function initCloudSync(){
   if(!window.apiSync) return;
-  window.apiSync.init();
   window.apiSync.on((event, payload) => {
     if(event === 'loaded'){
       applyCloud(payload && payload.data, payload && payload.updated_at);
     }else if(event === 'conflict'){
       applyCloud(payload && payload.data, payload && payload.updated_at);
     }else if(event === 'saved'){
-      if(typeof updateSyncBadge === 'function') updateSyncBadge('saved');
+      if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='cloud'?'saved':'server');
     }else if(event === 'offline'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('offline');
     }else if(event === 'online'){
@@ -1252,26 +1318,43 @@ function initCloudSync(){
       if(syncing) cloudPush(true);
     }else if(event === 'error'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('error');
-    }else if(event === 'unauthorized' || event === 'session'){
-      if(typeof updateSyncBadge === 'function') updateSyncBadge(payload && payload.syncEnabled ? 'saved' : 'off');
-      if(typeof render === 'function' && (location.hash.includes('/settings'))) render();
-      // Update storage badge
-      const storageEl = document.getElementById('storage-badge');
-      if (storageEl) {
-        if (payload && payload.syncEnabled) { storageEl.innerHTML = '☁️ בענן'; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = 'מסונכרן בין מכשירים דרך PocketBase'; }
-        else { storageEl.innerHTML = '💾 מקומי בדפדפן'; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = 'התקדמות נשמרת במכשיר הנוכחי בלבד'; }
-      }
+    }else if(event === 'profile'){
+      if(typeof updateSyncBadge === 'function') updateSyncBadge(cloudReady()?(window.apiSync.storage()==='cloud'?'saved':'server'):'off');
     }
   });
 
-  if(cloudReady()){
-    syncing = true;
-    window.apiSync.load().then(res => {
-      if(res && res.error){ if(typeof updateSyncBadge === 'function') updateSyncBadge('error'); return; }
-      if(res && res.data) applyCloud(res.data, res.updated_at);
-      else if(typeof updateSyncBadge === 'function') updateSyncBadge('saved');
-    });
-  }
+  window.apiSync.init().then(async result => {
+    knownProfiles = result.profiles || [];
+    const selected = knownProfiles.find(profile => profile.id === activeProfileId);
+    if(selected){
+      syncing = true;
+      if(selected.level) S.settings.level = selected.level;
+      try{
+        await window.apiSync.load(selected.id);
+        if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='cloud'?'saved':'server');
+      }catch(e){
+        console.warn('[sync] selected profile could not load:',e.message);
+        window.apiSync.select('');
+        activeProfileId = '';
+        openProfilePicker();
+        toast('לא הצלחתי לטעון את הפרופיל. בחרי פרופיל אחר או צרי חדש.');
+      }
+    }else if(knownProfiles.length){
+      window.apiSync.select('');
+      activeProfileId = '';
+      const legacy = await window.apiSync.loadLegacy();
+      if(legacy?.data){ S = mergeState(freshState(), legacy.data); S.updated_at = legacy.updated_at; persistLocal(); }
+      openProfilePicker();
+    }else if(!result.error){
+      window.apiSync.select('');
+      activeProfileId = '';
+      const legacy = await window.apiSync.loadLegacy();
+      if(legacy?.data){ S = mergeState(freshState(), legacy.data); S.updated_at = legacy.updated_at; persistLocal(); }
+      openProfilePicker();
+    }else if(typeof updateSyncBadge === 'function'){
+      updateSyncBadge('off');
+    }
+  });
 }
 function markActive(){
   const t = todayKey();
@@ -2477,62 +2560,47 @@ function mountExam(){
 function updateSyncBadge(state){
   const el=document.getElementById('sync-badge');
   if(!el) return;
-  const map={saved:['✅','מסונכרן'],syncing:['🔄','מסנכרן…'],offline:['📴','לא מקוון'],error:['⚠️','שגיאת סנכרון'],off:['💾','מקומי בלבד']};
+  const map={saved:['✅','מסונכרן בענן'],server:['💾','נשמר בשרת'],syncing:['🔄','מסנכרן…'],offline:['📴','לא מקוון'],error:['⚠️','שגיאת סנכרון'],off:['💾','מקומי בלבד']};
   const [icon,label]=map[state]||map.off;
   el.textContent=`${icon} ${label}`;
-  el.className='tag '+(state==='saved'?'lime':state==='error'?'gold':'');
+  el.className='tag '+(state==='saved'?'lime':state==='error'||state==='server'?'gold':'');
 }
 function renderSyncPanel(){
-  const enabled=cloudReady();
-  const user=window.apiSync && window.apiSync.user ? window.apiSync.user() : null;
-  const last=window.apiSync && window.apiSync.lastSyncedAt ? window.apiSync.lastSyncedAt() : 0;
-  const anonId = (user && user.id && String(user.id).startsWith('anon-')) ? user.id : null;
-  const badge = enabled
-    ? `<span class="tag lime" id="sync-badge">✅ מחובר</span>`
-    : `<span class="tag" id="sync-badge">💾 מקומי בלבד</span>`;
-  // Update storage badge
-  const storageEl = document.getElementById("storage-badge");
-  if (storageEl) {
-    if (enabled) { storageEl.innerHTML = "☁️ בענן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "מסונכרן אוטומטית בין מכשירים דרך PocketBase"; }
-    else { storageEl.innerHTML = "💾 מקומי בדפדפן"; if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = "התקדמות נשמרת במכשיר הנוכחי בלבד"; }
+  const enabled = cloudReady();
+  const isCloud = enabled && window.apiSync.storage() === 'cloud';
+  const profile = knownProfiles.find(item => item.id === activeProfileId);
+  const badge = isCloud
+    ? '<span class="tag lime" id="sync-badge">✅ מסונכרן בענן</span>'
+    : enabled
+    ? '<span class="tag gold" id="sync-badge">💾 אחסון מקומי בשרת</span>'
+    : '<span class="tag" id="sync-badge">💾 מקומי בלבד</span>';
+  const storageEl = document.getElementById('storage-badge');
+  if(storageEl){
+    storageEl.innerHTML = isCloud ? '☁️ בענן' : enabled ? '💾 אחסון מקומי בשרת' : '💾 מקומי בדפדפן';
+    if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = enabled
+      ? isCloud ? 'ההתקדמות בפרופיל הזה מסתנכרנת אוטומטית בין מכשירים' : 'ההתקדמות נשמרת בשרת; יש להגדיר PocketBase לסנכרון אמין'
+      : 'כדי לסנכרן בין מכשירים יש להגדיר חיבור למסד הנתונים';
   }
-
-  const head = enabled
-    ? `<div class="field"><div class="row" style="align-items:center"><span style="flex:1"><b>${escA(user?.email||'מחובר')}</b> <span class="tiny muted">· ${last?new Date(last).toLocaleString('he-IL'):' ממתין לסנכרון'}</span></span>${badge}<button class="btn xs danger" data-act="api-logout">התנתק</button></div></div>`
-    : `<div class="field"><div class="row" style="align-items:center"><span style="flex:1 tiny muted">ההתקדמות נשמרת במכשיר. התחברי כדי לשמור בענן ולעבור בין מכשירים.</span>${badge}</div></div>`;
-
-  const form = enabled ? '' : `
-    <div class="grid two">
-      <div class="field"><label>אימייל</label><input type="email" id="sync-email" placeholder="you@example.com" class="ltr" autocomplete="username"></div>
-      <div class="field"><label>סיסמה</label><input type="password" id="sync-pass" placeholder="••••••••" autocomplete="current-password"></div>
+  return `<div class="field"><div class="row" style="align-items:center">
+      <span style="flex:1"><b>פרופיל פעיל: ${esc(profile?.name || S.name)}</b></span>${badge}
+    </div></div>
+    <div class="field"><label for="profile-level-current">רמת הפרופיל</label>
+      <div class="row"><select id="profile-level-current" style="flex:1">${['A1','A2','B1'].map(level=>`<option ${S.settings.level===level?'selected':''}>${level}</option>`).join('')}</select>
+      <button class="btn sm" data-act="profile-save-level">שמירת רמה</button></div>
     </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn primary" data-act="api-login" style="flex:1">התחברות</button>
-      <button class="btn cyan" data-act="api-signup" style="flex:1">יצירת חשבון</button>
-    </div>
-    <div class="help" style="margin-top:6px">הסיסמה חייבת להכיל 8 תווים לפחות. אחרי ההתחברות ההתקדמות הנוכחית תעלה לענן אוטומטית.</div>`;
-
-  const syncCode = anonId
-    ? `<div class="divider"></div>
-    <div class="field">
-      <label>קוד סנכרון למכשירים אחרים</label>
-      <input class="ltr txt" readonly value="${escA(anonId)}">
-      <div class="help">העתיקי את הקוד הזה והזיני אותו במכשיר אחר במסך ההתחברות כדי לאחד את ההתקדמות.</div>
-      <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-copy="${escA(anonId)}">📋 העתקת קוד</button></div>
-    </div>` : '';
-
-  return `${head}${syncCode}${form}`;
+    <button class="btn cyan wide" data-act="profile-manage">החלפת פרופיל / יצירת חדש</button>
+    <p class="tiny muted" style="margin-top:8px">הפרופילים פתוחים ללא סיסמה. כל מי שפותח את האפליקציה יכול לבחור ולערוך כל פרופיל.</p>`;
 }
 function openSettings(){
   const a=S.api;
   openModal(`<button class="x" data-close>✕</button>
     <h3>⚙️ הגדרות</h3>
-    <p class="small muted">התקדמות הלמידה נשמרת אוטומטית במכשיר הזה ובענן (PocketBase) – החשבון נוצר בעצמו בלי הרשמה. כדי לעבור בין מכשירים, הזיני את קוד הסנכרון שמופיע למטה במכשיר האחר, או ייצאי גיבוי ידני.</p>
+    <p class="small muted">בחרי פרופיל אישי לכל לומדת. ההתקדמות והרמה נשמרות אוטומטית ומסתנכרנות בין מכשירים, ללא חשבון או סיסמה.</p>
     
     <div class="field"><span class="tag" id="storage-badge">💾 מקומי בדפדפן</span> <span class="tiny muted">התקדמות נשמרת במכשיר הנוכחי בלבד</span></div>
 
     <div class="divider"></div>
-    <h3 style="font-size:1rem">☁️ סנכרון והתקדמות (ענן)</h3>
+    <h3 style="font-size:1rem">👥 פרופילים וסנכרון</h3>
     ${renderSyncPanel()}
 
     <div class="divider"></div>
@@ -2639,14 +2707,16 @@ function applyImport(obj){
 }
 function openReset(){
   openModal(`<button class="x" data-close>✕</button><h3 style="color:var(--red)">לאפס הכול?</h3>
-    <p class="small muted">כל הנקודות, ההתקדמות, המילים, ההישגים והשיחות יימחקו מהמכשיר הזה. אין שחזור.</p>
+    <p class="small muted">כל הנקודות, ההתקדמות, המילים, ההישגים והשיחות בפרופיל הזה יימחקו מהמכשיר ומהענן. אין שחזור.</p>
     <div class="row" style="margin-top:14px"><button class="btn" data-close>ביטול</button><button class="btn danger" data-act="confirm-reset">כן, אפס הכול</button></div>`);
 }
-function doReset(){
+async function doReset(){
   const fresh=freshState();
   fresh.updated_at=new Date().toISOString();
-  try{ localStorage.removeItem(KEY); localStorage.setItem(KEY, JSON.stringify(fresh)); }catch(e){}
-  cloudPush(true); // אם מחובר לענן – מאפס גם שם
+  S=fresh;
+  try{ localStorage.removeItem(stateStorageKey()); localStorage.setItem(stateStorageKey(), JSON.stringify(fresh)); }catch(e){}
+  cloudPush(true);
+  if(cloudReady()) await window.apiSync.flush();
   try{ history.replaceState(null,'',location.pathname); }catch(e){}
   setTimeout(()=>location.reload(), cloudReady()?900:0);
 }
@@ -2766,6 +2836,32 @@ function handleGlobalClick(e){
   if(!act) return;
   const a=act.dataset.act;
   switch(a){
+    case 'profile-manage': openProfilePicker(); break;
+    case 'profile-create': {
+      const name=$('#profile-name')?.value.trim();
+      const level=$('#profile-level')?.value || 'A1';
+      if(!name){ toast('הקלידי שם לפרופיל'); break; }
+      toast('יוצרת פרופיל...');
+      createLearnerProfile(name, level).catch(err=>toast('יצירת הפרופיל נכשלה: '+err.message));
+      break;
+    }
+    case 'profile-select': {
+      const profile=knownProfiles.find(item=>item.id===act.dataset.profileSelect);
+      if(!profile) break;
+      toast('טוענת פרופיל...');
+      activateProfile(profile).catch(err=>toast('טעינת הפרופיל נכשלה: '+err.message));
+      break;
+    }
+    case 'profile-save-level': {
+      const level=$('#profile-level-current')?.value;
+      if(!['A1','A2','B1'].includes(level)) break;
+      S.settings.level=level;
+      const profile=knownProfiles.find(item=>item.id===activeProfileId);
+      if(profile) profile.level=level;
+      saveNow();
+      toast('רמת הפרופיל נשמרה ✓');
+      break;
+    }
     case 'check': checkCurrent(); break;
     case 'hint': showHint(); break;
     case 'next':
@@ -2796,46 +2892,13 @@ function handleGlobalClick(e){
     case 'settings': openSettings(); break;
     case 'toggle-sound': S.settings.sound=!S.settings.sound; saveNow(); updateHeader(); toast(S.settings.sound?'🔊 צליל פעיל':'🔇 צליל כבוי'); break;
     case 'save-settings': readSettings(); break;
-    case 'api-login': {
-      const email=$('#sync-email').value.trim();
-      const pass=$('#sync-pass').value;
-      if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
-      toast('מתחבר...');
-      window.apiSync.login(email,pass).then(async u=>{
-        toast('התחברת: '+u.email);
-        updateSyncBadge('saved');
-        await cloudPush(true);
-        closeModal(); openSettings();
-      }).catch(e=>toast('שגיאה: '+e.message));
-      break;
-    }
-    case 'api-signup': {
-      const email=$('#sync-email').value.trim();
-      const pass=$('#sync-pass').value;
-      if(!email||!pass){ toast('מלאי אימייל וסיסמה'); break; }
-      if(pass.length<8){ toast('הסיסמה חייבת להכיל 8 תווים לפחות'); break; }
-      toast('יוצר חשבון...');
-      window.apiSync.signup(email,pass).then(async u=>{
-        toast('נרשמת: '+u.email);
-        updateSyncBadge('saved');
-        await cloudPush(true);
-        closeModal(); openSettings();
-      }).catch(e=>toast('שגיאה: '+e.message));
-      break;
-    }
-    case 'api-logout': {
-      window.apiSync.logout();
-      updateSyncBadge('off');
-      toast('התנתקת – ההתקדמות נשמרת במכשיר');
-      closeModal(); openSettings(); break;
-    }
     case 'test-api': if(typeof testApiConnection==='function') testApiConnection(); break;
     case 'guide': openGuide(); break;
     case 'export': exportBackup(); break;
     case 'import-file': importFilePicker(); break;
     case 'backup-link': backupLink(); break;
     case 'reset-all': openReset(); break;
-    case 'confirm-reset': doReset(); break;
+    case 'confirm-reset': doReset().catch(err=>toast('איפוס הפרופיל נכשל: '+err.message)); break;
     case 'confirm-import': if(PENDING_IMPORT) applyImport(PENDING_IMPORT); break;
     case 'chat-report': openChatReport(); break;
     default: if(typeof handleChatAction==='function') handleChatAction(a,act);

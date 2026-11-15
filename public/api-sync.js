@@ -1,23 +1,20 @@
-/* ================= Cloud sync (backend API) =================
-   - Bearer token is stored in localStorage and sent per request
-   - Server derives the user from the token; nothing is trusted from the client
-   - Every mutation is queued and retried, so progress survives flaky networks
-   - Conflicts resolved by "updated_at": newest state wins, never lose data
-   ============================================================== */
+/* ================= Shared learner profiles =================
+   Profiles are intentionally public: anyone can select a profile and edit
+   its progress. This supports login-free use across devices.
+   ========================================================== */
 (function () {
-  const TOKEN_KEY = 'auth_token';
-  const USER_KEY = 'auth_user';
+  const PROFILE_KEY = 'gefen_active_profile';
   const DEBOUNCE_MS = 2000;
 
-  let authToken = localStorage.getItem(TOKEN_KEY) || null;
-  let syncEnabled = Boolean(authToken);
+  let activeProfile = localStorage.getItem(PROFILE_KEY) || '';
+  let apiAvailable = false;
+  let storageMode = 'local';
   let syncTimer = null;
   let retryTimer = null;
   let pending = null;
   let lastSyncedAt = 0;
   let online = navigator.onLine;
   let busy = false;
-  let queued = false;
 
   const listeners = new Set();
 
@@ -31,20 +28,16 @@
     });
   }
 
-  function onSync(fn) {
-    listeners.add(fn);
-    return () => listeners.delete(fn);
-  }
-
   function apiRequest(path, options = {}) {
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-    if (authToken) headers.Authorization = `Bearer ${authToken}`;
-    return fetch(`/api${path}`, { ...options, headers }).then(async (res) => {
+    return fetch(`/api${path}`, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    }).then(async (res) => {
       const text = await res.text();
       let body = null;
       try {
         body = text ? JSON.parse(text) : null;
-      } catch (e) {
+      } catch {
         body = null;
       }
       if (!res.ok) {
@@ -57,111 +50,55 @@
     });
   }
 
-  function setSession(token, user) {
-    authToken = token;
-    syncEnabled = Boolean(token);
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-    } else {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-    }
-    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
-    emit('session', { user, syncEnabled });
+  function setActiveProfile(profile) {
+    activeProfile = profile ? profile.id : '';
+    if (activeProfile) localStorage.setItem(PROFILE_KEY, activeProfile);
+    else localStorage.removeItem(PROFILE_KEY);
+    emit('profile', profile || null);
   }
 
-  function currentUser() {
+  async function listProfiles() {
+    const result = await apiRequest('/profiles');
+    apiAvailable = true;
+    storageMode = result.storage || 'local';
+    emit('profiles', result.profiles || []);
+    return result;
+  }
+
+  async function createProfile(name, level, data) {
+    const result = await apiRequest('/profiles', {
+      method: 'POST',
+      body: JSON.stringify({ name, level, data }),
+    });
+    apiAvailable = true;
+    storageMode = result.storage || 'local';
+    setActiveProfile(result.profile);
+    emit('profiles', [result.profile]);
+    lastSyncedAt = Date.now();
+    return result;
+  }
+
+  async function loadProfile(id = activeProfile) {
+    if (!id) return { data: null, skipped: true };
+    const result = await apiRequest(`/profiles/${encodeURIComponent(id)}/progress`);
+    apiAvailable = true;
+    storageMode = result.storage || 'local';
+    setActiveProfile(result.profile);
+    lastSyncedAt = Date.now();
+    emit('loaded', result);
+    return result;
+  }
+
+  async function loadLegacyProgress() {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
     try {
-      return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+      return await apiRequest('/progress', { headers: { Authorization: `Bearer ${token}` } });
     } catch (e) {
+      console.warn('[sync] legacy progress migration unavailable:', e.message);
       return null;
     }
   }
-
-  async function apiSignup(email, password) {
-    const data = await apiRequest('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    setSession(data.token, data.user);
-    await apiLoadProgress();
-    return data.user;
-  }
-
-  /* ---------- anonymous auto-account (zero-setup sync) ---------- */
-
-  function makeAnonymousId(){
-    return 'anon-' + crypto.randomUUID?.() || ('anon-' + Math.random().toString(36).slice(2));
-  }
-
-  async function autoSignupAnonymous(){
-    if(syncEnabled) return { skipped: true };
-    const id = makeAnonymousId();
-    const email = `${id}@gefen-ai.local`;
-    const password = 'anon-' + crypto.randomUUID?.() || Math.random().toString(36).slice(2) + 'A1!';
-    try{
-      const data = await apiRequest('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
-      setSession(data.token, data.user);
-      await apiLoadProgress();
-      return { created: true, user: data.user };
-    }catch(e){
-      // אם החשבון כבר קיים (הרצה חוזרת), ננסה התחברות אוטומטית עם אותם פרטים
-      if(e.status === 409){
-        try{
-          const data = await apiRequest('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-          });
-          setSession(data.token, data.user);
-          await apiLoadProgress();
-          return { created: false, user: data.user };
-        }catch(e2){ console.warn('[sync] anonymous login failed', e2.message); }
-      }
-      console.warn('[sync] anonymous signup failed', e.message);
-      return { created: false, error: e.message };
-    }
-  }
-
-  async function apiLogin(email, password) {
-    const data = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    setSession(data.token, data.user);
-    await apiLoadProgress();
-    return data.user;
-  }
-
-  function apiLogout() {
-    setSession(null, null);
-    pending = null;
-    clearTimeout(syncTimer);
-    clearTimeout(retryTimer);
-  }
-
-  /* ---------- loading ---------- */
-
-  async function apiLoadProgress() {
-    if (!syncEnabled) return { data: null, skipped: true };
-    try {
-      const result = await apiRequest('/progress');
-      lastSyncedAt = Date.now();
-      emit('loaded', result);
-      return result;
-    } catch (e) {
-      if (e.status === 401) {
-        setSession(null, null);
-        emit('unauthorized');
-      }
-      console.warn('[sync] load failed:', e.message);
-      return { data: null, error: e.message };
-    }
-  }
-
-  /* ---------- saving ---------- */
 
   function localUpdatedAt(state) {
     const t = state && (state.updated_at || state.updatedAt);
@@ -172,47 +109,45 @@
     return lastSyncedAt || 0;
   }
 
-  function stampLocal(state) {
+  function stampLocal(state, profileId) {
     const copy = JSON.parse(JSON.stringify(state));
     copy.updated_at = new Date().toISOString();
-    return copy;
+    return { data: copy, profileId, clientUpdatedAt: copy.updated_at };
   }
 
   async function flush() {
-    if (!syncEnabled || busy || !pending) return;
+    if (!apiAvailable || busy || !pending || !online) return;
     busy = true;
     const snapshot = pending;
     try {
-      const res = await apiRequest('/progress', {
+      const result = await apiRequest(`/profiles/${encodeURIComponent(snapshot.profileId)}/progress`, {
         method: 'POST',
-        body: JSON.stringify({ data: snapshot, client_updated_at: snapshot.updated_at }),
+        body: JSON.stringify({
+          data: snapshot.data,
+          level: snapshot.data.settings?.level || 'A1',
+          client_updated_at: snapshot.clientUpdatedAt,
+        }),
       });
-      pending = null;
+      storageMode = result.storage || storageMode;
+      if (pending === snapshot) pending = null;
       lastSyncedAt = Date.now();
-      emit('saved', res);
+      emit('saved', result);
     } catch (e) {
-      if (e.status === 401) {
-        setSession(null, null);
-        emit('unauthorized');
-        return;
-      }
       if (e.status === 409) {
-        // Cloud is newer: pull it in, then let the caller merge.
         try {
-          const remote = await apiRequest('/progress');
+          const remote = await apiRequest(`/profiles/${encodeURIComponent(snapshot.profileId)}/progress`);
           if (remote && remote.data) {
-            lastSyncedAt = Date.now();
-            pending = null;
+            if (pending === snapshot) pending = null;
             emit('conflict', remote);
           }
         } catch (pullErr) {
           console.warn('[sync] conflict pull failed:', pullErr.message);
         }
-        return;
+      } else {
+        if (pending === snapshot) pending = snapshot;
+        scheduleRetry();
+        emit('error', e);
       }
-      if (pending === snapshot) pending = snapshot;
-      scheduleRetry();
-      emit('error', e);
     } finally {
       busy = false;
       if (pending) flush();
@@ -225,13 +160,11 @@
   }
 
   function scheduleSync(state) {
-    if (!syncEnabled) return;
-    pending = stampLocal(state);
+    if (!activeProfile) return;
+    pending = stampLocal(state, activeProfile);
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => flush(), DEBOUNCE_MS);
   }
-
-  /* ---------- connectivity ---------- */
 
   function markOnline() {
     online = true;
@@ -247,57 +180,41 @@
   window.addEventListener('online', markOnline);
   window.addEventListener('offline', markOffline);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && pending && syncEnabled) flush();
+    if (!document.hidden && pending && activeProfile) flush();
   });
 
-  /* ---------- public API (used by index.html) ---------- */
-
   window.apiSync = {
-    async init(){
-      // אם יש טוקן קיים – מאמתים אותו ברקע; אם לא – נוצרת חשבון אנונימי אוטומטי
-      if(syncEnabled){
-        apiRequest('/auth/me')
-          .then((data) => {
-            if (data && data.user) {
-              localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-              emit('session', { user: data.user, syncEnabled: true });
-            }
-          })
-          .catch(() => {
-            if (authToken) setSession(null, null);
-          });
-      }else{
-        // אין חשבון – נוצרת חשבון אנונימי אוטומטי ताकि הסנכרון יעבוד חוצה מכשירים ללא התחברות
-        const result = await autoSignupAnonymous();
-        if(result.created || result.user){
-          emit('session', { user: currentUser(), syncEnabled: true });
-        }
+    async init() {
+      try {
+        return await listProfiles();
+      } catch (e) {
+        apiAvailable = false;
+        emit('error', e);
+        return { profiles: [], error: e.message };
       }
     },
-    isEnabled: () => syncEnabled,
+    isEnabled: () => Boolean(apiAvailable && activeProfile),
     isOnline: () => online,
-    token: () => authToken,
-    user: currentUser,
-    lastSyncedAt: () => lastSyncedAt,
-    signup: apiSignup,
-    login: apiLogin,
-    logout: apiLogout,
-    load: apiLoadProgress,
+    profileId: () => activeProfile,
+    storage: () => storageMode,
+    profile: () => activeProfile,
+    list: listProfiles,
+    create: createProfile,
+    select: (id) => {
+      clearTimeout(syncTimer);
+      pending = null;
+      const profile = id ? { id } : null;
+      setActiveProfile(profile);
+    },
+    load: loadProfile,
+    loadLegacy: loadLegacyProgress,
     save: scheduleSync,
     flush,
     localUpdatedAt,
-    on: onSync,
-    autoSignupAnonymous,
+    lastSyncedAt: () => lastSyncedAt,
+    on: (fn) => {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
   };
-
-  // Legacy globals kept for the existing inline handlers.
-  window.apiInit = () => window.apiSync.init();
-  window.apiLoadProgress = apiLoadProgress;
-  window.apiSaveProgress = (state) => scheduleSync(state);
-  window.scheduleSync = (state) => scheduleSync(state);
-  window.apiLogout = apiLogout;
-  window.apiLogin = apiLogin;
-  window.apiSignup = apiSignup;
-
-  Object.defineProperty(window, 'syncEnabled', { get: () => syncEnabled, configurable: true });
 })();

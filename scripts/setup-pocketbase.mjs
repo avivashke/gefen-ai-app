@@ -1,12 +1,14 @@
 import PocketBase from 'pocketbase';
 
 const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8087';
-const ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || 'admin@gefen.ai';
-const ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD || 'ChangeMe123!';
-
+const ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD;
 const pb = new PocketBase(PB_URL);
 
 async function main() {
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    throw new Error('Set PB_ADMIN_EMAIL and PB_ADMIN_PASSWORD to an existing PocketBase superuser');
+  }
   console.log(`[setup] Connecting to PocketBase at ${PB_URL}...`);
 
   // Authenticate as admin (superuser)
@@ -60,25 +62,61 @@ async function main() {
   }
 
   // ------------------------------------------------------------------
-  // 2. Ensure an admin superuser exists
+  // 2. Create public named profiles for login-free, per-learner sync
   // ------------------------------------------------------------------
+  const profilesCollection = 'profiles';
   try {
-    await pb.admins.getList(1, 1, { filter: `email = "${ADMIN_EMAIL}"` });
-    console.log(`[setup] Admin ${ADMIN_EMAIL} exists`);
+    const existing = await pb.collections.getOne(profilesCollection);
+    console.log(`[setup] Collection '${profilesCollection}' already exists (id: ${existing.id})`);
   } catch {
-    console.log(`[setup] Creating admin superuser ${ADMIN_EMAIL}...`);
-    await pb.admins.create({
-      email: ADMIN_EMAIL,
-      password: ADMIN_PASSWORD,
-      passwordConfirm: ADMIN_PASSWORD,
+    console.log(`[setup] Creating collection '${profilesCollection}'...`);
+    await pb.collections.create({
+      name: profilesCollection,
+      type: 'base',
+      listRule: '',
+      viewRule: '',
+      createRule: '',
+      updateRule: '',
+      deleteRule: null,
+      fields: [
+        {
+          name: 'profile_id',
+          type: 'text',
+          required: true,
+          presentable: false,
+          unique: true,
+          options: { min: 1, max: 64, pattern: '^[a-zA-Z0-9_-]+$' },
+        },
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+          unique: true,
+          options: { min: 1, max: 40 },
+        },
+        {
+          name: 'level',
+          type: 'text',
+          required: true,
+          options: { min: 2, max: 2, pattern: '^(A1|A2|B1)$' },
+        },
+        {
+          name: 'data',
+          type: 'json',
+          required: true,
+        },
+        {
+          name: 'updated',
+          type: 'date',
+          required: true,
+        },
+      ],
     });
-    console.log('[setup] Admin created');
+    console.log(`[setup] Collection '${profilesCollection}' created`);
   }
 
-  console.log('[setup] Done. You can now set PB_URL in Netlify to connect cross-device sync.');
+  console.log('[setup] Done. Configure PB_URL in the app server to enable profile sync.');
   console.log(`[setup] PB_URL=${PB_URL}`);
-  console.log(`[setup] ADMIN_EMAIL=${ADMIN_EMAIL}`);
-  console.log(`[setup] ADMIN_PASSWORD=${ADMIN_PASSWORD}`);
 }
 
 main().catch((err) => {
