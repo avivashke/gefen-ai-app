@@ -6,30 +6,19 @@
   functions = "netlify/functions"
   command = ""
 
-[dev]
-  port = 3000
-  publish = "public"
-  functions = "netlify/functions"
-
-[functions]
-  node_version = "20"
-
-# Route /api/* to the Netlify Function wrapping the Express backend
-# netlify/functions/api.js  ->  /.netlify/functions/api
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
-# SPA fallback (hash-router): serve index.html for every other path
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 # Environment variables to set in Netlify (Site settings → Environment variables):
-#   PB_URL            = https://your-pocketbase-instance   (required for cloud sync)
-#   AI_PROXY_URL      = https://gefen-ai.avivashke95.workers.dev   (AI chat proxy)
-#   LOCAL_AUTH_SECRET = random secret for local fallback tokens (optional)
-#   NODE_ENV          = production
+# PB_URL = https://your-pocketbase-instance
+# AI_PROXY_URL = https://gefen-ai.avivashke95.workers.dev
+# LOCAL_AUTH_SECRET = random secret for local fallback tokens
+# NODE_ENV = production
