@@ -520,7 +520,11 @@ export async function handleAiChat(req, res) {
   try {
     const response = await fetch(AI_TARGET.url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(AI_TARGET.headers || {}) },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(req.headers.origin ? { 'Origin': req.headers.origin } : {}),
+        ...(AI_TARGET.headers || {}),
+      },
       body: JSON.stringify({
         model: model || 'openai/gpt-oss-120b',
         messages,

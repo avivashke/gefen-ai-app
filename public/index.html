@@ -1158,8 +1158,14 @@ function mergeState(base, incoming){
   out.exam = {...base.exam, ...(incoming.exam||{})};
   out.daily = {...base.daily, ...(incoming.daily||{})};
   out.last = {...base.last, ...(incoming.last||{})};
-  // Never restore the AI config from the cloud: it is pinned per-deployment.
+  // תצורת AI: פרוקסי ומודל מועדף מסתנכרנים בין מכשירים דרך הענן.
+  // המפתח (key) אינו משוחזר מהענן – הוא סוד שנשאר במכשיר שבו הוזן.
   out.api = {...base.api};
+  if(incoming.api){
+    if(incoming.api.proxy !== undefined) out.api.proxy = incoming.api.proxy;
+    if(incoming.api.model !== undefined) out.api.model = incoming.api.model;
+    if(incoming.api.mode !== undefined) out.api.mode = incoming.api.mode;
+  }
   return out;
 }
 
@@ -1178,8 +1184,10 @@ function loadState(){
     }
   }catch(e){ console.warn('load failed', e); }
 
-  // Force AI config to use the backend proxy with the pinned model
-  S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:''};
+  // תצורת AI נטענת מהאחסון המקומי; הפרוקסי נשמר ומסונכרן בין מכשירים, המפתח נותר מקומי בלבד.
+  if(!S.api.proxy) S.api.proxy = freshState().api.proxy;
+  if(!S.api.model) S.api.model = freshState().api.model;
+  S.api.key = S.api.key || '';
 
   if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
   if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
@@ -1197,7 +1205,8 @@ function applyCloud(data, updatedAt){
   const remoteTime = Date.parse(updatedAt || '') || 0;
   if(isNewer(updatedAt, S.updated_at)){
     S = mergeState(freshState(), data);
-    S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:''};
+    // mergeState משחזר את הפרוקסי מהענן; המפתח נותר מקומי בלבד
+    S.api.key = S.api.key || '';
     S.updated_at = updatedAt || new Date().toISOString();
     persistLocal();
     applyFontScale();
@@ -2524,6 +2533,7 @@ function openSettings(){
       <label class="radio-opt"><input type="radio" name="api-mode" value="proxy" ${a.mode==='proxy'?'checked':''}><span><b>Groq דרך Backend Proxy (מומלץ)</b><span>הבקשות עוברות דרך השרת שלנו שמחזיק את המפתח בצד השרת.</span></span></label>
     </div>
     <div class="field"><label>מודל</label><input id="set-model" class="ltr" list="model-list" value="${escA(a.model||'openai/gpt-oss-120b')}"><datalist id="model-list"><option value="openai/gpt-oss-120b"><option value="llama-3.3-70b-versatile"><option value="llama-3.1-8b-instant"></datalist><div class="help">המודל המוגדר כברירת מחדל: openai/gpt-oss-120b</div></div>
+    <div class="field"><label>כתובת פרוקסי Cloudflare Worker</label><input id="set-proxy" class="ltr" type="url" value="${escA(a.proxy||'')}"><div class="help">למשל https://gefen-ai.avivashke95.workers.dev/ – הפרוקסי נשמר בענן ומסונכרן אוטומטית בין המכשירים שלך.</div></div>
     
     <div class="divider"></div>
     <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
@@ -2547,6 +2557,9 @@ function readSettings(){
   S.settings.sound=$('#set-sound').checked;
   S.settings.showTr=$('#set-tr').checked;
   S.settings.autoSpeak=$('#set-autospeak').checked;
+  S.api.proxy=$('#set-proxy').value.trim();
+  const modeChecked=$('input[name="api-mode"]:checked'); if(modeChecked) S.api.mode=modeChecked.value;
+  if(S.api.proxy){ try{ new URL(S.api.proxy); }catch(e){ toast('כתובת הפרוקסי אינה תקינה – בדקו את הכתובת ונסו שוב.'); return; } }
   S.api.model=$('#set-model').value.trim() || 'openai/gpt-oss-120b';
   applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
   if(location.hash.includes('/chat')) render();

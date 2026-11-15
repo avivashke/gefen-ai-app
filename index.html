@@ -1165,8 +1165,7 @@ function loadState(){
     }
   }catch(e){ console.warn('load failed', e); }
 
-  // Force AI config to use proxy with specified model
-  S.api = {mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'};
+  // AI config is loaded from localStorage/cloud (S.api preserved from loadState); no force reset here.
 
   // Backend API: init auth and try load cloud progress
   apiInit();
