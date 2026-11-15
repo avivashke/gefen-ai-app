@@ -130,15 +130,43 @@ node scripts/setup-pocketbase.mjs
 2. שדות: `user` (Relation ל-users), `data` (JSON), `updated` (Date)
 3. כללי גישה: Create `@request.auth.id != ""`, Read/Update/Delete `@request.auth.id != "" && user = @request.auth.id`
 
-### בדיקה שהסינכרון עובד
+### הגדרת ALLOWED_ORIGINS ב-Cloudflare Worker (חובה לסנכרון AI)
 
-1. היכנסי לאתר ב-Netlify.
-2. בהגדרות (⚙️) המצב צריך להראות `☁️ בענן` במקום `💾 מקומי בדפדפן`.
-3. נרשמי / התחברי עם אימייל וסיסמה.
-4. התקדמי בכמה יחידות למידה.
-5. פתיחי את האתר במכשיר אחר או בדפדפן אחר והתחברי — ההתקדמות תופיע שם אוטומטית.
+ה-Cloudflare Worker (`gefen-ai.avivashke95.workers.dev`) חוסם בקשות שמגיעות ממקורות שלא מוגדרים ברשימת ה-`ALLOWED_ORIGINS`. ללא הגדרה זו, הבקשות מ-Netlify יקבלו שגיאת 403.
 
-### Option 4: Your Always-On PC + Cloudflare Tunnel
+#### שלבי הגדרה:
+
+1. היכנסי ל-[Cloudflare Dashboard](https://dash.cloudflare.com)
+2. גשי ל-**Workers & Pages** → בחרי ב-`gefen-ai`
+3. גשי ל-**Settings** → **Variables** → **Environment variables**
+4. הוסיפי משתנה חדש:
+   - **שם:** `ALLOWED_ORIGINS`
+   - **ערך:** `https://wonderful-squirrel-816721.netlify.app` (החליפי בדומיין האמיתי של האתר שלך ב-Netlify)
+   - אפשרי מספר דומיינים מופרדים בפסיק אם צריך: `https://site1.netlify.app,https://site2.netlify.app`
+5. לחצי **Save** או **Deploy**
+
+#### בדיקה:
+
+לאחר העדכון, שלחי הודעה במאמנת AI באתר ב-Netlify. השגיאה 403 אמורה להיעלם.
+
+---
+
+## משתני סביבה ב-Netlify (שיש להגדיר גם כן)
+
+ב-Netlify: **Site settings → Build & deploy → Environment variables**
+
+| משתנה | חובה? | ערך לדוגמה | תיאור |
+|--------|--------|-------------|--------|
+| `AI_PROXY_URL` | כן | `https://gefen-ai.avivashke95.workers.dev` | כתובת פרוקסי ה-AI ב-Cloudflare Worker |
+| `PB_URL` | כן (לסינכרון ענן) | `https://your-pocketbase-instance` | כתובת PocketBase בענן |
+| `PB_ADMIN_EMAIL` | כן (לסינכרון ענן) | `admin@gefen.ai` | אימייל מנהל PocketBase |
+| `PB_ADMIN_PASSWORD` | כן (לסינכרון ענן) | `StrongPassword123!` | סיסמת מנהל PocketBase |
+| `ALLOWED_ORIGINS` | כן | `https://wonderful-squirrel-816721.netlify.app` | מוגדר ב-Cloudflare Worker, לא ב-Netlify |
+| `LOCAL_AUTH_SECRET` | לא | כל מחרוזת אקראית | סוד לאימות מקומי fallback |
+| `NODE_ENV` | לא | `production` | סביבת הפעלה |
+
+---
+
 ```bash
 # On your PC
 cloudflared tunnel --url http://localhost:3000
