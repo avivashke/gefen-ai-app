@@ -1,12 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
-  : typeof import.meta !== 'undefined' && import.meta.url
-    ? path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data')
-    : path.join(process.cwd(), 'data');
+  : path.join(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PROGRESS_FILE = path.join(DATA_DIR, 'progress.json');
 const NETLIFY_RUNTIME = process.env.NETLIFY === 'true'
