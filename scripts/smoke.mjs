@@ -86,7 +86,7 @@ const whatsappResetLinkConfigured = await page.$eval('#whatsapp-reset-link', (li
 await page.select('#student-username', 'בארי');
 await page.type('#student-password', 'smoke-test-password');
 await page.click('[data-act="student-login"]');
-await page.waitForFunction(() => document.title.startsWith('lomdaa – בארי'));
+await page.waitForFunction(() => document.title.startsWith('Lamda – בארי'));
 await new Promise((resolve) => setTimeout(resolve, 300));
 
 const account = await page.evaluate(() => ({
@@ -168,7 +168,7 @@ const curriculumGeneration = apiCalls.find((call) => (
 const authenticatedProgressRequest = apiCalls.find((call) => (
   call.path === '/api/progress' && call.authorization === 'Bearer smoke-test-token'
 ));
-if (!account.title.startsWith('lomdaa – בארי') || account.name !== 'בארי' || account.level !== 'A1' || account.loginModalVisible) {
+if (!account.title.startsWith('Lamda – בארי') || account.name !== 'בארי' || account.level !== 'A1' || account.loginModalVisible) {
   throw new Error(`Student login/identity failed: ${JSON.stringify(account)}`);
 }
 if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable || !suggestions.learnerNameInOpening) {

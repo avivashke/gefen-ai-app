@@ -1,4 +1,4 @@
-# lomdaa — Deployment
+# Lamda — Deployment
 
 ## Netlify deployment
 
@@ -32,7 +32,7 @@ learner and syncs across devices using the same account.
 In the admin dashboard, use **Edit AI curriculum** on a learner's row to
 generate a complete four-unit course from a teacher prompt. Include the
 learner's CEFR level and requested topics. Before replacing an existing
-curriculum, lomdaa archives a progress summary with unit results, strengths,
+curriculum, Lamda archives a progress summary with unit results, strengths,
 review needs, and vocabulary mastery; private chat transcripts are not included.
 The new curriculum is loaded the next time that learner signs in, and progress
 from the previous curriculum is kept separate.

@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080e18">
-<meta name="description" content="lomdaa – אפליקציית אנגלית אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מותאם אישית.">
+<meta name="description" content="Lamda – אפליקציית אנגלית אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מותאם אישית.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>lomdaa — English learning</title>
+<title>Lamda — English learning</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23c6f24e'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
 <style>
 /* ============ theme ============ */
@@ -727,7 +727,7 @@ a{color:var(--cyan)}
   <aside class="sidebar" id="sidebar" aria-label="תפריט ראשי">
     <div class="sidebar-header">
       <div class="brand-mark">💃</div>
-      <div class="brand-txt"><b id="app-name">lomdaa</b><span>ENGLISH LEARNING</span></div>
+      <div class="brand-txt"><b id="app-name">Lamda</b><span>ENGLISH LEARNING</span></div>
     </div>
     <nav class="sidebar-nav">
       <a class="nav-item" data-nav="home" href="#/home"><span class="ic">🏠</span><span>בית</span></a>
@@ -1134,7 +1134,7 @@ const FACTS = [
 
 function freshState(){
   return {
-    v:1, name:'גפן', courseId:'default', courseSnapshot:null,
+    v:1, name:'תלמידה', courseId:'default', courseSnapshot:null,
     xp:0, streak:0, lastDay:'', activeDays:{},
     daily:{date:todayKey(), xp:0, answers:0, reviews:0, chats:0},
     settings:{sound:true, ttsRate:.9, autoSpeak:false, showTr:true, fontScale:1, goal:60, correction:'balanced', level:'A1'},
@@ -1260,14 +1260,15 @@ function refreshWhatsAppLinks(root=document){
 function setStudentIdentity(account){
   if(!account) return;
   const name=account.username||'תלמידה';
-  document.title=`lomdaa – ${name}`;
-  const brand=$('#app-name'); if(brand) brand.textContent=`lomdaa · ${name}`;
+  document.title=`Lamda – ${name}`;
+  const brand=$('#app-name'); if(brand) brand.textContent=`Lamda · ${name}`;
   S.name=name;
   updateHeader();
 }
 function clearStudentIdentity(){
-  document.title='lomdaa — English learning';
-  const brand=$('#app-name'); if(brand) brand.textContent='lomdaa';
+  S.name='תלמידה';
+  document.title='Lamda — English learning';
+  const brand=$('#app-name'); if(brand) brand.textContent='Lamda';
 }
 function openStudentLogin(message=''){
   const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
@@ -1829,8 +1830,8 @@ function hydrateExtraWords(){
 }
 
 /* ================= dashboard ================= */
-function praise(){ return rnd(['מעולה, גפן!','בול!','מדויק!','וואו, גפן!','יפה מאוד!','אלופה! 🏆','בדיוק כך!']) }
-function nope(){ return rnd(['כמעט, גפן 💪','לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']) }
+function praise(){ return rnd([`מעולה, ${S.name||'תלמידה'}!`,'בול!','מדויק!',`וואו, ${S.name||'תלמידה'}!`,'יפה מאוד!','אלופה! 🏆','בדיוק כך!']) }
+function nope(){ return rnd([`כמעט, ${S.name||'תלמידה'} 💪`,'לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']) }
 
 function pageHome(){
   const li=levelInfo(), ds=wordStats();
@@ -2768,7 +2769,7 @@ async function issueStudentResetCode(key){
 function openCurriculumEditor(key,message='',promptValue){
   const student=ADMIN_STUDENTS?.find(item=>item.key===key);
   if(!student) return;
-  openModal(`<h3>✨ יצירת מסלול lomdaa אישי</h3>
+  openModal(`<h3>✨ יצירת מסלול Lamda אישי</h3>
     <p class="small muted">המסלול כולו ייבנה מחדש עבור ${esc(student.username)}. צייני רמת CEFR, נושאים, מטרות, אוצר מילים רצוי וסגנון הלמידה. לפני ההחלפה יישמר דוח של ההתקדמות הקודמת.</p>
     ${student.curriculum?`<div class="tag lime" style="margin:8px 0">מסלול נוכחי: ${esc(student.curriculum.title)} · ${esc(student.curriculum.level)}</div>`:''}
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
@@ -2882,9 +2883,9 @@ function pageExam(){
     return `<div class="page"><div class="chat-summary"><div class="card result-hero">
       <div style="font-size:2.4rem">${score>=85?'🏆':score>=60?'🎯':'🌱'}</div>
       <div class="result-score">${score}</div>
-      <h2>${score>=85?'מצוין, גפן!':score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
+      <h2>${score>=85?`מצוין, ${esc(S.name||'תלמידה')}!`:score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
       <p class="muted small">${correct} מתוך ${total} נכונות · הציון נשמר בפרופיל שלך.</p>
-      <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>lomdaa · ${esc(S.name||'')} · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
+      <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>Lamda · ${esc(S.name||'')} · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
       <div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" data-act="start-exam">🔁 נסי שוב</button><button class="btn ghost" data-go="#/stats">📈 להתקדמות</button><button class="btn ghost" data-go="#/review">🔁 לחזרה</button></div>
     </div></div></div>`;
   }
@@ -3003,7 +3004,7 @@ function openGuide(){
     </ol>
     <div class="fact" style="margin-top:10px"><b>חשוב:</b> דף סטטי לא יכול להסתיר מפתח. אם האתר פתוח לכולם – כל מי שמפתח את הדף יכול להעתיק אותו. לכן במצב ציבורי משתמשים ב-Proxy.</div>
     <div class="divider"></div>
-    <p class="small muted">אם מודל מפסיק לעבוד או מוגבל – בחרי מודל אחר מהרשימה. לגפן מספיק מודל מהיר וקטן.</p>
+    <p class="small muted">אם מודל מפסיק לעבוד או מוגבל – בחרי מודל אחר מהרשימה. לשיחה באנגלית מספיק מודל מהיר וקטן.</p>
     <button class="btn primary wide" style="margin-top:12px" data-close>הבנתי</button>`);
 }
 function exportBackup(){
@@ -3134,7 +3135,7 @@ function handleImportRoute(data){
     const obj=JSON.parse(json);
     PENDING_IMPORT=obj;
     openModal(`<button class="x" data-close>✕</button><h3>📥 ייבאי התקדמות?</h3>
-      <p class="small muted">מצאתי בקישור התקדמות של lomdaa. לייבא אותה למכשיר הזה? הנתונים הנוכחיים יוחלפו (מפתח ה-API נשמר).</p>
+      <p class="small muted">מצאתי בקישור התקדמות של Lamda. לייבא אותה למכשיר הזה? הנתונים הנוכחיים יוחלפו (מפתח ה-API נשמר).</p>
       <div class="row" style="margin-top:12px"><button class="btn ghost" data-close>ביטול</button><button class="btn primary" data-act="confirm-import">ייבאי עכשיו</button></div>`);
     history.replaceState(null,'','#/home');
     render();
@@ -3275,7 +3276,7 @@ function boot(){
   render();
   initCloudSync();
   updateSyncBadge(cloudReady()?'saved':'off');
-  setTimeout(()=>{ if(!S.stats.answers){ toast('ברוך הבא, גפן! מתחילים ביחידה 1 💃'); } updateHeader(); },700);
+  setTimeout(updateHeader,700);
   setInterval(()=>{ if(S.daily.date!==todayKey()){ S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0}; S.review.doneToday=0; S.review.lastDate=todayKey(); saveNow(); updateHeader(); } },60000);
   // Periodic background push keeps multi-device state fresh.
   setInterval(()=>{ if(cloudReady()) cloudPush(); }, 60000);
@@ -3726,7 +3727,7 @@ function localCoachReply(text){
     he='התחלה טובה! נסי משפט שלם, למשל: "'+(step.suggestions[0]||'')+'". '+he;
   }
   const scWords=(sc.words||[]).filter(w=>!S.chat.learned[w.en]).slice(0,1);
-  const praise=corrections.length?'כל הכבוד שניסית – תראה למעלה איך אומרים את זה נכון.':'יפה, גפן! משפט ברור.'
+  const praise=corrections.length?'כל הכבוד שניסית – תראה למעלה איך אומרים את זה נכון.':`יפה, ${S.name||'תלמידה'}! משפט ברור.`
   return {reply,translation:he,corrections,suggestions,words:scWords,praise};
 }
 function askCorrection(){
