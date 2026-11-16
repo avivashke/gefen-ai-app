@@ -499,11 +499,10 @@ a{color:var(--cyan)}
 .corr .fix s{color:#ff9b9b;opacity:.8}
 .corr .fix em{color:var(--green);font-style:normal;font-weight:800}
 .suggest{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.suggest button{
-  text-align:start;padding:6px 10px;border-radius:10px;background:rgba(255,143,199,.08);
+.suggest .suggestion-text{
+  display:inline-block;text-align:start;padding:6px 10px;border-radius:10px;background:rgba(255,143,199,.08);
   border:1px solid rgba(255,143,199,.25);font-size:.78rem;color:#e7f7c8;direction:ltr;
 }
-.suggest button:hover{background:rgba(255,143,199,.16)}
 .typing{display:inline-flex;gap:3px;padding:4px 2px}
 .typing i{width:6px;height:6px;border-radius:50%;background:var(--mu);animation:blink 1.2s infinite}
 .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
@@ -728,7 +727,7 @@ a{color:var(--cyan)}
   <aside class="sidebar" id="sidebar" aria-label="תפריט ראשי">
     <div class="sidebar-header">
       <div class="brand-mark">💃</div>
-      <div class="brand-txt"><b>Gefen English</b><span>DANCE & FRIENDS</span></div>
+      <div class="brand-txt"><b id="app-name">Gefen English</b><span>ENGLISH COACH</span></div>
     </div>
     <nav class="sidebar-nav">
       <a class="nav-item" data-nav="home" href="#/home"><span class="ic">🏠</span><span>בית</span></a>
@@ -1046,8 +1045,6 @@ const LOCAL_FIXES = [
    BEERI ENGLISH COACH — core: state, data, home, path, exercises
    ============================================================ */
 const KEY = 'gefen_english_coach_v1';
-let activeProfileId = localStorage.getItem('gefen_active_profile') || '';
-let knownProfiles = [];
 const DAY = 86400000;
 const INTERVALS = [0, 1, 3, 7, 16, 35]; // days by mastery box
 const $ = s => document.querySelector(s);
@@ -1151,7 +1148,8 @@ let saveTimer = null;
 let syncing = false;
 
 function stateStorageKey(){
-  return activeProfileId ? `${KEY}_${activeProfileId}` : KEY;
+  const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
+  return account?.id ? `${KEY}_${account.id}` : `${KEY}_guest`;
 }
 
 function mergeState(base, incoming){
@@ -1211,6 +1209,8 @@ function applyCloud(data, updatedAt){
   const remoteTime = Date.parse(updatedAt || '') || 0;
   if(isNewer(updatedAt, S.updated_at)){
     S = mergeState(freshState(), data);
+    const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
+    if(account){ S.name=account.username||S.name; S.settings.level=account.level||S.settings.level; }
     // mergeState משחזר את הפרוקסי מהענן; המפתח נותר מקומי בלבד
     S.api.key = S.api.key || '';
     S.updated_at = updatedAt || new Date().toISOString();
@@ -1229,66 +1229,66 @@ function cloudPush(force){
   S.updated_at = new Date().toISOString();
   window.apiSync.save(S, {force:!!force});
 }
-async function activateProfile(profile){
-  if(activeProfileId){
-    saveNow();
-    await window.apiSync.flush();
-  }
-  window.apiSync.select(profile.id);
-  activeProfileId = profile.id;
+const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה'];
+function setStudentIdentity(account){
+  if(!account) return;
+  const name=account.username||'תלמידה';
+  document.title=`${name} – English Coach`;
+  const brand=$('#app-name'); if(brand) brand.textContent=`${name} English`;
+  S.name=name;
+  updateHeader();
+}
+function clearStudentIdentity(){
+  document.title='Gefen English Coach 💃';
+  const brand=$('#app-name'); if(brand) brand.textContent='Gefen English';
+}
+function openStudentLogin(message=''){
+  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
+  openModal(`<h3>👋 כניסה לתלמידים</h3>
+    <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שקיבלת.</p>
+    ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
+    <div class="field"><label for="student-username">שם משתמש</label><select id="student-username">${options}</select></div>
+    <div class="field"><label for="student-password">סיסמה</label><input id="student-password" type="password" autocomplete="current-password"></div>
+    <button class="btn primary wide" data-act="student-login">כניסה</button>
+    <p class="tiny muted" style="margin-top:10px">ההתקדמות והרמה נשמרות בנפרד לכל תלמיד.</p>`);
+  setTimeout(()=>$('#student-password')?.focus(),0);
+}
+async function submitStudentLogin(){
+  const username=$('#student-username')?.value;
+  const password=$('#student-password')?.value;
+  if(!username||!password){ openStudentLogin('יש לבחור שם משתמש ולהקליד סיסמה.'); return; }
   try{
-    const raw = localStorage.getItem(stateStorageKey());
-    S = raw ? mergeState(freshState(), JSON.parse(raw)) : freshState();
+    toast('מתחברת...');
+    const account=await window.apiSync.login(username,password);
+    S=freshState();
+    loadState();
+    S.name=account.username;
+    S.settings.level=account.level||'A1';
+    setStudentIdentity(account);
+    try{
+      const result=await window.apiSync.load();
+      if(!result.data){ S.updated_at=new Date().toISOString(); saveNow(); await window.apiSync.flush(); }
+    }catch(e){
+      console.warn('[sync] progress load after login failed:',e.message);
+      updateSyncBadge('error');
+    }
+    closeModal();
+    render();
+    updateHeader();
+    toast(`ברוכה הבאה, ${account.username} ✓`);
   }catch(e){
-    console.warn('profile state load failed', e);
-    S = freshState();
+    openStudentLogin(e.status===401?'שם המשתמש או הסיסמה שגויים.':'לא הצלחתי להתחבר. בדקי חיבור ונסי שוב.');
   }
-  S.name = profile.name || S.name;
-  if(profile.level) S.settings.level = profile.level;
-  applyFontScale();
-  await window.apiSync.load(profile.id);
-  closeModal();
-  render();
-  updateHeader();
 }
-async function createLearnerProfile(name, level){
-  if(activeProfileId){
-    saveNow();
-    await window.apiSync.flush();
-  }
-  const initial = activeProfileId ? freshState() : JSON.parse(JSON.stringify(S));
-  initial.name = name;
-  initial.settings.level = level;
-  initial.updated_at = new Date().toISOString();
-  const result = await window.apiSync.create(name, level, initial);
-  activeProfileId = result.profile.id;
-  knownProfiles = [result.profile, ...knownProfiles.filter(profile=>profile.id!==result.profile.id)];
-  try{ knownProfiles = (await window.apiSync.list()).profiles || knownProfiles; }
-  catch(e){ console.warn('[sync] profile list refresh failed:', e.message); }
-  S = mergeState(freshState(), result.data || initial);
-  S.name = result.profile.name;
-  S.settings.level = result.profile.level;
-  persistLocal();
-  applyFontScale();
-  closeModal();
-  render();
-  updateHeader();
-  toast(window.apiSync.storage()==='cloud'?'הפרופיל נשמר בענן ✓':'הפרופיל נשמר בשרת ✓');
-}
-function openProfilePicker(){
-  const items = knownProfiles.map(p => `<button class="btn wide" style="justify-content:space-between;margin-top:8px" data-act="profile-select" data-profile-select="${escA(p.id)}"><span>${esc(p.name)}</span><span class="tag lime">${esc(p.level)}</span></button>`).join('');
-  const syncDescription = window.apiSync.storage()==='cloud'
-    ? 'ההתקדמות נשמרת בענן ומסתנכרנת אוטומטית בין מכשירים.'
-    : 'ההתקדמות נשמרת בשרת המקומי. לסנכרון אמין בין מכשירים נדרש חיבור PocketBase בענן.';
-  openModal(`<h3>👤 בחירת פרופיל</h3>
-    <p class="small muted">בחרי פרופיל קיים או צרי חדש. כל פרופיל שומר התקדמות ורמה משלו. ${syncDescription}</p>
-    ${items || '<p class="tiny muted" style="margin-top:12px">עדיין אין פרופילים. צרי את הראשון.</p>'}
-    <div class="divider"></div>
-    <h3 style="font-size:1rem">${knownProfiles.length ? 'יצירת פרופיל חדש' : 'יצירת פרופיל'}</h3>
-    <div class="field"><label for="profile-name">שם</label><input id="profile-name" maxlength="40" placeholder="למשל: גפן"></div>
-    <div class="field"><label for="profile-level">רמת אנגלית</label><select id="profile-level">${['A1','A2','B1'].map(level=>`<option ${S.settings.level===level?'selected':''}>${level}</option>`).join('')}</select></div>
-    <button class="btn primary wide" data-act="profile-create">יצירת פרופיל</button>
-    <p class="tiny muted" style="margin-top:10px">ללא סיסמה: מי שפותח את האפליקציה יכול לבחור כל פרופיל ולערוך את ההתקדמות שלו.</p>`);
+function logoutStudent(){
+  saveNow();
+  window.apiSync.flush().finally(()=>{
+    window.apiSync.logout();
+    S=freshState();
+    clearStudentIdentity();
+    render();
+    openStudentLogin();
+  });
 }
 function persistLocal(){
   try{ localStorage.setItem(stateStorageKey(), JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
@@ -1318,43 +1318,22 @@ function initCloudSync(){
       if(syncing) cloudPush(true);
     }else if(event === 'error'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('error');
-    }else if(event === 'profile'){
-      if(typeof updateSyncBadge === 'function') updateSyncBadge(cloudReady()?(window.apiSync.storage()==='cloud'?'saved':'server'):'off');
+    }else if(event === 'session'){
+      if(payload&&payload.user){
+        setStudentIdentity(payload.user);
+        S.settings.level=payload.user.level||S.settings.level;
+        if(typeof updateSyncBadge==='function') updateSyncBadge('saved');
+      }
+    }else if(event === 'unauthorized'){
+      syncing=false;
+      S=freshState();
+      clearStudentIdentity();
+      render();
+      openStudentLogin();
     }
   });
 
-  window.apiSync.init().then(async result => {
-    knownProfiles = result.profiles || [];
-    const selected = knownProfiles.find(profile => profile.id === activeProfileId);
-    if(selected){
-      syncing = true;
-      if(selected.level) S.settings.level = selected.level;
-      try{
-        await window.apiSync.load(selected.id);
-        if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='cloud'?'saved':'server');
-      }catch(e){
-        console.warn('[sync] selected profile could not load:',e.message);
-        window.apiSync.select('');
-        activeProfileId = '';
-        openProfilePicker();
-        toast('לא הצלחתי לטעון את הפרופיל. בחרי פרופיל אחר או צרי חדש.');
-      }
-    }else if(knownProfiles.length){
-      window.apiSync.select('');
-      activeProfileId = '';
-      const legacy = await window.apiSync.loadLegacy();
-      if(legacy?.data){ S = mergeState(freshState(), legacy.data); S.updated_at = legacy.updated_at; persistLocal(); }
-      openProfilePicker();
-    }else if(!result.error){
-      window.apiSync.select('');
-      activeProfileId = '';
-      const legacy = await window.apiSync.loadLegacy();
-      if(legacy?.data){ S = mergeState(freshState(), legacy.data); S.updated_at = legacy.updated_at; persistLocal(); }
-      openProfilePicker();
-    }else if(typeof updateSyncBadge === 'function'){
-      updateSyncBadge('off');
-    }
-  });
+  window.apiSync.init();
 }
 function markActive(){
   const t = todayKey();
@@ -1426,15 +1405,74 @@ function beep(ok){
   }catch(e){}
 }
 function listenOnce(lang,onRes,onErr,onEnd){
-  const R=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!R){ onErr&&onErr('unsupported'); return null; }
-  const r=new R(); r.lang=lang; r.interimResults=false; r.maxAlternatives=5;
-  let done=false;
-  r.onresult=ev=>{ done=true; const alts=[...ev.results[0]].map(x=>x.transcript); onRes&&onRes(alts); };
-  r.onerror=e=>{ if(!done){ done=true; onErr&&onErr(e.error||'error'); } };
-  r.onend=()=>{ onEnd&&onEnd(); };
-  try{ r.start(); }catch(e){ onErr&&onErr('start'); return null; }
-  return r;
+  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!window.isSecureContext){ onErr&&onErr('secure-context'); onEnd&&onEnd(); return null; }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ onErr&&onErr('permission-unavailable'); onEnd&&onEnd(); return null; }
+  if(!Recognition){ onErr&&onErr('unsupported'); onEnd&&onEnd(); return null; }
+
+  let recognition=null, stopped=false, finished=false, receivedResult=false;
+  const finish=(error)=>{
+    if(finished) return;
+    finished=true;
+    if(error) onErr&&onErr(error);
+    onEnd&&onEnd();
+  };
+  const controller={
+    stop(){
+      stopped=true;
+      if(recognition){ try{ recognition.abort(); }catch(e){} }
+      finish();
+    }
+  };
+  const mapError=(error)=>{
+    const name=String(error&&((error.name)||(error.error))||error||'');
+    if(['NotAllowedError','PermissionDeniedError','SecurityError','not-allowed','service-not-allowed'].includes(name)) return 'not-allowed';
+    if(['NotFoundError','DevicesNotFoundError','audio-capture'].includes(name)) return 'no-microphone';
+    if(['NotReadableError','TrackStartError'].includes(name)) return 'microphone-busy';
+    if(name==='no-speech') return 'no-speech';
+    if(name==='network') return 'network';
+    return 'error';
+  };
+
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    stream.getTracks().forEach(track=>track.stop());
+    if(stopped||finished) return;
+    try{
+      recognition=new Recognition();
+      recognition.lang=lang;
+      recognition.interimResults=false;
+      recognition.maxAlternatives=5;
+      recognition.onresult=ev=>{
+        if(finished||receivedResult) return;
+        receivedResult=true;
+        const alts=[...ev.results[0]].map(item=>item.transcript);
+        onRes&&onRes(alts);
+      };
+      recognition.onerror=ev=>finish(receivedResult?null:mapError(ev));
+      recognition.onend=()=>finish();
+      recognition.start();
+    }catch(error){ finish(mapError(error)); }
+  }).catch(error=>finish(mapError(error)));
+  return controller;
+}
+let RECOGNIZER=null;
+function microphoneErrorText(code){
+  if(code==='secure-context') return 'כדי להשתמש במיקרופון צריך לפתוח את האתר ב-HTTPS או ב-localhost.';
+  if(code==='permission-unavailable') return 'הדפדפן לא מאפשר גישה למיקרופון. נסי לפתוח את האפליקציה בדפדפן מעודכן.';
+  if(code==='unsupported') return 'הדפדפן לא תומך בזיהוי דיבור. אפשר להקליד את התשובה במקום.';
+  if(code==='not-allowed') return 'הגישה למיקרופון נדחתה. אשרי מיקרופון בהגדרות האתר או הדפדפן ונסי שוב.';
+  if(code==='no-microphone') return 'לא נמצא מיקרופון זמין במכשיר.';
+  if(code==='microphone-busy') return 'המיקרופון בשימוש באפליקציה אחרת. סגרי אותה ונסי שוב.';
+  if(code==='no-speech') return 'לא זיהיתי דיבור. דברי קרוב יותר למיקרופון ונסי שוב.';
+  if(code==='network') return 'שירות זיהוי הדיבור לא זמין כרגע. אפשר להקליד את התשובה.';
+  return 'לא הצלחתי להפעיל את המיקרופון. בדקי את ההרשאות ונסי שוב.';
+}
+function setChatMicState(listening){
+  const btn=$('#chat-mic');
+  if(!btn) return;
+  btn.classList.toggle('rec',listening);
+  btn.setAttribute('aria-label',listening?'עצירת הקלטה':'קלט קולי');
+  btn.title=listening?'לחצי כדי לעצור':'דברי למיקרופון';
 }
 function applyFontScale(){
   const f=(S.settings&&S.settings.fontScale)||1;
@@ -2390,10 +2428,16 @@ function startSpeak(){
   SPEAK={idx:0,results:[],started:true,last:null}; render();
 }
 function speakMic(){
-  const s=SPEAK_SENTENCES[SPEAK.idx];
   const box=$('#speak-result');
+  if(RECOGNIZER){
+    RECOGNIZER.stop();
+    RECOGNIZER=null;
+    if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">ההקלטה הופסקה.</div>';
+    return;
+  }
+  const s=SPEAK_SENTENCES[SPEAK.idx];
   if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">🎧 מקשיבה… דברי עכשיו</div>';
-  listenOnce('en-US',alts=>{
+  RECOGNIZER=listenOnce('en-US',alts=>{
     const heard=alts[0]||'';
     const score=similarity(heard,s.en);
     SPEAK.last={heard,score}; SPEAK.results.push(score);
@@ -2402,9 +2446,9 @@ function speakMic(){
     if(box) box.innerHTML=speakResultHTML(SPEAK.last);
     if(score>=70) beep(true);
   },err=>{
-    const msg=err==='unsupported'?'הדפדפן הזה לא תומך בזיהוי דיבור. אפשר להשתמש בווליום ולבדוק את עצמך.':'לא הצלחתי לשמוע. בדקי הרשאת מיקרופון ונסי שוב.';
-    if(box) box.innerHTML=`<div class="fb no" style="margin-top:12px">${msg}<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="speak-self">אמרתי את זה נכון</button><button class="btn sm ghost" data-act="speak-next">המשיכי ←</button></div></div>`;
-  });
+    const msg=microphoneErrorText(err);
+    if(box) box.innerHTML=`<div class="fb no" style="margin-top:12px">${esc(msg)}<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="speak-self">אמרתי את זה נכון</button><button class="btn sm ghost" data-act="speak-next">המשיכי ←</button></div></div>`;
+  },()=>{ RECOGNIZER=null; });
 }
 function nextSpeak(){
   SPEAK.idx++; SPEAK.last=null; save(); render();
@@ -2566,41 +2610,30 @@ function updateSyncBadge(state){
   el.className='tag '+(state==='saved'?'lime':state==='error'||state==='server'?'gold':'');
 }
 function renderSyncPanel(){
-  const enabled = cloudReady();
-  const isCloud = enabled && window.apiSync.storage() === 'cloud';
-  const profile = knownProfiles.find(item => item.id === activeProfileId);
-  const badge = isCloud
-    ? '<span class="tag lime" id="sync-badge">✅ מסונכרן בענן</span>'
-    : enabled
-    ? '<span class="tag gold" id="sync-badge">💾 אחסון מקומי בשרת</span>'
-    : '<span class="tag" id="sync-badge">💾 מקומי בלבד</span>';
-  const storageEl = document.getElementById('storage-badge');
-  if(storageEl){
-    storageEl.innerHTML = isCloud ? '☁️ בענן' : enabled ? '💾 אחסון מקומי בשרת' : '💾 מקומי בדפדפן';
-    if(storageEl.nextElementSibling) storageEl.nextElementSibling.textContent = enabled
-      ? isCloud ? 'ההתקדמות בפרופיל הזה מסתנכרנת אוטומטית בין מכשירים' : 'ההתקדמות נשמרת בשרת; יש להגדיר PocketBase לסנכרון אמין'
-      : 'כדי לסנכרן בין מכשירים יש להגדיר חיבור למסד הנתונים';
+  const enabled=cloudReady();
+  const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
+  const badge=enabled
+    ?window.apiSync.storage()==='cloud'
+      ?'<span class="tag lime" id="sync-badge">✅ מסונכרן בענן</span>'
+      :'<span class="tag gold" id="sync-badge">💾 נשמר בשרת</span>'
+    :'<span class="tag" id="sync-badge">🔒 נדרשת כניסה</span>';
+  if(enabled){
+    return `<div class="field"><div class="row" style="align-items:center">
+      <span style="flex:1"><b>${esc(account?.username||'תלמידה')}</b> · רמה ${esc(account?.level||S.settings.level)}</span>${badge}
+      <button class="btn xs danger" data-act="student-logout">יציאה</button></div></div>
+      <p class="tiny muted">${window.apiSync.storage()==='cloud'?'ההתקדמות נשמרת בחשבון האישי ומסתנכרנת בין מכשירים.':'ההתקדמות נשמרת בשרת. לסנכרון בין מכשירים נדרש PocketBase בענן.'}</p>`;
   }
-  return `<div class="field"><div class="row" style="align-items:center">
-      <span style="flex:1"><b>פרופיל פעיל: ${esc(profile?.name || S.name)}</b></span>${badge}
-    </div></div>
-    <div class="field"><label for="profile-level-current">רמת הפרופיל</label>
-      <div class="row"><select id="profile-level-current" style="flex:1">${['A1','A2','B1'].map(level=>`<option ${S.settings.level===level?'selected':''}>${level}</option>`).join('')}</select>
-      <button class="btn sm" data-act="profile-save-level">שמירת רמה</button></div>
-    </div>
-    <button class="btn cyan wide" data-act="profile-manage">החלפת פרופיל / יצירת חדש</button>
-    <p class="tiny muted" style="margin-top:8px">הפרופילים פתוחים ללא סיסמה. כל מי שפותח את האפליקציה יכול לבחור ולערוך כל פרופיל.</p>`;
+  return `<div class="field"><p class="tiny muted">יש להתחבר עם שם משתמש וסיסמה כדי לצפות בהתקדמות האישית.</p>
+    <button class="btn primary wide" data-act="student-login-open">כניסה</button></div>`;
 }
 function openSettings(){
   const a=S.api;
   openModal(`<button class="x" data-close>✕</button>
     <h3>⚙️ הגדרות</h3>
-    <p class="small muted">בחרי פרופיל אישי לכל לומדת. ההתקדמות והרמה נשמרות אוטומטית ומסתנכרנות בין מכשירים, ללא חשבון או סיסמה.</p>
+    <p class="small muted">ההתקדמות והרמה מוגדרות לכל תלמיד בנפרד ונשמרות בחשבון שלו.</p>
     
-    <div class="field"><span class="tag" id="storage-badge">💾 מקומי בדפדפן</span> <span class="tiny muted">התקדמות נשמרת במכשיר הנוכחי בלבד</span></div>
-
     <div class="divider"></div>
-    <h3 style="font-size:1rem">👥 פרופילים וסנכרון</h3>
+    <h3 style="font-size:1rem">👥 חשבון תלמידה</h3>
     ${renderSyncPanel()}
 
     <div class="divider"></div>
@@ -2836,32 +2869,9 @@ function handleGlobalClick(e){
   if(!act) return;
   const a=act.dataset.act;
   switch(a){
-    case 'profile-manage': openProfilePicker(); break;
-    case 'profile-create': {
-      const name=$('#profile-name')?.value.trim();
-      const level=$('#profile-level')?.value || 'A1';
-      if(!name){ toast('הקלידי שם לפרופיל'); break; }
-      toast('יוצרת פרופיל...');
-      createLearnerProfile(name, level).catch(err=>toast('יצירת הפרופיל נכשלה: '+err.message));
-      break;
-    }
-    case 'profile-select': {
-      const profile=knownProfiles.find(item=>item.id===act.dataset.profileSelect);
-      if(!profile) break;
-      toast('טוענת פרופיל...');
-      activateProfile(profile).catch(err=>toast('טעינת הפרופיל נכשלה: '+err.message));
-      break;
-    }
-    case 'profile-save-level': {
-      const level=$('#profile-level-current')?.value;
-      if(!['A1','A2','B1'].includes(level)) break;
-      S.settings.level=level;
-      const profile=knownProfiles.find(item=>item.id===activeProfileId);
-      if(profile) profile.level=level;
-      saveNow();
-      toast('רמת הפרופיל נשמרה ✓');
-      break;
-    }
+    case 'student-login': submitStudentLogin(); break;
+    case 'student-login-open': openStudentLogin(); break;
+    case 'student-logout': logoutStudent(); break;
     case 'check': checkCurrent(); break;
     case 'hint': showHint(); break;
     case 'next':
@@ -2986,8 +2996,7 @@ function chatGalleryHTML(){
       ${canUseAI()?'':`<div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="settings">🔌 חברי Groq</button><span class="tiny muted">המאמנת המקומית מלמדת, אבל לא מבינה כל משפט.</span></div>`}
       <div class="divider"></div>
       <div class="row">
-        <span class="tiny muted">רמת שיחה:</span>
-        ${['A1','A2','B1'].map(l=>`<button class="chip ${S.settings.level===l?'active':''}" data-set-level="${l}">${l}</button>`).join('')}
+        <span class="tiny muted">רמת שיחה: <b>${esc(S.settings.level)}</b> · נקבעת לפי חשבון התלמידה</span>
         <span class="tiny muted" style="margin-inline-start:auto">תיקון:</span>
         ${[['gentle','עדין'],['balanced','מאוזן'],['strict','קפדן']].map(([v,l])=>`<button class="chip ${S.settings.correction===v?'active':''}" data-set-corr="${v}">${l}</button>`).join('')}
       </div>
@@ -3041,7 +3050,6 @@ function chatScreenHTML(sc){
         <div class="tools">
           <button class="iconbtn" data-tool="translate" title="תרגום">🌐</button>
           <button class="iconbtn" data-tool="autospeak" title="הקראה אוטומטית">🔊</button>
-          <button class="iconbtn" data-tool="level" title="שנה רמה">${S.settings.level}</button>
           <button class="iconbtn" data-tool="settings" title="הגדרות">⚙️</button>
         </div>
       </div>
@@ -3055,7 +3063,7 @@ function chatScreenHTML(sc){
           <button class="mini-chip" data-tool="translate">🌐 תרגום</button>
         </div>
         <div class="composer-row">
-          <button class="mic-btn" id="chat-mic" data-act="chat-mic" title="דברי" aria-label="קלט קולי">🎤</button>
+          <button class="mic-btn" id="chat-mic" data-act="chat-mic" title="דברי למיקרופון" aria-label="קלט קולי">🎤</button>
           <textarea id="chat-input" rows="1" placeholder="Write in English… (Enter לשליחה)" aria-label="הודעה"></textarea>
           <button class="send-btn" id="chat-send" data-act="chat-send" title="שלחי" aria-label="שלחי">➤</button>
         </div>
@@ -3074,7 +3082,7 @@ function chatMessagesHTML(){
     }
     const corr=(m.error?`<div class="corr" style="border-color:rgba(255,128,128,.35);background:rgba(255,128,128,.07)">⚠️ ${esc(m.error)} <button class="mini-chip" data-act="settings">הגדרות</button></div>`:'')+((m.corrections&&m.corrections.length)?`<div class="corr"><b>פידבק על מה שכתבת</b>${m.corrections.map(c=>`<div class="fix">${c.wrong?`<s>${esc(c.wrong)}</s> → `:''}<em>${esc(c.right)}</em></div>${c.why?`<div class="tiny muted">${esc(c.why)}</div>`:''}`).join('')}</div>`:'');
     const words=(m.words&&m.words.length)?`<div class="suggest" style="margin-top:5px">${m.words.slice(0,2).map(w=>`<span class="tag lime">${esc(w.en)} = ${esc(w.he)}</span>`).join('')}</div>`:'';
-    const sugg=(m.suggestions&&m.suggestions.length && i===msgs.length-1 && !CHAT_BUSY)?`<div class="suggest">${m.suggestions.slice(0,3).map((s,j)=>`<button data-sug="${j}" title="שלחי את התשובה הזו">${esc(s)}</button>`).join('')}</div>`:'';
+    const sugg=(m.suggestions&&m.suggestions.length && i===msgs.length-1 && !CHAT_BUSY)?`<div class="suggest" aria-label="תשובות לדוגמה לקריאה בלבד">${m.suggestions.slice(0,3).map(s=>`<span class="suggestion-text">${esc(s)}</span>`).join('')}</div>`:'';
     return `<div class="msg ai ${S.settings.showTr?'show-tr':''}" data-mi="${i}">
       <div class="bubble"><span class="en">${fmt(m.text)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
       <div class="bubble-actions">
@@ -3213,26 +3221,27 @@ function buildSystemPrompt(sc){
   const level=S.settings.level||'A1';
   const style={gentle:'Only correct serious mistakes (max 1). Be very gentle.',balanced:'Correct up to 2 clear mistakes. Be encouraging.',strict:'Correct up to 3 mistakes, including small ones.'}[S.settings.correction]||'Correct up to 2 clear mistakes. Be encouraging.';
   const target=sc.words.map(w=>w.en).join(', ');
-  return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for GEFEN, a 10-year-old Israeli girl in 5th grade. She is a beginner (A1): she knows 'to be' (am/is/are), the pronouns I/you/he/she/it/we/they, and about 150 basic words. She LOVES dancing and her friends.
-
+ const learnerName=S.name||'the learner';
+ const levelGuidance=level==='A1'||level==='A1+'?'Use short, simple sentences and familiar words. Focus on basic grammar.':level==='A2'?'Use clear everyday English, with simple past and future when useful.':'Use natural, age-appropriate English and explanations suited to this CEFR level.';
+ return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for ${learnerName}. Do not assume the learner's age, gender, school grade, or hobbies.
 
 YOUR ROLE: Be a warm, funny, encouraging English conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
 Target vocabulary you may weave in naturally: ${target}.
-CEFR level: ${level}. Use VERY short, simple sentences (max 8 words each), basic words only, present simple. Reply with 2–3 sentences, then exactly ONE easy question. Talk about dance, friends, music, school and hobbies.
+CEFR level: ${level}. ${levelGuidance} Reply with 2–3 sentences, then exactly ONE question that fits the learner's level.
 Correction style: ${style}
 
-If GEFEN writes in Hebrew: understand it, reply in very simple English, and gently give her the English sentence he could use. Do not shame her.
-If she writes very little (one or two words), encourage a full sentence and give a model.
+If the learner writes in Hebrew: understand it, reply in English suited to their level, and gently give a useful English model. Do not shame them.
+If the learner writes very little (one or two words), encourage a full sentence and give a model.
 Praise effort specifically (e.g. "Nice past tense!").
-Never ask for private information, never discuss anything inappropriate for a 10-year-old child. Keep it school-safe.
+Never ask for private information or discuss inappropriate topics. Keep it school-safe.
 Use only well-known, accurate facts; if you are not sure, say "I'm not sure" instead of inventing.
 
 Return ONLY valid JSON, with no markdown fences, exactly in this shape:
-{"reply":"English reply, 2-4 sentences, ends with one question","translation":"תרגום טבעי של reply לעברית","corrections":[{"wrong":"the learner's exact error","right":"the corrected English","why":"הסבר קצר בעברית פשוטה, מנוסח לילדה, עד 12 מילים"}],"suggestions":["short English reply GEFEN could say","...","..."],"words":[{"en":"useful word from your reply","he":"תרגום"}],"praise":"משפט עידוד קצר בעברית, בלשון נקבה"}
+{"reply":"English reply, 2-4 sentences, ends with one question","translation":"תרגום טבעי של reply לעברית","corrections":[{"wrong":"the learner's exact error","right":"the corrected English","why":"הסבר קצר בעברית פשוטה, עד 12 מילים"}],"suggestions":["short English reply the learner could say","...","..."],"words":[{"en":"useful word from your reply","he":"תרגום"}],"praise":"משפט עידוד קצר בעברית"}
 
 Rules for fields:
-- "corrections": max 2, only real errors in GEFEN's latest message. If none, use [].
-- "suggestions": exactly 3 possible replies for GEFEN, 3–7 words each, at her level, directly answering your question.
+- "corrections": max 2, only real errors in the learner's latest message. If none, use [].
+- "suggestions": exactly 3 possible replies, at the learner's level, directly answering your question. These are for reading only; never ask the learner to click or select one.
 - "words": max 2 useful new words/phrases from your reply, with accurate Hebrew.
 - "translation" and "why" must be Hebrew. "reply" and "suggestions" must be English.
 - Do not put Hebrew inside "reply". Do not add any text outside the JSON object.`;
@@ -3454,12 +3463,6 @@ function chatDelegatedClick(e){
   if(say){ const i=+say.dataset.chatSay; const m=S.chat.messages[i]; if(m) speak(m.text); e.stopPropagation(); return; }
   const tr=e.target.closest('[data-chat-tr]');
   if(tr){ const i=+tr.dataset.chatTr; const el=document.querySelector('.msg[data-mi="'+i+'"]'); if(el) el.classList.toggle('show-tr'); e.stopPropagation(); return; }
-  const sug=e.target.closest('[data-sug]');
-  if(sug){ const msgEl=sug.closest('.msg'); const i=+msgEl.dataset.mi; const m=S.chat.messages[i]; const txt=m&&m.suggestions&&m.suggestions[+sug.dataset.sug]; if(txt) sendText(txt); e.stopPropagation(); return; }
-  const quick=e.target.closest('[data-quick]');
-  if(quick){ const q=QUICK_PHRASES[+quick.dataset.quick]; closeModal(); const inp=$('#chat-input'); if(q&&inp){ inp.value=q.en; inp.focus(); } e.stopPropagation(); return; }
-  const lvl=e.target.closest('[data-set-level]');
-  if(lvl){ S.settings.level=lvl.dataset.setLevel; saveNow(); render(); return; }
   const corr=e.target.closest('[data-set-corr]');
   if(corr){ S.settings.correction=corr.dataset.setCorr; saveNow(); render(); return; }
   const tool=e.target.closest('[data-tool]');
@@ -3474,9 +3477,6 @@ function chatTool(tool){
   }else if(tool==='autospeak'){
     S.settings.autoSpeak=!S.settings.autoSpeak; saveNow();
     toast(S.settings.autoSpeak?'🔊 המאמנת תקריא תשובות':'הקראה אוטומטית כבויה');
-  }else if(tool==='level'){
-    const levels=['A1','A2','B1']; const i=levels.indexOf(S.settings.level);
-    S.settings.level=levels[(i+1)%levels.length]; saveNow(); toast('רמת שיחה: '+S.settings.level); render();
   }else if(tool==='settings'){ openSettings();
   }else if(tool==='hint'){
     const sc=scenarioById(S.chat.scenario);
@@ -3493,8 +3493,8 @@ function chatTool(tool){
       S.chat.localTurn++;
     }
   }else if(tool==='phrases'){
-    openModal(`<button class="x" data-close>✕</button><h3>📖 ביטויים שיעזרו לך</h3><p class="small muted">לחצי על ביטוי כדי להכניס אותו לשיחה, או 🔊 לשמוע.</p>
-      <div class="col" style="margin-top:10px">${QUICK_PHRASES.map((q,i)=>`<div class="word"><div class="word-main"><span class="en" style="font-weight:700">${q.en}</span><span class="word-he">${q.he}</span></div>${speakBtn(q.en)}<button class="btn xs ghost" data-quick="${i}">השתמש</button></div>`).join('')}</div>
+    openModal(`<button class="x" data-close>✕</button><h3>📖 ביטויים שיעזרו לך</h3><p class="small muted">קראי או האזיני לביטויים. כדי לתרגל, אמרי אותם בעצמך או הקלידי אותם.</p>
+      <div class="col" style="margin-top:10px">${QUICK_PHRASES.map(q=>`<div class="word"><div class="word-main"><span class="en" style="font-weight:700">${esc(q.en)}</span><span class="word-he">${esc(q.he)}</span></div>${speakBtn(q.en)}</div>`).join('')}</div>
       <button class="btn primary wide" style="margin-top:10px" data-close>חזרה לשיחה</button>`);
   }
 }
@@ -3510,22 +3510,20 @@ function handleChatAction(a,el){
     }
   }
 }
-let RECOGNIZER=null;
 function chatMic(){
   const btn=$('#chat-mic');
-  if(RECOGNIZER){ try{ RECOGNIZER.stop(); }catch(e){} RECOGNIZER=null; }
-  if(btn) btn.classList.add('rec');
+  if(RECOGNIZER){ RECOGNIZER.stop(); RECOGNIZER=null; setChatMicState(false); return; }
+  setChatMicState(true);
   RECOGNIZER=listenOnce('en-US',alts=>{
     const heard=(alts&&alts[0])||'';
     const inp=$('#chat-input'); if(inp&&heard){ inp.value=heard; inp.focus(); }
-    if(btn) btn.classList.remove('rec');
-    RECOGNIZER=null;
     if(heard) setTimeout(()=>{ if($('#chat-input')) sendChat(); },250);
   },err=>{
-    if(btn) btn.classList.remove('rec');
+    toast(microphoneErrorText(err));
+  },()=>{
     RECOGNIZER=null;
-    toast(err==='unsupported'?'הדפדפן לא תומך במיקרופון – השתמש במקלדת':'לא שמעתי. בדקי הרשאת מיקרופון');
-  },()=>{ if(btn) btn.classList.remove('rec'); RECOGNIZER=null; });
+    setChatMicState(false);
+  });
 }
 boot();
 </script>

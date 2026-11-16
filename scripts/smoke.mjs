@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer-core';
 const BASE = process.env.BASE || 'http://localhost:3100';
 
 const browser = await puppeteer.launch({
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless: true,
   args: ['--no-sandbox', '--disable-dev-shm-usage'],
 });
@@ -11,110 +11,113 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 const errors = [];
 const consoleErrors = [];
-const failed = [];
+const apiCalls = [];
 
 page.on('pageerror', (e) => errors.push(String(e)));
 page.on('console', (m) => {
   if (m.type() === 'error') consoleErrors.push(m.text());
 });
-page.on('requestfailed', (r) => failed.push(`${r.url()} :: ${r.failure()?.errorText}`));
+await page.setRequestInterception(true);
+page.on('request', (request) => {
+  if (!request.url().startsWith(`${BASE}/api/`)) {
+    request.continue();
+    return;
+  }
+
+  const path = new URL(request.url()).pathname;
+  const method = request.method();
+  const body = request.postData() ? JSON.parse(request.postData()) : null;
+  apiCalls.push({ path, method, body, authorization: request.headers().authorization });
+
+  let response = {};
+  if (path === '/api/auth/login') {
+    response = {
+      token: 'smoke-test-token',
+      user: { id: 'student-smoke', username: body.username, level: 'A1' },
+    };
+  } else if (path === '/api/progress' && method === 'GET') {
+    response = { data: null, storage: 'cloud' };
+  } else if (path === '/api/progress' && method === 'POST') {
+    response = { ok: true, storage: 'cloud' };
+  }
+
+  request.respond({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(response),
+  });
+});
 
 await page.goto(`${BASE}/#/home`, { waitUntil: 'networkidle2' });
-await new Promise((r) => setTimeout(r, 1200));
+await page.waitForSelector('#student-username');
+await page.select('#student-username', 'בארי');
+await page.type('#student-password', 'smoke-test-password');
+await page.click('[data-act="student-login"]');
+await page.waitForFunction(() => document.title.startsWith('בארי'));
+await new Promise((resolve) => setTimeout(resolve, 300));
 
-const report = await page.evaluate(() => {
-  const out = {};
-  out.title = document.title;
-  out.hasS = typeof S !== 'undefined';
-  out.xp = typeof S !== 'undefined' ? S.xp : null;
-  out.mainChildren = document.getElementById('main')?.children.length ?? -1;
-  out.syncBadge = document.getElementById('sync-badge')?.textContent || null;
-  out.canUseAI = typeof canUseAI === 'function' ? canUseAI() : null;
-  out.apiMode = typeof S !== 'undefined' ? S.api.mode : null;
-  return out;
-});
+const account = await page.evaluate(() => ({
+  title: document.title,
+  name: S.name,
+  level: S.settings.level,
+  loginModalVisible: !document.getElementById('overlay').hidden,
+}));
 
-// navigate through the app to exercise render paths
-const routes = ['#/learn', '#/chat', '#/review', '#/stats', '#/home'];
-for (const r of routes) {
-  await page.evaluate((route) => { location.hash = route; }, r);
-  await new Promise((res) => setTimeout(res, 400));
-}
-
-// exercise a local save + reload to verify persistence
-await page.evaluate(() => {
-  if (typeof S !== 'undefined') {
-    S.xp = 999;
-    if (typeof saveNow === 'function') saveNow();
-  }
-});
-await new Promise((r) => setTimeout(r, 600));
-await page.reload({ waitUntil: 'networkidle2' });
-await new Promise((r) => setTimeout(r, 900));
-
-const afterReload = await page.evaluate(() => (typeof S !== 'undefined' ? S.xp : null));
-
-// open settings and verify account login is replaced by learner profiles
-await page.evaluate(() => { location.hash = '#/home'; });
-await new Promise((r) => setTimeout(r, 400));
-await page.evaluate(() => openSettings());
-await new Promise((r) => setTimeout(r, 400));
-const settingsOpened = await page.evaluate(() => {
-  const overlay = document.getElementById('overlay');
+await page.evaluate(() => { location.hash = `#/chat/${SCENARIOS[0].id}`; });
+await page.waitForSelector('.suggestion-text');
+const suggestions = await page.evaluate(() => {
+  const elements = [...document.querySelectorAll('.suggestion-text')];
   return {
-    visible: overlay && !overlay.hidden,
-    hasProfileManager: !!document.querySelector('[data-act="profile-manage"]'),
-    hasEmail: !!document.getElementById('sync-email'),
+    count: elements.length,
+    allReadOnly: elements.every((element) => !element.closest('button, a, [role="button"]')),
+    inputAvailable: Boolean(document.querySelector('#chat-input')),
+    microphoneAvailable: Boolean(document.querySelector('#chat-mic')),
   };
 });
 
-const profileSync = await page.evaluate(async () => {
-  const suffix = Date.now();
-  await createLearnerProfile(`Smoke ${suffix} A`, 'A2');
-  S.xp = 333;
-  S.updated_at = new Date().toISOString();
-  saveNow();
-  await window.apiSync.flush();
-  const firstProfileId = activeProfileId;
-  await createLearnerProfile(`Smoke ${suffix} B`, 'B1');
-  const secondProfileXp = S.xp;
-  const secondProfileId = activeProfileId;
-  await activateProfile(knownProfiles.find((profile) => profile.id === firstProfileId));
-  const firstProfileXp = S.xp;
-  return {
-    firstProfileId,
-    secondProfileId,
-    firstProfileXp,
-    secondProfileXp,
-    storage: window.apiSync.storage(),
+const microphone = await page.evaluate(async () => {
+  const originalMediaDevices = navigator.mediaDevices;
+  const originalRecognition = window.SpeechRecognition;
+  const result = { requested: false, started: false, permissionError: null };
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: {
+      getUserMedia: async () => {
+        result.requested = true;
+        return { getTracks: () => [{ stop() {} }] };
+      },
+    },
+  });
+  window.SpeechRecognition = class {
+    start() { result.started = true; }
+    abort() {}
   };
+  listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: originalMediaDevices });
+  if (originalRecognition) window.SpeechRecognition = originalRecognition;
+  else delete window.SpeechRecognition;
+  return result;
 });
-await page.reload({ waitUntil: 'networkidle2' });
-await new Promise((r) => setTimeout(r, 900));
-const profileReloadXp = await page.evaluate(() => (typeof S !== 'undefined' ? S.xp : null));
 
-if (!settingsOpened.visible || !settingsOpened.hasProfileManager || settingsOpened.hasEmail) {
-  throw new Error('Settings did not expose the expected login-free profile manager');
+const authenticatedProgressRequest = apiCalls.find((call) => (
+  call.path === '/api/progress' && call.authorization === 'Bearer smoke-test-token'
+));
+if (!account.title.startsWith('בארי') || account.name !== 'בארי' || account.level !== 'A1' || account.loginModalVisible) {
+  throw new Error(`Student login/identity failed: ${JSON.stringify(account)}`);
 }
-if (profileSync.firstProfileId === profileSync.secondProfileId
-  || profileSync.firstProfileXp !== 333
-  || profileSync.secondProfileXp !== 0
-  || profileReloadXp !== 333) {
-  throw new Error(`Profile isolation/persistence failed: ${JSON.stringify({ profileSync, profileReloadXp })}`);
+if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable) {
+  throw new Error(`Chat controls failed: ${JSON.stringify(suggestions)}`);
 }
-if (errors.length || consoleErrors.length || failed.length) {
-  throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors, failed })}`);
+if (!microphone.requested || !microphone.started || microphone.permissionError) {
+  throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
+}
+if (!authenticatedProgressRequest) {
+  throw new Error('Progress requests were not sent with the authenticated token');
+}
+if (errors.length || consoleErrors.length) {
+  throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors })}`);
 }
 
-console.log(JSON.stringify({
-  report,
-  afterReload,
-  settingsOpened,
-  profileSync,
-  profileReloadXp,
-  errors,
-  consoleErrors: consoleErrors.slice(0, 10),
-  failed: failed.slice(0, 10),
-}, null, 2));
-
+console.log(JSON.stringify({ account, suggestions, microphone, apiCalls, errors, consoleErrors }, null, 2));
 await browser.close();

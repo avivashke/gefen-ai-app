@@ -20,10 +20,22 @@ async function main() {
   // ------------------------------------------------------------------
   const collectionName = 'progress';
 
+  let progressCollection = null;
   try {
-    const existing = await pb.collections.getOne(collectionName);
-    console.log(`[setup] Collection '${collectionName}' already exists (id: ${existing.id})`);
+    progressCollection = await pb.collections.getOne(collectionName);
   } catch (e) {
+    if (e.status !== 404) throw e;
+  }
+  if (progressCollection) {
+    console.log(`[setup] Collection '${collectionName}' already exists (id: ${progressCollection.id})`);
+    await pb.collections.update(progressCollection.id, {
+      listRule: `@request.auth.id != "" && user = @request.auth.id`,
+      viewRule: `@request.auth.id != "" && user = @request.auth.id`,
+      createRule: `@request.auth.id != "" && user = @request.auth.id`,
+      updateRule: `@request.auth.id != "" && user = @request.auth.id`,
+      deleteRule: `@request.auth.id != "" && user = @request.auth.id`,
+    });
+  } else {
     console.log(`[setup] Creating collection '${collectionName}'...`);
 
     await pb.collections.create({
@@ -31,7 +43,7 @@ async function main() {
       type: 'base',
       listRule: `@request.auth.id != "" && user = @request.auth.id`,
       viewRule: `@request.auth.id != "" && user = @request.auth.id`,
-      createRule: `@request.auth.id != ""`,
+      createRule: `@request.auth.id != "" && user = @request.auth.id`,
       updateRule: `@request.auth.id != "" && user = @request.auth.id`,
       deleteRule: `@request.auth.id != "" && user = @request.auth.id`,
       fields: [
@@ -39,9 +51,9 @@ async function main() {
           name: 'user',
           type: 'relation',
           required: true,
-          collectionId: '_pb_users_auth__', // PocketBase users collection
+          collectionId: '_pb_users_auth_', // PocketBase users collection
           options: {
-            collectionId: '_pb_users_auth__',
+            collectionId: '_pb_users_auth_',
             maxSelect: 1,
             cascadeDelete: false,
           },
@@ -62,60 +74,28 @@ async function main() {
   }
 
   // ------------------------------------------------------------------
-  // 2. Create public named profiles for login-free, per-learner sync
+  // 2. Lock down any profiles collection from the previous public version
   // ------------------------------------------------------------------
-  const profilesCollection = 'profiles';
+  let legacyProfiles = null;
   try {
-    const existing = await pb.collections.getOne(profilesCollection);
-    console.log(`[setup] Collection '${profilesCollection}' already exists (id: ${existing.id})`);
-  } catch {
-    console.log(`[setup] Creating collection '${profilesCollection}'...`);
-    await pb.collections.create({
-      name: profilesCollection,
-      type: 'base',
-      listRule: '',
-      viewRule: '',
-      createRule: '',
-      updateRule: '',
+    legacyProfiles = await pb.collections.getOne('profiles');
+  } catch (e) {
+    if (e.status !== 404) throw e;
+  }
+  if (legacyProfiles) {
+    await pb.collections.update(legacyProfiles.id, {
+      listRule: null,
+      viewRule: null,
+      createRule: null,
+      updateRule: null,
       deleteRule: null,
-      fields: [
-        {
-          name: 'profile_id',
-          type: 'text',
-          required: true,
-          presentable: false,
-          unique: true,
-          options: { min: 1, max: 64, pattern: '^[a-zA-Z0-9_-]+$' },
-        },
-        {
-          name: 'name',
-          type: 'text',
-          required: true,
-          unique: true,
-          options: { min: 1, max: 40 },
-        },
-        {
-          name: 'level',
-          type: 'text',
-          required: true,
-          options: { min: 2, max: 2, pattern: '^(A1|A2|B1)$' },
-        },
-        {
-          name: 'data',
-          type: 'json',
-          required: true,
-        },
-        {
-          name: 'updated',
-          type: 'date',
-          required: true,
-        },
-      ],
     });
-    console.log(`[setup] Collection '${profilesCollection}' created`);
+    console.log('[setup] Locked public access to legacy profiles');
+  } else {
+    console.log('[setup] No legacy profiles collection to lock');
   }
 
-  console.log('[setup] Done. Configure PB_URL in the app server to enable profile sync.');
+  console.log('[setup] Done. Configure PB_URL in the app server to enable student sync.');
   console.log(`[setup] PB_URL=${PB_URL}`);
 }
 

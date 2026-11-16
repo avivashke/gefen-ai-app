@@ -51,7 +51,7 @@ This repo is already configured for Netlify via `netlify.toml`:
    - **Functions directory:** `netlify/functions`
    - **Build command:** (none — static site + functions)
 4. Add **Environment variables** (Site settings → Build & deploy → Environment):
-   - `PB_URL` = your PocketBase URL (required for cross-device profile sync)
+   - `PB_URL` = your PocketBase URL (required for student accounts and cross-device progress sync)
    - `AI_PROXY_URL` = https://gefen-ai.avivashke95.workers.dev (AI chat proxy)
    - `NODE_ENV` = production
 5. Deploy.
@@ -60,24 +60,22 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 
 ---
 
-## 👥 פרופילים והתקדמות
+## חשבונות תלמידים והתקדמות
 
 | מצב | איפה הנתונים נשמרים | סנכרון בין מכשירים | נדרש תשתית חיצונית |
 |-----|----------------------|---------------------|---------------------|
-| **ללא PocketBase** | בדפדפן או באחסון המקומי של השרת | ❌ לא מובטח | לא |
-| **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ לפי פרופיל, בין מכשירים | כן |
+| **ללא PocketBase** | בדפדפן או באחסון המקומי של השרת | ❌ אין הבטחת סנכרון | לא |
+| **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ לפי חשבון תלמיד | כן |
 
-פותחים את האפליקציה ובוחרים פרופיל קיים או יוצרים פרופיל חדש עם שם ורמה. ההתקדמות של כל פרופיל נשמרת בנפרד ומתעדכנת אוטומטית. במכשיר אחר בוחרים את אותו פרופיל; אין צורך להתחבר.
+כל תלמידה או תלמיד נכנסים עם שם המשתמש והסיסמה שנמסרו להם. ההתקדמות נשמרת אוטומטית בחשבון שלהם; במכשיר אחר נכנסים שוב עם אותם פרטים. חשבונות התלמידים נפרדים, ורמת האנגלית מוגדרת בקובץ `server/students.js`.
 
-**הפרופילים ציבוריים במכוון:** כל מי שפותח את האפליקציה יכול לבחור, לקרוא ולערוך כל פרופיל. אין להשתמש בהם לשמירת מידע פרטי.
-
-ב-Netlify Functions אין אחסון מקומי מתמשך. כדי שהנתונים יישמרו בין הפעלות ובין מכשירים יש להגדיר `PB_URL` וליצור את אוסף `profiles` כמפורט בהמשך.
+ב-Netlify Functions אין אחסון מקומי מתמשך. יש להגדיר `PB_URL`, להגדיר את PocketBase ולהריץ פעם אחת את סקריפט יצירת חשבונות התלמידים. בלי PocketBase פעיל לא ניתן להתחבר או לסנכרן בין מכשירים.
 
 ---
 
 ## 🆓 הקמת מסד חינמי לסנכרון בין מכשירים (מומלץ)
 
-כדי לסנכרן פרופילים בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך `PB_URL`.
+כדי ליצור חשבונות ולסנכרן התקדמות בין מכשירים, יש להקים PocketBase בענן ולחבר אותו ל-Netlify דרך `PB_URL`.
 
 ### אפשרות א: PocketBase Cloud (הכי קל ומומלץ)
 1. הירשמי ב-[pocketbase.io](https://pocketbase.io) — יש שכבה חינמית (1GB, 10K בקשות/יום).
@@ -118,7 +116,22 @@ export PB_URL=https://your-pocketbase-url
 PB_ADMIN_EMAIL=your-existing-superuser-email PB_ADMIN_PASSWORD=your-superuser-password node scripts/setup-pocketbase.mjs
 ```
 
-האפליקציה משתמשת באוסף `profiles` עם `profile_id`, `name`, `level`, `data` ו-`updated`. האוסף מאפשר קריאה, יצירה ועדכון ציבוריים כדי לאפשר שימוש ללא התחברות; מחיקה נעולה. האוסף הישן `progress` נשאר לתאימות לחשבונות קודמים.
+האפליקציה משתמשת באוסף `progress`, שבו כל רשומה משויכת לחשבון PocketBase המאומת. הסקריפט נועל גישה ציבורית לאוסף `profiles` מהגרסה הקודמת. לאחר מכן יש ליצור את ששת חשבונות התלמידים:
+
+```bash
+PB_URL=https://your-pocketbase-url \
+PB_ADMIN_EMAIL=your-existing-superuser-email \
+PB_ADMIN_PASSWORD=your-superuser-password \
+STUDENT_PASSWORD_GEFEN='unique-password-1' \
+STUDENT_PASSWORD_BARRY='unique-password-2' \
+STUDENT_PASSWORD_SHAKED='unique-password-3' \
+STUDENT_PASSWORD_MAAYAN='unique-password-4' \
+STUDENT_PASSWORD_HADAR='unique-password-5' \
+STUDENT_PASSWORD_MIA='unique-password-6' \
+node scripts/setup-students.mjs
+```
+
+יש לבחור שש סיסמאות שונות, באורך 8 תווים לפחות, ולהעביר אותן לתלמידים בערוץ פרטי. אין לשמור סיסמאות אמיתיות בקובץ או במאגר הקוד. הסקריפט אינו משנה סיסמה של חשבון שכבר קיים. פרטי Superuser משמשים לסקריפטים בלבד, ולא מוגדרים ב-Netlify.
 
 יש ליצור מראש משתמש Superuser ב-PocketBase Admin UI. פרטי מנהל ה-PocketBase משמשים להרצת סקריפט ההגדרה בלבד; אין לשמור אותם במשתני הסביבה של האפליקציה.
 
@@ -145,7 +158,7 @@ PB_ADMIN_EMAIL=your-existing-superuser-email PB_ADMIN_PASSWORD=your-superuser-pa
 
 #### הגדרת כתובת פרוקסי Cloudflare Worker מתוך ההגדרות של האפליקציה (חוצה מכשירים)
 
-ניתן להגדיר את כתובת הפרוקסי של Cloudflare Worker ישירות ממסך ההגדרות של האפליקציה (⚙️ הגדרות → חיבור המאמנת), והיא תישמר בפרופיל הפעיל ותסונכרן אוטומטית בין המכשירים שבהם נבחר אותו פרופיל.
+ניתן להגדיר את כתובת הפרוקסי של Cloudflare Worker ישירות ממסך ההגדרות של האפליקציה (⚙️ הגדרות → חיבור המאמנת). הגדרה זו נשמרת במכשיר המקומי.
 
 - בשדה "כתובת פרוקסי Cloudflare Worker" הדביקי את כתובת ה-Worker (לדוגמה `https://gefen-ai.avivashke95.workers.dev/`).
 - הקוד בודק שהכתובת תקינה לפני השמירה ומראה שגיאה אם היא לא תקינה.
