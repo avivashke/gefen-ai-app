@@ -1376,7 +1376,7 @@ function initCloudSync(){
     }else if(event === 'conflict'){
       applyCloud(payload && payload.data, payload && payload.updated_at);
     }else if(event === 'saved'){
-      if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='cloud'?'saved':'server');
+      if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='netlify-blobs'?'saved':'server');
     }else if(event === 'offline'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('offline');
     }else if(event === 'online'){
@@ -2607,8 +2607,8 @@ function pageAdmin(){
     <td>${student.missing?'—':student.streak}</td>
     <td>${student.missing?'אין חשבון':`${student.completedExercises} תרגילים`}</td>
     <td>${student.lastActive?new Date(student.lastActive).toLocaleString('he-IL'):'טרם התחיל/ה'}</td>
-    <td>${student.missing?'—':`<button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">קוד איפוס</button>
-      ${ADMIN_RESET_CODES[student.key]?`<div class="tiny" style="margin-top:6px;direction:ltr"><code>${esc(ADMIN_RESET_CODES[student.key])}</code> <button class="btn xs ghost" data-copy="${escA(ADMIN_RESET_CODES[student.key])}">העתקה</button></div>`:''}`}</td>
+    <td><button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">${student.activated?'קוד איפוס':'קוד הפעלה'}</button>
+      ${ADMIN_RESET_CODES[student.key]?`<div class="tiny" style="margin-top:6px;direction:ltr"><code>${esc(ADMIN_RESET_CODES[student.key])}</code> <button class="btn xs ghost" data-copy="${escA(ADMIN_RESET_CODES[student.key])}">העתקה</button></div>`:''}</td>
   </tr>`).join('');
   return `<div class="page">
     <div class="page-head"><div><h1 class="page-title">🛡️ דשבורד תלמידים</h1><p class="page-sub">סיכום התקדמות בלבד; שיחות פרטיות אינן מוצגות.</p></div>
@@ -2616,10 +2616,10 @@ function pageAdmin(){
     </div>
     ${ADMIN_ERROR?`<div class="help section">${esc(ADMIN_ERROR)}</div>`:''}
     <div class="card section">
-      <p class="small muted">בקשת איפוס מגיעה אלייך בוואטסאפ. לאחר אימות הבקשה, לחצי על „קוד איפוס” והעבירי את הקוד לתלמיד/ה באופן פרטי. הקוד תקף ל־30 דקות.</p>
+      <p class="small muted">לחצי על „קוד הפעלה” לתלמיד/ה שעדיין לא הגדיר/ה סיסמה. לאיפוס סיסמה לאחר אימות הבקשה בוואטסאפ, לחצי על „קוד איפוס” והעבירי את הקוד בפרטי; קוד איפוס תקף ל־30 דקות.</p>
       ${ADMIN_LOADING&&!ADMIN_STUDENTS?'<p class="small muted">טוען נתוני תלמידים…</p>':''}
       ${ADMIN_STUDENTS?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px;text-align:start">
-        <thead><tr>${['תלמיד/ה','רמה','XP','רצף ימים','תרגילים שהושלמו','פעילות אחרונה','איפוס סיסמה'].map(label=>`<th style="padding:10px;border-bottom:1px solid var(--line2);text-align:start">${label}</th>`).join('')}</tr></thead>
+        <thead><tr>${['תלמיד/ה','רמה','XP','רצף ימים','תרגילים שהושלמו','פעילות אחרונה','קוד הפעלה / איפוס'].map(label=>`<th style="padding:10px;border-bottom:1px solid var(--line2);text-align:start">${label}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`:''}
     </div>
@@ -2657,7 +2657,7 @@ async function issueStudentResetCode(key){
   try{
     const result=await window.adminApi.issueResetCode(key);
     ADMIN_RESET_CODES[key]=result.code;
-    toast('קוד איפוס נוצר. העבירי אותו לתלמיד/ה בפרטי.');
+    toast(result.purpose==='activation'?'קוד הפעלה נוצר. העבירי אותו לתלמיד/ה בפרטי.':'קוד איפוס נוצר. העבירי אותו לתלמיד/ה בפרטי.');
     render();
   }catch(error){
     ADMIN_ERROR=`יצירת קוד האיפוס נכשלה: ${error.message}`;
@@ -2759,7 +2759,7 @@ function renderSyncPanel(){
   const enabled=cloudReady();
   const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
   const badge=enabled
-    ?window.apiSync.storage()==='cloud'
+    ?window.apiSync.storage()==='netlify-blobs'
       ?'<span class="tag lime" id="sync-badge">✅ מסונכרן בענן</span>'
       :'<span class="tag gold" id="sync-badge">💾 נשמר בשרת</span>'
     :'<span class="tag" id="sync-badge">🔒 נדרשת כניסה</span>';
@@ -2767,7 +2767,7 @@ function renderSyncPanel(){
     return `<div class="field"><div class="row" style="align-items:center">
       <span style="flex:1"><b>${esc(account?.username||'תלמידה')}</b> · רמה ${esc(account?.level||S.settings.level)}</span>${badge}
       <button class="btn xs danger" data-act="student-logout">יציאה</button></div></div>
-      <p class="tiny muted">${window.apiSync.storage()==='cloud'?'ההתקדמות נשמרת בחשבון האישי ומסתנכרנת בין מכשירים.':'ההתקדמות נשמרת בשרת. לסנכרון בין מכשירים נדרש PocketBase בענן.'}</p>`;
+      <p class="tiny muted">${window.apiSync.storage()==='netlify-blobs'?'ההתקדמות נשמרת בחשבון האישי ב-Netlify Blobs ומסתנכרנת בין מכשירים.':'ההתקדמות נשמרת בקובץ מקומי ואינה מסתנכרנת בין מכשירים.'}</p>`;
   }
   return `<div class="field"><p class="tiny muted">יש להתחבר עם שם משתמש וסיסמה כדי לצפות בהתקדמות האישית.</p>
     <button class="btn primary wide" data-act="student-login-open">כניסה</button></div>`;

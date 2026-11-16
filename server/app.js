@@ -1,8 +1,14 @@
 import path from 'path';
-import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { STUDENTS, studentByEmail, studentByUsername } from './students.js';
+import { STUDENTS, studentByUsername } from './students.js';
+import {
+  activeStorage,
+  compareAndSetProgressRecord,
+  getProgressRecord,
+  getStudentRecord,
+  setStudentRecord,
+} from './storage.js';
 
 // Support both ESM (local dev) and CJS (Netlify Functions)
 const isESM = typeof import.meta !== 'undefined' && import.meta.url;
@@ -10,7 +16,6 @@ const __dir = isESM
   ? path.dirname(fileURLToPath(import.meta.url))
   : process.cwd();
 
-export const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8087';
 export const PUBLIC_DIR = process.env.PUBLIC_DIR
   ? path.resolve(process.env.PUBLIC_DIR)
   : path.join(__dir, '..', 'public');
@@ -63,53 +68,6 @@ export function refreshAiTarget(env = process.env) {
   return AI_TARGET;
 }
 
-/* ------------------------------------------------------------------ */
-/* PocketBase                                                          */
-/* ------------------------------------------------------------------ */
-
-export async function newPbClient() {
-  const { default: PocketBase } = await import('pocketbase');
-  return new PocketBase(PB_URL);
-}
-
-let adminClientPromise = null;
-export function getAdminClient() {
-  if (!adminClientPromise) {
-    adminClientPromise = newPbClient();
-  }
-  return adminClientPromise;
-}
-export let adminReady = false;
-export let pbReachable = false;
-
-export async function connectAdmin(env = process.env) {
-  const email = env.PB_ADMIN_EMAIL;
-  const password = env.PB_ADMIN_PASSWORD;
-  if (!email || !password) return false;
-  try {
-    const client = await getAdminClient();
-    await client.collection('_superusers').authWithPassword(email, password);
-    adminReady = true;
-    console.log('[PocketBase] admin client authenticated');
-    return true;
-  } catch (e) {
-    adminReady = false;
-    console.warn('[PocketBase] admin auth failed:', e.message);
-    return false;
-  }
-}
-
-export async function checkPocketBase() {
-  try {
-    const client = await newPbClient();
-    const health = await client.health.check();
-    pbReachable = Boolean(health);
-  } catch {
-    pbReachable = false;
-  }
-  return pbReachable;
-}
-
 function secureEqual(left, right) {
   const a = Buffer.from(String(left || ''));
   const b = Buffer.from(String(right || ''));
@@ -148,108 +106,16 @@ function adminTokenIsValid(authorization) {
   }
 }
 
-async function authenticatedAdminPbClient() {
-  if (!adminReady && !await connectAdmin()) {
-    throw Object.assign(new Error('שירות ניהול PocketBase לא הוגדר או לא זמין'), { status: 503 });
+const AUTH_SECRET = process.env.AUTH_TOKEN_SECRET
+  || (process.env.NODE_ENV !== 'production' && activeStorage() === 'local'
+    ? (process.env.LOCAL_AUTH_SECRET || 'gefen-local-dev-secret-not-for-production')
+    : '');
+
+function requireAuthSecret() {
+  if (!AUTH_SECRET || AUTH_SECRET.length < 32) {
+    throw Object.assign(new Error('AUTH_TOKEN_SECRET must be configured with at least 32 characters'), { status: 503 });
   }
-  return getAdminClient();
-}
-
-async function getStudentRecord(client, student) {
-  const page = await client.collection('users').getList(1, 1, {
-    filter: `email = "${filterValue(student.email)}"`,
-  });
-  return page.items[0] || null;
-}
-
-/** Resolve the caller's own id from a bearer token without trusting client state. */
-export async function callerId(authorization) {
-  if (!authorization || !authorization.startsWith('Bearer ')) return null;
-  const token = authorization.slice(7);
-  const claims = decodeClaims(token);
-  if (!claims) return null;
-  if (claims.type === 'admin' || claims.role === 'admin') return null;
-  if (claims.id) return claims.id;
-
-  const client = await newPbClient();
-  client.authStore.save(token, null);
-  try {
-    const auth = await client.collection('users').authRefresh();
-    return auth?.record?.id || null;
-  } catch {
-    return null;
-  }
-}
-
-function decodeClaims(token) {
-  const parts = String(token).split('.');
-  if (parts.length !== 3) return null;
-  try {
-    const json = Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Local auth fallback (keeps accounts + progress when PB is offline)  */
-/* ------------------------------------------------------------------ */
-
-const DATA_DIR = process.env.DATA_DIR
-  ? path.resolve(process.env.DATA_DIR)
-  : path.join(__dir, '..', 'data');
-
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const PROGRESS_FILE = path.join(DATA_DIR, 'progress.json');
-const SECRET = process.env.LOCAL_AUTH_SECRET || 'gefen-local-dev-secret';
-
-let usersCache = null;
-let progressCache = null;
-
-function readJson(file, fallback) {
-  try {
-    if (!fs.existsSync(file)) return structuredClone(fallback);
-    const raw = fs.readFileSync(file, 'utf8');
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : structuredClone(fallback);
-  } catch {
-    return structuredClone(fallback);
-  }
-}
-
-// Best-effort local persistence. On serverless platforms (Netlify Functions)
-// the filesystem is read-only outside /tmp, so writes may fail — we degrade
-// gracefully instead of crashing the whole request.
-function writeJson(file, value) {
-  try {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    const tmp = `${file}.tmp`;
-    fs.writeFileSync(tmp, JSON.stringify(value, null, 2));
-    fs.renameSync(tmp, file);
-    return true;
-  } catch (e) {
-    console.warn(`[local-storage] write failed (read-only fs?): ${file} :: ${e.message}`);
-    return false;
-  }
-}
-
-function loadUsers() {
-  if (usersCache === null) usersCache = readJson(USERS_FILE, {});
-  return usersCache;
-}
-
-function saveUsers() {
-  return writeJson(USERS_FILE, loadUsers());
-}
-
-function loadProgress() {
-  if (progressCache === null) progressCache = readJson(PROGRESS_FILE, {});
-  return progressCache;
-}
-
-function saveProgress() {
-  return writeJson(PROGRESS_FILE, loadProgress());
+  return AUTH_SECRET;
 }
 
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -267,19 +133,24 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(a, b);
 }
 
-function signToken(userId) {
+function signToken(studentKey, authVersion) {
   const payload = Buffer.from(
-    JSON.stringify({ id: userId, type: 'authRecord', exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 }),
+    JSON.stringify({
+      id: studentKey,
+      type: 'student',
+      authVersion,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
+    }),
   ).toString('base64url');
-  const sig = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+  const sig = crypto.createHmac('sha256', requireAuthSecret()).update(payload).digest('base64url');
   return `${payload}.${sig}.sig`;
 }
 
 function verifyToken(token) {
   const parts = String(token).split('.');
-  if (parts.length !== 3) return null;
+  if (parts.length !== 3 || !AUTH_SECRET || AUTH_SECRET.length < 32) return null;
   const [payload, sig] = parts;
-  const expected = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+  const expected = crypto.createHmac('sha256', AUTH_SECRET).update(payload).digest('base64url');
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
@@ -292,40 +163,28 @@ function verifyToken(token) {
   }
 }
 
-/** Resolve the caller from a bearer token against PB first, then local store. */
+/** Resolve a student token against the persisted account record. */
 function isHmacToken(token) {
   const parts = String(token || '').split('.');
-  if (parts.length !== 3 || parts[2] !== 'sig') return false;
-  const expected = crypto.createHmac('sha256', SECRET).update(parts[0]).digest('base64url');
+  if (parts.length !== 3 || parts[2] !== 'sig' || !AUTH_SECRET || AUTH_SECRET.length < 32) return false;
+  const expected = crypto.createHmac('sha256', AUTH_SECRET).update(parts[0]).digest('base64url');
   const a = Buffer.from(parts[1]);
   const b = Buffer.from(expected);
   return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-function findUserById(userId) {
-  const users = loadUsers();
-  const direct = users[userId];
-  if (direct && typeof direct === 'object') return { email: userId, record: direct };
-  for (const [email, record] of Object.entries(users)) {
-    if (record && record.id === userId) return { email, record };
-  }
-  return null;
 }
 
 export async function resolveCaller(authorization) {
   const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
   if (!token) return null;
 
-  // Locally signed token: no network needed, works fully offline.
-  if (isHmacToken(token)) {
-    const claims = verifyToken(token);
-    if (!claims?.id) return null;
-    return findUserById(claims.id) ? { id: claims.id, source: 'local' } : null;
-  }
-
-  // PocketBase JWT.
-  const remote = await callerId(authorization);
-  return remote ? { id: remote, source: 'pocketbase' } : null;
+  if (!isHmacToken(token)) return null;
+  const claims = verifyToken(token);
+  if (!claims?.id || claims.type !== 'student') return null;
+  const student = STUDENTS.find((entry) => entry.key === claims.id);
+  if (!student) return null;
+  const account = await getStudentRecord(student.key);
+  if (!account?.activated || account.authVersion !== claims.authVersion) return null;
+  return { id: student.key, source: activeStorage() };
 }
 
 /* ------------------------------------------------------------------ */
@@ -352,51 +211,21 @@ export function stampState(data) {
   return { ...data, updated_at: new Date().toISOString() };
 }
 
-function filterValue(userId) {
-  return String(userId).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
-
-async function findProgressRecord(client, userId) {
-  const page = await client.collection('progress').getList(1, 1, {
-    filter: `user = "${filterValue(userId)}"`,
-    sort: '-updated',
-  });
-  return page.items[0] || null;
-}
-
-async function authenticatedPbClient(authorization, callerIdValue) {
-  const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
-  if (!token) throw Object.assign(new Error('חסרה הרשאת משתמש'), { status: 401 });
-  const client = await newPbClient();
-  client.authStore.save(token, null);
-  let auth;
-  try {
-    auth = await client.collection('users').authRefresh();
-  } catch {
-    throw Object.assign(new Error('ההרשאה פגה או אינה תקינה'), { status: 401 });
-  }
-  if (auth?.record?.id !== callerIdValue) throw Object.assign(new Error('ההרשאה אינה תואמת לחשבון'), { status: 401 });
-  return client;
-}
-
 export async function handleHealth(req, res) {
   const authorization = req.headers.authorization;
-  const reachable = await checkPocketBase();
   const caller = await resolveCaller(authorization);
 
   res.json({
     status: 'ok',
-    pocketbase: { url: PB_URL, reachable, admin: adminReady, fallback: reachable ? 'cloud' : 'local' },
+    storage: activeStorage(),
     ai: { configured: AI_TARGET.kind !== 'none' && AI_TARGET.kind !== 'invalid', kind: AI_TARGET.kind },
     auth: caller ? 'authenticated' : 'anonymous',
   });
 }
 
 export async function handleConfig(req, res) {
-  const reachable = await checkPocketBase();
   res.json({
-    pocketbaseUrl: PB_URL,
-    storage: reachable ? 'cloud' : 'local',
+    storage: activeStorage(),
     teacherWhatsApp: String(process.env.TEACHER_WHATSAPP || '').replace(/\D/g, ''),
     ai: {
       enabled: AI_TARGET.kind !== 'none' && AI_TARGET.kind !== 'invalid',
@@ -406,72 +235,31 @@ export async function handleConfig(req, res) {
   });
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-async function localSignup(email, password) {
-  const users = loadUsers();
-  const normalized = email.trim().toLowerCase();
-  if (users[normalized]) throw Object.assign(new Error('האימייל כבר רשום'), { status: 409 });
-
-  const id = crypto.randomBytes(8).toString('hex');
-  users[normalized] = { id, password: hashPassword(password), created: new Date().toISOString() };
-  saveUsers();
-  return { token: signToken(id), user: { id, email: normalized } };
-}
-
-async function localLogin(email, password) {
-  const users = loadUsers();
-  const normalized = email.trim().toLowerCase();
-  const record = users[normalized];
-  if (!record || !verifyPassword(password, record.password)) {
-    throw Object.assign(new Error('אימייל או סיסמה שגויים'), { status: 401 });
-  }
-  return { token: signToken(record.id), user: { id: record.id, email: normalized } };
-}
-
 export async function handleSignup(req, res) {
   return fail(res, 403, 'יצירת חשבונות פתוחה אינה זמינה');
 }
 
 export async function handleLogin(req, res) {
-  const { username, email, password } = req.body || {};
-  const loginValue = String(username || email || '').trim();
-  if (!loginValue || !password) return fail(res, 400, 'נדרשים שם משתמש וסיסמה');
+  const { username, password } = req.body || {};
+  const student = studentByUsername(username);
+  if (!student || !password) return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
 
-  const student = studentByUsername(loginValue);
-  const loginEmail = student?.email || '';
-  if (!loginEmail) return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
-
-  const reachable = await checkPocketBase();
-  if (!reachable) {
-    try {
-      const result = await localLogin(loginEmail, password);
-      const account = student || studentByEmail(result.user.email);
-      return res.json({
-        ...result,
-        user: { ...result.user, username: account?.username || result.user.email, level: account?.level || 'A1' },
-      });
-    } catch (e) {
-      return fail(res, e.status || 500, e.message);
-    }
-  }
-
-  const client = await newPbClient();
   try {
-    const auth = await client.collection('users').authWithPassword(loginEmail, password);
-    if (auth.record.activated === false) return fail(res, 403, 'יש להגדיר סיסמה חדשה באמצעות קוד ההפעלה');
-    const account = student || studentByEmail(auth.record.email);
+    const account = await getStudentRecord(student.key);
+    if (!account?.activated || !account.passwordHash) {
+      return fail(res, 403, 'יש להגדיר סיסמה חדשה באמצעות קוד ההפעלה');
+    }
+    if (!verifyPassword(password, account.passwordHash)) {
+      return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
+    }
+    res.setHeader('Cache-Control', 'no-store');
     res.json({
-      token: auth.token,
-      user: {
-        id: auth.record.id,
-        email: auth.record.email,
-        username: account?.username || auth.record.email,
-        level: account?.level || 'A1',
-      },
+      token: signToken(student.key, account.authVersion),
+      user: { id: student.key, username: student.username, level: student.level },
+      storage: activeStorage(),
     });
-  } catch {
-    fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
+  } catch (e) {
+    fail(res, e.status || 500, e.message);
   }
 }
 
@@ -483,39 +271,40 @@ export async function handleActivateStudent(req, res) {
   if (String(code).length < 8 || String(code).length > 64) return fail(res, 400, 'קוד ההפעלה אינו תקין');
 
   try {
-    const adminClient = await authenticatedAdminPbClient();
-    const record = await getStudentRecord(adminClient, student);
-    if (!record) return fail(res, 404, 'חשבון התלמיד לא נמצא');
+    requireAuthSecret();
+    const record = await getStudentRecord(student.key);
+    if (!record) return fail(res, 401, 'קוד ההפעלה או האיפוס שגוי, נוצל או שפג תוקפו');
 
     const isFirstActivation = !record.activated;
     const codeHash = hashOneTimeCode(code.trim());
     const matchesActivationCode = isFirstActivation
-      && record.activation_hash
-      && secureEqual(record.activation_hash, codeHash);
-    const expiresAt = Date.parse(record.reset_expires || '');
-    const matchesResetCode = record.reset_hash
+      && record.activationHash
+      && secureEqual(record.activationHash, codeHash);
+    const expiresAt = Date.parse(record.resetExpires || '');
+    const matchesResetCode = record.resetHash
       && Number.isFinite(expiresAt)
       && expiresAt >= Date.now()
-      && secureEqual(record.reset_hash, codeHash);
+      && secureEqual(record.resetHash, codeHash);
     if (!matchesActivationCode && !matchesResetCode) {
       return fail(res, 401, 'קוד ההפעלה או האיפוס שגוי, נוצל או שפג תוקפו');
     }
 
-    await adminClient.collection('users').update(record.id, {
-      password: String(password),
-      passwordConfirm: String(password),
+    const authVersion = (Number(record.authVersion) || 0) + 1;
+    await setStudentRecord(student.key, {
+      ...record,
+      passwordHash: hashPassword(password),
       activated: true,
-      activation_hash: '',
-      reset_hash: '',
-      reset_expires: '',
+      authVersion,
+      activationHash: '',
+      resetHash: '',
+      resetExpires: '',
     });
 
-    const client = await newPbClient();
-    const auth = await client.collection('users').authWithPassword(student.email, String(password));
     res.setHeader('Cache-Control', 'no-store');
     res.json({
-      token: auth.token,
-      user: { id: auth.record.id, email: auth.record.email, username: student.username, level: student.level },
+      token: signToken(student.key, authVersion),
+      user: { id: student.key, username: student.username, level: student.level },
+      storage: activeStorage(),
     });
   } catch (e) {
     fail(res, e.status || 500, `הגדרת הסיסמה נכשלה: ${e.message}`);
@@ -541,26 +330,21 @@ export async function handleAdminStudents(req, res) {
   if (!adminTokenIsValid(req.headers.authorization)) return fail(res, 401, 'נדרשת כניסת אדמין');
   res.setHeader('Cache-Control', 'no-store');
   try {
-    const client = await authenticatedAdminPbClient();
     const students = [];
     for (const student of STUDENTS) {
-      const user = await getStudentRecord(client, student);
-      if (!user) {
+      const account = await getStudentRecord(student.key);
+      if (!account) {
         students.push({ username: student.username, key: student.key, level: student.level, missing: true });
         continue;
       }
-      const progressPage = await client.collection('progress').getList(1, 1, {
-        filter: `user = "${filterValue(user.id)}"`,
-        sort: '-updated',
-      });
-      const record = progressPage.items[0];
+      const record = await getProgressRecord(student.key);
       const data = record ? parseJsonMaybe(record.data) : null;
       const prog = data?.prog && typeof data.prog === 'object' ? data.prog : {};
       students.push({
         username: student.username,
         key: student.key,
         level: student.level,
-        activated: Boolean(user.activated),
+        activated: Boolean(account.activated),
         xp: Number(data?.xp) || 0,
         streak: Number(data?.streak) || 0,
         completedExercises: Object.values(prog).filter((item) => item?.done).length,
@@ -579,32 +363,29 @@ export async function handleAdminResetCode(req, res) {
   const student = STUDENTS.find((candidate) => candidate.key === req.params.key);
   if (!student) return fail(res, 404, 'תלמיד לא נמצא');
   try {
-    const client = await authenticatedAdminPbClient();
-    const record = await getStudentRecord(client, student);
-    if (!record) return fail(res, 404, 'חשבון התלמיד לא נמצא');
-
+    requireAuthSecret();
     const code = crypto.randomBytes(8).toString('hex');
-    const expires = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-    await client.collection('users').update(record.id, {
-      reset_hash: hashOneTimeCode(code),
-      reset_expires: expires,
+    const record = await getStudentRecord(student.key) || {
+      activated: false,
+      authVersion: 0,
+    };
+    const isActivation = !record.activated;
+    const expires = isActivation ? null : new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    await setStudentRecord(student.key, {
+      ...record,
+      ...(isActivation
+        ? { activationHash: hashOneTimeCode(code), resetHash: '', resetExpires: '' }
+        : { resetHash: hashOneTimeCode(code), resetExpires: expires }),
     });
-    res.json({ code, expires_at: expires });
+    res.json({ code, purpose: isActivation ? 'activation' : 'reset', expires_at: expires });
   } catch (e) {
-    fail(res, e.status || 500, `יצירת קוד איפוס נכשלה: ${e.message}`);
+    fail(res, e.status || 500, `יצירת קוד הפעלה או איפוס נכשלה: ${e.message}`);
   }
 }
 
 export async function handleMe(req, res) {
   const caller = await resolveCaller(req.headers.authorization);
   if (!caller) return fail(res, 401, 'לא מחובר');
-  if (caller.source === 'pocketbase') {
-    try {
-      await authenticatedPbClient(req.headers.authorization, caller.id);
-    } catch (e) {
-      return fail(res, e.status || 401, e.message);
-    }
-  }
   res.json({ user: { id: caller.id }, storage: caller.source });
 }
 
@@ -612,26 +393,13 @@ export async function handleGetProgress(req, res) {
   const caller = await resolveCaller(req.headers.authorization);
   if (!caller) return fail(res, 401, 'נדרשת התחברות');
 
-  if (caller.source === 'local') {
-    const progress = loadProgress();
-    const entry = progress[caller.id];
-    if (!entry) return res.json({ data: null, updated_at: null, storage: 'local' });
-    return res.json({
-      data: parseJsonMaybe(entry.data),
-      updated_at: entry.updated || null,
-      storage: 'local',
-    });
-  }
-
   try {
-    const client = await authenticatedPbClient(req.headers.authorization, caller.id);
-    const record = await findProgressRecord(client, caller.id);
-    if (!record) return res.json({ data: null, updated_at: null, storage: 'cloud' });
+    const record = await getProgressRecord(caller.id);
+    if (!record) return res.json({ data: null, updated_at: null, storage: caller.source });
     res.json({
       data: parseJsonMaybe(record.data),
       updated_at: record.updated || null,
-      recordId: record.id,
-      storage: 'cloud',
+      storage: caller.source,
     });
   } catch (e) {
     fail(res, e.status || 500, `טעינת ההתקדמות נכשלה: ${e.message}`);
@@ -647,50 +415,26 @@ export async function handleSaveProgress(req, res) {
 
   const stamped = stampState(data);
 
-  if (caller.source === 'local') {
-    const progress = loadProgress();
-    const existing = progress[caller.id];
-    if (existing?.updated) {
-      const cloudTime = Date.parse(existing.updated);
-      const localTime = Date.parse(client_updated_at || '');
-      if (!Number.isNaN(cloudTime) && !Number.isNaN(localTime) && cloudTime > localTime + 1000) {
-        return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: 'local' });
-      }
-    }
-    progress[caller.id] = { data: stamped, updated: stamped.updated_at };
-    saveProgress();
-    return res.json({ ok: true, updated_at: stamped.updated_at, storage: 'local' });
-  }
-
   try {
-    const client = await authenticatedPbClient(req.headers.authorization, caller.id);
-    const existing = await findProgressRecord(client, caller.id);
+    const existing = await getProgressRecord(caller.id);
 
     if (existing?.updated) {
       const cloudTime = Date.parse(existing.updated);
       const localTime = Date.parse(client_updated_at || '');
       if (!Number.isNaN(cloudTime) && !Number.isNaN(localTime) && cloudTime > localTime + 1000) {
-        return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: 'cloud' });
+        return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: caller.source });
       }
     }
 
-    let recordId = existing && existing.id;
-    if (recordId) {
-      await client.collection('progress').update(recordId, {
-        user: caller.id,
-        data: stamped,
-        updated: stamped.updated_at,
-      });
-    } else {
-      const created = await client.collection('progress').create({
-        user: caller.id,
-        data: stamped,
-        updated: stamped.updated_at,
-      });
-      recordId = created.id;
+    const saved = await compareAndSetProgressRecord(
+      caller.id,
+      { data: stamped, updated: stamped.updated_at },
+      existing?.updated ?? null,
+    );
+    if (!saved) {
+      return res.status(409).json({ ok: false, reason: 'cloud-newer', storage: caller.source });
     }
-
-    res.json({ ok: true, recordId, updated_at: stamped.updated_at, storage: 'cloud' });
+    res.json({ ok: true, updated_at: stamped.updated_at, storage: caller.source });
   } catch (e) {
     fail(res, e.status || 500, `שמירת ההתקדמות נכשלה: ${e.message}`);
   }
@@ -809,12 +553,9 @@ export async function startServer(port = Number(process.env.PORT) || 3000) {
   const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
     console.log(`Serving: ${PUBLIC_DIR}`);
-    console.log(`PocketBase: ${PB_URL}`);
+    console.log(`Storage: ${activeStorage()}`);
     console.log(`AI: ${AI_TARGET.label}`);
   });
-
-  const reachable = await checkPocketBase();
-  console.log(`PocketBase reachable: ${reachable ? 'yes' : 'no (local fallback active)'}`);
 
   const shutdown = (signal) => {
     console.log(`\n${signal} received, shutting down...`);

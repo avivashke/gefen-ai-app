@@ -1,6 +1,6 @@
 /* ================= Authenticated progress sync =================
-   Each student signs in with a username and password. Progress requests
-   are scoped to the authenticated PocketBase user by the server.
+   Each student signs in with a username and password. The server scopes
+   progress requests to the authenticated student record.
    =============================================================== */
 (function () {
   const TOKEN_KEY = 'auth_token';
@@ -85,6 +85,7 @@
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
+    storageMode = result.storage || storageMode;
     setSession(result.token, result.user);
     return result.user;
   }
@@ -94,6 +95,7 @@
       method: 'POST',
       body: JSON.stringify({ username, code, password }),
     });
+    storageMode = result.storage || storageMode;
     setSession(result.token, result.user);
     return result.user;
   }
@@ -228,6 +230,7 @@
     }
     try {
       const result = await apiRequest('/auth/me');
+      storageMode = result.storage || storageMode;
       const stored = user() || {};
       const account = { ...stored, ...(result.user || {}) };
       setSession(authToken, account);

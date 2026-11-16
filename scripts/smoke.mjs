@@ -31,16 +31,18 @@ page.on('request', (request) => {
 
   let response = {};
   if (path === '/api/config') {
-    response = { teacherWhatsApp: '972500000000' };
+    response = { teacherWhatsApp: '972500000000', storage: 'netlify-blobs' };
   } else if (path === '/api/auth/login') {
     response = {
       token: 'smoke-test-token',
       user: { id: 'student-smoke', username: body.username, level: 'A1' },
+      storage: 'netlify-blobs',
     };
   } else if (path === '/api/auth/activate') {
     response = {
       token: 'activated-smoke-token',
       user: { id: 'student-smoke', username: body.username, level: 'A1' },
+      storage: 'netlify-blobs',
     };
   } else if (path === '/api/auth/admin/login') {
     response = { token: 'admin-smoke-token', user: { username: body.username, role: 'admin' } };
@@ -48,16 +50,16 @@ page.on('request', (request) => {
     response = {
       students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה'].map((username, index) => ({
         username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA'][index],
-        level: 'A1', activated: true, xp: index * 10, streak: index,
+        level: 'A1', activated: index !== 0, missing: index === 0, xp: index * 10, streak: index,
         completedExercises: index + 1, lastActive: null,
       })),
     };
   } else if (path === '/api/admin/students/GEFEN/reset-code') {
-    response = { code: 'reset-smoke-code', expires_at: new Date(Date.now() + 1800000).toISOString() };
+    response = { code: 'reset-smoke-code', purpose: 'activation', expires_at: null };
   } else if (path === '/api/progress' && method === 'GET') {
-    response = { data: null, storage: 'cloud' };
+    response = { data: null, storage: 'netlify-blobs' };
   } else if (path === '/api/progress' && method === 'POST') {
-    response = { ok: true, storage: 'cloud' };
+    response = { ok: true, storage: 'netlify-blobs' };
   }
 
   request.respond({
@@ -140,6 +142,7 @@ await page.click('[data-act="admin-reset-code"][data-key="GEFEN"]');
 await page.waitForFunction(() => document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent === 'reset-smoke-code');
 const adminDashboard = await page.evaluate(() => ({
   rows: document.querySelectorAll('tbody tr[data-admin-student]').length,
+  initialAction: document.querySelector('tbody tr[data-admin-student="GEFEN"] [data-act="admin-reset-code"]')?.textContent,
   resetCode: document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent,
 }));
 
@@ -155,7 +158,8 @@ if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAva
 if (!microphone.requested || !microphone.started || microphone.permissionError) {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
-if (!activationWorked || adminDashboard.rows !== 6 || adminDashboard.resetCode !== 'reset-smoke-code') {
+if (!activationWorked || adminDashboard.rows !== 6 || adminDashboard.initialAction !== 'קוד הפעלה'
+  || adminDashboard.resetCode !== 'reset-smoke-code') {
   throw new Error(`Activation/admin dashboard failed: ${JSON.stringify({ activationWorked, adminDashboard })}`);
 }
 if (!whatsappResetLinkConfigured) {

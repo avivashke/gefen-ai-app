@@ -8,7 +8,17 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
-      - key: PB_URL
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        sync: false
+      - key: AUTH_TOKEN_SECRET
+        sync: false
+      - key: TEACHER_WHATSAPP
         sync: false
       - key: AI_PROXY_URL
         value: https://gefen-ai.avivashke95.workers.dev
