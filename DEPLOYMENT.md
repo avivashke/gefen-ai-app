@@ -67,7 +67,7 @@ The function `netlify/functions/api.js` wraps the Express backend, so `/api/*` c
 | **ללא PocketBase** | בדפדפן או באחסון המקומי של השרת | ❌ אין הבטחת סנכרון | לא |
 | **עם PocketBase בענן** | מסד נתונים בענן (PocketBase) | ✅ לפי חשבון תלמיד | כן |
 
-כל תלמידה או תלמיד נכנסים עם שם המשתמש והסיסמה שנמסרו להם. ההתקדמות נשמרת אוטומטית בחשבון שלהם; במכשיר אחר נכנסים שוב עם אותם פרטים. חשבונות התלמידים נפרדים, ורמת האנגלית מוגדרת בקובץ `server/students.js`.
+כל תלמידה או תלמיד מפעילים את החשבון פעם אחת עם קוד אישי ובוחרים לעצמם סיסמה. ההתקדמות נשמרת אוטומטית בחשבון שלהם; במכשיר אחר נכנסים עם אותם פרטים. בקשת איפוס פותחת הודעת WhatsApp למורה. המורה מאמתת את הבקשה בדשבורד ומייצרת קוד איפוס חד־פעמי.
 
 ב-Netlify Functions אין אחסון מקומי מתמשך. יש להגדיר `PB_URL`, להגדיר את PocketBase ולהריץ פעם אחת את סקריפט יצירת חשבונות התלמידים. בלי PocketBase פעיל לא ניתן להתחבר או לסנכרן בין מכשירים.
 
@@ -116,24 +116,33 @@ export PB_URL=https://your-pocketbase-url
 PB_ADMIN_EMAIL=your-existing-superuser-email PB_ADMIN_PASSWORD=your-superuser-password node scripts/setup-pocketbase.mjs
 ```
 
-האפליקציה משתמשת באוסף `progress`, שבו כל רשומה משויכת לחשבון PocketBase המאומת. הסקריפט נועל גישה ציבורית לאוסף `profiles` מהגרסה הקודמת. לאחר מכן יש ליצור את ששת חשבונות התלמידים:
+האפליקציה משתמשת באוסף `progress`, שבו כל רשומה משויכת לחשבון PocketBase המאומת. הסקריפט נועל גישה ציבורית לאוסף `profiles` מהגרסה הקודמת ומוסיף שדות אבטחה לאוסף האימות `users`. לאחר מכן יש ליצור את ששת חשבונות התלמידים:
 
 ```bash
 PB_URL=https://your-pocketbase-url \
 PB_ADMIN_EMAIL=your-existing-superuser-email \
 PB_ADMIN_PASSWORD=your-superuser-password \
-STUDENT_PASSWORD_GEFEN='unique-password-1' \
-STUDENT_PASSWORD_BARRY='unique-password-2' \
-STUDENT_PASSWORD_SHAKED='unique-password-3' \
-STUDENT_PASSWORD_MAAYAN='unique-password-4' \
-STUDENT_PASSWORD_HADAR='unique-password-5' \
-STUDENT_PASSWORD_MIA='unique-password-6' \
 node scripts/setup-students.mjs
 ```
 
-יש לבחור שש סיסמאות שונות, באורך 8 תווים לפחות, ולהעביר אותן לתלמידים בערוץ פרטי. אין לשמור סיסמאות אמיתיות בקובץ או במאגר הקוד. הסקריפט אינו משנה סיסמה של חשבון שכבר קיים. פרטי Superuser משמשים לסקריפטים בלבד, ולא מוגדרים ב-Netlify.
+הסקריפט מייצר קוד הפעלה אקראי לכל חשבון חדש ומציג אותו פעם אחת בטרמינל. שמרי את הקודים והעבירי כל אחד לתלמיד/ה באופן פרטי. התלמידים קובעים סיסמה בת 8 תווים לפחות מתוך מסך „הגדרת סיסמה”. אם קוד אבד, אפשר להנפיק אחר דרך דשבורד המורה.
 
-יש ליצור מראש משתמש Superuser ב-PocketBase Admin UI. פרטי מנהל ה-PocketBase משמשים להרצת סקריפט ההגדרה בלבד; אין לשמור אותם במשתני הסביבה של האפליקציה.
+### משתמש אדמין ודשבורד המורה
+
+הגדרי את משתני הסביבה הבאים ב-Netlify (Site settings → Environment variables):
+
+| משתנה | תיאור |
+|--------|-------|
+| `ADMIN_USERNAME` | שם המשתמש שתבחרי לכניסת האדמין |
+| `ADMIN_PASSWORD` | סיסמת אדמין חזקה, לפחות 12 תווים |
+| `ADMIN_SESSION_SECRET` | סוד אקראי באורך 32 תווים לפחות לחתימת session |
+| `PB_ADMIN_EMAIL` | חשבון Superuser ייעודי של PocketBase, לשימוש צד־שרת בלבד |
+| `PB_ADMIN_PASSWORD` | הסיסמה של ה־Superuser הייעודי, לשימוש צד־שרת בלבד |
+| `TEACHER_WHATSAPP` | מספר המורה בפורמט בינלאומי, ספרות בלבד (למשל `9725...`) |
+
+אין להכניס את הערכים האלה לקוד או לשלוח אותם בצ׳אט. פרטי PocketBase נשארים ב־Netlify בצד השרת ואינם נשלחים לדפדפן. מומלץ ליצור Superuser נפרד לתפעול האפליקציה, ולא להשתמש בחשבון האישי שלך.
+
+לאחר הפריסה, פתחי „ניהול מורה” והתחברי עם `ADMIN_USERNAME` ו־`ADMIN_PASSWORD`. הדשבורד מציג סיכום פעילות (רמה, XP, רצף ותרגילים שהושלמו) בלי תוכן השיחות. לאחר בקשת איפוס בוואטסאפ, לחצי „קוד איפוס” והעבירי את הקוד לתלמיד/ה. הקוד תקף ל־30 דקות ונמחק אחרי שימוש.
 
 לפרטים על הגדרה ידנית, ראו [POCKETBASE_SETUP.md](./POCKETBASE_SETUP.md).
 
@@ -174,6 +183,10 @@ node scripts/setup-students.mjs
 |--------|--------|-------------|--------|
 | `AI_PROXY_URL` | כן | `https://gefen-ai.avivashke95.workers.dev` | כתובת פרוקסי ה-AI ב-Cloudflare Worker |
 | `PB_URL` | כן (לסינכרון ענן) | `https://your-pocketbase-instance` | כתובת PocketBase בענן |
+| `PB_ADMIN_EMAIL`, `PB_ADMIN_PASSWORD` | כן (לדשבורד והפעלת חשבונות) | מוגדרים ב-Netlify Secrets | חשבון Superuser ייעודי; צד־שרת בלבד |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | כן (לכניסת מורה) | בחירה אישית | פרטי כניסת האדמין |
+| `ADMIN_SESSION_SECRET` | כן (לכניסת מורה) | מחרוזת אקראית באורך 32+ | מפתח חתימת session |
+| `TEACHER_WHATSAPP` | כן (לבקשת איפוס) | קידומת בינלאומית וספרות בלבד | יעד קישור WhatsApp |
 | `ALLOWED_ORIGINS` | כן | `https://wonderful-squirrel-816721.netlify.app` | מוגדר ב-Cloudflare Worker, לא ב-Netlify |
 | `NODE_ENV` | לא | `production` | סביבת הפעלה |
 

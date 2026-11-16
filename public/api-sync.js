@@ -5,6 +5,8 @@
 (function () {
   const TOKEN_KEY = 'auth_token';
   const USER_KEY = 'auth_user';
+  const ADMIN_TOKEN_KEY = 'admin_token';
+  const ADMIN_USER_KEY = 'admin_user';
   const DEBOUNCE_MS = 2000;
 
   let authToken = localStorage.getItem(TOKEN_KEY) || '';
@@ -85,6 +87,67 @@
     });
     setSession(result.token, result.user);
     return result.user;
+  }
+
+  async function activate(username, code, password) {
+    const result = await apiRequest('/auth/activate', {
+      method: 'POST',
+      body: JSON.stringify({ username, code, password }),
+    });
+    setSession(result.token, result.user);
+    return result.user;
+  }
+
+  function adminRequest(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return fetch(`/api${path}`, { ...options, headers }).then(async (res) => {
+      const text = await res.text();
+      let body = null;
+      try {
+        body = text ? JSON.parse(text) : null;
+      } catch {
+        body = null;
+      }
+      if (!res.ok) {
+        const err = new Error((body && (body.error || body.message)) || `HTTP ${res.status}`);
+        err.status = res.status;
+        throw err;
+      }
+      return body;
+    });
+  }
+
+  async function adminLogin(username, password) {
+    const result = await adminRequest('/auth/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    });
+    localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
+    localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(result.user));
+    return result.user;
+  }
+
+  function adminLogout() {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_USER_KEY);
+  }
+
+  function adminStudents() {
+    return adminRequest('/admin/students');
+  }
+
+  function adminIssueResetCode(key) {
+    return adminRequest(`/admin/students/${encodeURIComponent(key)}/reset-code`, { method: 'POST' });
+  }
+
+  function config() {
+    return fetch('/api/config').then(async (res) => {
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+      return body;
+    });
   }
 
   function logout() {
@@ -203,6 +266,7 @@
     token: () => authToken,
     user,
     login,
+    activate,
     logout,
     load,
     save,
@@ -214,6 +278,21 @@
       return () => listeners.delete(fn);
     },
   };
+  window.adminApi = {
+    login: adminLogin,
+    logout: adminLogout,
+    isEnabled: () => Boolean(localStorage.getItem(ADMIN_TOKEN_KEY)),
+    user: () => {
+      try {
+        return JSON.parse(localStorage.getItem(ADMIN_USER_KEY) || 'null');
+      } catch {
+        return null;
+      }
+    },
+    students: adminStudents,
+    issueResetCode: adminIssueResetCode,
+  };
+  window.apiSync.config = config;
 
   window.apiInit = init;
   window.apiLoadProgress = load;

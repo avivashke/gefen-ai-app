@@ -30,11 +30,30 @@ page.on('request', (request) => {
   apiCalls.push({ path, method, body, authorization: request.headers().authorization });
 
   let response = {};
-  if (path === '/api/auth/login') {
+  if (path === '/api/config') {
+    response = { teacherWhatsApp: '972500000000' };
+  } else if (path === '/api/auth/login') {
     response = {
       token: 'smoke-test-token',
       user: { id: 'student-smoke', username: body.username, level: 'A1' },
     };
+  } else if (path === '/api/auth/activate') {
+    response = {
+      token: 'activated-smoke-token',
+      user: { id: 'student-smoke', username: body.username, level: 'A1' },
+    };
+  } else if (path === '/api/auth/admin/login') {
+    response = { token: 'admin-smoke-token', user: { username: body.username, role: 'admin' } };
+  } else if (path === '/api/admin/students') {
+    response = {
+      students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה'].map((username, index) => ({
+        username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA'][index],
+        level: 'A1', activated: true, xp: index * 10, streak: index,
+        completedExercises: index + 1, lastActive: null,
+      })),
+    };
+  } else if (path === '/api/admin/students/GEFEN/reset-code') {
+    response = { code: 'reset-smoke-code', expires_at: new Date(Date.now() + 1800000).toISOString() };
   } else if (path === '/api/progress' && method === 'GET') {
     response = { data: null, storage: 'cloud' };
   } else if (path === '/api/progress' && method === 'POST') {
@@ -50,6 +69,8 @@ page.on('request', (request) => {
 
 await page.goto(`${BASE}/#/home`, { waitUntil: 'networkidle2' });
 await page.waitForSelector('#student-username');
+await page.waitForFunction(() => document.querySelector('#whatsapp-reset-link')?.href.includes('wa.me/972500000000'));
+const whatsappResetLinkConfigured = await page.$eval('#whatsapp-reset-link', (link) => link.href.includes('wa.me/972500000000'));
 await page.select('#student-username', 'בארי');
 await page.type('#student-password', 'smoke-test-password');
 await page.click('[data-act="student-login"]');
@@ -100,6 +121,28 @@ const microphone = await page.evaluate(async () => {
   return result;
 });
 
+await page.evaluate(() => openPasswordSetup());
+await page.select('#activation-username', 'בארי');
+await page.type('#activation-code', 'activation-smoke-code');
+await page.type('#activation-password', 'new-smoke-password');
+await page.type('#activation-password-confirm', 'new-smoke-password');
+await page.click('[data-act="password-setup"]');
+await page.waitForFunction(() => window.apiSync.user()?.username === 'בארי');
+const activationWorked = apiCalls.some((call) => call.path === '/api/auth/activate' && call.method === 'POST');
+
+await page.evaluate(() => { location.hash = '#/admin'; });
+await page.waitForSelector('#admin-username');
+await page.type('#admin-username', 'teacher');
+await page.type('#admin-password', 'admin-smoke-password');
+await page.click('[data-act="admin-login"]');
+await page.waitForSelector('tbody tr[data-admin-student]');
+await page.click('[data-act="admin-reset-code"][data-key="GEFEN"]');
+await page.waitForFunction(() => document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent === 'reset-smoke-code');
+const adminDashboard = await page.evaluate(() => ({
+  rows: document.querySelectorAll('tbody tr[data-admin-student]').length,
+  resetCode: document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent,
+}));
+
 const authenticatedProgressRequest = apiCalls.find((call) => (
   call.path === '/api/progress' && call.authorization === 'Bearer smoke-test-token'
 ));
@@ -112,6 +155,12 @@ if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAva
 if (!microphone.requested || !microphone.started || microphone.permissionError) {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
+if (!activationWorked || adminDashboard.rows !== 6 || adminDashboard.resetCode !== 'reset-smoke-code') {
+  throw new Error(`Activation/admin dashboard failed: ${JSON.stringify({ activationWorked, adminDashboard })}`);
+}
+if (!whatsappResetLinkConfigured) {
+  throw new Error('WhatsApp password-reset request link was not configured');
+}
 if (!authenticatedProgressRequest) {
   throw new Error('Progress requests were not sent with the authenticated token');
 }
@@ -119,5 +168,5 @@ if (errors.length || consoleErrors.length) {
   throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors })}`);
 }
 
-console.log(JSON.stringify({ account, suggestions, microphone, apiCalls, errors, consoleErrors }, null, 2));
+console.log(JSON.stringify({ account, suggestions, microphone, activationWorked, adminDashboard, whatsappResetLinkConfigured, apiCalls, errors, consoleErrors }, null, 2));
 await browser.close();

@@ -735,6 +735,7 @@ a{color:var(--cyan)}
       <a class="nav-item" data-nav="review" href="#/review"><span class="ic">🔁</span><span>חזרה</span><span class="badge hide" id="nav-dot-review"></span></a>
       <a class="nav-item" data-nav="chat" href="#/chat"><span class="ic">💬</span><span>מאמנת AI</span></a>
       <a class="nav-item" data-nav="stats" href="#/stats"><span class="ic">📈</span><span>התקדמות</span></a>
+      <a class="nav-item" data-nav="admin" href="#/admin"><span class="ic">🛡️</span><span>ניהול מורה</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -1230,6 +1231,23 @@ function cloudPush(force){
   window.apiSync.save(S, {force:!!force});
 }
 const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה'];
+let TEACHER_WHATSAPP='';
+let ADMIN_STUDENTS=null;
+let ADMIN_RESET_CODES={};
+let ADMIN_LOADING=false;
+let ADMIN_ERROR='';
+function whatsappResetUrl(username){
+  if(!TEACHER_WHATSAPP) return '';
+  const message=`שלום, אשמח לקבל קוד לאיפוס הסיסמה באפליקציה. שם המשתמש: ${username}`;
+  return `https://wa.me/${TEACHER_WHATSAPP}?text=${encodeURIComponent(message)}`;
+}
+function refreshWhatsAppLinks(root=document){
+  root.querySelectorAll('[data-whatsapp-reset]').forEach(link=>{
+    const url=whatsappResetUrl(link.dataset.username||STUDENT_NAMES[0]);
+    link.href=url||'#';
+    link.setAttribute('aria-disabled',url?'false':'true');
+  });
+}
 function setStudentIdentity(account){
   if(!account) return;
   const name=account.username||'תלמידה';
@@ -1245,13 +1263,72 @@ function clearStudentIdentity(){
 function openStudentLogin(message=''){
   const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
   openModal(`<h3>👋 כניסה לתלמידים</h3>
-    <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שקיבלת.</p>
+    <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שלך.</p>
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
     <div class="field"><label for="student-username">שם משתמש</label><select id="student-username">${options}</select></div>
     <div class="field"><label for="student-password">סיסמה</label><input id="student-password" type="password" autocomplete="current-password"></div>
     <button class="btn primary wide" data-act="student-login">כניסה</button>
+    <button class="btn ghost wide" style="margin-top:8px" data-act="password-setup-open">הגדרת סיסמה / איפוס עם קוד</button>
+    <a class="btn ghost wide" style="margin-top:8px" id="whatsapp-reset-link" data-whatsapp-reset data-username="${escA(STUDENT_NAMES[0])}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
+    <button class="btn ghost wide" style="margin-top:8px" data-go="#/admin">כניסת מורה / אדמין</button>
     <p class="tiny muted" style="margin-top:10px">ההתקדמות והרמה נשמרות בנפרד לכל תלמיד.</p>`);
+  $('#student-username')?.addEventListener('change',event=>{
+    const link=$('#whatsapp-reset-link');
+    if(link){ link.dataset.username=event.target.value; refreshWhatsAppLinks(link.parentElement); }
+  });
+  refreshWhatsAppLinks($('#overlay'));
   setTimeout(()=>$('#student-password')?.focus(),0);
+}
+function openPasswordSetup(message=''){
+  const username=$('#activation-username')?.value||$('#student-username')?.value||STUDENT_NAMES[0];
+  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}" ${name===username?'selected':''}>${esc(name)}</option>`).join('');
+  openModal(`<h3>🔐 הגדרת סיסמה</h3>
+    <p class="small muted">הזיני את קוד ההפעלה שקיבלת מהמורה ובחרי סיסמה חדשה. לאיפוס, בקשי קוד חדש בוואטסאפ.</p>
+    ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
+    <div class="field"><label for="activation-username">שם משתמש</label><select id="activation-username">${options}</select></div>
+    <div class="field"><label for="activation-code">קוד הפעלה / איפוס</label><input id="activation-code" autocomplete="one-time-code"></div>
+    <div class="field"><label for="activation-password">סיסמה חדשה (8 תווים לפחות)</label><input id="activation-password" type="password" autocomplete="new-password"></div>
+    <div class="field"><label for="activation-password-confirm">אימות סיסמה</label><input id="activation-password-confirm" type="password" autocomplete="new-password"></div>
+    <button class="btn primary wide" data-act="password-setup">שמירת הסיסמה</button>
+    <a class="btn ghost wide" style="margin-top:8px" data-whatsapp-reset data-username="${escA(username)}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
+    <button class="btn ghost wide" style="margin-top:8px" data-act="student-login-open">חזרה לכניסה</button>`);
+  $('#activation-username')?.addEventListener('change',event=>{
+    const link=$('#overlay [data-whatsapp-reset]');
+    if(link){ link.dataset.username=event.target.value; refreshWhatsAppLinks($('#overlay')); }
+  });
+  refreshWhatsAppLinks($('#overlay'));
+}
+async function loadStudentAccount(account){
+  S=freshState();
+  loadState();
+  S.name=account.username;
+  S.settings.level=account.level||'A1';
+  setStudentIdentity(account);
+  try{
+    const result=await window.apiSync.load();
+    if(!result.data){ S.updated_at=new Date().toISOString(); saveNow(); await window.apiSync.flush(); }
+  }catch(e){
+    console.warn('[sync] progress load after login failed:',e.message);
+    updateSyncBadge('error');
+  }
+}
+async function submitPasswordSetup(){
+  const username=$('#activation-username')?.value;
+  const code=$('#activation-code')?.value?.trim();
+  const password=$('#activation-password')?.value||'';
+  const confirmation=$('#activation-password-confirm')?.value||'';
+  if(password.length<8){ openPasswordSetup('הסיסמה חייבת להכיל 8 תווים לפחות.'); return; }
+  if(password!==confirmation){ openPasswordSetup('הסיסמאות אינן זהות.'); return; }
+  try{
+    toast('שומרת סיסמה...');
+    const account=await window.apiSync.activate(username,code,password);
+    await loadStudentAccount(account);
+    closeModal();
+    render(); updateHeader();
+    toast(`הסיסמה נשמרה. ברוכה הבאה, ${account.username} ✓`);
+  }catch(e){
+    openPasswordSetup(e.status===401?'הקוד שגוי, נוצל או שפג תוקפו. בקשי קוד חדש מהמורה.':'לא הצלחתי לשמור את הסיסמה. בדקי חיבור ונסי שוב.');
+  }
 }
 async function submitStudentLogin(){
   const username=$('#student-username')?.value;
@@ -1260,18 +1337,7 @@ async function submitStudentLogin(){
   try{
     toast('מתחברת...');
     const account=await window.apiSync.login(username,password);
-    S=freshState();
-    loadState();
-    S.name=account.username;
-    S.settings.level=account.level||'A1';
-    setStudentIdentity(account);
-    try{
-      const result=await window.apiSync.load();
-      if(!result.data){ S.updated_at=new Date().toISOString(); saveNow(); await window.apiSync.flush(); }
-    }catch(e){
-      console.warn('[sync] progress load after login failed:',e.message);
-      updateSyncBadge('error');
-    }
+    await loadStudentAccount(account);
     closeModal();
     render();
     updateHeader();
@@ -1329,7 +1395,7 @@ function initCloudSync(){
       S=freshState();
       clearStudentIdentity();
       render();
-      openStudentLogin();
+      if(parts()[0]!=='admin') openStudentLogin();
     }
   });
 
@@ -2519,6 +2585,86 @@ function pageStats(){
   </div>`;
 }
 
+function pageAdmin(){
+  if(!window.adminApi?.isEnabled()){
+    return `<div class="page">
+      <div class="page-head"><h1 class="page-title">🛡️ ניהול מורה</h1><p class="page-sub">כניסה מאובטחת לצפייה בהתקדמות וליצירת קודי איפוס.</p></div>
+      <div class="card" style="max-width:480px">
+        ${ADMIN_ERROR?`<div class="help">${esc(ADMIN_ERROR)}</div>`:''}
+        <div class="field"><label for="admin-username">שם משתמש אדמין</label><input id="admin-username" autocomplete="username"></div>
+        <div class="field"><label for="admin-password">סיסמת אדמין</label><input id="admin-password" type="password" autocomplete="current-password"></div>
+        <button class="btn primary wide" data-act="admin-login">כניסה ללוח</button>
+        <p class="tiny muted" style="margin-top:10px">חשבון האדמין מוגדר כסוד בשרת ואינו אחד מחשבונות התלמידים.</p>
+        <button class="btn ghost wide" style="margin-top:8px" data-go="#/home">חזרה לאפליקציה</button>
+      </div>
+    </div>`;
+  }
+
+  const rows=(ADMIN_STUDENTS||[]).map(student=>`<tr data-admin-student="${escA(student.key)}">
+    <td><b>${esc(student.username)}</b><div class="tiny muted">${student.activated?'חשבון פעיל':'ממתין להפעלה'}</div></td>
+    <td>${esc(student.level)}</td>
+    <td>${student.missing?'—':student.xp}</td>
+    <td>${student.missing?'—':student.streak}</td>
+    <td>${student.missing?'אין חשבון':`${student.completedExercises} תרגילים`}</td>
+    <td>${student.lastActive?new Date(student.lastActive).toLocaleString('he-IL'):'טרם התחיל/ה'}</td>
+    <td>${student.missing?'—':`<button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">קוד איפוס</button>
+      ${ADMIN_RESET_CODES[student.key]?`<div class="tiny" style="margin-top:6px;direction:ltr"><code>${esc(ADMIN_RESET_CODES[student.key])}</code> <button class="btn xs ghost" data-copy="${escA(ADMIN_RESET_CODES[student.key])}">העתקה</button></div>`:''}`}</td>
+  </tr>`).join('');
+  return `<div class="page">
+    <div class="page-head"><div><h1 class="page-title">🛡️ דשבורד תלמידים</h1><p class="page-sub">סיכום התקדמות בלבד; שיחות פרטיות אינן מוצגות.</p></div>
+      <div class="row"><button class="btn sm ghost" data-act="admin-refresh">רענון</button><button class="btn sm danger" data-act="admin-logout">יציאה</button></div>
+    </div>
+    ${ADMIN_ERROR?`<div class="help section">${esc(ADMIN_ERROR)}</div>`:''}
+    <div class="card section">
+      <p class="small muted">בקשת איפוס מגיעה אלייך בוואטסאפ. לאחר אימות הבקשה, לחצי על „קוד איפוס” והעבירי את הקוד לתלמיד/ה באופן פרטי. הקוד תקף ל־30 דקות.</p>
+      ${ADMIN_LOADING&&!ADMIN_STUDENTS?'<p class="small muted">טוען נתוני תלמידים…</p>':''}
+      ${ADMIN_STUDENTS?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px;text-align:start">
+        <thead><tr>${['תלמיד/ה','רמה','XP','רצף ימים','תרגילים שהושלמו','פעילות אחרונה','איפוס סיסמה'].map(label=>`<th style="padding:10px;border-bottom:1px solid var(--line2);text-align:start">${label}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`:''}
+    </div>
+  </div>`;
+}
+async function loadAdminDashboard(){
+  if(ADMIN_LOADING||!window.adminApi?.isEnabled()) return;
+  ADMIN_LOADING=true; ADMIN_ERROR='';
+  try{
+    const result=await window.adminApi.students();
+    ADMIN_STUDENTS=result.students||[];
+  }catch(error){
+    ADMIN_ERROR=error.status===401?'פג תוקף החיבור. התחברי שוב.':`טעינת הנתונים נכשלה: ${error.message}`;
+    if(error.status===401) window.adminApi.logout();
+  }finally{
+    ADMIN_LOADING=false;
+    if(parts()[0]==='admin') render();
+  }
+}
+async function submitAdminLogin(){
+  const username=$('#admin-username')?.value?.trim();
+  const password=$('#admin-password')?.value||'';
+  if(!username||!password){ ADMIN_ERROR='יש להזין שם משתמש וסיסמה.'; render(); return; }
+  try{
+    await window.adminApi.login(username,password);
+    ADMIN_ERROR=''; ADMIN_STUDENTS=null; ADMIN_RESET_CODES={};
+    render();
+    loadAdminDashboard();
+  }catch(error){
+    ADMIN_ERROR=error.status===503?error.message:'שם המשתמש או הסיסמה שגויים.';
+    render();
+  }
+}
+async function issueStudentResetCode(key){
+  try{
+    const result=await window.adminApi.issueResetCode(key);
+    ADMIN_RESET_CODES[key]=result.code;
+    toast('קוד איפוס נוצר. העבירי אותו לתלמיד/ה בפרטי.');
+    render();
+  }catch(error){
+    ADMIN_ERROR=`יצירת קוד האיפוס נכשלה: ${error.message}`;
+    render();
+  }
+}
+
 /* ================= exam ================= */
 let EXAM=null, EXAM_RESULT=null, examTimer=null;
 function startExam(){
@@ -2772,7 +2918,7 @@ function parts(){ return location.hash.replace(/^#\/?/,'').split('/').filter(Boo
 function go(hash){ if(!hash) return; closeModal(); if(location.hash===hash){ render(); } else location.hash=hash; }
 function updateNav(){
   const p=parts(), root=p[0]||'home';
-  const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats'};
+  const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
   $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===(map[root]||'home')));
 }
 function render(){
@@ -2789,6 +2935,7 @@ function render(){
     else if(root==='speak') html=pageSpeak();
     else if(root==='chat') html=pageChat(p[1]||'');
     else if(root==='stats') html=pageStats();
+    else if(root==='admin') html=pageAdmin();
     else if(root==='exam') html=pageExam();
     else if(root==='import'){ handleImportRoute(p.slice(1).join('/')); return; }
     else html=pageHome();
@@ -2804,7 +2951,8 @@ function render(){
   if(root==='speak') {} // rendered directly
   if(root==='exam') mountExam();
   if(root==='chat' && typeof mountChat==='function') mountChat();
-  S.last.route=location.hash||'#/home'; save();
+  if(root==='admin'&&window.adminApi?.isEnabled()&&!ADMIN_STUDENTS) loadAdminDashboard();
+  if(root!=='admin'){ S.last.route=location.hash||'#/home'; save(); }
   window.scrollTo({top:0,behavior:'instant'});
 }
 function handleImportRoute(data){
@@ -2825,6 +2973,8 @@ let PENDING_IMPORT=null;
 
 /* ================= global events ================= */
 function handleGlobalClick(e){
+  const resetLink=e.target.closest('[data-whatsapp-reset][aria-disabled="true"]');
+  if(resetLink){ e.preventDefault(); toast('קישור הוואטסאפ עדיין לא הוגדר. פני למורה ישירות.'); return; }
   const t=e.target.closest('[data-say]');
   if(t){ speak(t.dataset.say); return; }
   const nav=e.target.closest('[data-nav]');
@@ -2871,7 +3021,14 @@ function handleGlobalClick(e){
   switch(a){
     case 'student-login': submitStudentLogin(); break;
     case 'student-login-open': openStudentLogin(); break;
+    case 'password-setup-open': openPasswordSetup(); break;
+    case 'password-setup': submitPasswordSetup(); break;
     case 'student-logout': logoutStudent(); break;
+    case 'admin-login': submitAdminLogin(); break;
+    case 'admin-refresh': ADMIN_STUDENTS=null; render(); loadAdminDashboard(); break;
+    case 'admin-reset-code': issueStudentResetCode(act.dataset.key); break;
+    case 'admin-logout':
+      window.adminApi.logout(); ADMIN_STUDENTS=null; ADMIN_RESET_CODES={}; ADMIN_ERROR=''; render(); break;
     case 'check': checkCurrent(); break;
     case 'hint': showHint(); break;
     case 'next':
@@ -2921,6 +3078,12 @@ function openUnitRules(u){
     <button class="btn primary wide" style="margin-top:12px" data-close>חזרה לתרגיל</button>`);
 }
 function boot(){
+  if(window.apiSync?.config){
+    window.apiSync.config().then(config=>{
+      TEACHER_WHATSAPP=config.teacherWhatsApp||'';
+      refreshWhatsAppLinks();
+    }).catch(error=>console.warn('[config] could not load public app config:',error.message));
+  }
   loadState();
   Object.keys(S.words).forEach(k=>{ if(S.words[k]) S.words[k].key=k; });
   hydrateExtraWords();

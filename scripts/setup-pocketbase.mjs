@@ -14,6 +14,7 @@ async function main() {
   // Authenticate as admin (superuser)
   await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   console.log('[setup] Admin authenticated');
+  const usersCollection = await pb.collections.getOne('users');
 
   // ------------------------------------------------------------------
   // 1. Create 'progress' collection if it doesn't exist
@@ -28,7 +29,19 @@ async function main() {
   }
   if (progressCollection) {
     console.log(`[setup] Collection '${collectionName}' already exists (id: ${progressCollection.id})`);
+    const userField = progressCollection.fields.find((field) => field.name === 'user');
+    if (!userField || userField.type !== 'relation') {
+      throw new Error(`Collection '${collectionName}' needs a relation field named 'user'`);
+    }
+    const fields = progressCollection.fields.map((field) => field.name === 'user'
+      ? {
+        ...field,
+        collectionId: usersCollection.id,
+        options: { ...field.options, collectionId: usersCollection.id },
+      }
+      : field);
     await pb.collections.update(progressCollection.id, {
+      fields,
       listRule: `@request.auth.id != "" && user = @request.auth.id`,
       viewRule: `@request.auth.id != "" && user = @request.auth.id`,
       createRule: `@request.auth.id != "" && user = @request.auth.id`,
@@ -51,9 +64,9 @@ async function main() {
           name: 'user',
           type: 'relation',
           required: true,
-          collectionId: '_pb_users_auth_', // PocketBase users collection
+          collectionId: usersCollection.id,
           options: {
-            collectionId: '_pb_users_auth_',
+            collectionId: usersCollection.id,
             maxSelect: 1,
             cascadeDelete: false,
           },
@@ -93,6 +106,24 @@ async function main() {
     console.log('[setup] Locked public access to legacy profiles');
   } else {
     console.log('[setup] No legacy profiles collection to lock');
+  }
+
+  const userFields = [
+    { name: 'activation_hash', type: 'text', required: false },
+    { name: 'activated', type: 'bool', required: false },
+    { name: 'reset_hash', type: 'text', required: false },
+    { name: 'reset_expires', type: 'date', required: false },
+  ];
+  const missingUserFields = userFields.filter(
+    (field) => !usersCollection.fields.some((existing) => existing.name === field.name),
+  );
+  if (missingUserFields.length) {
+    await pb.collections.update(usersCollection.id, {
+      fields: [...usersCollection.fields, ...missingUserFields],
+    });
+    console.log(`[setup] Added account security fields to users: ${missingUserFields.map((field) => field.name).join(', ')}`);
+  } else {
+    console.log('[setup] Student account security fields already exist');
   }
 
   console.log('[setup] Done. Configure PB_URL in the app server to enable student sync.');

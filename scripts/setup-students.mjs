@@ -1,4 +1,5 @@
 import PocketBase from 'pocketbase';
+import crypto from 'node:crypto';
 import { STUDENTS } from '../server/students.js';
 
 const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8087';
@@ -17,31 +18,47 @@ async function main() {
     const result = await pb.collection('users').getList(1, 1, {
       filter: `email = "${student.email}"`,
     });
-    if (result.items.length) {
-      console.log(`[students] ${student.username}: account already exists; password left unchanged`);
+    const record = result.items[0] || null;
+    if (record?.activated) {
+      console.log(`[students] ${student.username}: already activated; account left unchanged`);
       continue;
     }
 
-    const password = process.env[`STUDENT_PASSWORD_${student.key}`];
-    if (!password || password.length < 8) {
-      throw new Error(`Set a unique STUDENT_PASSWORD_${student.key} with at least 8 characters`);
+    if (record?.activation_hash) {
+      console.log(`[students] ${student.username}: activation already pending; use the previously issued code`);
+      continue;
     }
-    pending.push({ student, password });
-  }
 
-  const passwords = pending.map(({ password }) => password);
-  if (new Set(passwords).size !== passwords.length) {
-    throw new Error('Each new student account must have a different password');
-  }
-
-  for (const { student, password } of pending) {
-    await pb.collection('users').create({
-      email: student.email,
-      password,
-      passwordConfirm: password,
-      emailVisibility: false,
+    pending.push({
+      student,
+      record,
+      code: crypto.randomBytes(8).toString('hex'),
+      temporaryPassword: crypto.randomBytes(32).toString('base64url'),
     });
-    console.log(`[students] Created account for ${student.username}`);
+  }
+
+  const activationCodes = [];
+  for (const { student, record, code, temporaryPassword } of pending) {
+    const fields = {
+      password: temporaryPassword,
+      passwordConfirm: temporaryPassword,
+      emailVisibility: false,
+      activated: false,
+      activation_hash: crypto.createHash('sha256').update(code).digest('hex'),
+      reset_hash: '',
+      reset_expires: '',
+    };
+    if (record) {
+      await pb.collection('users').update(record.id, fields);
+    } else {
+      await pb.collection('users').create({ email: student.email, ...fields });
+    }
+    activationCodes.push({ username: student.username, code });
+  }
+
+  if (activationCodes.length) {
+    console.log('[students] Save these one-time activation codes and deliver each privately:');
+    activationCodes.forEach(({ username, code }) => console.log(`${username}: ${code}`));
   }
 }
 

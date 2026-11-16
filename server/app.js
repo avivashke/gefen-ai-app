@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { studentByEmail, studentByUsername } from './students.js';
+import { STUDENTS, studentByEmail, studentByUsername } from './students.js';
 
 // Support both ESM (local dev) and CJS (Netlify Functions)
 const isESM = typeof import.meta !== 'undefined' && import.meta.url;
@@ -110,13 +110,65 @@ export async function checkPocketBase() {
   return pbReachable;
 }
 
+function secureEqual(left, right) {
+  const a = Buffer.from(String(left || ''));
+  const b = Buffer.from(String(right || ''));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function hashOneTimeCode(code) {
+  return crypto.createHash('sha256').update(String(code)).digest('hex');
+}
+
+function signAdminToken() {
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  const payload = Buffer.from(JSON.stringify({
+    id: 'teacher-admin',
+    role: 'admin',
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
+  })).toString('base64url');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  return `${payload}.${sig}.admin`;
+}
+
+function adminTokenIsValid(authorization) {
+  const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
+  const [payload, signature, marker] = String(token).split('.');
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (!secret || marker !== 'admin' || !payload || !signature) return false;
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  if (!secureEqual(signature, expected)) return false;
+  try {
+    const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    return claims.id === 'teacher-admin'
+      && claims.role === 'admin'
+      && claims.exp > Math.floor(Date.now() / 1000);
+  } catch {
+    return false;
+  }
+}
+
+async function authenticatedAdminPbClient() {
+  if (!adminReady && !await connectAdmin()) {
+    throw Object.assign(new Error('שירות ניהול PocketBase לא הוגדר או לא זמין'), { status: 503 });
+  }
+  return getAdminClient();
+}
+
+async function getStudentRecord(client, student) {
+  const page = await client.collection('users').getList(1, 1, {
+    filter: `email = "${filterValue(student.email)}"`,
+  });
+  return page.items[0] || null;
+}
+
 /** Resolve the caller's own id from a bearer token without trusting client state. */
 export async function callerId(authorization) {
   if (!authorization || !authorization.startsWith('Bearer ')) return null;
   const token = authorization.slice(7);
   const claims = decodeClaims(token);
   if (!claims) return null;
-  if (claims.type === 'admin') return null;
+  if (claims.type === 'admin' || claims.role === 'admin') return null;
   if (claims.id) return claims.id;
 
   const client = await newPbClient();
@@ -345,6 +397,7 @@ export async function handleConfig(req, res) {
   res.json({
     pocketbaseUrl: PB_URL,
     storage: reachable ? 'cloud' : 'local',
+    teacherWhatsApp: String(process.env.TEACHER_WHATSAPP || '').replace(/\D/g, ''),
     ai: {
       enabled: AI_TARGET.kind !== 'none' && AI_TARGET.kind !== 'invalid',
       kind: AI_TARGET.kind,
@@ -377,33 +430,7 @@ async function localLogin(email, password) {
 }
 
 export async function handleSignup(req, res) {
-  const { email, password } = req.body || {};
-  if (!email || !password) return fail(res, 400, 'נדרשים אימייל וסיסמה');
-  if (!EMAIL_RE.test(String(email))) return fail(res, 400, 'כתובת אימייל לא תקינה');
-  if (String(password).length < 8) return fail(res, 400, 'הסיסמה חייבת להכיל 8 תווים לפחות');
-
-  const reachable = await checkPocketBase();
-  if (!reachable) {
-    try {
-      const result = await localSignup(email, password);
-      return res.status(201).json(result);
-    } catch (e) {
-      return fail(res, e.status || 500, e.message);
-    }
-  }
-
-  const client = await newPbClient();
-  try {
-    const created = await client.collection('users').create({
-      email: String(email).trim().toLowerCase(),
-      password,
-      passwordConfirm: password,
-    });
-    const auth = await client.collection('users').authWithPassword(created.email, password);
-    res.status(201).json({ token: auth.token, user: { id: auth.record.id, email: auth.record.email } });
-  } catch (e) {
-    fail(res, 400, e?.message || 'יצירת המשתמש נכשלה');
-  }
+  return fail(res, 403, 'יצירת חשבונות פתוחה אינה זמינה');
 }
 
 export async function handleLogin(req, res) {
@@ -412,7 +439,7 @@ export async function handleLogin(req, res) {
   if (!loginValue || !password) return fail(res, 400, 'נדרשים שם משתמש וסיסמה');
 
   const student = studentByUsername(loginValue);
-  const loginEmail = student?.email || (loginValue.includes('@') ? loginValue.toLowerCase() : '');
+  const loginEmail = student?.email || '';
   if (!loginEmail) return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
 
   const reachable = await checkPocketBase();
@@ -432,6 +459,7 @@ export async function handleLogin(req, res) {
   const client = await newPbClient();
   try {
     const auth = await client.collection('users').authWithPassword(loginEmail, password);
+    if (auth.record.activated === false) return fail(res, 403, 'יש להגדיר סיסמה חדשה באמצעות קוד ההפעלה');
     const account = student || studentByEmail(auth.record.email);
     res.json({
       token: auth.token,
@@ -444,6 +472,126 @@ export async function handleLogin(req, res) {
     });
   } catch {
     fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
+  }
+}
+
+export async function handleActivateStudent(req, res) {
+  const { username, code, password } = req.body || {};
+  const student = studentByUsername(username);
+  if (!student || !code || !password) return fail(res, 400, 'יש לבחור תלמיד, להזין קוד וסיסמה חדשה');
+  if (String(password).length < 8) return fail(res, 400, 'הסיסמה חייבת להכיל 8 תווים לפחות');
+  if (String(code).length < 8 || String(code).length > 64) return fail(res, 400, 'קוד ההפעלה אינו תקין');
+
+  try {
+    const adminClient = await authenticatedAdminPbClient();
+    const record = await getStudentRecord(adminClient, student);
+    if (!record) return fail(res, 404, 'חשבון התלמיד לא נמצא');
+
+    const isFirstActivation = !record.activated;
+    const codeHash = hashOneTimeCode(code.trim());
+    const matchesActivationCode = isFirstActivation
+      && record.activation_hash
+      && secureEqual(record.activation_hash, codeHash);
+    const expiresAt = Date.parse(record.reset_expires || '');
+    const matchesResetCode = record.reset_hash
+      && Number.isFinite(expiresAt)
+      && expiresAt >= Date.now()
+      && secureEqual(record.reset_hash, codeHash);
+    if (!matchesActivationCode && !matchesResetCode) {
+      return fail(res, 401, 'קוד ההפעלה או האיפוס שגוי, נוצל או שפג תוקפו');
+    }
+
+    await adminClient.collection('users').update(record.id, {
+      password: String(password),
+      passwordConfirm: String(password),
+      activated: true,
+      activation_hash: '',
+      reset_hash: '',
+      reset_expires: '',
+    });
+
+    const client = await newPbClient();
+    const auth = await client.collection('users').authWithPassword(student.email, String(password));
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      token: auth.token,
+      user: { id: auth.record.id, email: auth.record.email, username: student.username, level: student.level },
+    });
+  } catch (e) {
+    fail(res, e.status || 500, `הגדרת הסיסמה נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleAdminLogin(req, res) {
+  const { username, password } = req.body || {};
+  const configuredUsername = process.env.ADMIN_USERNAME;
+  const configuredPassword = process.env.ADMIN_PASSWORD;
+  const sessionSecret = process.env.ADMIN_SESSION_SECRET;
+  if (!configuredUsername || !configuredPassword || !sessionSecret || sessionSecret.length < 32) {
+    return fail(res, 503, 'חשבון האדמין עדיין לא הוגדר בשרת');
+  }
+  if (!secureEqual(username, configuredUsername) || !secureEqual(password, configuredPassword)) {
+    return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
+  }
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ token: signAdminToken(), user: { username: configuredUsername, role: 'admin' } });
+}
+
+export async function handleAdminStudents(req, res) {
+  if (!adminTokenIsValid(req.headers.authorization)) return fail(res, 401, 'נדרשת כניסת אדמין');
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    const client = await authenticatedAdminPbClient();
+    const students = [];
+    for (const student of STUDENTS) {
+      const user = await getStudentRecord(client, student);
+      if (!user) {
+        students.push({ username: student.username, key: student.key, level: student.level, missing: true });
+        continue;
+      }
+      const progressPage = await client.collection('progress').getList(1, 1, {
+        filter: `user = "${filterValue(user.id)}"`,
+        sort: '-updated',
+      });
+      const record = progressPage.items[0];
+      const data = record ? parseJsonMaybe(record.data) : null;
+      const prog = data?.prog && typeof data.prog === 'object' ? data.prog : {};
+      students.push({
+        username: student.username,
+        key: student.key,
+        level: student.level,
+        activated: Boolean(user.activated),
+        xp: Number(data?.xp) || 0,
+        streak: Number(data?.streak) || 0,
+        completedExercises: Object.values(prog).filter((item) => item?.done).length,
+        lastActive: record?.updated || null,
+      });
+    }
+    res.json({ students });
+  } catch (e) {
+    fail(res, e.status || 500, `טעינת נתוני התלמידים נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleAdminResetCode(req, res) {
+  if (!adminTokenIsValid(req.headers.authorization)) return fail(res, 401, 'נדרשת כניסת אדמין');
+  res.setHeader('Cache-Control', 'no-store');
+  const student = STUDENTS.find((candidate) => candidate.key === req.params.key);
+  if (!student) return fail(res, 404, 'תלמיד לא נמצא');
+  try {
+    const client = await authenticatedAdminPbClient();
+    const record = await getStudentRecord(client, student);
+    if (!record) return fail(res, 404, 'חשבון התלמיד לא נמצא');
+
+    const code = crypto.randomBytes(8).toString('hex');
+    const expires = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    await client.collection('users').update(record.id, {
+      reset_hash: hashOneTimeCode(code),
+      reset_expires: expires,
+    });
+    res.json({ code, expires_at: expires });
+  } catch (e) {
+    fail(res, e.status || 500, `יצירת קוד איפוס נכשלה: ${e.message}`);
   }
 }
 
@@ -628,6 +776,10 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.get('/api/config', handleConfig);
   app.post('/api/auth/signup', handleSignup);
   app.post('/api/auth/login', handleLogin);
+  app.post('/api/auth/activate', handleActivateStudent);
+  app.post('/api/auth/admin/login', handleAdminLogin);
+  app.get('/api/admin/students', handleAdminStudents);
+  app.post('/api/admin/students/:key/reset-code', handleAdminResetCode);
   app.get('/api/auth/me', handleMe);
   app.post('/api/auth/logout', (req, res) => res.json({ ok: true }));
   app.get('/api/progress', handleGetProgress);
