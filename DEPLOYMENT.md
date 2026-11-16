@@ -15,12 +15,20 @@ Set these server-side environment variables in Netlify before deploying:
 | `ADMIN_PASSWORD` | Yes | Strong teacher dashboard password |
 | `ADMIN_SESSION_SECRET` | Yes | Random secret of at least 32 characters for admin sessions |
 | `AUTH_TOKEN_SECRET` | Yes | Independent random secret of at least 32 characters for student sessions |
+| `NETLIFY_SITE_ID` | Yes | Netlify Project ID used to access the Blobs store |
+| `NETLIFY_BLOBS_TOKEN` | Yes | Netlify personal access token used only by the server function to access Blobs |
 | `TEACHER_WHATSAPP` | Recommended | Teacher's international phone number, digits only |
 | `AI_PROXY_URL` | Optional | OpenAI-compatible AI proxy URL; required for AI chat and personal curriculum generation |
 | `NODE_ENV` | Optional | Set to `production` |
 
 Generate the two secrets separately, for example with `openssl rand -hex 32`.
 Do not use the same value for both, and never commit or share the values.
+
+For `NETLIFY_SITE_ID`, copy the **Project ID** from Netlify's project
+configuration. Create a personal access token in **User settings → Applications
+→ Personal access tokens**, then add it as `NETLIFY_BLOBS_TOKEN` in the site's
+environment variables with Functions scope. Keep the token secret; never put it
+in frontend code or send it in chat.
 
 After deploying, open **Teacher Admin** and sign in with `ADMIN_USERNAME` and
 `ADMIN_PASSWORD`. Use **Activation code** in each learner's row and deliver the

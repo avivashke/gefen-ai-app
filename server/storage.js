@@ -32,8 +32,19 @@ function writeLocalFile(file, data) {
 async function getBlobStore() {
   if (!NETLIFY_RUNTIME) return null;
   if (!blobStorePromise) {
+    const siteID = process.env.NETLIFY_SITE_ID?.trim();
+    const token = (process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_AUTH_TOKEN || '').trim();
+    const options = siteID && token ? { siteID, token } : undefined;
     blobStorePromise = import('@netlify/blobs')
-      .then(({ getStore }) => getStore('gefen-coach-data'));
+      .then(({ getStore }) => getStore('gefen-coach-data', options))
+      .catch((error) => {
+        if (error.message?.includes('environment has not been configured to use Netlify Blobs')) {
+          throw new Error(
+            'Netlify Blobs credentials are missing. Configure NETLIFY_SITE_ID and NETLIFY_BLOBS_TOKEN for this site.',
+          );
+        }
+        throw error;
+      });
   }
   return blobStorePromise;
 }
