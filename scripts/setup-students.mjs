@@ -12,7 +12,7 @@ async function main() {
     throw new Error('Set PB_ADMIN_EMAIL and PB_ADMIN_PASSWORD to an existing PocketBase superuser');
   }
 
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   const pending = [];
   for (const student of STUDENTS) {
     const result = await pb.collection('users').getList(1, 1, {

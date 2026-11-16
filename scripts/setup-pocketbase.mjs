@@ -12,7 +12,7 @@ async function main() {
   console.log(`[setup] Connecting to PocketBase at ${PB_URL}...`);
 
   // Authenticate as admin (superuser)
-  await pb.admins.authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
+  await pb.collection('_superusers').authWithPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
   console.log('[setup] Admin authenticated');
   const usersCollection = await pb.collections.getOne('users');
 

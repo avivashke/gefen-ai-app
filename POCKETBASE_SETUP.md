@@ -12,17 +12,17 @@ not already exist, with password authentication enabled. Then run:
 
 ```bash
 PB_URL=https://your-pocketbase-url \
-PB_ADMIN_EMAIL=your-admin-email \
-PB_ADMIN_PASSWORD=your-admin-password \
+PB_ADMIN_EMAIL=your-superuser-email \
+PB_ADMIN_PASSWORD=your-superuser-password \
 node scripts/setup-pocketbase.mjs
 ```
 
 The script creates or preserves the `progress` collection with a `user`
-relation to the `users` auth collection, a JSON `data` field, and
-an `updated` date field. Its API rules restrict records to their authenticated
-owner. It also locks all API access to the legacy public `profiles` collection,
-if that collection exists. The existing `users` auth collection must also be
-present; the script adds private activation and password-reset fields to it.
+relation to the `users` auth collection, a JSON `data` field, and an `updated`
+date field. Its API rules restrict records to their authenticated owner. It
+also locks all API access to the legacy public `profiles` collection, if that
+collection exists, and adds private activation and password-reset fields to
+the `users` collection.
 
 ## Create student accounts
 
@@ -30,8 +30,8 @@ Run the setup script with the same PocketBase URL and Superuser credentials:
 
 ```bash
 PB_URL=https://your-pocketbase-url \
-PB_ADMIN_EMAIL=your-admin-email \
-PB_ADMIN_PASSWORD=your-admin-password \
+PB_ADMIN_EMAIL=your-superuser-email \
+PB_ADMIN_PASSWORD=your-superuser-password \
 node scripts/setup-students.mjs
 ```
 
