@@ -37,6 +37,13 @@ characters. After a password-reset request is verified, use **Reset code**;
 reset codes expire after 30 minutes. Progress is stored separately for each
 learner and syncs across devices using the same account.
 
+The admin dashboard shows learner-level progress cards, including exercise
+completion, accuracy, XP, streaks, vocabulary mastery, and unit progress.
+**Enter account** creates a one-hour, student-scoped session for an activated
+learner. Actions taken in that session are saved as the learner; a persistent
+banner identifies the session and provides a return to admin. The admin
+dashboard and password are not exposed to the learner session.
+
 In the admin dashboard, use **Edit AI curriculum** on a learner's row to
 generate a complete four-unit course from a teacher prompt. Include the
 learner's CEFR level and requested topics. Before replacing an existing

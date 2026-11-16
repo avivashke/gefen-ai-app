@@ -7,9 +7,19 @@
   const USER_KEY = 'auth_user';
   const ADMIN_TOKEN_KEY = 'admin_token';
   const ADMIN_USER_KEY = 'admin_user';
+  const ADMIN_IMPERSONATION_KEY = 'admin_impersonation_session';
   const DEBOUNCE_MS = 2000;
 
-  let authToken = localStorage.getItem(TOKEN_KEY) || '';
+  function readImpersonationSession() {
+    try {
+      return JSON.parse(sessionStorage.getItem(ADMIN_IMPERSONATION_KEY) || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  let impersonationSession = readImpersonationSession();
+  let authToken = impersonationSession?.token || localStorage.getItem(TOKEN_KEY) || '';
   let syncEnabled = Boolean(authToken);
   let storageMode = 'local';
   let syncTimer = null;
@@ -51,6 +61,7 @@
   }
 
   function user() {
+    if (impersonationSession) return impersonationSession.user || null;
     try {
       return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
     } catch {
@@ -69,6 +80,18 @@
       localStorage.removeItem(USER_KEY);
     }
     emit('session', { user: account || user(), syncEnabled });
+  }
+
+  function finishAdminImpersonation() {
+    if (!impersonationSession) return null;
+    const previous = impersonationSession.previous || {};
+    sessionStorage.removeItem(ADMIN_IMPERSONATION_KEY);
+    impersonationSession = null;
+    pending = null;
+    clearTimeout(syncTimer);
+    clearTimeout(retryTimer);
+    setSession(previous.token || '', previous.user || null);
+    return previous.user || null;
   }
 
   async function load() {
@@ -92,6 +115,10 @@
       body: JSON.stringify({ username, password }),
     });
     storageMode = result.storage || storageMode;
+    if (impersonationSession) {
+      sessionStorage.removeItem(ADMIN_IMPERSONATION_KEY);
+      impersonationSession = null;
+    }
     setSession(result.token, result.user);
     return result.user;
   }
@@ -102,6 +129,10 @@
       body: JSON.stringify({ username, code, password }),
     });
     storageMode = result.storage || storageMode;
+    if (impersonationSession) {
+      sessionStorage.removeItem(ADMIN_IMPERSONATION_KEY);
+      impersonationSession = null;
+    }
     setSession(result.token, result.user);
     return result.user;
   }
@@ -146,6 +177,41 @@
     return adminRequest('/admin/students');
   }
 
+  async function adminEnterStudent(key) {
+    if (impersonationSession) throw new Error('כבר פועלת כניסה לחשבון תלמיד');
+    if (pending) {
+      await flush();
+      if (pending) throw new Error('ההתקדמות הקודמת עדיין לא הסתנכרנה. בדקי חיבור ונסי שוב.');
+    }
+    const result = await adminRequest(`/admin/students/${encodeURIComponent(key)}/impersonate`, { method: 'POST' });
+    const previous = {
+      token: localStorage.getItem(TOKEN_KEY) || '',
+      user: user(),
+    };
+    impersonationSession = { token: result.token, user: result.user, previous };
+    sessionStorage.setItem(ADMIN_IMPERSONATION_KEY, JSON.stringify(impersonationSession));
+    authToken = result.token;
+    syncEnabled = true;
+    pending = null;
+    clearTimeout(syncTimer);
+    clearTimeout(retryTimer);
+    emit('session', { user: result.user, syncEnabled, impersonated: true });
+    return result.user;
+  }
+
+  async function adminExitStudent() {
+    if (!impersonationSession) return null;
+    if (pending) {
+      await flush();
+      if (pending) throw new Error('התקדמות התלמיד עדיין לא הסתנכרנה. התחברי לרשת ונסי שוב כדי לא לאבד שינויים.');
+    }
+    return finishAdminImpersonation();
+  }
+
+  function adminImpersonatingStudent() {
+    return impersonationSession?.user || null;
+  }
+
   function adminIssueResetCode(key) {
     return adminRequest(`/admin/students/${encodeURIComponent(key)}/reset-code`, { method: 'POST' });
   }
@@ -170,6 +236,10 @@
   }
 
   function logout() {
+    if (impersonationSession) {
+      finishAdminImpersonation();
+      return;
+    }
     setSession('', null);
     pending = null;
     clearTimeout(syncTimer);
@@ -206,8 +276,13 @@
       emit('saved', result);
     } catch (e) {
       if (e.status === 401) {
-        logout();
-        emit('unauthorized');
+        if (impersonationSession) {
+          const previousUser = finishAdminImpersonation();
+          emit('impersonation-ended', { expired: true, user: previousUser });
+        } else {
+          logout();
+          emit('unauthorized');
+        }
       } else if (e.status === 409) {
         try {
           const remote = await apiRequest('/progress');
@@ -256,8 +331,13 @@
       return { user: account };
     } catch (e) {
       if (e.status === 401) {
-        setSession('', null);
-        emit('unauthorized');
+        if (impersonationSession) {
+          const previousUser = finishAdminImpersonation();
+          emit('impersonation-ended', { expired: true, user: previousUser });
+        } else {
+          setSession('', null);
+          emit('unauthorized');
+        }
       } else {
         emit('error', e);
       }
@@ -312,6 +392,9 @@
       }
     },
     students: adminStudents,
+    enterStudent: adminEnterStudent,
+    exitStudent: adminExitStudent,
+    impersonatingStudent: adminImpersonatingStudent,
     issueResetCode: adminIssueResetCode,
     generateCurriculum: adminGenerateCurriculum,
     curriculumReports: adminCurriculumReports,

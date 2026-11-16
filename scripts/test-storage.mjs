@@ -19,9 +19,11 @@ const {
   handleAdminLogin,
   handleAdminCurriculumReports,
   handleAdminGenerateCurriculum,
+  handleAdminImpersonateStudent,
   handleAdminResetCode,
   handleAdminStudents,
   handleGetCurriculum,
+  handleMe,
   handleGetProgress,
   handleLogin,
   handleSaveProgress,
@@ -209,7 +211,17 @@ try {
 
   const secondCourseSave = await call(handleSaveProgress, {
     headers: courseHeaders,
-    body: { data: { courseId: secondCourseId, xp: 5, prog: {} }, client_updated_at: null },
+    body: {
+      data: {
+        courseId: secondCourseId,
+        xp: 5,
+        streak: 2,
+        stats: { answers: 2, correct: 1, bySkill: { grammar: { a: 2, c: 1 } } },
+        words: { ready: { box: 4, seen: 1 } },
+        prog: { [`${secondCourseId}-u1.x1`]: { done: true, seen: 1, correct: 1, wrong: 0 } },
+      },
+      client_updated_at: null,
+    },
   });
   assert.equal(secondCourseSave.statusCode, 200);
 
@@ -231,6 +243,19 @@ try {
     body: { username: 'גפן', password: 'gefen-new-password' },
   });
   assert.equal(login.statusCode, 200);
+
+  const impersonation = await call(handleAdminImpersonateStudent, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+  });
+  assert.equal(impersonation.statusCode, 200);
+  assert.equal(impersonation.body.user.impersonatedByAdmin, true);
+  const impersonatedMe = await call(handleMe, {
+    headers: { authorization: `Bearer ${impersonation.body.token}` },
+  });
+  assert.equal(impersonatedMe.statusCode, 200);
+  assert.equal(impersonatedMe.body.user.impersonatedByAdmin, true);
+  assert.equal((await resolveCaller(`Bearer ${impersonation.body.token}`)).id, 'GEFEN');
 
   const loaded = await call(handleGetProgress, {
     headers: { authorization: `Bearer ${login.body.token}` },
@@ -254,7 +279,15 @@ try {
 
   const dashboard = await call(handleAdminStudents, { headers: adminHeaders });
   assert.equal(dashboard.statusCode, 200);
-  assert.equal(dashboard.body.students.find((student) => student.key === 'GEFEN').xp, 5);
+  const gefenDashboard = dashboard.body.students.find((student) => student.key === 'GEFEN');
+  assert.equal(gefenDashboard.xp, 5);
+  assert.equal(gefenDashboard.streak, 2);
+  assert.equal(gefenDashboard.accuracy, 50);
+  assert.equal(gefenDashboard.masteredWords, 1);
+  assert.equal(gefenDashboard.completedExercises, 1);
+  assert.ok(gefenDashboard.totalExercises > gefenDashboard.completedExercises);
+  assert.equal(gefenDashboard.unitProgress.length, 4);
+  assert.equal(gefenDashboard.skills.find((skill) => skill.key === 'grammar').accuracy, 50);
   assert.equal(dashboard.body.students.find((student) => student.key === 'MIA').missing, true);
 
   console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, reset, and admin reports.');
