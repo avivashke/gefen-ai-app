@@ -1,4 +1,4 @@
-# Gefen English Coach — Deployment
+# lomdaa — Deployment
 
 ## Netlify deployment
 
@@ -16,7 +16,7 @@ Set these server-side environment variables in Netlify before deploying:
 | `ADMIN_SESSION_SECRET` | Yes | Random secret of at least 32 characters for admin sessions |
 | `AUTH_TOKEN_SECRET` | Yes | Independent random secret of at least 32 characters for student sessions |
 | `TEACHER_WHATSAPP` | Recommended | Teacher's international phone number, digits only |
-| `AI_PROXY_URL` | Optional | Cloudflare AI proxy URL |
+| `AI_PROXY_URL` | Optional | OpenAI-compatible AI proxy URL; required for AI chat and personal curriculum generation |
 | `NODE_ENV` | Optional | Set to `production` |
 
 Generate the two secrets separately, for example with `openssl rand -hex 32`.
@@ -28,6 +28,14 @@ one-time code privately. The learner chooses a password of at least eight
 characters. After a password-reset request is verified, use **Reset code**;
 reset codes expire after 30 minutes. Progress is stored separately for each
 learner and syncs across devices using the same account.
+
+In the admin dashboard, use **Edit AI curriculum** on a learner's row to
+generate a complete four-unit course from a teacher prompt. Include the
+learner's CEFR level and requested topics. Before replacing an existing
+curriculum, lomdaa archives a progress summary with unit results, strengths,
+review needs, and vocabulary mastery; private chat transcripts are not included.
+The new curriculum is loaded the next time that learner signs in, and progress
+from the previous curriculum is kept separate.
 
 The app writes to the Netlify Blobs store named `gefen-coach-data`. Each deployed
 Netlify site has its own store; the learners visiting that site share its
@@ -61,6 +69,6 @@ from Netlify's environment variables once the migration is verified.
 
 ## AI proxy
 
-If using the Cloudflare Worker for AI chat, configure `AI_PROXY_URL` and allow
-the Netlify site's origin in the Worker’s `ALLOWED_ORIGINS` setting. Student
-progress and authentication do not depend on the AI proxy.
+Configure `AI_PROXY_URL` and allow the Netlify site's origin in the AI
+provider/Worker's origin settings. Student progress and authentication do not
+depend on the AI proxy, but chat and curriculum generation do.

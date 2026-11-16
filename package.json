@@ -1,7 +1,7 @@
 {
   "name": "gefen-ai-app",
   "version": "1.0.0",
-  "description": "Gefen English Coach - Netlify Blobs student sync",
+  "description": "lomdaa - personalized English learning with Netlify Blobs student sync",
   "main": "server/index.js",
   "type": "module",
   "scripts": {

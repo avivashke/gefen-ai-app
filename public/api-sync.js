@@ -80,6 +80,12 @@
     return result;
   }
 
+  async function curriculum() {
+    const result = await apiRequest('/curriculum');
+    emit('curriculum', result);
+    return result;
+  }
+
   async function login(username, password) {
     const result = await apiRequest('/auth/login', {
       method: 'POST',
@@ -142,6 +148,17 @@
 
   function adminIssueResetCode(key) {
     return adminRequest(`/admin/students/${encodeURIComponent(key)}/reset-code`, { method: 'POST' });
+  }
+
+  function adminGenerateCurriculum(key, prompt) {
+    return adminRequest(`/admin/students/${encodeURIComponent(key)}/curriculum`, {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    });
+  }
+
+  function adminCurriculumReports(key) {
+    return adminRequest(`/admin/students/${encodeURIComponent(key)}/curriculum-reports`);
   }
 
   function config() {
@@ -234,6 +251,7 @@
       const stored = user() || {};
       const account = { ...stored, ...(result.user || {}) };
       setSession(authToken, account);
+      await curriculum();
       await load();
       return { user: account };
     } catch (e) {
@@ -272,6 +290,7 @@
     activate,
     logout,
     load,
+    curriculum,
     save,
     flush,
     lastSyncedAt: () => lastSyncedAt,
@@ -294,6 +313,8 @@
     },
     students: adminStudents,
     issueResetCode: adminIssueResetCode,
+    generateCurriculum: adminGenerateCurriculum,
+    curriculumReports: adminCurriculumReports,
   };
   window.apiSync.config = config;
 

@@ -9,6 +9,7 @@ process.env.AUTH_TOKEN_SECRET = 'test-auth-token-secret-at-least-32-characters';
 process.env.ADMIN_USERNAME = 'teacher';
 process.env.ADMIN_PASSWORD = 'test-admin-password';
 process.env.ADMIN_SESSION_SECRET = 'test-admin-session-secret-at-least-32-characters';
+process.env.AI_PROXY_URL = 'https://ai.example/v1';
 delete process.env.NETLIFY;
 delete process.env.NETLIFY_SITE_ID;
 delete process.env.AWS_LAMBDA_FUNCTION_NAME;
@@ -16,14 +17,75 @@ delete process.env.AWS_LAMBDA_FUNCTION_NAME;
 const {
   handleActivateStudent,
   handleAdminLogin,
+  handleAdminCurriculumReports,
+  handleAdminGenerateCurriculum,
   handleAdminResetCode,
   handleAdminStudents,
+  handleGetCurriculum,
   handleGetProgress,
   handleLogin,
   handleSaveProgress,
+  refreshAiTarget,
   resolveCaller,
 } = await import('../server/app.js');
-const { compareAndSetProgressRecord, getProgressRecord } = await import('../server/storage.js');
+const { compareAndSetProgressRecord, getProgressRecord, getStudentRecord } = await import('../server/storage.js');
+refreshAiTarget();
+
+function generatedCurriculum(title) {
+  const words = ['apple', 'book', 'chair', 'dance', 'egg', 'friend'].map((en) => ({
+    en, he: `${en} בעברית`, ex: `I see a ${en}.`, exHe: `אני רואה ${en} בעברית.`,
+  }));
+  return {
+    title,
+    level: 'A1',
+    units: Array.from({ length: 4 }, (_, index) => ({
+      title: `Unit ${index + 1}`,
+      he: `יחידה ${index + 1}`,
+      lead: 'תיאור קצר',
+      icon: '📘',
+      canDo: ['מטרה ראשונה', 'מטרה שנייה'],
+      fact: 'עובדה קצרה',
+      rules: [{
+        title: 'כלל דקדוק',
+        short: 'סיכום',
+        formula: 'Subject + verb',
+        body: 'הסבר',
+        examples: [{ en: 'I am ready.', he: 'אני מוכנה.' }, { en: 'You are ready.', he: 'את מוכנה.' }],
+        mistake: 'שגיאה נפוצה',
+        hook: 'רמז לזכירה',
+      }],
+      words,
+      grammar: [
+        { type: 'mcq', ruleIndex: 0, q: 'מה נכון?', opts: ['I am ready.', 'I is ready.', 'I be ready.'], ans: 'I am ready.', why: 'הסבר', hint: 'רמז' },
+        { type: 'type', ruleIndex: 0, q: 'כתבי משפט', ans: ['I am ready.'], why: 'הסבר', hint: 'רמז' },
+        { type: 'scr', ruleIndex: 0, q: 'סדרי את המשפט', sentence: 'I am ready.', ans: ['I am ready.'], why: 'הסבר', hint: 'רמז' },
+        { type: 'gap', ruleIndex: 0, q: 'השלימי', sentence: 'I ___ ready.', ans: ['am'], why: 'הסבר', hint: 'רמז' },
+      ],
+      scenario: {
+        title: 'שיחה לתרגול',
+        en: 'Practice conversation',
+        who: 'Alex',
+        role: 'חבר/ה',
+        desc: 'תיאור תרחיש',
+        focus: 'Be verb',
+        opening: 'Hello! How are you?',
+        openingHe: 'שלום! מה שלומך?',
+        steps: Array.from({ length: 3 }, () => ({
+          bot: 'What do you like?',
+          he: 'מה את אוהבת?',
+          suggestions: ['I like music.', 'I like books.', 'I like school.'],
+        })),
+        more: ['What is your name?', 'How old are you?', 'Where do you live?'],
+      },
+    })),
+  };
+}
+
+let aiResult = generatedCurriculum('מסלול ראשון');
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async () => new Response(JSON.stringify({
+  choices: [{ message: { content: JSON.stringify(aiResult) } }],
+}), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
 async function call(handler, request = {}) {
   const response = {
@@ -82,6 +144,75 @@ try {
   assert.equal(await compareAndSetProgressRecord('GEFEN', newerProgress, savedProgress.updated), true);
   assert.equal(await compareAndSetProgressRecord('GEFEN', savedProgress, savedProgress.updated), false);
 
+  const firstCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+    body: { prompt: 'A1 English for daily life and school' },
+  });
+  assert.equal(firstCourse.statusCode, 200);
+  assert.equal(firstCourse.body.archivedReport.summary.xp, 25);
+  assert.equal(firstCourse.body.reportsCount, 1);
+  const firstCourseId = (await getStudentRecord('GEFEN')).curriculum.id;
+  const courseHeaders = { authorization: `Bearer ${activated.body.token}` };
+  const assigned = await call(handleGetCurriculum, { headers: courseHeaders });
+  assert.equal(assigned.statusCode, 200);
+  assert.equal(assigned.body.courseId, firstCourseId);
+
+  const hiddenOldProgress = await call(handleGetProgress, { headers: courseHeaders });
+  assert.equal(hiddenOldProgress.body.data, null);
+  const staleWrite = await call(handleSaveProgress, {
+    headers: courseHeaders,
+    body: { data: { courseId: 'default', xp: 99 }, client_updated_at: null },
+  });
+  assert.equal(staleWrite.statusCode, 409);
+
+  const courseProgress = await call(handleSaveProgress, {
+    headers: courseHeaders,
+    body: {
+      data: {
+        courseId: firstCourseId,
+        courseSnapshot: { id: firstCourseId, title: 'מסלול ראשון', level: 'A1', units: [{ id: `${firstCourseId}-u1`, he: 'יחידה', rules: [{ id: `${firstCourseId}-u1-r1`, title: 'כלל' }] }] },
+        xp: 12,
+        prog: { [`${firstCourseId}-u1.x1`]: { done: true, seen: 1, correct: 1, wrong: 0 } },
+        stats: { answers: 1, correct: 1, bySkill: {} },
+      },
+      client_updated_at: null,
+    },
+  });
+  assert.equal(courseProgress.statusCode, 200);
+
+  aiResult = { title: 'מסלול לא תקין', level: 'A1', units: [] };
+  const invalidCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+    body: { prompt: 'A2 English about nature and travel' },
+  });
+  assert.equal(invalidCourse.statusCode, 502);
+  assert.equal((await getStudentRecord('GEFEN')).curriculum.id, firstCourseId);
+
+  aiResult = generatedCurriculum('מסלול שני');
+  const secondCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+    body: { prompt: 'A2 English about nature and travel' },
+  });
+  assert.equal(secondCourse.statusCode, 200);
+  assert.equal(secondCourse.body.archivedReport.courseTitle, 'מסלול ראשון');
+  assert.equal(secondCourse.body.archivedReport.summary.xp, 12);
+  const secondCourseId = (await getStudentRecord('GEFEN')).curriculum.id;
+  assert.notEqual(secondCourseId, firstCourseId);
+  const reports = await call(handleAdminCurriculumReports, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+  });
+  assert.equal(reports.body.reports.length, 2);
+
+  const secondCourseSave = await call(handleSaveProgress, {
+    headers: courseHeaders,
+    body: { data: { courseId: secondCourseId, xp: 5, prog: {} }, client_updated_at: null },
+  });
+  assert.equal(secondCourseSave.statusCode, 200);
+
   const resetCode = await call(handleAdminResetCode, {
     headers: adminHeaders,
     params: { key: 'GEFEN' },
@@ -105,7 +236,7 @@ try {
     headers: { authorization: `Bearer ${login.body.token}` },
   });
   assert.equal(loaded.statusCode, 200);
-  assert.equal(loaded.body.data.xp, 25);
+  assert.equal(loaded.body.data.xp, 5);
   assert.equal(loaded.body.storage, 'local');
 
   const secondCode = await call(handleAdminResetCode, {
@@ -123,10 +254,11 @@ try {
 
   const dashboard = await call(handleAdminStudents, { headers: adminHeaders });
   assert.equal(dashboard.statusCode, 200);
-  assert.equal(dashboard.body.students.find((student) => student.key === 'GEFEN').xp, 25);
+  assert.equal(dashboard.body.students.find((student) => student.key === 'GEFEN').xp, 5);
   assert.equal(dashboard.body.students.find((student) => student.key === 'MIA').missing, true);
 
-  console.log('Storage/auth flow passed: activation, login, reset, student isolation, progress, and admin summary.');
+  console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, reset, and admin reports.');
 } finally {
+  globalThis.fetch = originalFetch;
   fs.rmSync(dataDir, { recursive: true, force: true });
 }

@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080e18">
-<meta name="description" content="Gefen English Coach – אפליקציית אנגלית אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מדורג.">
+<meta name="description" content="lomdaa – אפליקציית אנגלית אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מותאם אישית.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Gefen English Coach 💃</title>
+<title>lomdaa — English learning</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23c6f24e'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
 <style>
 /* ============ theme ============ */
@@ -727,7 +727,7 @@ a{color:var(--cyan)}
   <aside class="sidebar" id="sidebar" aria-label="תפריט ראשי">
     <div class="sidebar-header">
       <div class="brand-mark">💃</div>
-      <div class="brand-txt"><b id="app-name">Gefen English</b><span>ENGLISH COACH</span></div>
+      <div class="brand-txt"><b id="app-name">lomdaa</b><span>ENGLISH LEARNING</span></div>
     </div>
     <nav class="sidebar-nav">
       <a class="nav-item" data-nav="home" href="#/home"><span class="ic">🏠</span><span>בית</span></a>
@@ -741,7 +741,7 @@ a{color:var(--cyan)}
       <div class="sidebar-user">
         <div class="avatar">💃</div>
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name" id="sidebar-name">גפן</div>
+          <div class="sidebar-user-name" id="sidebar-name">תלמידה</div>
           <div class="sidebar-user-stats" id="sidebar-stats"><b id="sidebar-xp">0</b> XP · <b id="sidebar-streak">0</b> ימים</div>
         </div>
       </div>
@@ -770,7 +770,7 @@ a{color:var(--cyan)}
    GEFEN ENGLISH COACH — curriculum (4 units) · dance & friends
    Level: A1 → A1+ (continues from "to be" and pronouns)
    ============================================================ */
-const UNITS = [
+const DEFAULT_UNITS = [
 {
   id:'u1', n:1, icon:'🤝', color:'pink', cefr:'A1',
   title:'Be – Questions', he:'מכירות חברות חדשות',
@@ -940,10 +940,13 @@ const UNITS = [
   ]
 }
 ];
+let UNITS = JSON.parse(JSON.stringify(DEFAULT_UNITS));
+let CURRENT_COURSE_ID='default';
+let ACTIVE_CURRICULUM=null;
 /* ============================================================
    Conversation scenarios
    ============================================================ */
-const SCENARIOS = [
+const DEFAULT_SCENARIOS = [
 {
   id:'newfriend', icon:'🤝', title:'חברה חדשה בכיתה', en:'A new friend',
   who:'Lily', role:'חברה חדשה בכיתה', level:'A1', focus:'Be questions', unit:'u1',
@@ -1020,6 +1023,7 @@ const SCENARIOS = [
   words:[{en:'topic',he:'נושא'},{en:'favourite',he:'אהוב'},{en:'best',he:'הכי טוב'}]
 }
 ];
+let SCENARIOS = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
 const QUICK_PHRASES = [
   {en:'Can you repeat that, please?',he:'אפשר לחזור על זה?'},
   {en:'How do you say … in English?',he:'איך אומרים … באנגלית?'},
@@ -1130,7 +1134,7 @@ const FACTS = [
 
 function freshState(){
   return {
-    v:1, name:'גפן',
+    v:1, name:'גפן', courseId:'default', courseSnapshot:null,
     xp:0, streak:0, lastDay:'', activeDays:{},
     daily:{date:todayKey(), xp:0, answers:0, reviews:0, chats:0},
     settings:{sound:true, ttsRate:.9, autoSpeak:false, showTr:true, fontScale:1, goal:60, correction:'balanced', level:'A1'},
@@ -1212,6 +1216,8 @@ function applyCloud(data, updatedAt){
     S = mergeState(freshState(), data);
     const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
     if(account){ S.name=account.username||S.name; S.settings.level=account.level||S.settings.level; }
+    S.courseId=CURRENT_COURSE_ID;
+    S.courseSnapshot=S.courseSnapshot||courseSnapshot();
     // mergeState משחזר את הפרוקסי מהענן; המפתח נותר מקומי בלבד
     S.api.key = S.api.key || '';
     S.updated_at = updatedAt || new Date().toISOString();
@@ -1228,12 +1234,15 @@ function applyCloud(data, updatedAt){
 function cloudPush(force){
   if(!cloudReady() || typeof window.apiSync.save !== 'function') return;
   S.updated_at = new Date().toISOString();
+  S.courseId=CURRENT_COURSE_ID;
+  S.courseSnapshot=courseSnapshot();
   window.apiSync.save(S, {force:!!force});
 }
 const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה'];
 let TEACHER_WHATSAPP='';
 let ADMIN_STUDENTS=null;
 let ADMIN_RESET_CODES={};
+let ADMIN_CURRICULUM_BUSY={};
 let ADMIN_LOADING=false;
 let ADMIN_ERROR='';
 function whatsappResetUrl(username){
@@ -1251,14 +1260,14 @@ function refreshWhatsAppLinks(root=document){
 function setStudentIdentity(account){
   if(!account) return;
   const name=account.username||'תלמידה';
-  document.title=`${name} – English Coach`;
-  const brand=$('#app-name'); if(brand) brand.textContent=`${name} English`;
+  document.title=`lomdaa – ${name}`;
+  const brand=$('#app-name'); if(brand) brand.textContent=`lomdaa · ${name}`;
   S.name=name;
   updateHeader();
 }
 function clearStudentIdentity(){
-  document.title='Gefen English Coach 💃';
-  const brand=$('#app-name'); if(brand) brand.textContent='Gefen English';
+  document.title='lomdaa — English learning';
+  const brand=$('#app-name'); if(brand) brand.textContent='lomdaa';
 }
 function openStudentLogin(message=''){
   const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
@@ -1305,8 +1314,16 @@ async function loadStudentAccount(account){
   S.settings.level=account.level||'A1';
   setStudentIdentity(account);
   try{
+    const assigned=await window.apiSync.curriculum();
+    installCurriculum(assigned);
     const result=await window.apiSync.load();
+    S.courseId=CURRENT_COURSE_ID;
+    S.courseSnapshot=courseSnapshot();
     if(!result.data){ S.updated_at=new Date().toISOString(); saveNow(); await window.apiSync.flush(); }
+    else if(!result.data.courseSnapshot||result.data.courseId!==CURRENT_COURSE_ID){
+      saveNow();
+      await window.apiSync.flush();
+    }
   }catch(e){
     console.warn('[sync] progress load after login failed:',e.message);
     updateSyncBadge('error');
@@ -1352,6 +1369,7 @@ function logoutStudent(){
     window.apiSync.logout();
     S=freshState();
     clearStudentIdentity();
+    installCurriculum({curriculum:null,courseId:'default'});
     render();
     openStudentLogin();
   });
@@ -1375,6 +1393,11 @@ function initCloudSync(){
       applyCloud(payload && payload.data, payload && payload.updated_at);
     }else if(event === 'conflict'){
       applyCloud(payload && payload.data, payload && payload.updated_at);
+      if(payload?.courseId && payload.courseId!==S.courseId){
+        window.apiSync.curriculum().then(installCurriculum).then(()=>window.apiSync.load()).catch(error=>console.warn('[sync] course refresh failed:',error.message));
+      }
+    }else if(event === 'curriculum'){
+      installCurriculum(payload);
     }else if(event === 'saved'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='netlify-blobs'?'saved':'server');
     }else if(event === 'offline'){
@@ -1394,6 +1417,7 @@ function initCloudSync(){
       syncing=false;
       S=freshState();
       clearStudentIdentity();
+      installCurriculum({curriculum:null,courseId:'default'});
       render();
       if(parts()[0]!=='admin') openStudentLogin();
     }
@@ -1561,6 +1585,80 @@ function buildData(){
     u.exercises.forEach(e=>{ e.unit=u.id; EX_MAP[e.id]=e; });
   });
 }
+function courseSnapshot(){
+  return {
+    id:CURRENT_COURSE_ID,
+    title:ACTIVE_CURRICULUM?.title||'מסלול בסיסי',
+    level:ACTIVE_CURRICULUM?.level||S.settings.level||'A1',
+    units:UNITS.map(unit=>({
+      id:unit.id,
+      title:unit.title,
+      he:unit.he,
+      rules:(unit.rules||[]).map(rule=>({id:rule.id,title:rule.title}))
+    }))
+  };
+}
+function installCurriculum(result){
+  const curriculum=result?.curriculum||null;
+  const courseId=result?.courseId||curriculum?.id||'default';
+  const changed=courseId!==CURRENT_COURSE_ID||courseId!==(S.courseId||'default');
+  if(!changed){
+    if(curriculum) ACTIVE_CURRICULUM=curriculum;
+    S.courseId=courseId;
+    S.courseSnapshot=courseSnapshot();
+    return false;
+  }
+  CURRENT_COURSE_ID=courseId;
+  ACTIVE_CURRICULUM=curriculum;
+  UNITS=JSON.parse(JSON.stringify(curriculum?.units||DEFAULT_UNITS));
+  SCENARIOS=curriculum
+    ? curriculum.units.map((unit,index)=>({
+      id:`scenario-${unit.id}`,
+      icon:unit.icon||'📘',
+      title:unit.scenario.title,
+      en:unit.scenario.en,
+      who:unit.scenario.who,
+      role:unit.scenario.role,
+      level:curriculum.level,
+      focus:unit.scenario.focus,
+      unit:unit.id,
+      desc:unit.scenario.desc,
+      opening:unit.scenario.opening,
+      openingHe:unit.scenario.openingHe,
+      startWords:unit.words.slice(0,2).map(word=>({en:word.en,he:word.he})),
+      steps:unit.scenario.steps,
+      more:unit.scenario.more,
+      words:unit.words.slice(0,3).map(word=>({en:word.en,he:word.he}))
+    }))
+    : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+  Object.keys(RULE_MAP).forEach(key=>delete RULE_MAP[key]);
+  Object.keys(EX_MAP).forEach(key=>delete EX_MAP[key]);
+  Object.keys(ALL_WORDS).forEach(key=>delete ALL_WORDS[key]);
+  ALL_WORD_LIST.length=0;
+  RULES.clear();
+  buildData();
+  rebuildScenarioMap();
+
+  S.courseId=courseId;
+  if(changed){
+    const fresh=freshState();
+    S.prog=fresh.prog;
+    S.words=fresh.words;
+    S.rules=fresh.rules;
+    S.unitPos=fresh.unitPos;
+    S.seen=fresh.seen;
+    S.stats=fresh.stats;
+    S.daily={...fresh.daily,xp:S.daily?.xp||0};
+    S.exam=fresh.exam;
+    S.review=fresh.review;
+    S.chat=fresh.chat;
+    S.settings.level=curriculum?.level||S.settings.level||'A1';
+  }
+  S.courseSnapshot=courseSnapshot();
+  persistLocal();
+  if(typeof render==='function') render();
+  return true;
+}
 function buildVocabExercises(u){
   const exs=[];
   const hePool = [...new Set(u.words.map(w=>w.he))];
@@ -1672,7 +1770,7 @@ function updateHeader(){
   const dot=$('#nav-dot-review'); if(dot) dot.classList.toggle('hide', dueWords().length===0);
   
   // Update sidebar
-  const sidebarName=$('#sidebar-name'); if(sidebarName) sidebarName.textContent=S.name||'גפן';
+  const sidebarName=$('#sidebar-name'); if(sidebarName) sidebarName.textContent=S.name||'תלמידה';
   const sidebarXp=$('#sidebar-xp'); if(sidebarXp) sidebarXp.textContent=S.xp||0;
   const sidebarStreak=$('#sidebar-streak'); if(sidebarStreak) sidebarStreak.textContent=S.streak||0;
 }
@@ -1754,7 +1852,7 @@ function pageHome(){
       <div class="hero-top">
         <div style="flex:1;min-width:220px">
           <span class="tag lime">⚡ יום ${S.streak||1} ברצף · רמה ${li.lvl}</span>
-          <h1>היי <span>גפן</span> 👋<br>מוכנה לתרגל אנגלית?</h1>
+          <h1>היי <span>${esc(S.name||'תלמידה')}</span> 👋<br>מוכנה לתרגל אנגלית?</h1>
           <p>${accuracy()?`דיוק כללי ${accuracy()}% · ${ds.mastered} מילים יציבות · ${ds.due} ממתינות לחזרה`:`הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.`}</p>
           <div class="hero-actions">
             <button class="btn primary" data-go="#/unit/${u.id}/practice">▶ המשיכי ללמוד</button>
@@ -2607,6 +2705,9 @@ function pageAdmin(){
     <td>${student.missing?'—':student.streak}</td>
     <td>${student.missing?'אין חשבון':`${student.completedExercises} תרגילים`}</td>
     <td>${student.lastActive?new Date(student.lastActive).toLocaleString('he-IL'):'טרם התחיל/ה'}</td>
+    <td>${student.curriculum?`${esc(student.curriculum.title)}<div class="tiny muted">${esc(student.curriculum.level)} · ${student.curriculum.unitCount} יחידות</div>`:'מסלול בסיסי'}
+      <div class="row" style="margin-top:5px"><button class="btn xs ghost" data-act="admin-edit-curriculum" data-key="${escA(student.key)}">עריכת מסלול AI</button>
+      <button class="btn xs ghost" data-act="admin-view-reports" data-key="${escA(student.key)}">דוחות</button></div></td>
     <td><button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">${student.activated?'קוד איפוס':'קוד הפעלה'}</button>
       ${ADMIN_RESET_CODES[student.key]?`<div class="tiny" style="margin-top:6px;direction:ltr"><code>${esc(ADMIN_RESET_CODES[student.key])}</code> <button class="btn xs ghost" data-copy="${escA(ADMIN_RESET_CODES[student.key])}">העתקה</button></div>`:''}</td>
   </tr>`).join('');
@@ -2616,10 +2717,10 @@ function pageAdmin(){
     </div>
     ${ADMIN_ERROR?`<div class="help section">${esc(ADMIN_ERROR)}</div>`:''}
     <div class="card section">
-      <p class="small muted">לחצי על „קוד הפעלה” לתלמיד/ה שעדיין לא הגדיר/ה סיסמה. לאיפוס סיסמה לאחר אימות הבקשה בוואטסאפ, לחצי על „קוד איפוס” והעבירי את הקוד בפרטי; קוד איפוס תקף ל־30 דקות.</p>
+      <p class="small muted">לחצי על „קוד הפעלה” לתלמיד/ה שעדיין לא הגדיר/ה סיסמה. לאיפוס סיסמה לאחר אימות הבקשה בוואטסאפ, לחצי על „קוד איפוס” והעבירי את הקוד בפרטי; קוד איפוס תקף ל־30 דקות. בעמודת „תוכנית אישית” אפשר ליצור מסלול AI מלא ולפתוח דוחות מהמסלולים הקודמים.</p>
       ${ADMIN_LOADING&&!ADMIN_STUDENTS?'<p class="small muted">טוען נתוני תלמידים…</p>':''}
-      ${ADMIN_STUDENTS?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px;text-align:start">
-        <thead><tr>${['תלמיד/ה','רמה','XP','רצף ימים','תרגילים שהושלמו','פעילות אחרונה','קוד הפעלה / איפוס'].map(label=>`<th style="padding:10px;border-bottom:1px solid var(--line2);text-align:start">${label}</th>`).join('')}</tr></thead>
+      ${ADMIN_STUDENTS?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:980px;text-align:start">
+        <thead><tr>${['תלמיד/ה','רמה','XP','רצף ימים','תרגילים שהושלמו','פעילות אחרונה','תוכנית אישית','קוד הפעלה / איפוס'].map(label=>`<th style="padding:10px;border-bottom:1px solid var(--line2);text-align:start">${label}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`:''}
     </div>
@@ -2662,6 +2763,76 @@ async function issueStudentResetCode(key){
   }catch(error){
     ADMIN_ERROR=`יצירת קוד האיפוס נכשלה: ${error.message}`;
     render();
+  }
+}
+function openCurriculumEditor(key,message='',promptValue){
+  const student=ADMIN_STUDENTS?.find(item=>item.key===key);
+  if(!student) return;
+  openModal(`<h3>✨ יצירת מסלול lomdaa אישי</h3>
+    <p class="small muted">המסלול כולו ייבנה מחדש עבור ${esc(student.username)}. צייני רמת CEFR, נושאים, מטרות, אוצר מילים רצוי וסגנון הלמידה. לפני ההחלפה יישמר דוח של ההתקדמות הקודמת.</p>
+    ${student.curriculum?`<div class="tag lime" style="margin:8px 0">מסלול נוכחי: ${esc(student.curriculum.title)} · ${esc(student.curriculum.level)}</div>`:''}
+    ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
+    <div class="field"><label for="curriculum-prompt">הנחיות למורה / פרומפט</label><textarea id="curriculum-prompt" rows="8" maxlength="5000" placeholder="לדוגמה: רמה A2. צרי מסלול בנושא חלל, מזג אוויר ושיחות יומיומיות. התמקדי ב-Past Simple ובשאלות.">${esc(promptValue??student.curriculumPrompt??'')}</textarea></div>
+    <div class="row"><button class="btn primary" data-act="admin-generate-curriculum" data-key="${escA(key)}">יצירה והחלפת המסלול</button><button class="btn ghost" data-close>ביטול</button></div>
+    <p class="tiny muted" style="margin-top:8px">התוכן נוצר דרך שירות ה-AI שהוגדר בשרת; אם היצירה נכשלת, המסלול הנוכחי נשאר ללא שינוי.</p>`);
+}
+function reportDate(value){
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?'':date.toLocaleString('he-IL');
+}
+function renderProgressReport(report){
+  const summary=report.summary||{};
+  const accuracy=summary.accuracy==null?'—':`${summary.accuracy}%`;
+  const words=(items)=>items?.length
+    ? `<div class="chips">${items.map(word=>`<span class="chip"><span class="en">${esc(word.en)}</span> — ${esc(word.he)} <span class="tiny muted">(${word.mastery}/5)</span></span>`).join('')}</div>`
+    : '<p class="tiny muted">אין נתונים עדיין.</p>';
+  return `<div class="card flat" style="margin-top:12px">
+    <div class="row"><b>${esc(report.courseTitle||'מסלול קודם')}</b><span class="tag">${esc(report.level||'')}</span><span class="tiny muted">${esc(reportDate(report.archivedAt))}</span></div>
+    <p class="small" style="margin-top:8px">נענו ${Number(summary.answers)||0} תשובות · דיוק ${accuracy} · ${Number(summary.completedExercises)||0} תרגילים הושלמו · ${Number(summary.xp)||0} XP · רצף ${Number(summary.streak)||0} ימים</p>
+    ${report.prompt?`<p class="tiny muted" style="margin-top:6px"><b>הנחיות המסלול:</b> ${esc(report.prompt)}</p>`:''}
+    ${report.units?.length?`<div class="section-head" style="margin-top:12px"><h2>יחידות</h2></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tbody>${report.units.map(unit=>`<tr><td style="padding:6px;border-bottom:1px solid var(--line)"><b>${esc(unit.title)}</b><div class="tiny muted">${esc((unit.topics||[]).join(' · '))}</div></td><td class="tiny">${Number(unit.completed)||0}/${Number(unit.attempted)||0} הושלמו</td><td class="tiny">${unit.accuracy==null?'—':`${unit.accuracy}%`}</td></tr>`).join('')}</tbody></table></div>`:''}
+    ${report.skills?.length?`<p class="small" style="margin-top:10px"><b>מיומנויות:</b> ${report.skills.map(skill=>`${esc(skill.name)} ${skill.accuracy==null?'—':`${skill.accuracy}%`} (${Number(skill.attempts)||0})`).join(' · ')}</p>`:''}
+    ${report.strongTopics?.length?`<p class="small" style="margin-top:8px"><b>נושאים חזקים:</b> ${report.strongTopics.map(topic=>`${esc(topic.topic)} (${topic.accuracy}%)`).join(' · ')}</p>`:''}
+    ${report.focusTopics?.length?`<p class="small" style="margin-top:8px"><b>נושאים לחיזוק:</b> ${report.focusTopics.map(topic=>`${esc(topic.topic)} (${topic.accuracy}%)`).join(' · ')}</p>`:''}
+    <div class="section-head" style="margin-top:12px"><h2>מילים לשליפה</h2></div>${words(report.masteredWords)}
+    <div class="section-head" style="margin-top:12px"><h2>מילים שכדאי לתרגל שוב</h2></div>${words(report.wordsToReview)}
+  </div>`;
+}
+async function showCurriculumReports(key){
+  const student=ADMIN_STUDENTS?.find(item=>item.key===key);
+  if(!student) return;
+  openModal(`<h3>📊 דוחות קודמים — ${esc(student.username)}</h3><p class="small muted">טוען דוחות…</p>`);
+  try{
+    const result=await window.adminApi.curriculumReports(key);
+    const reports=result.reports||[];
+    openModal(`<h3>📊 דוחות קודמים — ${esc(student.username)}</h3>
+      ${reports.length?reports.map(renderProgressReport).join(''):'<p class="small muted">עדיין לא נשמרו דוחות. דוח יישמר לפני החלפת המסלול הראשונה.</p>'}
+      <button class="btn ghost wide" style="margin-top:12px" data-close>סגירה</button>`);
+  }catch(error){
+    openModal(`<h3>📊 דוחות קודמים</h3><div class="help">${esc(`טעינת הדוחות נכשלה: ${error.message}`)}</div><button class="btn ghost wide" data-close>סגירה</button>`);
+  }
+}
+async function generateStudentCurriculum(key){
+  const prompt=$('#curriculum-prompt')?.value?.trim()||'';
+  if(ADMIN_CURRICULUM_BUSY[key]) return;
+  ADMIN_CURRICULUM_BUSY[key]=true;
+  const button=$('#overlay [data-act="admin-generate-curriculum"]');
+  if(button){ button.disabled=true; button.textContent='יוצרת מסלול…'; }
+  try{
+    const result=await window.adminApi.generateCurriculum(key,prompt);
+    const student=ADMIN_STUDENTS?.find(item=>item.key===key);
+    if(student){
+      student.curriculum=result.curriculum;
+      student.curriculumPrompt=prompt;
+    }
+    ADMIN_ERROR='';
+    closeModal();
+    render();
+    toast(result.archivedReport?'המסלול החדש נשמר ודוח ההתקדמות הקודם נוצר ✓':'המסלול האישי נשמר ✓');
+  }catch(error){
+    openCurriculumEditor(key,`יצירת המסלול נכשלה: ${error.message}`,prompt);
+  }finally{
+    ADMIN_CURRICULUM_BUSY[key]=false;
   }
 }
 
@@ -2713,7 +2884,7 @@ function pageExam(){
       <div class="result-score">${score}</div>
       <h2>${score>=85?'מצוין, גפן!':score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
       <p class="muted small">${correct} מתוך ${total} נכונות · הציון נשמר בפרופיל שלך.</p>
-      <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>Gefen English Coach · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
+      <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>lomdaa · ${esc(S.name||'')} · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
       <div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" data-act="start-exam">🔁 נסי שוב</button><button class="btn ghost" data-go="#/stats">📈 להתקדמות</button><button class="btn ghost" data-go="#/review">🔁 לחזרה</button></div>
     </div></div></div>`;
   }
@@ -2963,7 +3134,7 @@ function handleImportRoute(data){
     const obj=JSON.parse(json);
     PENDING_IMPORT=obj;
     openModal(`<button class="x" data-close>✕</button><h3>📥 ייבאי התקדמות?</h3>
-      <p class="small muted">מצאתי בקישור התקדמות של Gefen English Coach. לייבא אותה למכשיר הזה? הנתונים הנוכחיים יוחלפו (מפתח ה-API נשמר).</p>
+      <p class="small muted">מצאתי בקישור התקדמות של lomdaa. לייבא אותה למכשיר הזה? הנתונים הנוכחיים יוחלפו (מפתח ה-API נשמר).</p>
       <div class="row" style="margin-top:12px"><button class="btn ghost" data-close>ביטול</button><button class="btn primary" data-act="confirm-import">ייבאי עכשיו</button></div>`);
     history.replaceState(null,'','#/home');
     render();
@@ -3027,6 +3198,9 @@ function handleGlobalClick(e){
     case 'admin-login': submitAdminLogin(); break;
     case 'admin-refresh': ADMIN_STUDENTS=null; render(); loadAdminDashboard(); break;
     case 'admin-reset-code': issueStudentResetCode(act.dataset.key); break;
+    case 'admin-edit-curriculum': openCurriculumEditor(act.dataset.key); break;
+    case 'admin-view-reports': showCurriculumReports(act.dataset.key); break;
+    case 'admin-generate-curriculum': generateStudentCurriculum(act.dataset.key); break;
     case 'admin-logout':
       window.adminApi.logout(); ADMIN_STUDENTS=null; ADMIN_RESET_CODES={}; ADMIN_ERROR=''; render(); break;
     case 'check': checkCurrent(); break;
@@ -3112,7 +3286,12 @@ function boot(){
    ============================================================ */
 let CHAT_BUSY=false;
 let CHAT_INIT=false;
-const SCENARIO_MAP={}; SCENARIOS.forEach(s=>SCENARIO_MAP[s.id]=s);
+let SCENARIO_MAP={};
+function rebuildScenarioMap(){
+  SCENARIO_MAP={};
+  SCENARIOS.forEach(s=>SCENARIO_MAP[s.id]=s);
+}
+rebuildScenarioMap();
 
 function getScenario(id){ return SCENARIO_MAP[id]||null; }
 /* The backend proxy is always available when the app is served by our server. */
@@ -3138,7 +3317,10 @@ function pageChat(scenarioId){
 function ensureChat(sc){
   if(S.chat.scenario!==sc.id || !S.chat.messages || !S.chat.messages.length){
     S.chat.scenario=sc.id;
-    S.chat.messages=[{role:'ai',text:sc.opening,he:sc.openingHe,suggestions:(sc.steps[0]&&sc.steps[0].suggestions)||[],words:sc.startWords||[],ts:Date.now()}];
+    const learnerName=S.name||'the learner';
+    const opening=String(sc.opening||'').replace(/\bGefen\b/g,learnerName);
+    const openingHe=String(sc.openingHe||'').replace(/גפן/g,learnerName);
+    S.chat.messages=[{role:'ai',text:opening,he:openingHe,suggestions:(sc.steps[0]&&sc.steps[0].suggestions)||[],words:sc.startWords||[],ts:Date.now()}];
     S.chat.localTurn=0; S.chat.sessionStart=Date.now(); S.chat.learned={}; S.chat.reported=false;
     (sc.startWords||[]).forEach(w=>{ S.chat.learned[w.en]=w.he; });
     saveNow();
