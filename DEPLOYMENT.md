@@ -39,10 +39,12 @@ learner and syncs across devices using the same account.
 
 The admin dashboard shows learner-level progress cards, including exercise
 completion, accuracy, XP, streaks, vocabulary mastery, and unit progress.
-**Enter account** creates a one-hour, student-scoped session for an activated
-learner. Actions taken in that session are saved as the learner; a persistent
-banner identifies the session and provides a return to admin. The admin
-dashboard and password are not exposed to the learner session.
+**Enter account** creates a one-hour, student-scoped session, including for
+learners who have not activated their account yet. This lets the teacher inspect
+the course before sharing its activation code. Actions taken in that session
+are saved as the learner; this does not activate the learner's account. A
+persistent banner identifies the session and provides a return to admin. The
+admin dashboard and password are not exposed to the learner session.
 
 In the admin dashboard, use **Edit AI curriculum** on a learner's row to
 generate a complete four-unit course from a teacher prompt. Include the

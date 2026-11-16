@@ -184,7 +184,8 @@ export async function resolveCaller(authorization) {
   const student = STUDENTS.find((entry) => entry.key === claims.id);
   if (!student) return null;
   const account = await getStudentRecord(student.key);
-  if (!account?.activated || account.authVersion !== claims.authVersion) return null;
+  if (!account || (!account.activated && !claims.impersonatedByAdmin)
+    || (Number(account.authVersion) || 0) !== claims.authVersion) return null;
   return {
     id: student.key,
     source: activeStorage(),
@@ -780,16 +781,18 @@ export async function handleAdminImpersonateStudent(req, res) {
 
   try {
     requireAuthSecret();
-    const account = await getStudentRecord(student.key);
-    if (!account?.activated) return fail(res, 409, 'יש להפעיל את חשבון התלמיד לפני הכניסה אליו');
+    const account = await getStudentRecord(student.key) || { activated: false, authVersion: 0 };
+    const authVersion = Number(account.authVersion) || 0;
+    await setStudentRecord(student.key, { ...account, activated: Boolean(account.activated), authVersion });
     res.setHeader('Cache-Control', 'no-store');
     res.json({
-      token: signToken(student.key, account.authVersion, { impersonatedByAdmin: true }),
+      token: signToken(student.key, authVersion, { impersonatedByAdmin: true }),
       user: {
         id: student.key,
         username: student.username,
         level: student.level,
         impersonatedByAdmin: true,
+        activated: Boolean(account.activated),
       },
       expiresIn: 60 * 60,
     });

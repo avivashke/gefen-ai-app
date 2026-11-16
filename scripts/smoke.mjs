@@ -46,6 +46,11 @@ page.on('request', (request) => {
     };
   } else if (path === '/api/auth/admin/login') {
     response = { token: 'admin-smoke-token', user: { username: body.username, role: 'admin' } };
+  } else if (path === '/api/admin/students/GEFEN/impersonate' && method === 'POST') {
+    response = {
+      token: 'admin-impersonation-token',
+      user: { id: 'GEFEN', username: 'גפן', level: 'A1', activated: false, impersonatedByAdmin: true },
+    };
   } else if (path === '/api/admin/students') {
     response = {
       students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה'].map((username, index) => ({
@@ -148,22 +153,33 @@ await page.waitForSelector('#admin-username');
 await page.type('#admin-username', 'teacher');
 await page.type('#admin-password', 'admin-smoke-password');
 await page.click('[data-act="admin-login"]');
-await page.waitForSelector('tbody tr[data-admin-student]');
+await page.waitForSelector('.admin-student-card[data-admin-student]');
 await page.click('[data-act="admin-reset-code"][data-key="GEFEN"]');
-await page.waitForFunction(() => document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent === 'reset-smoke-code');
+await page.waitForFunction(() => document.querySelector('.admin-student-card[data-admin-student="GEFEN"] code')?.textContent === 'reset-smoke-code');
 const adminDashboard = await page.evaluate(() => ({
-  rows: document.querySelectorAll('tbody tr[data-admin-student]').length,
-  initialAction: document.querySelector('tbody tr[data-admin-student="GEFEN"] [data-act="admin-reset-code"]')?.textContent,
-  resetCode: document.querySelector('tbody tr[data-admin-student="GEFEN"] code')?.textContent,
+  rows: document.querySelectorAll('.admin-student-card[data-admin-student]').length,
+  initialAction: document.querySelector('.admin-student-card[data-admin-student="GEFEN"] [data-act="admin-reset-code"]')?.textContent,
+  enterAction: document.querySelector('.admin-student-card[data-admin-student="GEFEN"] [data-act="admin-impersonate"]')?.textContent,
+  resetCode: document.querySelector('.admin-student-card[data-admin-student="GEFEN"] code')?.textContent,
 }));
 await page.click('[data-act="admin-edit-curriculum"][data-key="GEFEN"]');
 await page.waitForSelector('#curriculum-prompt');
 await page.type('#curriculum-prompt', 'A2 English for travel and nature topics');
 await page.click('[data-act="admin-generate-curriculum"]');
-await page.waitForFunction(() => document.querySelector('tbody tr[data-admin-student="GEFEN"]')?.textContent.includes('מסלול בדיקה'));
+await page.waitForFunction(() => document.querySelector('.admin-student-card[data-admin-student="GEFEN"]')?.textContent.includes('מסלול בדיקה'));
 const curriculumGeneration = apiCalls.find((call) => (
   call.path === '/api/admin/students/GEFEN/curriculum' && call.method === 'POST'
 ));
+await page.click('[data-act="admin-impersonate"][data-key="GEFEN"]');
+await page.waitForSelector('.admin-impersonation-banner');
+const inactiveStudentPreview = await page.evaluate(() => ({
+  banner: document.querySelector('.admin-impersonation-banner')?.textContent || '',
+  user: window.apiSync.user()?.username,
+  activated: window.apiSync.user()?.activated,
+}));
+await page.click('[data-act="admin-impersonation-exit"]');
+await page.waitForSelector('.admin-student-card[data-admin-student]');
+const adminReturned = await page.evaluate(() => !document.querySelector('.admin-impersonation-banner'));
 
 const authenticatedProgressRequest = apiCalls.find((call) => (
   call.path === '/api/progress' && call.authorization === 'Bearer smoke-test-token'
@@ -178,8 +194,12 @@ if (!microphone.requested || !microphone.started || microphone.permissionError) 
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
 if (!activationWorked || adminDashboard.rows !== 6 || adminDashboard.initialAction !== 'קוד הפעלה'
-  || adminDashboard.resetCode !== 'reset-smoke-code') {
+  || adminDashboard.enterAction !== 'בדיקת החשבון' || adminDashboard.resetCode !== 'reset-smoke-code') {
   throw new Error(`Activation/admin dashboard failed: ${JSON.stringify({ activationWorked, adminDashboard })}`);
+}
+if (inactiveStudentPreview.user !== 'גפן' || inactiveStudentPreview.activated !== false
+  || !inactiveStudentPreview.banner.includes('עדיין לא הופעל') || !adminReturned) {
+  throw new Error(`Inactive learner preview/return failed: ${JSON.stringify({ inactiveStudentPreview, adminReturned })}`);
 }
 if (!whatsappResetLinkConfigured) {
   throw new Error('WhatsApp password-reset request link was not configured');
@@ -194,5 +214,5 @@ if (errors.length || consoleErrors.length) {
   throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors })}`);
 }
 
-console.log(JSON.stringify({ account, suggestions, microphone, activationWorked, adminDashboard, whatsappResetLinkConfigured, apiCalls, errors, consoleErrors }, null, 2));
+console.log(JSON.stringify({ account, suggestions, microphone, activationWorked, adminDashboard, inactiveStudentPreview, adminReturned, whatsappResetLinkConfigured, apiCalls, errors, consoleErrors }, null, 2));
 await browser.close();

@@ -257,6 +257,15 @@ try {
   assert.equal(impersonatedMe.body.user.impersonatedByAdmin, true);
   assert.equal((await resolveCaller(`Bearer ${impersonation.body.token}`)).id, 'GEFEN');
 
+  const previewImpersonation = await call(handleAdminImpersonateStudent, {
+    headers: adminHeaders,
+    params: { key: 'MIA' },
+  });
+  assert.equal(previewImpersonation.statusCode, 200);
+  assert.equal(previewImpersonation.body.user.activated, false);
+  assert.equal((await resolveCaller(`Bearer ${previewImpersonation.body.token}`)).id, 'MIA');
+  assert.equal((await getStudentRecord('MIA')).activated, false);
+
   const loaded = await call(handleGetProgress, {
     headers: { authorization: `Bearer ${login.body.token}` },
   });
@@ -288,7 +297,9 @@ try {
   assert.ok(gefenDashboard.totalExercises > gefenDashboard.completedExercises);
   assert.equal(gefenDashboard.unitProgress.length, 4);
   assert.equal(gefenDashboard.skills.find((skill) => skill.key === 'grammar').accuracy, 50);
-  assert.equal(dashboard.body.students.find((student) => student.key === 'MIA').missing, true);
+  const miaDashboard = dashboard.body.students.find((student) => student.key === 'MIA');
+  assert.equal(Boolean(miaDashboard.missing), false);
+  assert.equal(miaDashboard.activated, false);
 
   console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, reset, and admin reports.');
 } finally {

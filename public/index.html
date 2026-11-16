@@ -2756,7 +2756,7 @@ function adminStudentCard(student){
     `}
     <div class="tiny muted" style="margin-top:10px">מסלול אישי: ${student.curriculum?`${esc(student.curriculum.level)} · ${Number(student.curriculum.unitCount)||0} יחידות`:'מסלול בסיסי'}</div>
     <div class="admin-student-actions row">
-      <button class="btn xs primary" data-act="admin-impersonate" data-key="${escA(student.key)}" ${student.activated?'':'disabled'}>${student.activated?'כניסה לחשבון':'נדרשת הפעלה'}</button>
+      <button class="btn xs primary" data-act="admin-impersonate" data-key="${escA(student.key)}" title="${student.activated?'כניסה לחשבון התלמיד':'בדיקת החשבון לפני הפעלתו'}">${student.activated?'כניסה לחשבון':'בדיקת החשבון'}</button>
       <button class="btn xs ghost" data-act="admin-edit-curriculum" data-key="${escA(student.key)}">עריכת מסלול AI</button>
       <button class="btn xs ghost" data-act="admin-view-reports" data-key="${escA(student.key)}">דוחות</button>
       <button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">${student.activated?'קוד איפוס':'קוד הפעלה'}</button>
@@ -2790,7 +2790,7 @@ function pageAdmin(){
     </div>
     ${ADMIN_ERROR?`<div class="help section">${esc(ADMIN_ERROR)}</div>`:''}
     <div class="card section">
-      <p class="small muted">לחצי על „כניסה לחשבון” כדי לבדוק את הפורטל המלא של תלמיד/ה פעיל/ה. פעולות במצב זה נשמרות בחשבון שלו/ה ומסומנות עד ליציאה חזרה לאדמין. אפשר ליצור מסלול AI אישי ולפתוח דוחות קודמים; שיחות פרטיות אינן מוצגות.</p>
+      <p class="small muted">אפשר להיכנס לחשבון של תלמיד/ה גם לפני הפעלתו, כדי לבדוק את המסלול. פעולות במצב זה נשמרות כהתקדמות שלו/ה, אך אינן מפעילות את החשבון; הן מסומנות עד ליציאה חזרה לאדמין. אפשר ליצור מסלול AI אישי ולפתוח דוחות קודמים; שיחות פרטיות אינן מוצגות.</p>
       ${ADMIN_LOADING&&!ADMIN_STUDENTS?'<p class="small muted">טוען נתוני תלמידים…</p>':''}
       ${ADMIN_STUDENTS?`<div class="admin-summary-grid">
         <div class="admin-summary-item"><b>${students.length}</b><span>תלמידים ברשימה</span></div>
@@ -3223,7 +3223,7 @@ function render(){
   }
   const impersonated=window.adminApi?.impersonatingStudent?.();
   const banner=impersonated?`<div class="admin-impersonation-banner" role="status">
-    <span>⚠️ אדמין במצב תלמידה: <b>${esc(impersonated.username||'תלמידה')}</b>. הפעולות וההתקדמות נשמרות בחשבון שלה.</span>
+    <span>⚠️ אדמין במצב תלמידה: <b>${esc(impersonated.username||'תלמידה')}</b>. ${impersonated.activated?'הפעולות נשמרות בחשבון שלה.':'חשבון התלמידה עדיין לא הופעל; בדיקות יישמרו כהתקדמות שלה.'}</span>
     <button class="btn sm" data-act="admin-impersonation-exit">חזרה ללוח האדמין</button>
   </div>`:'';
   main.innerHTML=banner+html;
