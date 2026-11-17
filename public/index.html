@@ -82,6 +82,13 @@ a{color:var(--cyan)}
 }
 .hpill b{color:var(--lime);font-weight:900}
 .hpill.streak b{color:var(--gold)}
+.topbar-nav{display:flex;align-items:center;gap:6px}
+.topbar-action{
+  min-height:38px;padding:5px 10px;border-radius:12px;display:flex;align-items:center;gap:5px;
+  background:rgba(22,36,58,.85);border:1px solid var(--line);font-size:.8rem;font-weight:800;
+  white-space:nowrap;transition:.15s;
+}
+.topbar-action:hover{background:var(--card3);transform:translateY(-1px)}
 .hbtn{
   width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;
   background:rgba(22,36,58,.85);border:1px solid var(--line);flex:none;transition:.15s;
@@ -92,6 +99,7 @@ a{color:var(--cyan)}
   .brand-txt b{font-size:.9rem}
   .hpill{padding:5px 8px;font-size:.74rem}
   .hbtn{width:34px;height:34px}
+  .topbar-action{min-height:34px;padding:4px 8px;font-size:.74rem}
 }
 
 /* ============ layout ============ */
@@ -776,6 +784,10 @@ a{color:var(--cyan)}
   <button class="menu-toggle" id="menu-toggle" aria-label="פתח תפריט" aria-expanded="false">☰</button>
   <header class="topbar">
     <div class="topbar-in">
+      <div class="topbar-nav">
+        <button class="topbar-action" data-act="nav-back" aria-label="חזרה למסך הקודם">→ <span>חזרה</span></button>
+        <button class="topbar-action" data-go="#/home" aria-label="חזרה לדף הבית">🏠 <span>בית</span></button>
+      </div>
       <div class="hstats">
         <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
         <div class="hpill" title="נקודות ניסיון">⭐ <b id="h-xp">0</b></div>
@@ -1247,9 +1259,10 @@ function cloudPush(force){
   S.updated_at = new Date().toISOString();
   S.courseId=CURRENT_COURSE_ID;
   S.courseSnapshot=courseSnapshot();
+  persistLocal();
   window.apiSync.save(S, {force:!!force});
 }
-const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה'];
+const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה','יולי'];
 let TEACHER_WHATSAPP='';
 let CURRENT_LEARNER_GENDER='female';
 let CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1'};
@@ -1579,8 +1592,8 @@ function persistLocal(){
   try{ localStorage.setItem(stateStorageKey(), JSON.stringify(S)); lastSaved = Date.now(); }catch(e){ console.warn('save failed', e); }
 }
 function saveNow(){
-  persistLocal();
-  cloudPush();
+  if(cloudReady()) cloudPush();
+  else persistLocal();
 }
 function save(){
   clearTimeout(saveTimer);
@@ -1708,19 +1721,19 @@ function beep(ok){
 function listenOnce(lang,onRes,onErr,onEnd){
   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!window.isSecureContext){ onErr&&onErr('secure-context'); onEnd&&onEnd(); return null; }
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ onErr&&onErr('permission-unavailable'); onEnd&&onEnd(); return null; }
   if(!Recognition){ onErr&&onErr('unsupported'); onEnd&&onEnd(); return null; }
 
-  let recognition=null, stopped=false, finished=false, receivedResult=false;
+  let recognition=null, timer=null, finished=false, receivedResult=false;
   const finish=(error)=>{
     if(finished) return;
     finished=true;
+    clearTimeout(timer);
+    if(error&&recognition){ try{ recognition.abort(); }catch(e){} }
     if(error) onErr&&onErr(error);
     onEnd&&onEnd();
   };
   const controller={
     stop(){
-      stopped=true;
       if(recognition){ try{ recognition.abort(); }catch(e){} }
       finish();
     }
@@ -1730,31 +1743,28 @@ function listenOnce(lang,onRes,onErr,onEnd){
     if(['NotAllowedError','PermissionDeniedError','SecurityError','not-allowed','service-not-allowed'].includes(name)) return 'not-allowed';
     if(['NotFoundError','DevicesNotFoundError','audio-capture'].includes(name)) return 'no-microphone';
     if(['NotReadableError','TrackStartError'].includes(name)) return 'microphone-busy';
-    if(name==='no-speech') return 'no-speech';
+    if(name==='no-speech'||name==='timeout') return 'no-speech';
     if(name==='network') return 'network';
     return 'error';
   };
 
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-    stream.getTracks().forEach(track=>track.stop());
-    if(stopped||finished) return;
-    try{
-      recognition=new Recognition();
-      recognition.lang=lang;
-      recognition.interimResults=false;
-      recognition.maxAlternatives=5;
-      recognition.onresult=ev=>{
-        if(finished||receivedResult) return;
-        receivedResult=true;
-        const alts=[...ev.results[0]].map(item=>item.transcript);
-        onRes&&onRes(alts);
-      };
-      recognition.onerror=ev=>finish(receivedResult?null:mapError(ev));
-      recognition.onend=()=>finish();
-      recognition.start();
-    }catch(error){ finish(mapError(error)); }
-  }).catch(error=>finish(mapError(error)));
-  return controller;
+  try{
+    recognition=new Recognition();
+    recognition.lang=lang;
+    recognition.interimResults=false;
+    recognition.maxAlternatives=5;
+    recognition.onresult=ev=>{
+      if(finished||receivedResult) return;
+      receivedResult=true;
+      const alts=[...ev.results[0]].map(item=>item.transcript);
+      onRes&&onRes(alts);
+    };
+    recognition.onerror=ev=>finish(receivedResult?null:mapError(ev));
+    recognition.onend=()=>finish(receivedResult?null:'no-speech');
+    timer=setTimeout(()=>finish('timeout'),20000);
+    recognition.start();
+  }catch(error){ finish(mapError(error)); }
+  return finished ? null : controller;
 }
 let RECOGNIZER=null;
 function microphoneErrorText(code){
@@ -3474,7 +3484,38 @@ function openChatReport(){ if(typeof showChatReport==='function') showChatReport
 
 /* ================= router ================= */
 function parts(){ return location.hash.replace(/^#\/?/,'').split('/').filter(Boolean); }
-function go(hash){ if(!hash) return; closeModal(); if(location.hash===hash){ render(); } else location.hash=hash; }
+const routeHistory=[];
+let expectedHashChange=null;
+function go(hash){
+  if(!hash) return;
+  closeModal();
+  if(location.hash===hash){ render(); return; }
+  routeHistory.push(location.hash||'#/home');
+  if(routeHistory.length>30) routeHistory.shift();
+  expectedHashChange=hash;
+  location.hash=hash;
+}
+function routeBackFallback(){
+  const [root,child]=parts();
+  if(root==='unit'||root==='exam') return '#/learn';
+  if(root==='review'&&child==='session') return '#/review';
+  if(root==='drill'||root==='speak') return '#/review';
+  if(root==='chat'&&child) return '#/chat';
+  return '#/home';
+}
+function goBack(){
+  closeModal();
+  const target=routeHistory.pop()||routeBackFallback();
+  if(location.hash===target){ render(); return; }
+  expectedHashChange=target;
+  location.hash=target;
+}
+function handleHashChange(){
+  const current=location.hash||'#/home';
+  if(expectedHashChange===current) expectedHashChange=null;
+  else routeHistory.length=0;
+  render();
+}
 function updateNav(){
   const p=parts(), root=p[0]||'home';
   const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
@@ -3585,6 +3626,7 @@ function handleGlobalClick(e){
   const a=act.dataset.act;
   switch(a){
     case 'student-login': submitStudentLogin(); break;
+    case 'nav-back': goBack(); break;
     case 'student-login-open': openStudentLogin(); break;
     case 'password-setup-open': openPasswordSetup(); break;
     case 'password-setup': submitPasswordSetup(); break;
@@ -3670,7 +3712,7 @@ function boot(){
     history.replaceState(null,'',last);
   }
   document.addEventListener('click',handleGlobalClick);
-  window.addEventListener('hashchange',render);
+  window.addEventListener('hashchange',handleHashChange);
   window.addEventListener('beforeunload',saveNow);
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); else if(cloudReady()) cloudPush(); });
   watchPersonalizedText();

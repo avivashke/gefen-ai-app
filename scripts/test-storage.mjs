@@ -52,6 +52,7 @@ assert.deepEqual(
     { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
     { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
     { username: 'מיה', level: 'A1', targetLevel: undefined, gender: 'female', interests: [] },
+    { username: 'יולי', level: 'B1', targetLevel: 'B2', gender: 'female', interests: [] },
   ],
 );
 
@@ -161,6 +162,27 @@ try {
   assert.equal(activated.statusCode, 200);
   assert.equal((await resolveCaller(`Bearer ${activated.body.token}`)).id, 'GEFEN');
 
+  const yuliCode = await call(handleAdminResetCode, {
+    headers: adminHeaders,
+    params: { key: 'YULI' },
+  });
+  assert.equal(yuliCode.statusCode, 200);
+  assert.equal(yuliCode.body.purpose, 'activation');
+  const yuliActivated = await call(handleActivateStudent, {
+    body: { username: 'יולי', code: yuliCode.body.code, password: 'yuli-test-password' },
+  });
+  assert.equal(yuliActivated.statusCode, 200);
+  assert.equal(yuliActivated.body.user.level, 'B1');
+  assert.equal(yuliActivated.body.user.targetLevel, 'B2');
+  assert.equal(yuliActivated.body.user.gender, 'female');
+  const yuliProgress = await call(handleSaveProgress, {
+    headers: { authorization: `Bearer ${yuliActivated.body.token}` },
+    body: { data: { xp: 7 }, client_updated_at: null },
+  });
+  assert.equal(yuliProgress.statusCode, 200);
+  assert.equal((await getProgressRecord('YULI')).data.xp, 7);
+  assert.equal(await getProgressRecord('GEFEN'), null);
+
   const missingAdminAuth = await call(handleAdminGetAiModels);
   assert.equal(missingAdminAuth.statusCode, 401);
   const savedModels = await call(handleAdminSaveAiModels, {
@@ -251,6 +273,8 @@ try {
   });
   assert.equal(saved.statusCode, 200);
   const savedProgress = await getProgressRecord('GEFEN');
+  assert.equal(savedProgress.data.xp, 25);
+  assert.equal((await getProgressRecord('YULI')).data.xp, 7);
   const newerProgress = { ...savedProgress, updated: new Date(Date.now() + 1000).toISOString() };
   assert.equal(await compareAndSetProgressRecord('GEFEN', newerProgress, savedProgress.updated), true);
   assert.equal(await compareAndSetProgressRecord('GEFEN', savedProgress, savedProgress.updated), false);

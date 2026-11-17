@@ -59,10 +59,10 @@ page.on('request', (request) => {
     };
   } else if (path === '/api/admin/students') {
     response = {
-      students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה'].map((username, index) => ({
-        username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA'][index],
-        level: index === 1 || index === 4 ? 'A2' : 'A1',
-        targetLevel: index === 1 || index === 4 ? 'B1' : 'A1',
+      students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה', 'יולי'].map((username, index) => ({
+        username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA', 'YULI'][index],
+        level: index === 1 || index === 4 ? 'A2' : index === 6 ? 'B1' : 'A1',
+        targetLevel: index === 1 || index === 4 ? 'B1' : index === 6 ? 'B2' : 'A1',
         gender: [1, 3, 4].includes(index) ? 'male' : 'female',
         interests: index === 1 ? ['כדורגל', 'חיות', 'טבע'] : [],
         profilePrompt: 'רמת אנגלית: A2. התלמיד: בארי. תחומי עניין: כדורגל, חיות וטבע.',
@@ -116,6 +116,25 @@ chatPrompt: buildSystemPrompt(SCENARIOS[0]),
   loginModalVisible: !document.getElementById('overlay').hidden,
 }));
 
+await page.evaluate(() => go('#/learn'));
+await page.waitForFunction(() => location.hash === '#/learn');
+await page.click('.topbar-nav [data-act="nav-back"]');
+await page.waitForFunction(() => location.hash === '#/home');
+await page.evaluate(() => go('#/learn'));
+await page.waitForFunction(() => location.hash === '#/learn');
+await page.click('.topbar-nav [data-go="#/home"]');
+await page.waitForFunction(() => location.hash === '#/home');
+const navigationAndLocalSave = await page.evaluate(() => {
+  S.xp += 1;
+  saveNow();
+  const stored = JSON.parse(localStorage.getItem(stateStorageKey()));
+  return {
+    controls: document.querySelectorAll('.topbar-nav button').length,
+    savedXp: stored.xp,
+    savedUpdatedAt: stored.updated_at,
+  };
+});
+
 await page.evaluate(() => { location.hash = `#/chat/${SCENARIOS[0].id}`; });
 await page.waitForSelector('.suggestion-text');
 const suggestions = await page.evaluate(() => {
@@ -130,25 +149,26 @@ const suggestions = await page.evaluate(() => {
 });
 
 const microphone = await page.evaluate(async () => {
-  const originalMediaDevices = navigator.mediaDevices;
   const originalRecognition = window.SpeechRecognition;
-  const result = { requested: false, started: false, permissionError: null };
-  Object.defineProperty(navigator, 'mediaDevices', {
-    configurable: true,
-    value: {
-      getUserMedia: async () => {
-        result.requested = true;
-        return { getTracks: () => [{ stop() {} }] };
-      },
-    },
-  });
+  const result = {
+    started: false,
+    startedSynchronously: false,
+    endedSynchronously: false,
+    permissionError: null,
+  };
+  let inCall = false;
   window.SpeechRecognition = class {
-    start() { result.started = true; }
+    start() {
+      result.started = true;
+      result.startedSynchronously = inCall;
+      this.onend?.();
+    }
     abort() {}
   };
-  listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: originalMediaDevices });
+  inCall = true;
+  const controller = listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
+  result.endedSynchronously = controller === null;
+  inCall = false;
   if (originalRecognition) window.SpeechRecognition = originalRecognition;
   else delete window.SpeechRecognition;
   return result;
@@ -205,13 +225,17 @@ if (!account.title.startsWith('Lamda – בארי') || account.name !== 'באר�
   || !account.chatPrompt.includes('masculine singular') || account.loginModalVisible) {
   throw new Error(`Student login/identity failed: ${JSON.stringify(account)}`);
 }
+if (navigationAndLocalSave.controls !== 2 || navigationAndLocalSave.savedXp !== 1
+  || !Date.parse(navigationAndLocalSave.savedUpdatedAt)) {
+  throw new Error(`Persistent navigation/local save failed: ${JSON.stringify(navigationAndLocalSave)}`);
+}
 if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable || !suggestions.learnerNameInOpening) {
   throw new Error(`Chat controls failed: ${JSON.stringify(suggestions)}`);
 }
-if (!microphone.requested || !microphone.started || microphone.permissionError) {
+if (!microphone.started || !microphone.startedSynchronously || !microphone.endedSynchronously || microphone.permissionError) {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
-if (!activationWorked || adminDashboard.rows !== 6 || adminDashboard.initialAction !== 'קוד הפעלה'
+if (!activationWorked || adminDashboard.rows !== 7 || adminDashboard.initialAction !== 'קוד הפעלה'
   || adminDashboard.enterAction !== 'בדיקת החשבון' || adminDashboard.resetCode !== 'reset-smoke-code') {
   throw new Error(`Activation/admin dashboard failed: ${JSON.stringify({ activationWorked, adminDashboard })}`);
 }

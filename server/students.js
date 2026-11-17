@@ -5,6 +5,7 @@ export const STUDENTS = Object.freeze([
   { username: 'מעיין', key: 'MAAYAN', level: 'A1', levelStage: 'תחילת A1', gender: 'male', interests: ['פוקימון'] },
   { username: 'הדר', key: 'HADAR', level: 'A2', targetLevel: 'B1', levelStage: 'מתקרב ל-B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
   { username: 'מיה', key: 'MIA', level: 'A1', levelStage: 'תחילת A1', gender: 'female', interests: [] },
+  { username: 'יולי', key: 'YULI', level: 'B1', targetLevel: 'B2', levelStage: 'מתקרבת ל-B2', gender: 'female', interests: [] },
 ]);
 
 export function studentByUsername(username) {
