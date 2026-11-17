@@ -37,6 +37,11 @@ characters. After a password-reset request is verified, use **Reset code**;
 reset codes expire after 30 minutes. Progress is stored separately for each
 learner and syncs across devices using the same account.
 
+Learner profiles are configured in `server/students.js`. The profile's gender
+controls Hebrew forms; CEFR level and interests are sent to the AI course
+generator and conversation coach. The admin course prompt is prefilled with
+these settings and can be adjusted before generating a course.
+
 The admin dashboard shows learner-level progress cards, including exercise
 completion, accuracy, XP, streaks, vocabulary mastery, and unit progress.
 **Enter account** creates a one-hour, student-scoped session, including for

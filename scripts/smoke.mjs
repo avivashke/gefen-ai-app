@@ -35,13 +35,19 @@ page.on('request', (request) => {
   } else if (path === '/api/auth/login') {
     response = {
       token: 'smoke-test-token',
-      user: { id: 'student-smoke', username: body.username, level: 'A1' },
+      user: {
+        id: 'student-smoke', username: body.username, level: 'A2', targetLevel: 'B1',
+        gender: 'male', interests: ['כדורגל', 'חיות', 'טבע'],
+      },
       storage: 'netlify-blobs',
     };
   } else if (path === '/api/auth/activate') {
     response = {
       token: 'activated-smoke-token',
-      user: { id: 'student-smoke', username: body.username, level: 'A1' },
+      user: {
+        id: 'student-smoke', username: body.username, level: 'A2', targetLevel: 'B1',
+        gender: 'male', interests: ['כדורגל', 'חיות', 'טבע'],
+      },
       storage: 'netlify-blobs',
     };
   } else if (path === '/api/auth/admin/login') {
@@ -55,7 +61,12 @@ page.on('request', (request) => {
     response = {
       students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה'].map((username, index) => ({
         username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA'][index],
-        level: 'A1', activated: index !== 0, missing: index === 0, xp: index * 10, streak: index,
+        level: index === 1 || index === 4 ? 'A2' : 'A1',
+        targetLevel: index === 1 || index === 4 ? 'B1' : 'A1',
+        gender: [1, 3, 4].includes(index) ? 'male' : 'female',
+        interests: index === 1 ? ['כדורגל', 'חיות', 'טבע'] : [],
+        profilePrompt: 'רמת אנגלית: A2. התלמיד: בארי. תחומי עניין: כדורגל, חיות וטבע.',
+        activated: index !== 0, missing: index === 0, xp: index * 10, streak: index,
         completedExercises: index + 1, lastActive: null,
       })),
     };
@@ -98,6 +109,10 @@ const account = await page.evaluate(() => ({
   title: document.title,
   name: S.name,
   level: S.settings.level,
+gender: window.apiSync.user()?.gender,
+courseTitle: UNITS[0]?.he,
+courseLead: UNITS[0]?.lead,
+chatPrompt: buildSystemPrompt(SCENARIOS[0]),
   loginModalVisible: !document.getElementById('overlay').hidden,
 }));
 
@@ -164,7 +179,7 @@ const adminDashboard = await page.evaluate(() => ({
 }));
 await page.click('[data-act="admin-edit-curriculum"][data-key="GEFEN"]');
 await page.waitForSelector('#curriculum-prompt');
-await page.type('#curriculum-prompt', 'A2 English for travel and nature topics');
+await page.$eval('#curriculum-prompt', (field) => { field.value = 'A2 English for travel and nature topics'; });
 await page.click('[data-act="admin-generate-curriculum"]');
 await page.waitForFunction(() => document.querySelector('.admin-student-card[data-admin-student="GEFEN"]')?.textContent.includes('מסלול בדיקה'));
 const curriculumGeneration = apiCalls.find((call) => (
@@ -184,7 +199,10 @@ const adminReturned = await page.evaluate(() => !document.querySelector('.admin-
 const authenticatedProgressRequest = apiCalls.find((call) => (
   call.path === '/api/progress' && call.authorization === 'Bearer smoke-test-token'
 ));
-if (!account.title.startsWith('Lamda – בארי') || account.name !== 'בארי' || account.level !== 'A1' || account.loginModalVisible) {
+if (!account.title.startsWith('Lamda – בארי') || account.name !== 'בארי' || account.level !== 'A2'
+  || account.gender !== 'male' || !account.courseTitle.includes('מכירים חברים')
+  || !account.courseLead.includes('אתה כבר יודע') || !account.chatPrompt.includes('כדורגל')
+  || !account.chatPrompt.includes('masculine singular') || account.loginModalVisible) {
   throw new Error(`Student login/identity failed: ${JSON.stringify(account)}`);
 }
 if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable || !suggestions.learnerNameInOpening) {

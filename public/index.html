@@ -1238,7 +1238,7 @@ function applyCloud(data, updatedAt){
   if(isNewer(updatedAt, S.updated_at)){
     S = mergeState(freshState(), data);
     const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
-    if(account){ S.name=account.username||S.name; S.settings.level=account.level||S.settings.level; }
+    if(account) setStudentIdentity(account);
     S.courseId=CURRENT_COURSE_ID;
     S.courseSnapshot=S.courseSnapshot||courseSnapshot();
     // mergeState משחזר את הפרוקסי מהענן; המפתח נותר מקומי בלבד
@@ -1263,11 +1263,171 @@ function cloudPush(force){
 }
 const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה'];
 let TEACHER_WHATSAPP='';
+let CURRENT_LEARNER_GENDER='female';
+let CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1'};
 let ADMIN_STUDENTS=null;
 let ADMIN_RESET_CODES={};
 let ADMIN_CURRICULUM_BUSY={};
 let ADMIN_LOADING=false;
 let ADMIN_ERROR='';
+const MASCULINE_UI_PHRASES=[
+  ['ברוכה הבאה','ברוך הבא'],
+  ['תמשיכי כך','תמשיך כך'],
+  ['תראי למעלה','תראה למעלה'],
+  ['התלמידה','התלמיד'],
+  ['תלמידה','תלמיד'],
+  ['מוכנה','מוכן'],
+  ['את לומדת','אתה לומד'],
+  ['את מתאמנת','אתה מתאמן'],
+  ['את רוקדת','אתה רוקד'],
+  ['את מדברת','אתה מדבר'],
+  ['את מתקדמת','אתה מתקדם'],
+  ['את מוכנה','אתה מוכן'],
+  ['את עושה','אתה עושה'],
+  ['את יודעת','אתה יודע'],
+  ['את אוהבת','אתה אוהב'],
+  ['את יכולה','אתה יכול'],
+  ['את רוצה','אתה רוצה'],
+  ['את צריכה','אתה צריך'],
+  ['את משתמשת','אתה משתמש'],
+  ['את מרגישה','אתה מרגיש'],
+  ['אני לומדת','אני לומד'],
+  ['אני מתאמנת','אני מתאמן'],
+  ['אני רוקדת','אני רוקד'],
+  ['אני מחייכת','אני מחייך'],
+  ['אני מקשיבה','אני מקשיב'],
+  ['אני מוכנה','אני מוכן'],
+  ['אנחנו יכולות','אנחנו יכולים'],
+  ['אנחנו מוחאות','אנחנו מוחאים'],
+  ['אנחנו נפגשות','אנחנו נפגשים'],
+  ['אנחנו רוקדות','אנחנו רוקדים'],
+  ['אנחנו מתאמנות','אנחנו מתאמנים'],
+  ['אנחנו יודעות','אנחנו יודעים'],
+  ['אנחנו אוהבות','אנחנו אוהבים'],
+  ['בחרי','בחר'],
+  ['כתבי','כתוב'],
+  ['התחילי','התחל'],
+  ['המשיכי','המשך'],
+  ['השלימי','השלם'],
+  ['תרגמי','תרגם'],
+  ['הזיני','הזן'],
+  ['הקלידי','הקלד'],
+  ['לחצי','לחץ'],
+  ['נסי','נסה'],
+  ['קחי','קח'],
+  ['שימי','שים'],
+  ['דברי','דבר'],
+  ['חזרי','חזור'],
+  ['בדקי','בדוק'],
+  ['פני','פנה'],
+  ['תמשיכי','תמשיך'],
+  ['תראי','תראה']
+];
+const MASCULINE_CURRICULUM_PHRASES=[
+  ['מכירות חברות חדשות','מכירים חברים חדשים'],
+  ['מה אני יודעת ואוהבת לעשות','מה אני יודע ואוהב לעשות'],
+  ['לומדות לספר מה את יודעת לעשות','לומדים לספר מה אתה יודע לעשות'],
+  ['לומדות לספר','לומדים לספר'],
+  ['מה את יודעת','מה אתה יודע'],
+  ['עכשיו לומדות','עכשיו לומדים'],
+  ['לומדות לשאול','לומדים לשאול'],
+  ['לומדות מתי','לומדים מתי'],
+  ['את כבר יודעת','אתה כבר יודע'],
+  ['את ודנה חברות','אתה ודנה חברים'],
+  ['האם את רקדנית','האם אתה רקדן'],
+  ['מי החברה הכי טובה שלך','מי החבר הכי טוב שלך'],
+  ['החברה הכי טובה שלי','החבר הכי טוב שלי'],
+  ['החברות שלי','החברים שלי'],
+  ['החברה שלי','החבר שלי'],
+  ['חברה / חבר','חבר'],
+  ['חברה טובה','חבר טוב'],
+  ['חברות חדשות','חברים חדשים'],
+  ['חברות טובות','חברים טובים'],
+  ['אדיבה','אדיב'],
+  ['נחמדה','נחמד'],
+  ['מצחיקה','מצחיק'],
+  ['להכיר חברות חדשות','להכיר חברים חדשים'],
+  ['חברה חדשה','חבר חדש'],
+  ['חברות','חברים'],
+  ['רקדנית ראשית','רקדן ראשי'],
+  ['רקדנית מקצועית','רקדן מקצועי'],
+  ['רקדניות מקצועיות','רקדנים מקצועיים'],
+  ['רקדניות','רקדנים'],
+  ['רקדנית','רקדן'],
+  ['את יודעת','אתה יודע'],
+  ['את אוהבת','אתה אוהב'],
+  ['את יכולה','אתה יכול'],
+  ['את רוצה','אתה רוצה'],
+  ['את צריכה','אתה צריך'],
+  ['את בוחרת','אתה בוחר'],
+  ['את עושה','אתה עושה'],
+  ['את לומדת','אתה לומד'],
+  ['את מתאמנת','אתה מתאמן'],
+  ['את רוקדת','אתה רוקד'],
+  ['את מרגישה','אתה מרגיש'],
+  ['את משתמשת','אתה משתמש'],
+  ['את מדברת','אתה מדבר'],
+  ['את מתקדמת','אתה מתקדם'],
+  ['את מוכנה','אתה מוכן'],
+  ['יכולה / יודעת','יכול / יודע'],
+  ['כשאת ','כשאתה '],
+  ['איך שאת ','איך שאתה '],
+  ['אני אוהבת','אני אוהב'],
+  ['אני יודעת','אני יודע'],
+  ['אני מחזיקה','אני מחזיק'],
+  ['אני מתאמנת','אני מתאמן'],
+  ['אני רוקדת','אני רוקד'],
+  ['אנחנו יודעות','אנחנו יודעים'],
+  ['אנחנו אוהבות','אנחנו אוהבים'],
+  ['אנחנו יכולות','אנחנו יכולים'],
+  ['אנחנו מוחאות','אנחנו מוחאים'],
+  ['אנחנו נפגשות','אנחנו נפגשים'],
+  ['אנחנו רוקדות','אנחנו רוקדים'],
+  ['אנחנו מתאמנות','אנחנו מתאמנים'],
+  ['אנחנו מחייכות','אנחנו מחייכים'],
+  ['אנחנו מקשיבות','אנחנו מקשיבים']
+];
+function replaceMasculinePhrases(value,phrases){
+  if(typeof value!=='string') return value;
+  return phrases.reduce((text,[feminine,masculine])=>text.split(feminine).join(masculine),value);
+}
+function masculineHebrew(value){
+  return replaceMasculinePhrases(value,MASCULINE_UI_PHRASES);
+}
+function masculineCurriculumText(value){
+  return replaceMasculinePhrases(replaceMasculinePhrases(value,MASCULINE_UI_PHRASES),MASCULINE_CURRICULUM_PHRASES);
+}
+function masculineCurriculum(value){
+  if(typeof value==='string') return masculineCurriculumText(value);
+  if(Array.isArray(value)) return value.map(masculineCurriculum);
+  if(value&&typeof value==='object'){
+    return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,masculineCurriculum(item)]));
+  }
+  return value;
+}
+function personalizeVisibleText(root=document.body){
+  if(CURRENT_LEARNER_GENDER!=='male'||!root) return;
+  const visit=(node)=>{
+    if(node.nodeType===Node.TEXT_NODE){
+      const text=masculineHebrew(node.nodeValue);
+      if(text!==node.nodeValue) node.nodeValue=text;
+      return;
+    }
+    if(node.nodeType===Node.ELEMENT_NODE&&['SCRIPT','STYLE','TEXTAREA'].includes(node.tagName)) return;
+    node.childNodes?.forEach(visit);
+  };
+  visit(root);
+}
+function watchPersonalizedText(){
+  if(!window.MutationObserver||!document.body) return;
+  const observer=new MutationObserver(records=>{
+    records.forEach(record=>{
+      if(record.type==='characterData') personalizeVisibleText(record.target);
+      else record.addedNodes.forEach(personalizeVisibleText);
+    });
+  });
+  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+}
 function whatsappResetUrl(username){
   if(!TEACHER_WHATSAPP) return '';
   const message=`שלום, אשמח לקבל קוד לאיפוס הסיסמה באפליקציה. שם המשתמש: ${username}`;
@@ -1283,12 +1443,26 @@ function refreshWhatsAppLinks(root=document){
 function setStudentIdentity(account){
   if(!account) return;
   const name=account.username||'תלמידה';
+  const gender=account.gender==='male'?'male':'female';
+  const genderChanged=CURRENT_LEARNER_GENDER!==gender;
+  CURRENT_LEARNER_GENDER=gender;
+  CURRENT_LEARNER_PROFILE={
+    gender,
+    interests:Array.isArray(account.interests)?account.interests:[],
+    level:account.level||'A1',
+    targetLevel:account.targetLevel||account.level||'A1',
+    levelStage:account.levelStage||''
+  };
   document.title=`Lamda – ${name}`;
   const brand=$('#app-name'); if(brand) brand.textContent=`Lamda · ${name}`;
   S.name=name;
+  S.settings.level=account.level||S.settings.level||'A1';
   updateHeader();
+  return genderChanged;
 }
 function clearStudentIdentity(){
+  CURRENT_LEARNER_GENDER='female';
+  CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1'};
   S.name='תלמידה';
   document.title='Lamda — English learning';
   const brand=$('#app-name'); if(brand) brand.textContent='Lamda';
@@ -1339,7 +1513,7 @@ async function loadStudentAccount(account){
   setStudentIdentity(account);
   try{
     const assigned=await window.apiSync.curriculum();
-    installCurriculum(assigned);
+    installCurriculum(assigned,true);
     const result=await window.apiSync.load();
     S.courseId=CURRENT_COURSE_ID;
     S.courseSnapshot=courseSnapshot();
@@ -1437,8 +1611,11 @@ function initCloudSync(){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('error');
     }else if(event === 'session'){
       if(payload&&payload.user){
-        setStudentIdentity(payload.user);
+        const genderChanged=setStudentIdentity(payload.user);
         S.settings.level=payload.user.level||S.settings.level;
+        if(genderChanged&&!ACTIVE_CURRICULUM){
+          installCurriculum({curriculum:null,courseId:CURRENT_COURSE_ID},true);
+        }
         if(typeof updateSyncBadge==='function') updateSyncBadge('saved');
       }
     }else if(event === 'impersonation-ended'){
@@ -1487,7 +1664,8 @@ function floatXP(n,node){
 }
 function toast(t){
   const el=$('#toast'); if(!el) return;
-  el.textContent=t; el.classList.add('show');
+  el.textContent=CURRENT_LEARNER_GENDER==='male'?masculineHebrew(t):t;
+  el.classList.add('show');
   clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600);
 }
 function confetti(n=26){
@@ -1632,10 +1810,14 @@ function courseSnapshot(){
     }))
   };
 }
-function installCurriculum(result){
-  const curriculum=result?.curriculum||null;
+function installCurriculum(result,force=false){
+  const sourceCurriculum=result?.curriculum||null;
+  const curriculum=sourceCurriculum&&CURRENT_LEARNER_GENDER==='male'
+    ? masculineCurriculum(sourceCurriculum)
+    : sourceCurriculum;
   const courseId=result?.courseId||curriculum?.id||'default';
-  const changed=courseId!==CURRENT_COURSE_ID||courseId!==(S.courseId||'default');
+  const courseChanged=courseId!==CURRENT_COURSE_ID||courseId!==(S.courseId||'default');
+  const changed=force||courseChanged;
   if(!changed){
     if(curriculum) ACTIVE_CURRICULUM=curriculum;
     S.courseId=courseId;
@@ -1644,7 +1826,8 @@ function installCurriculum(result){
   }
   CURRENT_COURSE_ID=courseId;
   ACTIVE_CURRICULUM=curriculum;
-  UNITS=JSON.parse(JSON.stringify(curriculum?.units||DEFAULT_UNITS));
+  const courseUnits=JSON.parse(JSON.stringify(curriculum?.units||DEFAULT_UNITS));
+  UNITS=CURRENT_LEARNER_GENDER==='male'&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
   SCENARIOS=curriculum
     ? curriculum.units.map((unit,index)=>({
       id:`scenario-${unit.id}`,
@@ -1664,7 +1847,9 @@ function installCurriculum(result){
       more:unit.scenario.more,
       words:unit.words.slice(0,3).map(word=>({en:word.en,he:word.he}))
     }))
-    : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+    : CURRENT_LEARNER_GENDER==='male'
+      ? masculineCurriculum(JSON.parse(JSON.stringify(DEFAULT_SCENARIOS)))
+      : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
   Object.keys(RULE_MAP).forEach(key=>delete RULE_MAP[key]);
   Object.keys(EX_MAP).forEach(key=>delete EX_MAP[key]);
   Object.keys(ALL_WORDS).forEach(key=>delete ALL_WORDS[key]);
@@ -1674,7 +1859,7 @@ function installCurriculum(result){
   rebuildScenarioMap();
 
   S.courseId=courseId;
-  if(changed){
+  if(courseChanged){
     const fresh=freshState();
     S.prog=fresh.prog;
     S.words=fresh.words;
@@ -2726,13 +2911,18 @@ function adminStudentCard(student){
   const skills=(student.skills||[]).filter(skill=>skill.attempts>0);
   const skillLabels={vocab:'אוצר מילים',grammar:'דקדוק',listening:'שמיעה'};
   const units=student.unitProgress||[];
+  const levelLabel=student.targetLevel&&student.targetLevel!==student.level
+    ? `${student.level} · ${student.levelStage||`לקראת ${student.targetLevel}`}`
+    : `${student.level}${student.levelStage?` · ${student.levelStage}`:''}`;
+  const interests=Array.isArray(student.interests)?student.interests:[];
   return `<article class="card flat admin-student-card" data-admin-student="${escA(student.key)}">
     <div class="admin-student-head">
       <div><h2>${esc(student.username)}</h2><div class="row" style="margin-top:5px">
         <span class="tag ${student.activated?'lime':'gold'}">${student.activated?'חשבון פעיל':'ממתין להפעלה'}</span>
-        <span class="tag">${esc(student.level)}</span></div></div>
+        <span class="tag">${esc(levelLabel)}</span></div></div>
       <span class="tag purple">${esc(student.curriculum?.title||'מסלול בסיסי')}</span>
     </div>
+    <div class="tiny muted" style="margin-top:8px">${student.gender==='male'?'בן':'בת'} · תחומי עניין: ${interests.length?interests.map(esc).join(' · '):'לא הוגדרו'}</div>
     ${student.missing?'<p class="tiny muted" style="margin-top:10px">עדיין לא נוצר חשבון לתלמיד/ה.</p>':`
       <div class="admin-kpis">
         <div class="admin-kpi"><b>${Number(student.xp)||0}</b><span>XP</span></div>
@@ -2875,11 +3065,12 @@ async function issueStudentResetCode(key){
 function openCurriculumEditor(key,message='',promptValue){
   const student=ADMIN_STUDENTS?.find(item=>item.key===key);
   if(!student) return;
+  const initialPrompt=promptValue??student.curriculumPrompt??student.profilePrompt??'';
   openModal(`<h3>✨ יצירת מסלול Lamda אישי</h3>
-    <p class="small muted">המסלול כולו ייבנה מחדש עבור ${esc(student.username)}. צייני רמת CEFR, נושאים, מטרות, אוצר מילים רצוי וסגנון הלמידה. לפני ההחלפה יישמר דוח של ההתקדמות הקודמת.</p>
+    <p class="small muted">המסלול כולו ייבנה מחדש עבור ${esc(student.username)} לפי הרמה, המגדר ותחומי העניין שהוגדרו. אפשר לערוך את ההנחיות כאן. לפני ההחלפה יישמר דוח של ההתקדמות הקודמת.</p>
     ${student.curriculum?`<div class="tag lime" style="margin:8px 0">מסלול נוכחי: ${esc(student.curriculum.title)} · ${esc(student.curriculum.level)}</div>`:''}
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
-    <div class="field"><label for="curriculum-prompt">הנחיות למורה / פרומפט</label><textarea id="curriculum-prompt" rows="8" maxlength="5000" placeholder="לדוגמה: רמה A2. צרי מסלול בנושא חלל, מזג אוויר ושיחות יומיומיות. התמקדי ב-Past Simple ובשאלות.">${esc(promptValue??student.curriculumPrompt??'')}</textarea></div>
+    <div class="field"><label for="curriculum-prompt">הנחיות למורה / פרומפט</label><textarea id="curriculum-prompt" rows="8" maxlength="5000" placeholder="הוסיפי נושאים, מטרות וסגנון לימוד.">${esc(initialPrompt)}</textarea></div>
     <div class="row"><button class="btn primary" data-act="admin-generate-curriculum" data-key="${escA(key)}">יצירה והחלפת המסלול</button><button class="btn ghost" data-close>ביטול</button></div>
     <p class="tiny muted" style="margin-top:8px">התוכן נוצר דרך שירות ה-AI שהוגדר בשרת; אם היצירה נכשלת, המסלול הנוכחי נשאר ללא שינוי.</p>`);
 }
@@ -3182,6 +3373,7 @@ async function doReset(){
 function openModal(html){
   const o=$('#overlay');
   o.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  personalizeVisibleText(o);
   o.hidden=false; document.body.style.overflow='hidden';
 }
 function closeModal(){
@@ -3227,6 +3419,7 @@ function render(){
     <button class="btn sm" data-act="admin-impersonation-exit">חזרה ללוח האדמין</button>
   </div>`:'';
   main.innerHTML=banner+html;
+  personalizeVisibleText(main);
   updateHeader(); updateNav();
   if(root==='unit' && p[2]==='practice'){ const u=UNITS.find(x=>x.id===p[1]); if(u) mountUnitPractice(u); }
   if(root==='review' && p[1]==='session' && !S.review.finished) mountReview();
@@ -3386,6 +3579,7 @@ function boot(){
   window.addEventListener('hashchange',render);
   window.addEventListener('beforeunload',saveNow);
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); else if(cloudReady()) cloudPush(); });
+  watchPersonalizedText();
   render();
   initCloudSync();
   updateSyncBadge(cloudReady()?'saved':'off');
@@ -3572,6 +3766,7 @@ function scrollChat(){
 function renderChatMessages(){
   const box=$('#msgs'); if(!box) return;
   box.innerHTML=chatMessagesHTML();
+  personalizeVisibleText(box);
   scrollChat();
 }
 
@@ -3682,7 +3877,16 @@ function buildSystemPrompt(sc){
   const target=sc.words.map(w=>w.en).join(', ');
  const learnerName=S.name||'the learner';
  const levelGuidance=level==='A1'||level==='A1+'?'Use short, simple sentences and familiar words. Focus on basic grammar.':level==='A2'?'Use clear everyday English, with simple past and future when useful.':'Use natural, age-appropriate English and explanations suited to this CEFR level.';
- return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for ${learnerName}. Do not assume the learner's age, gender, school grade, or hobbies.
+ const genderGuidance=CURRENT_LEARNER_GENDER==='male'
+   ? 'The learner is a boy. Address him using masculine singular forms in Hebrew; never address him in feminine forms.'
+   : 'The learner is a girl. Address her using feminine singular forms in Hebrew.';
+ const learnerInterests=CURRENT_LEARNER_PROFILE.interests.length
+   ? CURRENT_LEARNER_PROFILE.interests.join(', ')
+   : 'everyday topics appropriate to the lesson';
+ const levelTarget=CURRENT_LEARNER_PROFILE.targetLevel&&CURRENT_LEARNER_PROFILE.targetLevel!==level
+   ? `The learner is approaching CEFR ${CURRENT_LEARNER_PROFILE.targetLevel}.`
+   : '';
+ return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for ${learnerName}. ${genderGuidance} Known interests: ${learnerInterests}. Use these interests naturally for examples and questions, without forcing them into every turn. ${levelTarget}
 
 YOUR ROLE: Be a warm, funny, encouraging English conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
 Target vocabulary you may weave in naturally: ${target}.

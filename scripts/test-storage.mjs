@@ -31,7 +31,19 @@ const {
   resolveCaller,
 } = await import('../server/app.js');
 const { compareAndSetProgressRecord, getProgressRecord, getStudentRecord } = await import('../server/storage.js');
+const { STUDENTS } = await import('../server/students.js');
 refreshAiTarget();
+assert.deepEqual(
+  STUDENTS.map(({ username, level, targetLevel, gender, interests }) => ({ username, level, targetLevel, gender, interests })),
+  [
+    { username: 'גפן', level: 'A1', targetLevel: undefined, gender: 'female', interests: ['ריקוד', 'חיות', 'טבע'] },
+    { username: 'בארי', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['כדורגל', 'ספורט', 'חיות', 'טבע'] },
+    { username: 'שקד', level: 'A1', targetLevel: undefined, gender: 'female', interests: ['ריקוד', 'חיות', 'טבע'] },
+    { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
+    { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
+    { username: 'מיה', level: 'A1', targetLevel: undefined, gender: 'female', interests: [] },
+  ],
+);
 
 function generatedCurriculum(title) {
   const words = ['apple', 'book', 'chair', 'dance', 'egg', 'friend'].map((en) => ({
@@ -84,10 +96,14 @@ function generatedCurriculum(title) {
 }
 
 let aiResult = generatedCurriculum('מסלול ראשון');
+let aiRequestBody = null;
 const originalFetch = globalThis.fetch;
-globalThis.fetch = async () => new Response(JSON.stringify({
-  choices: [{ message: { content: JSON.stringify(aiResult) } }],
-}), { status: 200, headers: { 'Content-Type': 'application/json' } });
+globalThis.fetch = async (_url, options) => {
+  aiRequestBody = JSON.parse(options.body);
+  return new Response(JSON.stringify({
+    choices: [{ message: { content: JSON.stringify(aiResult) } }],
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+};
 
 async function call(handler, request = {}) {
   const response = {
@@ -154,6 +170,9 @@ try {
   assert.equal(firstCourse.statusCode, 200);
   assert.equal(firstCourse.body.archivedReport.summary.xp, 25);
   assert.equal(firstCourse.body.reportsCount, 1);
+  assert.match(aiRequestBody.messages[0].content, /Address the learner consistently in the gendered Hebrew form/);
+  assert.match(aiRequestBody.messages[1].content, /Learner: גפן; girl; address her in feminine Hebrew/);
+  assert.match(aiRequestBody.messages[1].content, /ריקוד, חיות, טבע/);
   const firstCourseId = (await getStudentRecord('GEFEN')).curriculum.id;
   const courseHeaders = { authorization: `Bearer ${activated.body.token}` };
   const assigned = await call(handleGetCurriculum, { headers: courseHeaders });
@@ -167,6 +186,17 @@ try {
     body: { data: { courseId: 'default', xp: 99 }, client_updated_at: null },
   });
   assert.equal(staleWrite.statusCode, 409);
+
+  const barryCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'BARRY' },
+    body: { prompt: 'Create a personalized course with football, sports, animals, and nature.' },
+  });
+  assert.equal(barryCourse.statusCode, 200);
+  assert.match(aiRequestBody.messages[1].content, /Learner: בארי; boy; address him in masculine Hebrew/);
+  assert.match(aiRequestBody.messages[1].content, /Current CEFR level: A2, approaching B1/);
+  assert.match(aiRequestBody.messages[1].content, /כדורגל, ספורט, חיות, טבע/);
+  assert.equal((await getStudentRecord('BARRY')).curriculum.learnerGender, 'male');
 
   const courseProgress = await call(handleSaveProgress, {
     headers: courseHeaders,
@@ -280,6 +310,9 @@ try {
   const secondStudent = await call(handleActivateStudent, {
     body: { username: 'בארי', code: secondCode.body.code, password: 'barry-test-password' },
   });
+  assert.equal(secondStudent.body.user.gender, 'male');
+  assert.equal(secondStudent.body.user.level, 'A2');
+  assert.equal(secondStudent.body.user.targetLevel, 'B1');
   const secondProgress = await call(handleGetProgress, {
     headers: { authorization: `Bearer ${secondStudent.body.token}` },
   });
@@ -288,6 +321,12 @@ try {
 
   const dashboard = await call(handleAdminStudents, { headers: adminHeaders });
   assert.equal(dashboard.statusCode, 200);
+  const barryProfile = dashboard.body.students.find((student) => student.key === 'BARRY');
+  assert.equal(barryProfile.level, 'A2');
+  assert.equal(barryProfile.targetLevel, 'B1');
+  assert.equal(barryProfile.gender, 'male');
+  assert.deepEqual(barryProfile.interests, ['כדורגל', 'ספורט', 'חיות', 'טבע']);
+  assert.match(barryProfile.profilePrompt, /מתקרב ל-B1/);
   const gefenDashboard = dashboard.body.students.find((student) => student.key === 'GEFEN');
   assert.equal(gefenDashboard.xp, 5);
   assert.equal(gefenDashboard.streak, 2);
