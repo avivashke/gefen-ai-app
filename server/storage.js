@@ -6,6 +6,7 @@ const DATA_DIR = process.env.DATA_DIR
   : path.join(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PROGRESS_FILE = path.join(DATA_DIR, 'progress.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const NETLIFY_RUNTIME = process.env.NETLIFY === 'true'
   || Boolean(process.env.NETLIFY_SITE_ID)
   || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -76,6 +77,14 @@ export function getStudentRecord(studentKey) {
 
 export function setStudentRecord(studentKey, record) {
   return setRecord(USERS_FILE, `student:${studentKey}`, record);
+}
+
+export function getAppSetting(settingKey) {
+  return getRecord(SETTINGS_FILE, `setting:${settingKey}`);
+}
+
+export function setAppSetting(settingKey, value) {
+  return setRecord(SETTINGS_FILE, `setting:${settingKey}`, value);
 }
 
 export function getProgressRecord(studentKey) {

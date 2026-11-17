@@ -14,15 +14,20 @@ Set these server-side environment variables in Netlify before deploying:
 | `ADMIN_USERNAME` | Yes | Teacher dashboard username |
 | `ADMIN_PASSWORD` | Yes | Strong teacher dashboard password |
 | `ADMIN_SESSION_SECRET` | Yes | Random secret of at least 32 characters for admin sessions |
+| `ADMIN_DISPLAY_NAME` | Optional | Admin name shown in the dashboard; defaults to `אביב` |
 | `AUTH_TOKEN_SECRET` | Yes | Independent random secret of at least 32 characters for student sessions |
 | `NETLIFY_SITE_ID` | Yes | Netlify Project ID used to access the Blobs store |
 | `NETLIFY_BLOBS_TOKEN` | Yes | Netlify personal access token used only by the server function to access Blobs |
 | `TEACHER_WHATSAPP` | Recommended | Teacher's international phone number, digits only |
-| `AI_PROXY_URL` | Optional | OpenAI-compatible AI proxy URL; required for AI chat and personal curriculum generation |
+| `AI_PROXY_URL` | Optional | Legacy server-side AI endpoint used until an admin-managed model is configured |
+| `AI_API_KEY` | Optional | API key for the legacy `AI_PROXY_URL` fallback only |
 | `NODE_ENV` | Optional | Set to `production` |
 
 Generate the two secrets separately, for example with `openssl rand -hex 32`.
 Do not use the same value for both, and never commit or share the values.
+Keep `ADMIN_SESSION_SECRET` stable after saving AI provider keys: it encrypts
+those keys, so changing it without re-entering them prevents the server from
+decrypting the saved credentials.
 
 For `NETLIFY_SITE_ID`, copy the **Project ID** from Netlify's project
 configuration. Create a personal access token in **User settings → Applications
@@ -50,6 +55,14 @@ the course before sharing its activation code. Actions taken in that session
 are saved as the learner; this does not activate the learner's account. A
 persistent banner identifies the session and provides a return to admin. The
 admin dashboard and password are not exposed to the learner session.
+
+The **AI models** section lets Aviv add Groq or OpenAI-compatible endpoints,
+save their API keys, test each saved connection, and choose one active model
+shared by all learners. API keys are encrypted server-side with
+`ADMIN_SESSION_SECRET`; only whether a key is configured is returned to the
+browser. Student chat requests require a valid student account and always use
+the admin-selected model. If the admin-managed list is empty, the app can use
+the legacy `AI_PROXY_URL`/`AI_API_KEY` environment configuration as a fallback.
 
 In the admin dashboard, use **Edit AI curriculum** on a learner's row to
 generate a complete four-unit course from a teacher prompt. Include the
@@ -89,8 +102,9 @@ instance until separately exported or deleted. `PB_URL`, `PB_ADMIN_EMAIL`, and
 `PB_ADMIN_PASSWORD` are no longer required by this app and should be removed
 from Netlify's environment variables once the migration is verified.
 
-## AI proxy
+## AI provider fallback
 
-Configure `AI_PROXY_URL` and allow the Netlify site's origin in the AI
-provider/Worker's origin settings. Student progress and authentication do not
-depend on the AI proxy, but chat and curriculum generation do.
+`AI_PROXY_URL` and `AI_API_KEY` remain available as an optional fallback for
+existing deployments. The admin-managed model pool takes precedence when it
+contains a configured model. Student progress and authentication do not depend
+on AI availability, but chat and curriculum generation do.

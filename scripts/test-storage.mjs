@@ -19,9 +19,14 @@ const {
   handleAdminLogin,
   handleAdminCurriculumReports,
   handleAdminGenerateCurriculum,
+  handleAdminGetAiModels,
   handleAdminImpersonateStudent,
   handleAdminResetCode,
+  handleAdminSaveAiModels,
   handleAdminStudents,
+  handleAdminTestAiModel,
+  handleAiChat,
+  handleConfig,
   handleGetCurriculum,
   handleMe,
   handleGetProgress,
@@ -30,7 +35,12 @@ const {
   refreshAiTarget,
   resolveCaller,
 } = await import('../server/app.js');
-const { compareAndSetProgressRecord, getProgressRecord, getStudentRecord } = await import('../server/storage.js');
+const {
+  compareAndSetProgressRecord,
+  getAppSetting,
+  getProgressRecord,
+  getStudentRecord,
+} = await import('../server/storage.js');
 const { STUDENTS } = await import('../server/students.js');
 refreshAiTarget();
 assert.deepEqual(
@@ -133,6 +143,8 @@ try {
     body: { username: 'teacher', password: 'test-admin-password' },
   });
   assert.equal(adminLogin.statusCode, 200);
+  assert.equal(adminLogin.body.user.displayName, 'אביב');
+  assert.equal(adminLogin.body.user.gender, 'male');
   const adminHeaders = { authorization: `Bearer ${adminLogin.body.token}` };
 
   const initialCode = await call(handleAdminResetCode, {
@@ -148,6 +160,87 @@ try {
   });
   assert.equal(activated.statusCode, 200);
   assert.equal((await resolveCaller(`Bearer ${activated.body.token}`)).id, 'GEFEN');
+
+  const missingAdminAuth = await call(handleAdminGetAiModels);
+  assert.equal(missingAdminAuth.statusCode, 401);
+  const savedModels = await call(handleAdminSaveAiModels, {
+    headers: adminHeaders,
+    body: {
+      activeProviderId: 'groq-default',
+      providers: [{
+        id: 'groq-default',
+        name: 'Groq',
+        kind: 'groq',
+        apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+        model: 'llama-3.3-70b-versatile',
+        apiKey: 'test-ai-key-secret',
+      }],
+    },
+  });
+  assert.equal(savedModels.statusCode, 200);
+  assert.equal(savedModels.body.providers[0].hasApiKey, true);
+  assert.equal(JSON.stringify(savedModels.body).includes('test-ai-key-secret'), false);
+  assert.equal(JSON.stringify(await getAppSetting('ai-model-pool')).includes('test-ai-key-secret'), false);
+  const preservedKey = await call(handleAdminSaveAiModels, {
+    headers: adminHeaders,
+    body: {
+      activeProviderId: 'groq-default',
+      providers: [{
+        id: 'groq-default',
+        name: 'Groq',
+        kind: 'groq',
+        apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+        model: 'llama-3.3-70b-versatile',
+        apiKey: '',
+      }],
+    },
+  });
+  assert.equal(preservedKey.statusCode, 200);
+  assert.equal(preservedKey.body.providers[0].hasApiKey, true);
+  const listedModels = await call(handleAdminGetAiModels, { headers: adminHeaders });
+  assert.equal(listedModels.statusCode, 200);
+  assert.equal(listedModels.body.providers[0].apiKey, undefined);
+  assert.equal(JSON.stringify(listedModels.body).includes('test-ai-key-secret'), false);
+  const publicConfig = await call(handleConfig);
+  assert.equal(publicConfig.body.ai.enabled, true);
+  assert.equal(publicConfig.body.ai.label, 'Groq');
+  assert.equal(publicConfig.body.ai.model, 'llama-3.3-70b-versatile');
+
+  const rejectedHttpProvider = await call(handleAdminSaveAiModels, {
+    headers: adminHeaders,
+    body: {
+      activeProviderId: 'groq-default',
+      providers: [{
+        id: 'groq-default',
+        name: 'Unsafe',
+        kind: 'openai-compatible',
+        apiUrl: 'http://example.com/v1',
+        model: 'test',
+        apiKey: 'secret',
+      }],
+    },
+  });
+  assert.equal(rejectedHttpProvider.statusCode, 400);
+
+  const modelTest = await call(handleAdminTestAiModel, {
+    headers: adminHeaders,
+    body: { providerId: 'groq-default' },
+  });
+  assert.equal(modelTest.statusCode, 200);
+  assert.equal(modelTest.body.ok, true);
+  const anonymousAi = await call(handleAiChat, {
+    body: { messages: [{ role: 'user', content: 'hello' }] },
+  });
+  assert.equal(anonymousAi.statusCode, 401);
+  const learnerAi = await call(handleAiChat, {
+    headers: { authorization: `Bearer ${activated.body.token}` },
+    body: {
+      model: 'attacker-selected-model',
+      messages: [{ role: 'user', content: 'hello' }],
+    },
+  });
+  assert.equal(learnerAi.statusCode, 200);
+  assert.equal(aiRequestBody.model, 'llama-3.3-70b-versatile');
 
   const saved = await call(handleSaveProgress, {
     headers: { authorization: `Bearer ${activated.body.token}` },
@@ -168,6 +261,7 @@ try {
     body: { prompt: 'A1 English for daily life and school' },
   });
   assert.equal(firstCourse.statusCode, 200);
+  assert.equal(aiRequestBody.model, 'llama-3.3-70b-versatile');
   assert.equal(firstCourse.body.archivedReport.summary.xp, 25);
   assert.equal(firstCourse.body.reportsCount, 1);
   assert.match(aiRequestBody.messages[0].content, /Address the learner consistently in the gendered Hebrew form/);

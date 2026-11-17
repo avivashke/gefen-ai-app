@@ -1161,7 +1161,6 @@ function freshState(){
     xp:0, streak:0, lastDay:'', activeDays:{},
     daily:{date:todayKey(), xp:0, answers:0, reviews:0, chats:0},
     settings:{sound:true, ttsRate:.9, autoSpeak:false, showTr:true, fontScale:1, goal:60, correction:'balanced', level:'A1'},
-    api:{mode:'proxy', key:'', model:'openai/gpt-oss-120b', endpoint:'', proxy:'https://gefen-ai.avivashke95.workers.dev/'},
     prog:{}, words:{}, rules:{}, unitPos:{}, seen:{intro:{},units:{}},
     stats:{answers:0, correct:0, streak:0, bestStreak:0, reviews:0, chats:0, speak:0, speakScore:0, bySkill:{vocab:{a:0,c:0},grammar:{a:0,c:0},listening:{a:0,c:0}}},
     badges:{}, exam:{last:null, best:0, attempts:0, active:null},
@@ -1190,14 +1189,7 @@ function mergeState(base, incoming){
   out.exam = {...base.exam, ...(incoming.exam||{})};
   out.daily = {...base.daily, ...(incoming.daily||{})};
   out.last = {...base.last, ...(incoming.last||{})};
-  // תצורת AI: פרוקסי ומודל מועדף מסתנכרנים בין מכשירים דרך הענן.
-  // המפתח (key) אינו משוחזר מהענן – הוא סוד שנשאר במכשיר שבו הוזן.
-  out.api = {...base.api};
-  if(incoming.api){
-    if(incoming.api.proxy !== undefined) out.api.proxy = incoming.api.proxy;
-    if(incoming.api.model !== undefined) out.api.model = incoming.api.model;
-    if(incoming.api.mode !== undefined) out.api.mode = incoming.api.mode;
-  }
+  delete out.api;
   return out;
 }
 
@@ -1208,23 +1200,21 @@ function isNewer(remote, local){
 }
 
 function loadState(){
+  let removeLegacyAiSettings=false;
   try{
     const raw = localStorage.getItem(stateStorageKey());
     if(raw){
       const data = JSON.parse(raw);
+      removeLegacyAiSettings=Boolean(data.api);
       S = mergeState(freshState(), data);
     }
   }catch(e){ console.warn('load failed', e); }
-
-  // תצורת AI נטענת מהאחסון המקומי; הפרוקסי נשמר ומסונכרן בין מכשירים, המפתח נותר מקומי בלבד.
-  if(!S.api.proxy) S.api.proxy = freshState().api.proxy;
-  if(!S.api.model) S.api.model = freshState().api.model;
-  S.api.key = S.api.key || '';
 
   if(S.daily.date !== todayKey()) S.daily = {date:todayKey(), xp:0, answers:0, reviews:0, chats:0};
   if(S.review.lastDate !== todayKey()){ S.review.lastDate = todayKey(); S.review.doneToday = 0; }
   if(S.lastDay && S.lastDay !== todayKey() && S.lastDay !== dateKey(Date.now()-DAY)) S.streak = 0;
   applyFontScale();
+  if(removeLegacyAiSettings) persistLocal();
 }
 
 /* ---------------- cloud sync bridge ---------------- */
@@ -1241,8 +1231,6 @@ function applyCloud(data, updatedAt){
     if(account) setStudentIdentity(account);
     S.courseId=CURRENT_COURSE_ID;
     S.courseSnapshot=S.courseSnapshot||courseSnapshot();
-    // mergeState משחזר את הפרוקסי מהענן; המפתח נותר מקומי בלבד
-    S.api.key = S.api.key || '';
     S.updated_at = updatedAt || new Date().toISOString();
     persistLocal();
     applyFontScale();
@@ -1270,6 +1258,10 @@ let ADMIN_RESET_CODES={};
 let ADMIN_CURRICULUM_BUSY={};
 let ADMIN_LOADING=false;
 let ADMIN_ERROR='';
+let ADMIN_AI_MODELS=null;
+let ADMIN_AI_BUSY=false;
+let ADMIN_AI_ERROR='';
+let PUBLIC_AI_STATUS={enabled:false,label:'מאמנת AI'};
 const MASCULINE_UI_PHRASES=[
   ['ברוכה הבאה','ברוך הבא'],
   ['תמשיכי כך','תמשיך כך'],
@@ -1319,6 +1311,10 @@ const MASCULINE_UI_PHRASES=[
   ['דברי','דבר'],
   ['חזרי','חזור'],
   ['בדקי','בדוק'],
+  ['העבירי','העבר'],
+  ['הגדירי','הגדר'],
+  ['התחברי','התחבר'],
+  ['היכנסי','היכנס'],
   ['פני','פנה'],
   ['תמשיכי','תמשיך'],
   ['תראי','תראה']
@@ -1405,8 +1401,11 @@ function masculineCurriculum(value){
   }
   return value;
 }
+function currentHebrewGender(){
+  return parts()[0]==='admin'?'male':CURRENT_LEARNER_GENDER;
+}
 function personalizeVisibleText(root=document.body){
-  if(CURRENT_LEARNER_GENDER!=='male'||!root) return;
+  if(currentHebrewGender()!=='male'||!root) return;
   const visit=(node)=>{
     if(node.nodeType===Node.TEXT_NODE){
       const text=masculineHebrew(node.nodeValue);
@@ -1664,7 +1663,7 @@ function floatXP(n,node){
 }
 function toast(t){
   const el=$('#toast'); if(!el) return;
-  el.textContent=CURRENT_LEARNER_GENDER==='male'?masculineHebrew(t):t;
+  el.textContent=currentHebrewGender()==='male'?masculineHebrew(t):t;
   el.classList.add('show');
   clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600);
 }
@@ -2954,15 +2953,52 @@ function adminStudentCard(student){
     ${ADMIN_RESET_CODES[student.key]?`<div class="tiny" style="margin-top:7px;direction:ltr"><code>${esc(ADMIN_RESET_CODES[student.key])}</code> <button class="btn xs ghost" data-copy="${escA(ADMIN_RESET_CODES[student.key])}">העתקה</button></div>`:''}
   </article>`;
 }
+function renderAdminAiModels(){
+  if(ADMIN_AI_BUSY&&!ADMIN_AI_MODELS) return '<p class="small muted">טוען הגדרות AI…</p>';
+  if(!ADMIN_AI_MODELS) return `<p class="small muted">${esc(ADMIN_AI_ERROR||'הגדרות המודלים עדיין לא נטענו.')}</p>`;
+  const providers=ADMIN_AI_MODELS.providers||[];
+  const activeOptions=providers.map(provider=>`<option value="${escA(provider.id)}" ${ADMIN_AI_MODELS.activeProviderId===provider.id?'selected':''}>${esc(provider.name)} · ${esc(provider.model)}</option>`).join('');
+  const rows=providers.map(provider=>`<article class="card section" data-admin-model-provider="${escA(provider.id)}">
+    <div class="grid two">
+      <div class="field"><label>שם לתצוגה</label><input data-model-name value="${escA(provider.name)}" maxlength="80"></div>
+      <div class="field"><label>סוג ספק</label><select data-model-kind><option value="groq" ${provider.kind==='groq'?'selected':''}>Groq</option><option value="openai-compatible" ${provider.kind==='openai-compatible'?'selected':''}>OpenAI-compatible</option></select></div>
+    </div>
+    <div class="field"><label>כתובת API</label><input data-model-url class="ltr" type="url" value="${escA(provider.apiUrl)}" placeholder="https://api.groq.com/openai/v1/chat/completions"><div class="help">אפשר להזין כתובת בסיסית או כתובת מלאה של chat/completions.</div></div>
+    <div class="grid two">
+      <div class="field"><label>מזהה מודל</label><input data-model-name-id class="ltr" value="${escA(provider.model)}" maxlength="160"></div>
+      <div class="field"><label>מפתח API ${provider.hasApiKey?'(מוגדר; השאר ריק כדי לשמור אותו)':''}</label><input data-model-key class="ltr" type="password" autocomplete="new-password" spellcheck="false" placeholder="${provider.hasApiKey?'•••••••• (מוגדר)':'הדבק מפתח API'}"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn xs ghost" data-act="admin-test-ai-model" data-id="${escA(provider.id)}" ${provider.hasApiKey?'':'disabled'}>בדיקת חיבור</button>
+      <button class="btn xs danger" data-act="admin-remove-ai-model" data-id="${escA(provider.id)}">הסרת מודל</button>
+      ${provider.hasApiKey?'<span class="tiny muted">המפתח מוצפן ונשאר בשרת</span>':''}
+    </div>
+  </article>`).join('');
+  const fallback=ADMIN_AI_MODELS.envFallback?.enabled
+    ? `<p class="tiny muted">אם לא יוגדרו מודלים כאן, האפליקציה תמשיך להשתמש בהגדרת השרת: ${esc(ADMIN_AI_MODELS.envFallback.label)} · ${esc(ADMIN_AI_MODELS.envFallback.model)}.</p>`
+    : '<p class="tiny muted">לא מוגדר מודל חלופי בשרת. צריך להוסיף כאן לפחות מודל אחד כדי להפעיל את המאמנת.</p>';
+  return `<div class="card section">
+    <h2 style="font-size:1.05rem">🤖 מודלים למאמנת AI</h2>
+    <p class="small muted">אביב מגדיר את ספקי Groq או OpenAI-compatible ואת המודל הפעיל. כל התלמידים משתמשים במודל הפעיל; מפתחות ה-API נשמרים מוצפנים בשרת ולא נשלחים לדפדפני התלמידים.</p>
+    ${fallback}
+    ${providers.length?`<div class="field"><label for="admin-ai-active">מודל פעיל לכל התלמידים</label><select id="admin-ai-active">${activeOptions}</select></div>`:'<p class="tiny muted">עדיין לא הוגדרו מודלים אישיים.</p>'}
+    ${rows}
+    ${ADMIN_AI_ERROR?`<div class="help">${esc(ADMIN_AI_ERROR)}</div>`:''}
+    <div class="row">
+      <button class="btn sm ghost" data-act="admin-add-ai-model">הוסף מודל</button>
+      <button class="btn sm primary" data-act="admin-save-ai-models" ${ADMIN_AI_BUSY?'disabled':''}>${ADMIN_AI_BUSY?'שומר…':'שמירת הגדרות המודלים'}</button>
+    </div>
+  </div>`;
+}
 function pageAdmin(){
   if(!window.adminApi?.isEnabled()){
     return `<div class="page">
-      <div class="page-head"><h1 class="page-title">🛡️ ניהול מורה</h1><p class="page-sub">כניסה מאובטחת לצפייה בהתקדמות וליצירת קודי איפוס.</p></div>
+      <div class="page-head"><h1 class="page-title">🛡️ לוח אביב</h1><p class="page-sub">כניסת אדמין מאובטחת לצפייה בהתקדמות ולניהול המאמנת.</p></div>
       <div class="card" style="max-width:480px">
         ${ADMIN_ERROR?`<div class="help">${esc(ADMIN_ERROR)}</div>`:''}
         <div class="field"><label for="admin-username">שם משתמש אדמין</label><input id="admin-username" autocomplete="username"></div>
         <div class="field"><label for="admin-password">סיסמת אדמין</label><input id="admin-password" type="password" autocomplete="current-password"></div>
-        <button class="btn primary wide" data-act="admin-login">כניסה ללוח</button>
+        <button class="btn primary wide" data-act="admin-login">כניסה ללוח אביב</button>
         <p class="tiny muted" style="margin-top:10px">חשבון האדמין מוגדר כסוד בשרת ואינו אחד מחשבונות התלמידים.</p>
         <button class="btn ghost wide" style="margin-top:8px" data-go="#/home">חזרה לאפליקציה</button>
       </div>
@@ -2970,15 +3006,17 @@ function pageAdmin(){
   }
 
   const students=ADMIN_STUDENTS||[];
+  const adminName=window.adminApi.user()?.displayName||'אביב';
   const activeCount=students.filter(student=>student.activated).length;
   const accuracyValues=students.map(student=>student.accuracy).filter(value=>value!=null&&Number.isFinite(Number(value)));
   const averageAccuracy=accuracyValues.length?`${Math.round(accuracyValues.reduce((sum,value)=>sum+Number(value),0)/accuracyValues.length)}%`:'—';
   const totalXp=students.reduce((sum,student)=>sum+(Number(student.xp)||0),0);
   return `<div class="page">
-    <div class="page-head"><div><h1 class="page-title">🛡️ דשבורד תלמידים</h1><p class="page-sub">סיכום התקדמות בלבד; שיחות פרטיות אינן מוצגות.</p></div>
+    <div class="page-head"><div><h1 class="page-title">🛡️ דשבורד ${esc(adminName)}</h1><p class="page-sub">סיכום התקדמות בלבד; שיחות פרטיות אינן מוצגות.</p></div>
       <div class="row"><button class="btn sm ghost" data-act="admin-refresh">רענון</button><button class="btn sm danger" data-act="admin-logout">יציאה</button></div>
     </div>
     ${ADMIN_ERROR?`<div class="help section">${esc(ADMIN_ERROR)}</div>`:''}
+    ${renderAdminAiModels()}
     <div class="card section">
       <p class="small muted">אפשר להיכנס לחשבון של תלמיד/ה גם לפני הפעלתו, כדי לבדוק את המסלול. פעולות במצב זה נשמרות כהתקדמות שלו/ה, אך אינן מפעילות את החשבון; הן מסומנות עד ליציאה חזרה לאדמין. אפשר ליצור מסלול AI אישי ולפתוח דוחות קודמים; שיחות פרטיות אינן מוצגות.</p>
       ${ADMIN_LOADING&&!ADMIN_STUDENTS?'<p class="small muted">טוען נתוני תלמידים…</p>':''}
@@ -2995,14 +3033,87 @@ async function loadAdminDashboard(){
   if(ADMIN_LOADING||!window.adminApi?.isEnabled()) return;
   ADMIN_LOADING=true; ADMIN_ERROR='';
   try{
-    const result=await window.adminApi.students();
-    ADMIN_STUDENTS=result.students||[];
+    const [studentsResult,modelsResult]=await Promise.allSettled([
+      window.adminApi.students(),
+      window.adminApi.aiModels(),
+    ]);
+    if(studentsResult.status==='rejected') throw studentsResult.reason;
+    ADMIN_STUDENTS=studentsResult.value.students||[];
+    if(modelsResult.status==='fulfilled'){
+      ADMIN_AI_MODELS=modelsResult.value;
+      ADMIN_AI_ERROR='';
+    }else{
+      ADMIN_AI_MODELS=null;
+      ADMIN_AI_ERROR=`טעינת מודלי ה-AI נכשלה: ${modelsResult.reason.message}`;
+    }
   }catch(error){
+    ADMIN_STUDENTS=[];
     ADMIN_ERROR=error.status===401?'פג תוקף החיבור. התחברי שוב.':`טעינת הנתונים נכשלה: ${error.message}`;
     if(error.status===401) window.adminApi.logout();
   }finally{
     ADMIN_LOADING=false;
     if(parts()[0]==='admin') render();
+  }
+}
+function addAdminAiModel(){
+  if(!ADMIN_AI_MODELS) ADMIN_AI_MODELS={providers:[],activeProviderId:null,envFallback:{enabled:false}};
+  const id=window.crypto?.randomUUID?.()||`model-${Date.now()}`;
+  ADMIN_AI_MODELS.providers.push({
+    id,name:'Groq',kind:'groq',apiUrl:'https://api.groq.com/openai/v1/chat/completions',
+    model:'llama-3.3-70b-versatile',hasApiKey:false,
+  });
+  if(!ADMIN_AI_MODELS.activeProviderId) ADMIN_AI_MODELS.activeProviderId=id;
+  ADMIN_AI_ERROR='';
+  render();
+}
+function removeAdminAiModel(id){
+  if(!ADMIN_AI_MODELS) return;
+  ADMIN_AI_MODELS.providers=ADMIN_AI_MODELS.providers.filter(provider=>provider.id!==id);
+  if(ADMIN_AI_MODELS.activeProviderId===id){
+    ADMIN_AI_MODELS.activeProviderId=ADMIN_AI_MODELS.providers[0]?.id||null;
+  }
+  ADMIN_AI_ERROR='';
+  render();
+}
+async function saveAdminAiModels(){
+  if(ADMIN_AI_BUSY||!ADMIN_AI_MODELS) return;
+  const rows=$$('#main [data-admin-model-provider]');
+  const providers=rows.map(row=>({
+    id:row.dataset.adminModelProvider,
+    name:row.querySelector('[data-model-name]').value,
+    kind:row.querySelector('[data-model-kind]').value,
+    apiUrl:row.querySelector('[data-model-url]').value,
+    model:row.querySelector('[data-model-name-id]').value,
+    apiKey:row.querySelector('[data-model-key]').value,
+  }));
+  const activeProviderId=$('#admin-ai-active')?.value||null;
+  ADMIN_AI_BUSY=true; ADMIN_AI_ERROR=''; render();
+  try{
+    ADMIN_AI_MODELS=await window.adminApi.saveAiModels({
+      providers,
+      activeProviderId,
+    });
+    toast('הגדרות מודלי ה-AI נשמרו ✓');
+  }catch(error){
+    ADMIN_AI_ERROR=error.message;
+  }finally{
+    ADMIN_AI_BUSY=false;
+    if(parts()[0]==='admin') render();
+  }
+}
+async function testAdminAiModel(id,button){
+  if(!button||button.disabled) return;
+  button.disabled=true;
+  const original=button.textContent;
+  button.textContent='בודק…';
+  try{
+    const result=await window.adminApi.testAiModel(id);
+    toast(`החיבור הצליח ✓ · ${result.model}`);
+  }catch(error){
+    ADMIN_AI_ERROR=error.message;
+    render();
+  }finally{
+    if(button.isConnected){ button.disabled=false; button.textContent=original; }
   }
 }
 async function enterAdminStudent(key){
@@ -3242,7 +3353,6 @@ function renderSyncPanel(){
     <button class="btn primary wide" data-act="student-login-open">כניסה</button></div>`;
 }
 function openSettings(){
-  const a=S.api;
   openModal(`<button class="x" data-close>✕</button>
     <h3>⚙️ הגדרות</h3>
     <p class="small muted">ההתקדמות והרמה מוגדרות לכל תלמיד בנפרד ונשמרות בחשבון שלו.</p>
@@ -3252,14 +3362,10 @@ function openSettings(){
     ${renderSyncPanel()}
 
     <div class="divider"></div>
-    <h3 style="font-size:1rem">🤖 חיבור המאמנת (Groq)</h3>
-    <p class="small muted">בחרי מצב. במצב מקומי המאמנת עובדת בלי אינטרנט; עם Groq השיחה חופשית באמת.</p>
-    <div class="radio-row" style="margin-top:8px">
-      <label class="radio-opt"><input type="radio" name="api-mode" value="local" ${a.mode==='local'?'checked':''}><span><b>מאמנת מקומית (בלי מפתח)</b><span>תרגול לפי תרחישים + תיקון טעויות נפוצות. עובד תמיד.</span></span></label>
-      <label class="radio-opt"><input type="radio" name="api-mode" value="proxy" ${a.mode==='proxy'?'checked':''}><span><b>Groq דרך Backend Proxy (מומלץ)</b><span>הבקשות עוברות דרך השרת שלנו שמחזיק את המפתח בצד השרת.</span></span></label>
-    </div>
-    <div class="field"><label>מודל</label><input id="set-model" class="ltr" list="model-list" value="${escA(a.model||'openai/gpt-oss-120b')}"><datalist id="model-list"><option value="openai/gpt-oss-120b"><option value="llama-3.3-70b-versatile"><option value="llama-3.1-8b-instant"></datalist><div class="help">המודל המוגדר כברירת מחדל: openai/gpt-oss-120b</div></div>
-    <div class="field"><label>כתובת פרוקסי Cloudflare Worker</label><input id="set-proxy" class="ltr" type="url" value="${escA(a.proxy||'')}"><div class="help">למשל https://gefen-ai.avivashke95.workers.dev/ – הפרוקסי נשמר בענן ומסונכרן אוטומטית בין המכשירים שלך.</div></div>
+    <h3 style="font-size:1rem">🤖 המאמנת החכמה</h3>
+    <p class="small muted">${PUBLIC_AI_STATUS.enabled
+      ? `המודל נקבע בלוח האדמין ומשותף לכל התלמידים: ${esc(PUBLIC_AI_STATUS.label)} · ${esc(PUBLIC_AI_STATUS.model||'')}.`
+      : 'המאמנת המקוונת אינה מוגדרת כרגע; אפשר להמשיך בתרגול המקומי.'}</p>
     
     <div class="divider"></div>
     <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
@@ -3283,26 +3389,8 @@ function readSettings(){
   S.settings.sound=$('#set-sound').checked;
   S.settings.showTr=$('#set-tr').checked;
   S.settings.autoSpeak=$('#set-autospeak').checked;
-  S.api.proxy=$('#set-proxy').value.trim();
-  const modeChecked=$('input[name="api-mode"]:checked'); if(modeChecked) S.api.mode=modeChecked.value;
-  if(S.api.proxy){ try{ new URL(S.api.proxy); }catch(e){ toast('כתובת הפרוקסי אינה תקינה – בדקו את הכתובת ונסו שוב.'); return; } }
-  S.api.model=$('#set-model').value.trim() || 'openai/gpt-oss-120b';
   applyFontScale(); saveNow(); closeModal(); toast('ההגדרות נשמרו ✓');
   if(location.hash.includes('/chat')) render();
-}
-function openGuide(){
-  openModal(`<button class="x" data-close>✕</button>
-    <h3>📖 חיבור Groq – מדריך קצר</h3>
-    <ol style="font-size:.86rem;line-height:1.9;padding-inline-start:18px">
-      <li>היכנסי ל-<a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>, התחברי וצרי API Key. העתיקי אותו.</li>
-      <li>בהגדרות כאן בחרי <b>Groq ישיר</b>, הדביקי את המפתח, ובחרי מודל <b>llama-3.3-70b-versatile</b>. לחצי <b>בדקי חיבור</b>.</li>
-      <li>אם זה עובד – שמרי. המפתח נשמר רק בדפדפן הזה ולא נשלח לשום מקום חוץ מ-Groq.</li>
-      <li><b>לאתר ציבורי (GitHub Pages):</b> עדיף Worker של Cloudflare שמסתיר את המפתח. בחרי <b>Proxy</b> והדביקי את כתובת ה-Worker (הקוד בקובץ groq-proxy-worker.js).</li>
-    </ol>
-    <div class="fact" style="margin-top:10px"><b>חשוב:</b> דף סטטי לא יכול להסתיר מפתח. אם האתר פתוח לכולם – כל מי שמפתח את הדף יכול להעתיק אותו. לכן במצב ציבורי משתמשים ב-Proxy.</div>
-    <div class="divider"></div>
-    <p class="small muted">אם מודל מפסיק לעבוד או מוגבל – בחרי מודל אחר מהרשימה. לשיחה באנגלית מספיק מודל מהיר וקטן.</p>
-    <button class="btn primary wide" style="margin-top:12px" data-close>הבנתי</button>`);
 }
 function exportBackup(){
   const copy=JSON.parse(JSON.stringify(S));
@@ -3339,9 +3427,10 @@ function importFilePicker(){
   input.click();
 }
 function applyImport(obj){
-  const api=S.api, name=S.name;
+  const name=S.name;
   S={...freshState(), ...obj};
-  S.api=api; S.name=name;
+  delete S.api;
+  S.name=name;
   S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0};
   S.settings={...freshState().settings,...(obj.settings||{})};
   S.review={...freshState().review,...(obj.review||{}),queue:[],idx:0,finished:false};
@@ -3501,7 +3590,11 @@ function handleGlobalClick(e){
     case 'password-setup': submitPasswordSetup(); break;
     case 'student-logout': logoutStudent(); break;
     case 'admin-login': submitAdminLogin(); break;
-    case 'admin-refresh': ADMIN_STUDENTS=null; render(); loadAdminDashboard(); break;
+    case 'admin-refresh': ADMIN_STUDENTS=null; ADMIN_AI_MODELS=null; ADMIN_AI_ERROR=''; render(); loadAdminDashboard(); break;
+    case 'admin-add-ai-model': addAdminAiModel(); break;
+    case 'admin-remove-ai-model': removeAdminAiModel(act.dataset.id); break;
+    case 'admin-save-ai-models': saveAdminAiModels(); break;
+    case 'admin-test-ai-model': testAdminAiModel(act.dataset.id,act); break;
     case 'admin-impersonate': enterAdminStudent(act.dataset.key); break;
     case 'admin-impersonation-exit': exitAdminStudent(); break;
     case 'admin-reset-code': issueStudentResetCode(act.dataset.key); break;
@@ -3509,7 +3602,7 @@ function handleGlobalClick(e){
     case 'admin-view-reports': showCurriculumReports(act.dataset.key); break;
     case 'admin-generate-curriculum': generateStudentCurriculum(act.dataset.key); break;
     case 'admin-logout':
-      window.adminApi.logout(); ADMIN_STUDENTS=null; ADMIN_RESET_CODES={}; ADMIN_ERROR=''; render(); break;
+      window.adminApi.logout(); ADMIN_STUDENTS=null; ADMIN_AI_MODELS=null; ADMIN_RESET_CODES={}; ADMIN_ERROR=''; ADMIN_AI_ERROR=''; render(); break;
     case 'check': checkCurrent(); break;
     case 'hint': showHint(); break;
     case 'next':
@@ -3540,8 +3633,6 @@ function handleGlobalClick(e){
     case 'settings': openSettings(); break;
     case 'toggle-sound': S.settings.sound=!S.settings.sound; saveNow(); updateHeader(); toast(S.settings.sound?'🔊 צליל פעיל':'🔇 צליל כבוי'); break;
     case 'save-settings': readSettings(); break;
-    case 'test-api': if(typeof testApiConnection==='function') testApiConnection(); break;
-    case 'guide': openGuide(); break;
     case 'export': exportBackup(); break;
     case 'import-file': importFilePicker(); break;
     case 'backup-link': backupLink(); break;
@@ -3562,7 +3653,10 @@ function boot(){
   if(window.apiSync?.config){
     window.apiSync.config().then(config=>{
       TEACHER_WHATSAPP=config.teacherWhatsApp||'';
+      PUBLIC_AI_STATUS=config.ai||{enabled:false,label:'מאמנת AI'};
+      AI_AVAILABLE=PUBLIC_AI_STATUS.enabled!==false;
       refreshWhatsAppLinks();
+      if(parts()[0]==='chat') render();
     }).catch(error=>console.warn('[config] could not load public app config:',error.message));
   }
   loadState();
@@ -3605,12 +3699,11 @@ function getScenario(id){ return SCENARIO_MAP[id]||null; }
 /* The backend proxy is always available when the app is served by our server. */
 let AI_AVAILABLE = true;
 function canUseAI(){
-  if(S.api.mode==='local') return false;
-  return AI_AVAILABLE;
+  return AI_AVAILABLE&&PUBLIC_AI_STATUS.enabled&&Boolean(window.apiSync?.isEnabled?.());
 }
 function aiModeLabel(){
   if(!canUseAI()) return 'מאמנת מקומית';
-  return 'Groq דרך השרת';
+  return PUBLIC_AI_STATUS.label||'מאמנת AI';
 }
 function scenarioById(id){ return SCENARIOS.find(s=>s.id===id); }
 
@@ -3643,10 +3736,10 @@ function chatGalleryHTML(){
     <div class="card" style="background:linear-gradient(135deg,rgba(255,143,199,.09),rgba(61,220,245,.05));border-color:rgba(255,143,199,.25)">
       <div class="row">
         <div class="avatar">🤖</div>
-        <div style="flex:1"><b style="font-size:.95rem">${aiModeLabel()}</b><div class="tiny muted">${canUseAI()?`מודל: ${esc(S.api.model)} · רמה ${S.settings.level}`:'עובד גם בלי אינטרנט. חברי Groq לשיחה חופשית באמת.'}</div></div>
+        <div style="flex:1"><b style="font-size:.95rem">${aiModeLabel()}</b><div class="tiny muted">${canUseAI()?`מודל: ${esc(PUBLIC_AI_STATUS.model||PUBLIC_AI_STATUS.label)} · רמה ${S.settings.level}`:PUBLIC_AI_STATUS.enabled?'להתחברות למאמנת המקוונת יש להיכנס לחשבון תלמיד.':'עובד גם בלי אינטרנט – מאמנת מקומית.'}</div></div>
         <button class="btn xs ghost" data-act="settings">הגדרות</button>
       </div>
-      ${canUseAI()?'':`<div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="settings">🔌 חברי Groq</button><span class="tiny muted">המאמנת המקומית מלמדת, אבל לא מבינה כל משפט.</span></div>`}
+      ${canUseAI()?'':`<div class="row" style="margin-top:10px"><span class="tiny muted">${PUBLIC_AI_STATUS.enabled?'אחרי הכניסה, השיחה תשתמש במודל שקבע אביב.':'המאמנת המקומית מלמדת, אבל לא מבינה כל משפט.'}</span></div>`}
       <div class="divider"></div>
       <div class="row">
         <span class="tiny muted">רמת שיחה: <b>${esc(S.settings.level)}</b> · נקבעת לפי חשבון התלמידה</span>
@@ -3695,7 +3788,7 @@ function chatScreenHTML(sc){
       <div><h1 class="page-title" style="font-size:1.1rem">${sc.icon} ${sc.title}</h1><div class="page-sub" style="margin:0">${sc.who} · ${sc.focus} · ${S.settings.level}</div></div>
       <div class="row" style="margin-inline-start:auto"><button class="btn xs ghost" data-act="chat-report">📊 סיום</button><button class="btn xs ghost" data-act="chat-new">✚ חדש</button></div>
     </div>
-    ${canUseAI()?'':`<div class="chat-note">💡 <b>מצב מקומי:</b> המאמנת עוקבת אחרי התרחיש ומתקנת טעויות נפוצות. לחופש אמיתי – <button class="mini-chip" data-act="settings">חברי Groq</button></div>`}
+    ${canUseAI()?'':`<div class="chat-note">💡 <b>${PUBLIC_AI_STATUS.enabled?'נדרשת כניסה לחשבון':'מצב מקומי'}:</b> ${PUBLIC_AI_STATUS.enabled?'לאחר הכניסה השיחה תשתמש במודל שקבע אביב.':'המאמנת המקומית עוקבת אחרי התרחיש ומתקנת טעויות נפוצות.'}</div>`}
     <div class="chat-shell" id="chat-shell">
       <div class="chat-head">
         <div class="avatar">${sc.icon}</div>
@@ -3829,6 +3922,7 @@ function appendAI(res){
 }
 function apiErrorHe(err){
   const c=err&&err.apiCode;
+  if(err&&err.status===401) return 'צריך להתחבר לחשבון תלמיד כדי להשתמש במאמנת המקוונת.';
   if(err&&err.name==='AbortError') return 'הבקשה לקחה יותר מדי זמן. נסי שוב.';
   if(c===401||c===403) return 'המפתח לא תקין או שאין הרשאה. בדקי את המפתח בהגדרות.';
   if(c===429) return 'חרגת ממכסת הבקשות של Groq. המתיני רגע ונסי שוב.';
@@ -3846,28 +3940,7 @@ async function aiTurn(userText){
     else msgs.push({role:'assistant',content:m.text});
   });
 
-  const ctrl = new AbortController();
-  const timer = setTimeout(()=>ctrl.abort(), 30000);
-  let res;
-  try{
-    res=await fetch('/api/ai/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      signal:ctrl.signal,
-      body:JSON.stringify({model:S.api.model||'openai/gpt-oss-120b',messages:msgs,temperature:0.72,max_tokens:800})
-    });
-  } finally { clearTimeout(timer); }
-
-  let data={};
-  try{ data=await res.json(); }catch(e){ data={}; }
-
-  if(!res.ok){
-    const err=new Error(data.error||('HTTP '+res.status));
-    err.status=res.status;
-    // A missing AI service is not a user error: switch to the local coach quietly.
-    if(res.status===503 || res.status===502) AI_AVAILABLE=false;
-    throw err;
-  }
+  const data=await window.apiSync.aiChat(msgs,{temperature:0.72,max_tokens:800});
   if(!data.choices?.[0]?.message?.content) throw new Error('empty response');
   return parseAI(data.choices[0].message.content);
 }
@@ -3942,65 +4015,6 @@ function parseAI(raw){
     translation:String(obj.translation||obj.hebrew||''),
     corrections,suggestions,words,praise:String(obj.praise||'')
   };
-}
-
-/* ================= Groq transport ================= */
-async function callGroq(messages,opts={}){
-  const a=S.api;
-  const url=(a.mode==='proxy'?a.proxy:a.endpoint)||'';
-  if(!url) throw Object.assign(new Error('no url'),{apiCode:404});
-  const headers={'Content-Type':'application/json','Accept':'application/json'};
-  if(a.mode==='direct'){
-    if(!a.key) throw Object.assign(new Error('no key'),{apiCode:401});
-    headers.Authorization='Bearer '+a.key;
-  }
-  const body={model:a.model||'llama-3.3-70b-versatile',messages,temperature:.72,max_tokens:opts.maxTokens||800};
-  const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),opts.timeout||45000);
-  let res;
-  try{
-    res=await fetch(url,{method:'POST',headers,body:JSON.stringify(body),signal:ctrl.signal});
-  }catch(err){
-    clearTimeout(timer);
-    if(err.name==='AbortError') throw err;
-    throw Object.assign(new Error('network'),{apiCode:0});
-  }
-  clearTimeout(timer);
-  const raw=await res.text();
-  if(!res.ok){
-    let msg=raw;
-    try{ const j=JSON.parse(raw); msg=(j.error&&(j.error.message||j.error.code))||j.message||raw; }catch(e){}
-    throw Object.assign(new Error(msg||'http '+res.status),{apiCode:res.status});
-  }
-  let data;
-  try{ data=JSON.parse(raw); }catch(e){ throw Object.assign(new Error('bad json'),{apiCode:502}); }
-  const ch=data.choices&&data.choices[0];
-  let content=ch&&ch.message&&ch.message.content;
-  if(Array.isArray(content)) content=content.map(p=>p.text||p.content||'').join('');
-  if(!content && data.data && data.data.choices) content=data.data.choices[0]?.message?.content;
-  if(typeof content!=='string'||!content.trim()) throw Object.assign(new Error('empty'),{apiCode:502});
-  return content;
-}
-async function testApiConnection(){
-  const st=$('#api-status'); if(!st) return;
-  const model=$('#set-model').value.trim() || 'openai/gpt-oss-120b';
-  S.api.model=model;
-  st.className='status'; st.textContent='בודק חיבור דרך הבקאנד…';
-  const t0=Date.now();
-  try{
-    const res=await fetch('/api/ai/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model,messages:[{role:'user',content:'Reply with exactly: OK'}],max_tokens:128})
-    });
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error||'HTTP '+res.status);
-    st.className='status ok';
-    st.innerHTML='✓ החיבור עובד ('+(Date.now()-t0)+'ms) · מודל: '+esc(model);
-  }catch(err){
-    st.className='status bad';
-    st.innerHTML='✗ '+esc(err.message)+'<div style="margin-top:6px"><button class="btn xs ghost" data-act="guide">איך פותרים? 📖</button></div>';
-  }
 }
 
 /* ================= local coach ================= */

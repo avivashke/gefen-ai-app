@@ -109,6 +109,13 @@
     return result;
   }
 
+  function aiChat(messages, options = {}) {
+    return apiRequest('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages, ...options }),
+    });
+  }
+
   async function login(username, password) {
     const result = await apiRequest('/auth/login', {
       method: 'POST',
@@ -175,6 +182,24 @@
 
   function adminStudents() {
     return adminRequest('/admin/students');
+  }
+
+  function adminAiModels() {
+    return adminRequest('/admin/ai/models');
+  }
+
+  function adminSaveAiModels(settings) {
+    return adminRequest('/admin/ai/models', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
+  function adminTestAiModel(providerId) {
+    return adminRequest('/admin/ai/models/test', {
+      method: 'POST',
+      body: JSON.stringify({ providerId }),
+    });
   }
 
   async function adminEnterStudent(key) {
@@ -371,6 +396,7 @@
     logout,
     load,
     curriculum,
+    aiChat,
     save,
     flush,
     lastSyncedAt: () => lastSyncedAt,
@@ -392,6 +418,9 @@
       }
     },
     students: adminStudents,
+    aiModels: adminAiModels,
+    saveAiModels: adminSaveAiModels,
+    testAiModel: adminTestAiModel,
     enterStudent: adminEnterStudent,
     exitStudent: adminExitStudent,
     impersonatingStudent: adminImpersonatingStudent,
