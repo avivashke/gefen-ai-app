@@ -168,6 +168,12 @@ const microphone = await page.evaluate(async () => {
   inCall = true;
   const controller = listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
   result.endedSynchronously = controller === null;
+  window.SpeechRecognition = class {
+    start() { throw Object.assign(new Error('denied'), { name: 'NotAllowedError' }); }
+    abort() {}
+  };
+  const failedController = listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
+  result.failedControllerNull = failedController === null;
   inCall = false;
   if (originalRecognition) window.SpeechRecognition = originalRecognition;
   else delete window.SpeechRecognition;
@@ -232,7 +238,8 @@ if (navigationAndLocalSave.controls !== 2 || navigationAndLocalSave.savedXp !== 
 if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable || !suggestions.learnerNameInOpening) {
   throw new Error(`Chat controls failed: ${JSON.stringify(suggestions)}`);
 }
-if (!microphone.started || !microphone.startedSynchronously || !microphone.endedSynchronously || microphone.permissionError) {
+if (!microphone.started || !microphone.startedSynchronously || !microphone.endedSynchronously
+  || !microphone.failedControllerNull || microphone.permissionError !== 'not-allowed') {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
 if (!activationWorked || adminDashboard.rows !== 7 || adminDashboard.initialAction !== 'קוד הפעלה'
