@@ -135,6 +135,23 @@ const navigationAndLocalSave = await page.evaluate(() => {
   };
 });
 
+await page.evaluate(() => {
+  const unit = UNITS[0];
+  S.unitPos[unit.id] = unit.exercises.findIndex((exercise) => exercise.t === 'readmcq');
+  go('#/unit/u1/practice');
+});
+await page.waitForSelector('.reading-passage .tap-word');
+await page.locator('.reading-passage .tap-word').first().click();
+const readingTranslation = await page.locator('.reading-passage .word-translation-bubble').innerText();
+const readingAnswer = await page.evaluate(() => QS.ex.ans);
+await page.locator('.opt').filter({ hasText: readingAnswer }).click();
+await page.waitForSelector('#fb-slot .fb.ok');
+const answerWordCount = await page.locator('#fb-slot .tap-word').count();
+await page.locator('#fb-slot .tap-word').first().click();
+await page.waitForTimeout(4100);
+const readingBubbleClosed = await page.locator('.word-translation-bubble').count() === 0;
+const readingInteraction = { readingTranslation, answerWordCount, readingBubbleClosed };
+
 await page.evaluate(() => { location.hash = `#/chat/${SCENARIOS[0].id}`; });
 await page.waitForSelector('.suggestion-text');
 const suggestions = await page.evaluate(() => {
@@ -149,18 +166,42 @@ const suggestions = await page.evaluate(() => {
 });
 
 const microphone = await page.evaluate(async () => {
+  const originalMediaDevices = navigator.mediaDevices;
+  const originalUserAgent = navigator.userAgent;
   const originalRecognition = window.SpeechRecognition;
   const result = {
     started: false,
     startedSynchronously: false,
+    startedAfterPermission: false,
     endedSynchronously: false,
+    permissionRequested: 0,
+    permissionRequestedSynchronously: false,
+    tracksStopped: 0,
     permissionError: null,
   };
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: {
+      getUserMedia: () => {
+        result.permissionRequested++;
+        result.permissionRequestedSynchronously ||= inCall;
+        return Promise.resolve({
+          getTracks: () => [{ stop() { result.tracksStopped++; } }],
+        });
+      },
+    },
+  });
   let inCall = false;
+  let permissionGranted = false;
+  Object.defineProperty(navigator, 'userAgent', {
+    configurable: true,
+    value: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36',
+  });
   window.SpeechRecognition = class {
     start() {
       result.started = true;
       result.startedSynchronously = inCall;
+      result.startedAfterPermission = permissionGranted;
       this.onend?.();
     }
     abort() {}
@@ -168,6 +209,8 @@ const microphone = await page.evaluate(async () => {
   inCall = true;
   const controller = listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
   result.endedSynchronously = controller === null;
+  permissionGranted = true;
+  await new Promise((resolve) => setTimeout(resolve, 0));
   window.SpeechRecognition = class {
     start() { throw Object.assign(new Error('denied'), { name: 'NotAllowedError' }); }
     abort() {}
@@ -175,6 +218,43 @@ const microphone = await page.evaluate(async () => {
   const failedController = listenOnce('en-US', null, (error) => { result.permissionError = error; }, null);
   result.failedControllerNull = failedController === null;
   inCall = false;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  window.SpeechRecognition = class {
+    start() {}
+    abort() {}
+  };
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: {
+      getUserMedia: () => Promise.reject(Object.assign(new Error('denied'), { name: 'NotAllowedError' })),
+    },
+  });
+  let browserPermissionError = '';
+  permissionGranted = false;
+  inCall = true;
+  listenOnce('en-US', null, (error) => { browserPermissionError = error; }, null);
+  inCall = false;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  result.browserPermissionError = browserPermissionError;
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: { getUserMedia: () => new Promise(() => {}) },
+  });
+  Object.defineProperty(navigator, 'userAgent', {
+    configurable: true,
+    value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148',
+  });
+  window.SpeechRecognition = class {
+    start() { result.iosStartedSynchronously = inCall; }
+    abort() {}
+  };
+  inCall = true;
+  const iosController = listenOnce('en-US', null, () => {}, null);
+  inCall = false;
+  result.iosControllerReturned = Boolean(iosController);
+  iosController?.stop();
+  Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: originalMediaDevices });
+  Object.defineProperty(navigator, 'userAgent', { configurable: true, value: originalUserAgent });
   if (originalRecognition) window.SpeechRecognition = originalRecognition;
   else delete window.SpeechRecognition;
   return result;
@@ -235,10 +315,17 @@ if (navigationAndLocalSave.controls !== 2 || navigationAndLocalSave.savedXp !== 
   || !Date.parse(navigationAndLocalSave.savedUpdatedAt)) {
   throw new Error(`Persistent navigation/local save failed: ${JSON.stringify(navigationAndLocalSave)}`);
 }
+if (!readingInteraction.readingTranslation || readingInteraction.answerWordCount < 1
+  || !readingInteraction.readingBubbleClosed) {
+  throw new Error(`Reading word audio/translation interaction failed: ${JSON.stringify(readingInteraction)}`);
+}
 if (suggestions.count !== 3 || !suggestions.allReadOnly || !suggestions.inputAvailable || !suggestions.microphoneAvailable || !suggestions.learnerNameInOpening) {
   throw new Error(`Chat controls failed: ${JSON.stringify(suggestions)}`);
 }
-if (!microphone.started || !microphone.startedSynchronously || !microphone.endedSynchronously
+if (!microphone.started || microphone.startedSynchronously || !microphone.startedAfterPermission
+  || microphone.endedSynchronously || !microphone.iosStartedSynchronously || !microphone.iosControllerReturned
+  || !microphone.permissionRequestedSynchronously || microphone.permissionRequested !== 2
+  || microphone.tracksStopped !== 2 || microphone.browserPermissionError !== 'not-allowed'
   || !microphone.failedControllerNull || microphone.permissionError !== 'not-allowed') {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }

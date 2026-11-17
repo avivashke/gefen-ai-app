@@ -395,6 +395,27 @@ a{color:var(--cyan)}
   direction:ltr;text-align:left;font-size:1.05rem;line-height:1.9;background:#0a1321;border:1px solid var(--line);
   border-radius:14px;padding:13px 14px;margin:10px 0;font-weight:600;
 }
+.reading-passage{
+  direction:ltr;text-align:left;font-size:.98rem;line-height:2;background:#0a1321;border:1px solid var(--line);
+  border-radius:14px;padding:14px;margin:12px 0;
+}
+.reading-title{font-size:.92rem;font-weight:900;color:var(--cyan);margin-bottom:5px}
+.tap-word{
+  position:relative;display:inline;padding:0 1px;border:0;border-bottom:1px dotted rgba(61,220,245,.75);
+  border-radius:2px;background:transparent;color:inherit;font:inherit;direction:ltr;unicode-bidi:isolate;
+  line-height:inherit;touch-action:manipulation;
+}
+.tap-word:active,.tap-word:hover{color:var(--cyan)}
+.word-translation-bubble{
+  position:absolute;z-index:95;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);
+  min-width:max-content;max-width:min(240px,80vw);padding:5px 9px;border-radius:9px;
+  background:#f2f6fb;color:#080e18;font-size:.78rem;font-weight:800;line-height:1.4;
+  box-shadow:0 6px 20px rgba(0,0,0,.4);direction:rtl;white-space:normal;text-align:center;
+}
+.word-translation-bubble::after{
+  content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:#f2f6fb;
+}
 .blank{color:var(--lime);font-weight:900;letter-spacing:2px}
 .opts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .opt{
@@ -1721,7 +1742,11 @@ function beep(ok){
 function listenOnce(lang,onRes,onErr,onEnd){
   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!window.isSecureContext){ onErr&&onErr('secure-context'); onEnd&&onEnd(); return null; }
-  if(!Recognition){ onErr&&onErr('unsupported'); onEnd&&onEnd(); return null; }
+  const mediaDevices=navigator.mediaDevices;
+  const requestPermission=typeof mediaDevices?.getUserMedia==='function';
+  const appleMobile=/iPad|iPhone|iPod/i.test(navigator.userAgent)
+    || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(!Recognition&&!requestPermission){ onErr&&onErr('unsupported'); onEnd&&onEnd(); return null; }
 
   let recognition=null, timer=null, finished=false, receivedResult=false;
   const finish=(error)=>{
@@ -1743,27 +1768,42 @@ function listenOnce(lang,onRes,onErr,onEnd){
     if(['NotAllowedError','PermissionDeniedError','SecurityError','not-allowed','service-not-allowed'].includes(name)) return 'not-allowed';
     if(['NotFoundError','DevicesNotFoundError','audio-capture'].includes(name)) return 'no-microphone';
     if(['NotReadableError','TrackStartError'].includes(name)) return 'microphone-busy';
+    if(['AbortError','InvalidStateError'].includes(name)) return 'microphone-busy';
     if(name==='no-speech'||name==='timeout') return 'no-speech';
     if(name==='network') return 'network';
     return 'error';
   };
 
-  try{
-    recognition=new Recognition();
-    recognition.lang=lang;
-    recognition.interimResults=false;
-    recognition.maxAlternatives=5;
-    recognition.onresult=ev=>{
-      if(finished||receivedResult) return;
-      receivedResult=true;
-      const alts=[...ev.results[0]].map(item=>item.transcript);
-      onRes&&onRes(alts);
-    };
-    recognition.onerror=ev=>finish(receivedResult?null:mapError(ev));
-    recognition.onend=()=>finish(receivedResult?null:'no-speech');
-    timer=setTimeout(()=>finish('timeout'),20000);
-    recognition.start();
-  }catch(error){ finish(mapError(error)); }
+  const startRecognition=()=>{
+    if(finished||!Recognition) return;
+    try{
+      recognition=new Recognition();
+      recognition.lang=lang;
+      recognition.interimResults=false;
+      recognition.maxAlternatives=5;
+      recognition.onresult=ev=>{
+        if(finished||receivedResult) return;
+        receivedResult=true;
+        const alts=[...ev.results[0]].map(item=>item.transcript);
+        onRes&&onRes(alts);
+      };
+      recognition.onerror=ev=>finish(receivedResult?null:mapError(ev));
+      recognition.onend=()=>finish(receivedResult?null:'no-speech');
+      recognition.start();
+    }catch(error){ finish(mapError(error)); }
+  };
+  timer=setTimeout(()=>finish('timeout'),20000);
+  if(requestPermission){
+    try{
+      const permission=mediaDevices.getUserMedia({audio:true,video:false});
+      if(Recognition&&appleMobile) startRecognition();
+      permission.then(stream=>{
+        stream.getTracks().forEach(track=>track.stop());
+        if(!Recognition) finish('unsupported');
+        else if(!appleMobile) startRecognition();
+      }).catch(error=>finish(mapError(error)));
+    }catch(error){ finish(mapError(error)); }
+  }else if(Recognition) startRecognition();
   return finished ? null : controller;
 }
 let RECOGNIZER=null;
@@ -1793,6 +1833,69 @@ function speakBtn(text,label){
   return `<button class="iconbtn" data-say="${escA(text)}" aria-label="השמעת ${escA(label||text)}" title="השמעה">🔊</button>`;
 }
 
+const COMMON_WORD_TRANSLATIONS={
+  a:'מילת יידוע', an:'מילת יידוע', the:'ה־', i:'אני', you:'את/ה', he:'הוא', she:'היא', it:'זה',
+  "i'm":'אני', "i've":'יש לי', "i'll":'אני א־', "you're":'את/ה', "you've":'יש לך',
+  "he's":'הוא', "she's":'היא', "it's":'זה', "we're":'אנחנו', "they're":'הם/הן',
+  "don't":'לא', "doesn't":'לא', "didn't":'לא', "can't":'לא יכול/ה', "isn't":'אינו/אינה',
+  "aren't":'אינם/אינן', "wasn't":'לא היה/הייתה', "won't":'לא יהיה/תהיה',
+  we:'אנחנו', they:'הם/הן', my:'שלי', your:'שלך', his:'שלו', her:'שלה', our:'שלנו',
+  is:'הוא/היא', am:'אני', are:'הם/הן', was:'היה/הייתה', were:'היו', be:'להיות',
+  have:'יש / להחזיק', has:'יש לו/לה', had:'היה לו/לה', do:'לעשות', does:'עושה',
+  did:'עשה/עשתה', can:'יכול/ה', could:'יכול/ה', will:'יהיה / יעשה', would:'היה / הייתה',
+  and:'ו־', or:'או', but:'אבל', because:'כי', with:'עם', for:'עבור', from:'מ־',
+  in:'בתוך', on:'על / ב־', at:'ב־', to:'אל / ל־', of:'של', by:'על ידי',
+  this:'זה / זאת', that:'ההוא / ההיא', these:'אלה', those:'ההם / ההן',
+  what:'מה', when:'מתי', where:'איפה', who:'מי', why:'למה', how:'איך',
+  not:'לא', very:'מאוד', more:'יותר', than:'מאשר', their:'שלהם/שלהן',
+  every:'כל', after:'אחרי', before:'לפני', if:'אם', then:'אז', also:'גם',
+  make:'להכין / ליצור', made:'הכין/הכינה', use:'להשתמש', uses:'משתמש/ת',
+  work:'עבודה / לעבוד', works:'עובד/ת', want:'לרצות', wants:'רוצה',
+  best:'הכי טוב/ה', love:'לאהוב / אהבה', likes:'אוהב/ת', liked:'אהב/ה', dance:'לרקוד / ריקוד',
+  dances:'רוקד/ת', dancing:'ריקוד', big:'גדול/ה', small:'קטן/ה', good:'טוב/ה', nice:'נחמד/ה',
+  new:'חדש/ה', old:'ישן/ה', fast:'מהר / מהיר/ה', high:'גבוה/ה', easy:'קל/ה', happy:'שמח/ה',
+  friend:'חבר/ה', friends:'חברים/חברות', sister:'אחות', brother:'אח', day:'יום', days:'ימים',
+  name:'שם', school:'בית ספר', student:'תלמיד/ה', students:'תלמידים/ות', visit:'לבקר',
+  visits:'מבקר/ת', asks:'שואל/ת', asked:'שאל/ה', compare:'להשוות', compares:'משווה',
+  different:'שונה', products:'מוצרים',   product:'מוצר', writes:'כותב/ת', us:'אותנו',
+  starts:'מתחיל/ה', four:'ארבע', down:'למטה', local:'מקומי/ת', shop:'חנות', learn:'ללמוד',
+  learned:'למד/ה', explains:'מסביר/ה', gives:'נותן/ת', reason:'סיבה', favorite:'אהוב/ה',
+  choice:'בחירה', funny:'מצחיק/ה', party:'מסיבה', friday:'יום שישי',
+  music:'מוזיקה', studio:'סטודיו', kind:'נחמד/ה', picture:'תמונה', costume:'תלבושת',
+  phone:'טלפון', camera:'מצלמה', shoes:'נעליים', red:'אדום/ה', pink:'ורוד/ה',
+};
+let wordBubbleTimer=null;
+function wordTranslation(word,vocabulary=[]){
+  const key=String(word||'').toLocaleLowerCase('en');
+  const entry=vocabulary.find(item=>String(item.en||'').toLocaleLowerCase('en')===key)
+    ||ALL_WORDS[key]
+    ||ALL_WORDS[key.replace(/ies$/,'y')]
+    ||ALL_WORDS[key.replace(/s$/,'')]
+    ||ALL_WORDS[key.replace(/(?:ing|ed)$/,'')];
+  return entry?.he||COMMON_WORD_TRANSLATIONS[key]||'תרגום לא זמין';
+}
+function clickableEnglish(text,vocabulary=[]){
+  return String(text||'').match(/[A-Za-z]+(?:['’][A-Za-z]+)*|[^A-Za-z]+/g)?.map(part=>{
+    if(!/^[A-Za-z]/.test(part)) return esc(part);
+    const translation=wordTranslation(part,vocabulary);
+    return `<button type="button" class="tap-word" data-word-audio="${escA(part)}" data-word-translation="${escA(translation)}" aria-label="${escA(`${part}: ${translation}; השמעה ותרגום`)}">${esc(part)}</button>`;
+  }).join('')||'';
+}
+function fallbackReading(unit){
+  const words=(unit.words||[]).filter(word=>word.ex&&word.exHe).slice(0,5);
+  const vocabulary=words.map(word=>({en:word.en,he:word.he}));
+  const questions=words.slice(0,Math.min(3,words.length)).map((word,index)=>{
+    const choices=[word.ex,...words.filter((item,itemIndex)=>itemIndex!==index).slice(0,2).map(item=>item.ex)];
+    return {q:`איזה משפט בקטע מכיל את המילה ${word.en}?`,opts:choices,ans:word.ex,why:`המשפט מופיע בקטע הקריאה ומכיל את המילה ${word.en}.`};
+  });
+  return {
+    title:`קוראים: ${unit.he||unit.title}`,
+    passage:words.map(word=>word.ex).join(' '),
+    vocabulary,
+    questions,
+  };
+}
+
 /* ================= build all exercises ================= */
 function buildData(){
   UNITS.forEach(u=>{
@@ -1802,7 +1905,18 @@ function buildData(){
       if(!ALL_WORDS[key]){ ALL_WORDS[key]={...w, key}; ALL_WORD_LIST.push(ALL_WORDS[key]); }
     });
     const vocab = buildVocabExercises(u);
-    u.exercises = [...vocab, ...u.grammar.map(g=>({...g, unit:u.id, skill:g.skill||'grammar'}))];
+    u.reading=u.reading||fallbackReading(u);
+    const readingExercises=(u.reading.questions||[]).map((question,index)=>({
+      t:'readmcq',
+      id:`${u.id}.r${index+1}`,
+      skill:'reading',
+      q:question.q,
+      opts:question.opts||question.options,
+      ans:question.ans||question.answer,
+      why:question.why,
+      reading:u.reading,
+    }));
+    u.exercises = [...vocab, ...u.grammar.map(g=>({...g, unit:u.id, skill:g.skill||'grammar'})), ...readingExercises];
     u.exercises.forEach(e=>{ e.unit=u.id; EX_MAP[e.id]=e; });
   });
 }
@@ -2321,10 +2435,19 @@ function exerciseCardHTML(){
   const {ex,ctx}=QS;
   const u=UNITS.find(x=>x.id===ex.unit)||{};
   const badge = ctx.scope==='review'?'🔁 חזרה':ctx.scope==='exam'?'📝 מבחן':ctx.scope==='drill'?'🎯 תרגול':`${u.icon||'📘'} יחידה ${u.n||''}`;
-  const skillTag = ex.skill==='grammar'?'דקדוק':ex.skill==='listening'?'שמיעה':'אוצר מילים';
+  const skillTag = ex.skill==='grammar'?'דקדוק':ex.skill==='listening'?'שמיעה':ex.skill==='reading'?'הבנת הנקרא':'אוצר מילים';
   let body='';
   const disabled=QS.answered?'disabled':'';
-  if(ex.t==='mcq'||ex.t==='listenmcq'){
+  if(ex.t==='readmcq'){
+    const reading=ex.reading;
+    body=`<section class="reading-passage" aria-label="קטע קריאה">
+        <div class="reading-title">📖 ${esc(reading.title||'קטע קריאה')}</div>
+        <div>${clickableEnglish(reading.passage,reading.vocabulary)}</div>
+        <div class="tiny muted" style="margin-top:8px">לחצי על מילה כדי לשמוע אותה ולראות את התרגום.</div>
+      </section>
+      <div class="opts">${ex.opts.map((o,i)=>`<button class="opt ${QS.choice===o?(QS.choiceCorrect?'correct':'wrong'):''}" data-opt="${escA(o)}" ${disabled}>
+        <span class="k">${'ABCD'[i]||i+1}</span><span class="${/[\u0590-\u05FF]/.test(o)?'':'en'}">${esc(o)}</span></button>`).join('')}</div>`;
+  }else if(ex.t==='mcq'||ex.t==='listenmcq'){
     body = `${ex.t==='listenmcq'?`<button class="listen-big" data-act="listen">🔊 השמע שוב</button>`:''}
       <div class="opts">${ex.opts.map((o,i)=>`<button class="opt ${QS.choice===o?(QS.choiceCorrect?'correct':'wrong'):''}" data-opt="${escA(o)}" ${disabled}>
         <span class="k">${'ABCD'[i]||i+1}</span><span class="${/[\u0590-\u05FF]/.test(o)?'':'en'}">${esc(o)}</span></button>`).join('')}</div>`;
@@ -2418,11 +2541,15 @@ function showFeedback(ok,gain){
   const ex=QS.ex, slot=$('#fb-slot'); if(!slot) return;
   const accepted=currentAccepted();
   const answerLine=accepted.map(a=>`<span class="en">${esc(a)}</span>`).join(' / ');
+  const clickableAnswers=ok
+    ?accepted.filter(answer=>/[A-Za-z]/.test(String(answer))).map(answer=>clickableEnglish(answer)).join(' / ')
+    :'';
   const ruleBtn=(ex.rule&&QS.ctx.scope!=='exam')?`<button class="btn xs ghost" data-act="rule" data-rule="${ex.rule}">📘 פתח את הכלל</button>`:'';
   const nextLabel=QS.ctx.scope==='exam'?'לשאלה הבאה ←':'הבא ←';
   if(ok){
     slot.innerHTML=`<div class="fb ok">
       <h4>✅ ${praise()} ${gain?`<span style="color:var(--gold)">+${gain} XP</span>`:''}</h4>
+      ${clickableAnswers?`<div class="answer-line">${clickableAnswers}</div><div class="tiny muted">לחצי על מילה באנגלית כדי לשמוע אותה ולראות את התרגום.</div>`:''}
       ${QS.near?`<div class="small" style="color:var(--gold)">כמעט מושלם – שימי לב לאיות: <span class="en">${esc(accepted[0])}</span></div>`:''}
       <div class="why">${ex.why||''}</div>
       <div class="divider" style="margin:10px 0"></div>
@@ -2856,6 +2983,7 @@ function pageStats(){
   const skills=[
     ['📚 אוצר מילים',ds.total?Math.round(ds.mastered/ds.total*100):0,`${ds.mastered} מילים יציבות`],
     ['📘 דקדוק',ruleStrength(),`${Object.keys(S.rules).length} כללים נפגשו`],
+    ['📖 הבנת הנקרא',pct(bySkill.reading),`${bySkill.reading?bySkill.reading.a:0} תרגילי קריאה`],
     ['👂 שמיעה',pct(bySkill.listening),`${bySkill.listening?bySkill.listening.a:0} תרגילי שמיעה`],
     ['🎤 דיבור',speakAvg,`${S.stats.speak||0} אימוני דיבור`],
     ['💬 שיחה',chatScore,`${S.stats.chats||0} שיחות`]
@@ -2918,7 +3046,7 @@ function adminStudentCard(student){
   const completion=total?Math.max(0,Math.min(100,Math.round(completed/total*100))):0;
   const accuracy=student.accuracy==null?'—':`${Math.max(0,Math.min(100,Number(student.accuracy)||0))}%`;
   const skills=(student.skills||[]).filter(skill=>skill.attempts>0);
-  const skillLabels={vocab:'אוצר מילים',grammar:'דקדוק',listening:'שמיעה'};
+  const skillLabels={vocab:'אוצר מילים',grammar:'דקדוק',listening:'שמיעה',reading:'הבנת הנקרא'};
   const units=student.unitProgress||[];
   const levelLabel=student.targetLevel&&student.targetLevel!==student.level
     ? `${student.level} · ${student.levelStage||`לקראת ${student.targetLevel}`}`
@@ -3581,6 +3709,21 @@ let PENDING_IMPORT=null;
 function handleGlobalClick(e){
   const resetLink=e.target.closest('[data-whatsapp-reset][aria-disabled="true"]');
   if(resetLink){ e.preventDefault(); toast('קישור הוואטסאפ עדיין לא הוגדר. פני למורה ישירות.'); return; }
+  const vocabWord=e.target.closest('[data-word-audio]');
+  if(vocabWord){
+    e.preventDefault();
+    e.stopPropagation();
+    document.querySelectorAll('.word-translation-bubble').forEach(bubble=>bubble.remove());
+    clearTimeout(wordBubbleTimer);
+    const bubble=document.createElement('span');
+    bubble.className='word-translation-bubble';
+    bubble.setAttribute('role','status');
+    bubble.textContent=vocabWord.dataset.wordTranslation||'תרגום לא זמין';
+    vocabWord.appendChild(bubble);
+    wordBubbleTimer=setTimeout(()=>bubble.remove(),4000);
+    speak(vocabWord.dataset.wordAudio);
+    return;
+  }
   const t=e.target.closest('[data-say]');
   if(t){ speak(t.dataset.say); return; }
   const nav=e.target.closest('[data-nav]');

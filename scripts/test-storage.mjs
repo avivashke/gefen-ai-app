@@ -52,17 +52,17 @@ assert.deepEqual(
     { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
     { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
     { username: 'מיה', level: 'A1', targetLevel: undefined, gender: 'female', interests: [] },
-    { username: 'יולי', level: 'B1', targetLevel: 'B2', gender: 'female', interests: [] },
+    { username: 'יולי', level: 'B1', targetLevel: 'B2', gender: 'female', interests: ['בישול', 'עסקים', 'אדריכלות', 'אופנה'] },
   ],
 );
 
-function generatedCurriculum(title) {
+function generatedCurriculum(title, level = 'A1') {
   const words = ['apple', 'book', 'chair', 'dance', 'egg', 'friend'].map((en) => ({
     en, he: `${en} בעברית`, ex: `I see a ${en}.`, exHe: `אני רואה ${en} בעברית.`,
   }));
   return {
     title,
-    level: 'A1',
+    level,
     units: Array.from({ length: 4 }, (_, index) => ({
       title: `Unit ${index + 1}`,
       he: `יחידה ${index + 1}`,
@@ -80,6 +80,15 @@ function generatedCurriculum(title) {
         hook: 'רמז לזכירה',
       }],
       words,
+      reading: {
+        title: `Reading ${index + 1}`,
+        passage: 'A student visits a local shop to learn how it works. She asks questions, compares different products, and writes down useful details. After the visit, she explains what she learned to a friend and gives a reason for her favorite choice.',
+        vocabulary: words.map(({ en }) => ({ en, he: `${en} בעברית` })),
+        questions: [
+          { q: 'Where does the student go?', options: ['A local shop', 'A large museum', 'A dance class'], answer: 'A local shop', why: 'הקטע מתאר ביקור בחנות מקומית.' },
+          { q: 'What does she do after the visit?', options: ['She explains what she learned', 'She buys a new house', 'She forgets her notes'], answer: 'She explains what she learned', why: 'אחרי הביקור היא מספרת לחברה מה למדה.' },
+        ],
+      },
       grammar: [
         { type: 'mcq', ruleIndex: 0, q: 'מה נכון?', opts: ['I am ready.', 'I is ready.', 'I be ready.'], ans: 'I am ready.', why: 'הסבר', hint: 'רמז' },
         { type: 'type', ruleIndex: 0, q: 'כתבי משפט', ans: ['I am ready.'], why: 'הסבר', hint: 'רמז' },
@@ -286,6 +295,10 @@ try {
   });
   assert.equal(firstCourse.statusCode, 200);
   assert.equal(aiRequestBody.model, 'llama-3.3-70b-versatile');
+  assert.match(aiRequestBody.messages[0].content, /exactly one valid JSON object/);
+  assert.match(aiRequestBody.messages[0].content, /reading comprehension questions/);
+  assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly A1/);
+  assert.equal((await getStudentRecord('GEFEN')).curriculum.units[0].reading.questions.length, 2);
   assert.equal(firstCourse.body.archivedReport.summary.xp, 25);
   assert.equal(firstCourse.body.reportsCount, 1);
   assert.match(aiRequestBody.messages[0].content, /Address the learner consistently in the gendered Hebrew form/);
@@ -299,12 +312,21 @@ try {
 
   const hiddenOldProgress = await call(handleGetProgress, { headers: courseHeaders });
   assert.equal(hiddenOldProgress.body.data, null);
+  aiResult = generatedCurriculum('מסלול ברמה לא נכונה', 'A2');
+  const mismatchedLevel = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+    body: { prompt: 'Create a personalized A2 English course for the learner.' },
+  });
+  assert.equal(mismatchedLevel.statusCode, 502);
+  assert.equal((await getStudentRecord('GEFEN')).curriculum.id, firstCourseId);
   const staleWrite = await call(handleSaveProgress, {
     headers: courseHeaders,
     body: { data: { courseId: 'default', xp: 99 }, client_updated_at: null },
   });
   assert.equal(staleWrite.statusCode, 409);
 
+  aiResult = generatedCurriculum('מסלול בארי', 'A2');
   const barryCourse = await call(handleAdminGenerateCurriculum, {
     headers: adminHeaders,
     params: { key: 'BARRY' },
@@ -313,8 +335,24 @@ try {
   assert.equal(barryCourse.statusCode, 200);
   assert.match(aiRequestBody.messages[1].content, /Learner: בארי; boy; address him in masculine Hebrew/);
   assert.match(aiRequestBody.messages[1].content, /Current CEFR level: A2, approaching B1/);
+  assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly A2/);
   assert.match(aiRequestBody.messages[1].content, /כדורגל, ספורט, חיות, טבע/);
   assert.equal((await getStudentRecord('BARRY')).curriculum.learnerGender, 'male');
+
+  aiResult = generatedCurriculum('מסלול יולי', 'B1');
+  const yuliCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'YULI' },
+    body: { prompt: 'Create a varied, challenging B1 course with cooking, business, architecture, and fashion topics.' },
+  });
+  assert.equal(yuliCourse.statusCode, 200);
+  assert.match(aiRequestBody.messages[1].content, /Learner: יולי; girl; address her in feminine Hebrew/);
+  assert.match(aiRequestBody.messages[1].content, /Current CEFR level: B1, approaching B2/);
+  assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly B1/);
+  assert.match(aiRequestBody.messages[1].content, /בישול, עסקים, אדריכלות, אופנה/);
+  assert.match(aiRequestBody.messages[1].content, /reading passages/);
+  assert.equal((await getStudentRecord('YULI')).curriculum.level, 'B1');
+  assert.equal((await getStudentRecord('YULI')).curriculum.units[0].reading.questions.length, 2);
 
   const courseProgress = await call(handleSaveProgress, {
     headers: courseHeaders,
