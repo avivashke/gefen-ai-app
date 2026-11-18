@@ -836,6 +836,7 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
       <div class="topbar-nav">
         <button class="topbar-action" data-act="nav-back" aria-label="חזרה למסך הקודם">→ <span>חזרה</span></button>
         <button class="topbar-action" data-go="#/home" aria-label="חזרה לדף הבית">🏠 <span>בית</span></button>
+        <button class="topbar-action danger" data-act="student-logout" aria-label="יציאה מהחשבון">🚪 יציאה</button>
       </div>
       <div class="hstats">
         <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
@@ -2010,11 +2011,8 @@ function initCloudSync(){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('error',payload?.message);
     }else if(event === 'session'){
       if(payload&&payload.user){
-        const genderChanged=setStudentIdentity(payload.user);
-        S.settings.level=payload.user.level||S.settings.level;
-        if(genderChanged&&!ACTIVE_CURRICULUM){
-          installCurriculum({curriculum:null,courseId:CURRENT_COURSE_ID},true);
-        }
+        // Do not auto-sign-in on fresh app open: show login screen instead.
+        // The user must explicitly tap "כניסה" to load an account.
         if(typeof updateSyncBadge==='function') updateSyncBadge('saved');
       }
     }else if(event === 'impersonation-ended'){
@@ -2512,6 +2510,11 @@ function updateHeader(){
   const snd=$('#btn-sound'); if(snd) snd.textContent=S.settings.sound?'🔊':'🔇';
   const dot=$('#nav-dot-review'); if(dot) dot.classList.toggle('hide', dueWords().length===0);
   
+  // Show/hide logout button based on login state
+  const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
+  const logoutBtn=$$('button[data-act="student-logout"]');
+  logoutBtn.forEach(b=>b.style.display=account?'inline-flex':'none');
+
   // Update sidebar
   const sidebarName=$('#sidebar-name'); if(sidebarName) sidebarName.textContent=S.name||'תלמידה';
   const sidebarXp=$('#sidebar-xp'); if(sidebarXp) sidebarXp.textContent=S.xp||0;
@@ -4399,6 +4402,10 @@ function boot(){
   initCloudSync();
   updateSyncBadge(cloudReady()?'saved':'off');
   setTimeout(updateHeader,700);
+  // On fresh app open, always show the login screen so the user chooses
+  // which account to open (instead of auto-signing into a saved account).
+  const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
+  if(account) openStudentLogin();
   setInterval(()=>{ if(S.daily.date!==todayKey()){ S.daily={date:todayKey(),xp:0,answers:0,reviews:0,chats:0}; S.review.doneToday=0; S.review.lastDate=todayKey(); saveNow(); updateHeader(); } },60000);
   // Periodic background push keeps multi-device state fresh.
   setInterval(()=>{ if(cloudReady()) cloudPush(); }, 60000);
