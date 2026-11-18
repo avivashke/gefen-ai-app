@@ -288,12 +288,16 @@
   async function flush() {
     if (!syncEnabled || busy || !pending || !online) return;
     busy = true;
+    clearTimeout(syncTimer);
+    syncTimer = null;
     const snapshot = pending;
     let retryNeeded = false;
     try {
+      const body = JSON.stringify({ data: snapshot, client_updated_at: snapshot.updated_at });
       const result = await apiRequest('/progress', {
         method: 'POST',
-        body: JSON.stringify({ data: snapshot, client_updated_at: snapshot.updated_at }),
+        body,
+        ...(new Blob([body]).size <= 60_000 ? { keepalive: true } : {}),
       });
       storageMode = result.storage || storageMode;
       if (pending === snapshot) pending = null;
@@ -382,7 +386,12 @@
   window.addEventListener('online', markOnline);
   window.addEventListener('offline', markOffline);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && pending && syncEnabled) flush();
+    if (pending && syncEnabled) flush();
+  });
+  window.addEventListener('pagehide', () => {
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    if (pending && syncEnabled) flush();
   });
 
   window.apiSync = {

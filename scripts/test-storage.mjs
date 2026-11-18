@@ -52,9 +52,15 @@ assert.deepEqual(
     { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
     { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
     { username: 'מיה', level: 'A1', targetLevel: undefined, gender: 'female', interests: [] },
-    { username: 'יולי', level: 'B1', targetLevel: 'B2', gender: 'female', interests: ['בישול', 'עסקים', 'אדריכלות', 'אופנה'] },
+    { username: 'יולי', level: 'A2', targetLevel: 'B1', gender: 'female', interests: ['cocina', 'negocios', 'arquitectura', 'moda'] },
+    { username: 'אביב', level: 'A2', targetLevel: undefined, gender: 'male', interests: [] },
   ],
 );
+assert.equal(STUDENTS.find((student) => student.key === 'YULI')?.nativeLanguage, 'Spanish');
+assert.equal(STUDENTS.find((student) => student.key === 'YULI')?.uiLanguage, 'es');
+assert.equal(STUDENTS.find((student) => student.key === 'YULI')?.learningLanguage, 'English');
+assert.equal(STUDENTS.find((student) => student.key === 'AVIV')?.uiLanguage, 'en');
+assert.equal(STUDENTS.find((student) => student.key === 'AVIV')?.learningLanguage, 'French');
 
 function generatedCurriculum(title, level = 'A1') {
   const words = ['apple', 'book', 'chair', 'dance', 'egg', 'friend'].map((en) => ({
@@ -181,9 +187,12 @@ try {
     body: { username: 'יולי', code: yuliCode.body.code, password: 'yuli-test-password' },
   });
   assert.equal(yuliActivated.statusCode, 200);
-  assert.equal(yuliActivated.body.user.level, 'B1');
-  assert.equal(yuliActivated.body.user.targetLevel, 'B2');
+  assert.equal(yuliActivated.body.user.level, 'A2');
+  assert.equal(yuliActivated.body.user.targetLevel, 'B1');
   assert.equal(yuliActivated.body.user.gender, 'female');
+  assert.equal(yuliActivated.body.user.nativeLanguage, 'Spanish');
+  assert.equal(yuliActivated.body.user.uiLanguage, 'es');
+  assert.equal(yuliActivated.body.user.learningLanguage, 'English');
   const yuliProgress = await call(handleSaveProgress, {
     headers: { authorization: `Bearer ${yuliActivated.body.token}` },
     body: { data: { xp: 7 }, client_updated_at: null },
@@ -191,6 +200,19 @@ try {
   assert.equal(yuliProgress.statusCode, 200);
   assert.equal((await getProgressRecord('YULI')).data.xp, 7);
   assert.equal(await getProgressRecord('GEFEN'), null);
+
+  const avivCode = await call(handleAdminResetCode, {
+    headers: adminHeaders,
+    params: { key: 'AVIV' },
+  });
+  assert.equal(avivCode.statusCode, 200);
+  const avivActivated = await call(handleActivateStudent, {
+    body: { username: 'אביב', code: avivCode.body.code, password: 'aviv-test-password' },
+  });
+  assert.equal(avivActivated.statusCode, 200);
+  assert.equal(avivActivated.body.user.level, 'A2');
+  assert.equal(avivActivated.body.user.uiLanguage, 'en');
+  assert.equal(avivActivated.body.user.learningLanguage, 'French');
 
   const missingAdminAuth = await call(handleAdminGetAiModels);
   assert.equal(missingAdminAuth.statusCode, 401);
@@ -236,6 +258,7 @@ try {
   assert.equal(publicConfig.body.ai.enabled, true);
   assert.equal(publicConfig.body.ai.label, 'Groq');
   assert.equal(publicConfig.body.ai.model, 'llama-3.3-70b-versatile');
+  assert.equal(publicConfig.body.storage, 'local');
 
   const rejectedHttpProvider = await call(handleAdminSaveAiModels, {
     headers: adminHeaders,
@@ -284,6 +307,8 @@ try {
   const savedProgress = await getProgressRecord('GEFEN');
   assert.equal(savedProgress.data.xp, 25);
   assert.equal((await getProgressRecord('YULI')).data.xp, 7);
+  const storageAfterReload = await import('../server/storage.js?restart-check');
+  assert.deepEqual(await storageAfterReload.getProgressRecord('GEFEN'), savedProgress);
   const newerProgress = { ...savedProgress, updated: new Date(Date.now() + 1000).toISOString() };
   assert.equal(await compareAndSetProgressRecord('GEFEN', newerProgress, savedProgress.updated), true);
   assert.equal(await compareAndSetProgressRecord('GEFEN', savedProgress, savedProgress.updated), false);
@@ -301,8 +326,8 @@ try {
   assert.equal((await getStudentRecord('GEFEN')).curriculum.units[0].reading.questions.length, 2);
   assert.equal(firstCourse.body.archivedReport.summary.xp, 25);
   assert.equal(firstCourse.body.reportsCount, 1);
-  assert.match(aiRequestBody.messages[0].content, /Address the learner consistently in the gendered Hebrew form/);
-  assert.match(aiRequestBody.messages[1].content, /Learner: גפן; girl; address her in feminine Hebrew/);
+  assert.match(aiRequestBody.messages[0].content, /Address the learner respectfully/);
+  assert.match(aiRequestBody.messages[1].content, /Learner: גפן; girl; address her respectfully/);
   assert.match(aiRequestBody.messages[1].content, /ריקוד, חיות, טבע/);
   const firstCourseId = (await getStudentRecord('GEFEN')).curriculum.id;
   const courseHeaders = { authorization: `Bearer ${activated.body.token}` };
@@ -333,26 +358,41 @@ try {
     body: { prompt: 'Create a personalized course with football, sports, animals, and nature.' },
   });
   assert.equal(barryCourse.statusCode, 200);
-  assert.match(aiRequestBody.messages[1].content, /Learner: בארי; boy; address him in masculine Hebrew/);
+  assert.match(aiRequestBody.messages[1].content, /Learner: בארי; boy; address him respectfully/);
   assert.match(aiRequestBody.messages[1].content, /Current CEFR level: A2, approaching B1/);
   assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly A2/);
   assert.match(aiRequestBody.messages[1].content, /כדורגל, ספורט, חיות, טבע/);
   assert.equal((await getStudentRecord('BARRY')).curriculum.learnerGender, 'male');
 
-  aiResult = generatedCurriculum('מסלול יולי', 'B1');
+  aiResult = generatedCurriculum('Yuli: English A2', 'A2');
   const yuliCourse = await call(handleAdminGenerateCurriculum, {
     headers: adminHeaders,
     params: { key: 'YULI' },
-    body: { prompt: 'Create a varied, challenging B1 course with cooking, business, architecture, and fashion topics.' },
+    body: { prompt: 'Create a varied English A2 course with cooking, business, architecture, and fashion topics.' },
   });
   assert.equal(yuliCourse.statusCode, 200);
-  assert.match(aiRequestBody.messages[1].content, /Learner: יולי; girl; address her in feminine Hebrew/);
-  assert.match(aiRequestBody.messages[1].content, /Current CEFR level: B1, approaching B2/);
-  assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly B1/);
-  assert.match(aiRequestBody.messages[1].content, /בישול, עסקים, אדריכלות, אופנה/);
+  assert.match(aiRequestBody.messages[1].content, /Learner: יולי; girl; address her respectfully/);
+  assert.match(aiRequestBody.messages[1].content, /Native language: Spanish\. Teach English; use Spanish for all instructions, explanations, and translations/);
+  assert.match(aiRequestBody.messages[1].content, /Current CEFR level: A2, approaching B1/);
+  assert.match(aiRequestBody.messages[1].content, /The generated course level must be exactly A2/);
+  assert.match(aiRequestBody.messages[1].content, /cocina, negocios, arquitectura, moda/);
+  assert.match(aiRequestBody.messages[0].content, /professional English-course designer/);
+  assert.match(aiRequestBody.messages[0].content, /Use Spanish for all instructions, explanations, translations, and interface-facing text; use English for examples/);
   assert.match(aiRequestBody.messages[1].content, /reading passages/);
-  assert.equal((await getStudentRecord('YULI')).curriculum.level, 'B1');
+  assert.equal((await getStudentRecord('YULI')).curriculum.level, 'A2');
   assert.equal((await getStudentRecord('YULI')).curriculum.units[0].reading.questions.length, 2);
+
+  aiResult = generatedCurriculum('Aviv: French A2', 'A2');
+  const avivCourse = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'AVIV' },
+    body: { prompt: 'Create a French A2 course for a Hebrew-speaking learner with an English interface.' },
+  });
+  assert.equal(avivCourse.statusCode, 200);
+  assert.match(aiRequestBody.messages[1].content, /Native language: Hebrew\. Teach French; use English for all instructions, explanations, and translations/);
+  assert.match(aiRequestBody.messages[0].content, /professional French-course designer/);
+  assert.match(aiRequestBody.messages[0].content, /Use English for all instructions, explanations, translations, and interface-facing text; use French for examples/);
+  assert.equal((await getStudentRecord('AVIV')).curriculum.level, 'A2');
 
   const courseProgress = await call(handleSaveProgress, {
     headers: courseHeaders,

@@ -10,11 +10,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Lamda — English learning</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23c6f24e'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============ theme ============ */
 :root{
   --bg:#080e18; --bg2:#0c1523; --card:#111d2f; --card2:#16243a; --card3:#1b2c46;
-  --line:#22344f; --line2:#2d4462; --tx:#f2f6fb; --mu:#93a4bb; --mu2:#6f8299;
+  --line:#29394f; --line2:#3a4d66; --tx:#f2f6fb; --mu:#b1bfd1; --mu2:#91a1b7;
   --lime:#ff8fc7; --lime-d:#e56bad; --cyan:#3ddcf5; --gold:#ffc94d; --pink:#ff7bb0;
   --purple:#b49bff; --red:#ff8080; --green:#4ade80; --orange:#ffa45c;
   --r:22px; --r2:15px; --r3:11px;
@@ -26,22 +29,16 @@
 html{scroll-behavior:smooth}
 body{
   background:var(--bg); color:var(--tx); min-height:100vh; line-height:1.65;
-  font-family:"Rubik","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  font-family:"Heebo","Inter",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
   font-size:calc(16px * var(--fs)); padding-bottom:calc(94px + var(--safe-b));
   overflow-x:hidden;
 }
 body::before{
   content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
-  background:
-    radial-gradient(900px 520px at 80% -10%,rgba(255,143,199,.10),transparent 65%),
-    radial-gradient(800px 500px at 5% 0%,rgba(61,220,245,.09),transparent 60%),
-    radial-gradient(700px 700px at 50% 110%,rgba(180,155,255,.08),transparent 60%),
-    var(--bg);
+  background:var(--bg);
 }
 body::after{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
-  background-image:repeating-linear-gradient(90deg,transparent 0 118px,rgba(255,255,255,.018) 118px 120px);
-  mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 75%);
+  content:none;
 }
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
 input,textarea,select{font:inherit;color:inherit}
@@ -162,6 +159,11 @@ a{color:var(--cyan)}
 .admin-impersonation-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 auto 12px;max-width:1060px;padding:12px 14px;border:1px solid rgba(255,201,77,.55);border-radius:15px;background:rgba(89,57,9,.84);color:#fff3cf}
 .admin-impersonation-banner b{color:var(--gold)}
 @media(max-width:760px){.admin-student-grid{grid-template-columns:1fr}.admin-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html[dir="ltr"] .he,html[dir="ltr"] .word-ex .he,html[dir="ltr"] .ex-list .he,
+html[dir="ltr"] .word-he,html[dir="ltr"] .bubble .he-tr,html[dir="ltr"] .txt.he{
+  direction:ltr;text-align:left;
+}
+html[dir="ltr"] .word-translation-bubble{direction:ltr}
 
 /* ============ buttons ============ */
 .btn{
@@ -507,7 +509,7 @@ a{color:var(--cyan)}
 
 /* ============ chat ============ */
 .chat-shell{
-  display:flex;flex-direction:column;height:calc(100dvh - 190px);min-height:420px;
+  display:flex;flex-direction:column;height:calc(100vh - 190px);height:calc(100dvh - 190px);min-height:320px;
   background:rgba(10,19,33,.65);border:1px solid var(--line);border-radius:22px;overflow:hidden;
 }
 .chat-head{
@@ -550,11 +552,32 @@ a{color:var(--cyan)}
 .corr .fix{direction:ltr;text-align:left;margin:3px 0;font-size:.83rem}
 .corr .fix s{color:#ff9b9b;opacity:.8}
 .corr .fix em{color:var(--green);font-style:normal;font-weight:800}
+.chat-praise{
+  max-width:100%;margin-top:6px;padding:7px 10px;border-radius:10px;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
+  color:#b8f2cd;font-size:.82rem;line-height:1.55;
+}
 .suggest{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.suggest-label{width:100%;font-size:.72rem;color:var(--mu);font-weight:700}
 .suggest .suggestion-text{
   display:inline-block;text-align:start;padding:6px 10px;border-radius:10px;background:rgba(255,143,199,.08);
-  border:1px solid rgba(255,143,199,.25);font-size:.78rem;color:#e7f7c8;direction:ltr;
+  border:1px solid rgba(255,143,199,.25);font-size:.82rem;color:var(--tx);direction:ltr;
 }
+.vocab-word{
+  display:inline;color:inherit;text-decoration:underline;text-decoration-style:dotted;
+  text-decoration-color:rgba(255,143,199,.75);text-underline-offset:3px;border-radius:3px;
+}
+.vocab-word:hover{color:var(--lime)}
+.vocab-tooltip{
+  position:fixed;z-index:200;max-width:min(290px,calc(100vw - 24px));min-width:170px;
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2);
+  border-radius:14px;background:var(--card);box-shadow:0 12px 32px rgba(0,0,0,.38);
+  color:var(--tx);font-size:.88rem;line-height:1.4;
+}
+.vocab-tooltip-text{flex:1;min-width:0}
+.vocab-tooltip-word{display:block;color:var(--mu);font-size:.72rem;direction:ltr;text-align:left}
+.vocab-tooltip-translation{display:block;margin-top:2px;font-weight:700}
+.vocab-tooltip .iconbtn{width:38px;height:38px;flex:none}
 .typing{display:inline-flex;gap:3px;padding:4px 2px}
 .typing i{width:6px;height:6px;border-radius:50%;background:var(--mu);animation:blink 1.2s infinite}
 .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
@@ -571,7 +594,7 @@ a{color:var(--cyan)}
 .composer-row{display:flex;gap:7px;align-items:flex-end}
 .composer textarea{
   flex:1;resize:none;min-height:44px;max-height:120px;padding:11px 13px;border-radius:14px;
-  background:#0a1321;border:1px solid var(--line2);font-size:.92rem;line-height:1.5;outline:none;
+  background:#0a1321;border:1px solid var(--line2);font-size:16px;line-height:1.5;outline:none;
   direction:ltr;text-align:left;
 }
 .composer textarea:focus{border-color:var(--cyan)}
@@ -587,7 +610,12 @@ a{color:var(--cyan)}
 }
 .send-btn:disabled{opacity:.4}
 .scenario-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-@media(max-width:560px){.scenario-grid{grid-template-columns:1fr}}
+@media(max-width:560px){
+  .scenario-grid{grid-template-columns:1fr}
+  .chat-shell{height:calc(100vh - 165px);height:calc(100dvh - 165px);min-height:300px;border-radius:16px}
+  .msgs{padding:10px}
+  .msg{max-width:94%}
+}
 .scenario{
   text-align:start;padding:14px;border-radius:16px;border:1px solid var(--line);
   background:rgba(17,29,47,.8);transition:.16s;position:relative;overflow:hidden;
@@ -1286,7 +1314,121 @@ function cloudPush(force){
 const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה','יולי'];
 let TEACHER_WHATSAPP='';
 let CURRENT_LEARNER_GENDER='female';
-let CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1'};
+let CURRENT_UI_LANGUAGE='he';
+let CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
+const UI_TRANSLATIONS=[
+  ['בית הספר','the school','la escuela'],['בית ספר','school','escuela'],
+  ['בית','Home','Inicio'],['לומדים','Learn','Aprender'],['ללמוד','Learn','Aprender'],
+  ['חזרה','Review','Repaso'],['שיחה','Conversation','Conversación'],['סטטיסטיקה','Progress','Progreso'],
+  ['הגדרות','Settings','Ajustes'],['כניסה','Sign in','Entrar'],['יציאה','Sign out','Salir'],
+  ['חזרה אחורה','Back','Atrás'],['לדף הבית','Home','Inicio'],['המשך','Continue','Continuar'],
+  ['תפריט ראשי','Main menu','Menú principal'],['פתח תפריט','Open menu','Abrir menú'],
+  ['חזרה למסך הקודם','Back to previous screen','Volver a la pantalla anterior'],
+  ['חזרה לדף הבית','Back to home','Volver al inicio'],['חזרה למסלול','Back to course','Volver al curso'],
+  ['כל התרחישים','All scenarios','Todas las situaciones'],
+  ['הבא','Next','Siguiente'],['הבא ←','Next →','Siguiente →'],['הקודם','Previous','Anterior'],
+  ['שמור','Save','Guardar'],  ['ביטול','Cancel','Cancelar'],['סגירה','Close','Cerrar'],['לחזרה','Review','Repasar'],
+  ['שיחה עם המאמנת','Chat with your coach','Hablar con tu tutora'],['המסלול שלי','My course','Mi curso'],
+  ['התקדמות נשמרת בענן','Progress syncing to cloud','Progreso sincronizándose en la nube'],
+  ['מסונכרן בענן','Synced to cloud','Sincronizado en la nube'],
+  ['נשמר במכשיר','Saved on this device','Guardado en este dispositivo'],
+  ['לא מסונכרן','Not synced','Sin sincronizar'],
+  ['משהו נתקע 🙂','Something went wrong 🙂','Algo salió mal 🙂'],
+  ['נסי לרענן. השגיאה לא מוחקת את ההתקדמות.','Try refreshing. This error does not erase your progress.','Prueba a actualizar. Este error no borra tu progreso.'],
+  ['היי ','Hi, ','Hola, '],['מוכנה לתרגל אנגלית?','Ready to practice?','¿Lista para practicar?'],
+  ['המשיכי ללמוד','Continue learning','Seguir aprendiendo'],['שיחה עם המאמנת','Chat with your coach','Hablar con tu tutora'],
+  ['המשימות של היום','Today’s goals','Objetivos de hoy'],['חזרה חכמה','Smart review','Repaso inteligente'],
+  ['תרגול יומי','Daily practice','Práctica diaria'],['שיחה באנגלית','English conversation','Conversación en inglés'],
+  ['⚡ יום ','⚡ Day ','⚡ Día '],['ברצף · רמה ','in a row · Level ','seguido · Nivel '],
+  ['מהיעד היומי','of daily goal','del objetivo diario'],['XP היום','XP today','XP hoy'],
+  ['לרמה ','to level ','para el nivel '],['יחידות','units','unidades'],['מילים במעגל','words in review','palabras en repaso'],
+  ['ממשיכים מאיפה שעצרת','Pick up where you left off','Continúa donde lo dejaste'],
+  ['חזרה על ההסבר','Review the explanation','Repasar la explicación'],['כל המסלול','Full course','Todo el curso'],
+  ['המילה של היום','Word of the day','Palabra del día'],['עובדה שכדאי לדעת','A fact worth knowing','Un dato interesante'],
+  ['רמת שליטה','Mastery level','Nivel de dominio'],['עוד לא התאמנת עליה','You haven’t practiced this yet','Aún no has practicado esta palabra'],
+  ['האזיני, ואז נסי לספר אותה באנגלית.','Listen, then try to say it in English.','Escucha y luego intenta contarla en inglés.'],
+  ['נדבר על זה עם המאמנת','Discuss this with your coach','Habla de esto con tu tutora'],
+  ['מעגל החזרה שלך','Your review cycle','Tu ciclo de repaso'],['לכל החזרות','All reviews','Ir a todos los repasos'],
+  ['ממתינות לחזרה','Due for review','Pendientes de repaso'],['בהטמעה','In progress','En aprendizaje'],
+  ['יציבות','Mastered','Dominadas'],['חדשות במעגל','New in review','Nuevas para repasar'],
+  ['אין חזרות ממתינות','No reviews due','No hay repasos pendientes'],
+  ['0/5 מילים במעגל','0/5 words in review','0/5 palabras en repaso'],
+  ['0/10 תשובות','0/10 answers','0/10 respuestas'],['עוד לא דיברת היום','You haven’t spoken today','Aún no has hablado hoy'],
+  ['נכונות','correct','correctas'],['מתוך','of','de'],['הושלמו','completed','completadas'],
+  ['התחילי לתרגל','Start practicing','Empieza a practicar'],['מוכנה','Ready','Lista'],
+  ['📖 חזרה על ההסבר','📖 Review the explanation','📖 Repasar la explicación'],
+  ['🗺️ כל המסלול','🗺️ Full course','🗺️ Todo el curso'],
+  ['מכירות חברות חדשות','Getting to know new friends','Conociendo nuevas amigas'],
+  ['היי, ','Hi, ','Hola, '],['קצב השיחה','Conversation pace','Ritmo de conversación'],
+  ['לחזרה','Review','Repasar'],['לתרגל','Practice','Practicar'],['לדבר','Speak','Hablar'],
+  ['מה יש כאן','What you’ll find here','Qué encontrarás aquí'],['עוד לא הייתה שיחה. בחרי תרחיש למעלה – זה לוקח 30 שניות.','No conversations yet. Choose a scenario above to get started.','Aún no hay conversaciones. Elige un escenario para empezar.'],
+  ['המאמנת שלך','Your coach','Tu tutora'],['שיחה אמיתית באנגלית – עם תיקון עדין, הצעות תשובה, תרגום והקראה. בחרי תרחיש, או דברי בחופשיות.','Practice with feedback, reply suggestions, translations, and audio. Choose a scenario or start chatting.','Practica con correcciones, sugerencias, traducciones y audio. Elige una situación o empieza a hablar.'],
+  ['בוחרי תרחיש','Choose a scenario','Elige una situación'],['בחרי תרחיש','Choose a scenario','Elige una situación'],
+  ['בוחרי תרחיש','Choose a scenario','Elige una situación'],['בחרי תרחיש','Choose a scenario','Elige una situación'],
+  ['תרגום בלחיצה','Tap to translate','Toca para traducir'],['לא הבנת? תרגום לעברית מתחת לכל הודעה – רק אם את רוצה.','Need help? Show a translation below each message.','¿Necesitas ayuda? Muestra la traducción debajo de cada mensaje.'],
+  ['תיקון בזמן אמת','Live feedback','Correcciones al instante'],['הצעות תשובה','Suggested replies','Sugerencias de respuesta'],
+  ['דברי למיקרופון, והמאמנת מקריאה את התשובות בקול.','Speak into the microphone and hear replies aloud.','Habla por el micrófono y escucha las respuestas en voz alta.'],
+  ['מילים לחזרה','Words to review','Palabras para repasar'],['דוח סיום','Session report','Informe de la sesión'],
+  ['🎭 בחרי תרחיש','🎭 Choose a scenario','🎭 Elige una situación'],
+  ['💬 המאמנת שלך','💬 Your coach','💬 Tu tutora'],['📜 שיחות אחרונות','📜 Recent conversations','📜 Conversaciones recientes'],
+  ['💡 אפשר לענות כך:','💡 You could say:','💡 Puedes responder así:'],
+  ['פידבק על התשובה שלך','Feedback on your answer','Comentarios sobre tu respuesta'],
+  ['השמעה','Play audio','Reproducir audio'],['תרגום','Translate','Traducir'],
+  ['🔊 השמע שוב','🔊 Play again','🔊 Reproducir de nuevo'],['לחצי על מילה באנגלית כדי לשמוע אותה ולראות את התרגום.','Tap an English word to hear it and see its translation.','Toca una palabra en inglés para escucharla y ver su traducción.'],
+  ['לחצי על מילה באנגלית כדי לראות תרגום ולשמוע אותה.','Tap an English word to see its translation and hear it.','Toca una palabra en inglés para ver su traducción y escucharla.'],
+  ['טוען תרגום…','Loading translation…','Cargando traducción…'],
+  ['תרגום לא זמין','Translation unavailable','Traducción no disponible'],
+  ['המילה לא נמצאה במילון המקומי','Word not found in the local dictionary','Palabra no encontrada en el diccionario local'],
+  ['התחברי כדי לתרגם מילים חדשות','Sign in to translate new words','Inicia sesión para traducir palabras nuevas'],
+  ['התרגום לא זמין כרגע. נסי שוב.','Translation is unavailable right now. Try again.','La traducción no está disponible ahora. Inténtalo de nuevo.'],
+  ['לא זיהיתי דיבור. דברי קרוב יותר למיקרופון ונסי שוב.','I didn’t hear speech. Move closer to the microphone and try again.','No detecté voz. Acércate al micrófono e inténtalo de nuevo.'],
+  ['הגישה למיקרופון נדחתה. אשרי מיקרופון בהגדרות האתר או הדפדפן ונסי שוב.','Microphone access was denied. Allow it in your browser or site settings and try again.','Se denegó el acceso al micrófono. Permítelo en el navegador o en el sitio e inténtalo de nuevo.'],
+  ['הדפדפן לא תומך בזיהוי דיבור. אפשר להקליד את התשובה במקום.','Speech recognition is not supported. You can type your answer instead.','El navegador no admite el reconocimiento de voz. Puedes escribir la respuesta.'],
+  ['שירות זיהוי הדיבור לא זמין כרגע. אפשר להקליד את התשובה.','Speech recognition is unavailable. You can type your answer instead.','El reconocimiento de voz no está disponible. Puedes escribir la respuesta.'],
+  ['כדי להשתמש במיקרופון צריך לפתוח את האתר ב-HTTPS או ב-localhost.','Use HTTPS or localhost to access the microphone.','Para usar el micrófono, abre el sitio con HTTPS o en localhost.'],
+  ['לא נמצא מיקרופון זמין במכשיר.','No microphone was found on this device.','No se encontró un micrófono en este dispositivo.'],
+  ['המיקרופון בשימוש באפליקציה אחרת. סגרי אותה ונסי שוב.','The microphone is being used by another app. Close it and try again.','Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo.'],
+  ['לא הצלחתי להפעיל את המיקרופון. בדקי את ההרשאות ונסי שוב.','Could not start the microphone. Check permissions and try again.','No se pudo iniciar el micrófono. Revisa los permisos e inténtalo de nuevo.'],
+  ['ההקלטה הופסקה.','Recording stopped.','Grabación detenida.'],['🎧 מקשיבה… דברי עכשיו','🎧 Listening… speak now','🎧 Escuchando… habla ahora'],
+  ['כניסה לתלמידים','Student sign in','Acceso de estudiantes'],['בחרי את שם המשתמש והקלידי את הסיסמה שלך.','Choose your username and enter your password.','Elige tu usuario e introduce tu contraseña.'],
+  ['שם משתמש','Username','Usuario'],['סיסמה','Password','Contraseña'],['סיסמה חדשה','New password','Contraseña nueva'],
+  ['הגדרת סיסמה / איפוס עם קוד','Set or reset password with a code','Crear o restablecer contraseña con un código'],
+  ['בקשת קוד איפוס בוואטסאפ','Request a reset code on WhatsApp','Solicitar un código por WhatsApp'],
+  ['ההתקדמות והרמה נשמרות בנפרד לכל תלמיד.','Progress and level are saved separately for each student.','El progreso y el nivel se guardan por separado para cada estudiante.'],
+  ['חזרה לכניסה','Back to sign in','Volver al acceso'],['שמירת הסיסמה','Save password','Guardar contraseña'],
+  ['פידבק','Feedback','Comentarios'],['תיקון','Correction style','Tipo de corrección'],
+  ['עדין','Gentle','Amable'],['מאוזן','Balanced','Equilibrado'],['קפדן','Detailed','Detallado'],
+  ['רמז','Hint','Pista'],['תקן אותי','Correct me','Corrígeme'],['שאלי אותי','Ask me','Pregúntame'],
+  ['ביטויים','Phrases','Frases'],['שלחי','Send','Enviar'],['סיום','Finish','Finalizar'],['חדש','New','Nuevo'],
+  ['התקדמות','Progress','Progreso'],['מילים יציבות','mastered words','palabras dominadas'],
+  ['לחצי כדי לעצור','Tap to stop','Toca para detener'],['דברי למיקרופון','Speak into the microphone','Habla por el micrófono'],
+  ['קלט קולי','Voice input','Entrada de voz'],['הודעה','Message','Mensaje'],
+  ['המאמנת המקומית','Local coach','Tutora local'],['מאמנת AI','AI coach','Tutora con IA'],
+  ['מסלול','Course','Curso'],['מאמנת AI','AI coach','Tutora con IA'],['ניהול מורה','Teacher dashboard','Panel del docente'],
+  ['צליל','Sound','Sonido'],['המשך שיחה','Continue conversation','Continuar conversación'],
+  ['רמת שיחה:','Conversation level:','Nivel de conversación:'],['נקבעת לפי חשבון התלמידה','Based on the learner’s account','Según la cuenta de estudiante'],
+  ['השירות המקוון לא זמין כרגע – ממשיכים במאמנת המקומית.','The online service is unavailable. Continuing with the local coach.','El servicio en línea no está disponible. Continuamos con la tutora local.'],
+  ['עברנו למאמנת המקומית','Switched to the local coach','Cambiamos a la tutora local'],
+  ['הצעד הבא','Next step','Siguiente paso'],['ההסבר','Explanation','Explicación'],
+  ['הכלל יעזור','The rule may help','La regla puede ayudar'],['פתח את הכלל','Open the rule','Ver la regla'],
+  ['לשאלה הבאה','Next question','Siguiente pregunta'],['הוסיפי','Add','Añadir'],
+  ['הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.','It starts with one step. Ten minutes a day makes a difference.','Todo empieza con un paso. Diez minutos al día marcan la diferencia.'],
+  ['דיוק כללי','Overall accuracy','Precisión general'],['מילים יציבות','mastered words','palabras dominadas'],
+  ['הכלל','The rule','La regla'],['הכלל עוזר','The rule helps','La regla ayuda'],
+];
+const SORTED_UI_TRANSLATIONS=UI_TRANSLATIONS.slice().sort((a,b)=>b[0].length-a[0].length);
+function localizedText(value){
+  if(typeof value!=='string'||CURRENT_UI_LANGUAGE==='he') return value;
+  return SORTED_UI_TRANSLATIONS
+    .reduce((text,[he,english,spanish])=>{
+      const replacement=CURRENT_UI_LANGUAGE==='es'?spanish:english;
+      const escaped=he.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const pattern=/[\s]/.test(he)
+        ?new RegExp(escaped,'g')
+        :new RegExp(`(^|[^\\u0590-\\u05FF])${escaped}(?=$|[^\\u0590-\\u05FF])`,'g');
+      return text.replace(pattern,(match,prefix)=>replacement+(/\s/.test(he)?'':prefix||''));
+    },value);
+}
 let ADMIN_STUDENTS=null;
 let ADMIN_RESET_CODES={};
 let ADMIN_CURRICULUM_BUSY={};
@@ -1438,15 +1580,39 @@ function masculineCurriculum(value){
 function currentHebrewGender(){
   return parts()[0]==='admin'?'male':CURRENT_LEARNER_GENDER;
 }
+const PERSONALIZED_TEXT_SOURCE=new WeakMap();
+const PERSONALIZED_ATTRIBUTE_SOURCE=new WeakMap();
 function personalizeVisibleText(root=document.body){
-  if(currentHebrewGender()!=='male'||!root) return;
+  if(!root) return;
+  const translateAttributes=['aria-label','title','placeholder','alt'];
   const visit=(node)=>{
     if(node.nodeType===Node.TEXT_NODE){
-      const text=masculineHebrew(node.nodeValue);
-      if(text!==node.nodeValue) node.nodeValue=text;
+      const current=node.nodeValue;
+      const previous=PERSONALIZED_TEXT_SOURCE.get(node);
+      const source=previous&&previous.displayed===current?previous.original:current;
+      const text=CURRENT_UI_LANGUAGE==='he'
+        ?(currentHebrewGender()==='male'?masculineHebrew(source):source)
+        :localizedText(source);
+      PERSONALIZED_TEXT_SOURCE.set(node,{original:source,displayed:text});
+      if(text!==current) node.nodeValue=text;
       return;
     }
-    if(node.nodeType===Node.ELEMENT_NODE&&['SCRIPT','STYLE','TEXTAREA'].includes(node.tagName)) return;
+    if(node.nodeType===Node.ELEMENT_NODE){
+      let attributeSources=PERSONALIZED_ATTRIBUTE_SOURCE.get(node);
+      if(!attributeSources){ attributeSources=new Map(); PERSONALIZED_ATTRIBUTE_SOURCE.set(node,attributeSources); }
+      translateAttributes.forEach(attribute=>{
+        const value=node.getAttribute(attribute);
+        if(!value) return;
+        const previous=attributeSources.get(attribute);
+        const source=previous&&previous.displayed===value?previous.original:value;
+        const text=CURRENT_UI_LANGUAGE==='he'
+          ?(currentHebrewGender()==='male'?masculineHebrew(source):source)
+          :localizedText(source);
+        attributeSources.set(attribute,{original:source,displayed:text});
+        if(text!==value) node.setAttribute(attribute,text);
+      });
+      if(['SCRIPT','STYLE','TEXTAREA'].includes(node.tagName)) return;
+    }
     node.childNodes?.forEach(visit);
   };
   visit(root);
@@ -1456,10 +1622,11 @@ function watchPersonalizedText(){
   const observer=new MutationObserver(records=>{
     records.forEach(record=>{
       if(record.type==='characterData') personalizeVisibleText(record.target);
+      else if(record.type==='attributes') personalizeVisibleText(record.target);
       else record.addedNodes.forEach(personalizeVisibleText);
     });
   });
-  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+  observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder','alt']});
 }
 function whatsappResetUrl(username){
   if(!TEACHER_WHATSAPP) return '';
@@ -1479,26 +1646,37 @@ function setStudentIdentity(account){
   const gender=account.gender==='male'?'male':'female';
   const genderChanged=CURRENT_LEARNER_GENDER!==gender;
   CURRENT_LEARNER_GENDER=gender;
+  CURRENT_UI_LANGUAGE=account.uiLanguage||'he';
   CURRENT_LEARNER_PROFILE={
     gender,
     interests:Array.isArray(account.interests)?account.interests:[],
     level:account.level||'A1',
     targetLevel:account.targetLevel||account.level||'A1',
-    levelStage:account.levelStage||''
+    levelStage:account.levelStage||'',
+    uiLanguage:CURRENT_UI_LANGUAGE,
+    learningLanguage:account.learningLanguage||'English',
+    nativeLanguage:account.nativeLanguage||'Hebrew'
   };
+  document.documentElement.lang=CURRENT_UI_LANGUAGE;
+  document.documentElement.dir=CURRENT_UI_LANGUAGE==='he'?'rtl':'ltr';
   document.title=`Lamda – ${name}`;
   const brand=$('#app-name'); if(brand) brand.textContent=`Lamda · ${name}`;
   S.name=name;
   S.settings.level=account.level||S.settings.level||'A1';
   updateHeader();
+  personalizeVisibleText(document.body);
   return genderChanged;
 }
 function clearStudentIdentity(){
   CURRENT_LEARNER_GENDER='female';
-  CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1'};
+  CURRENT_UI_LANGUAGE='he';
+  CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
+  document.documentElement.lang='he';
+  document.documentElement.dir='rtl';
   S.name='תלמידה';
   document.title='Lamda — English learning';
   const brand=$('#app-name'); if(brand) brand.textContent='Lamda';
+  personalizeVisibleText(document.body);
 }
 function openStudentLogin(message=''){
   const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
@@ -1641,7 +1819,7 @@ function initCloudSync(){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('online');
       if(syncing) cloudPush(true);
     }else if(event === 'error'){
-      if(typeof updateSyncBadge === 'function') updateSyncBadge('error');
+      if(typeof updateSyncBadge === 'function') updateSyncBadge('error',payload?.message);
     }else if(event === 'session'){
       if(payload&&payload.user){
         const genderChanged=setStudentIdentity(payload.user);
@@ -1697,7 +1875,9 @@ function floatXP(n,node){
 }
 function toast(t){
   const el=$('#toast'); if(!el) return;
-  el.textContent=currentHebrewGender()==='male'?masculineHebrew(t):t;
+  el.textContent=CURRENT_UI_LANGUAGE==='he'
+    ?(currentHebrewGender()==='male'?masculineHebrew(t):t)
+    :localizedText(t);
   el.classList.add('show');
   clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600);
 }
@@ -1712,9 +1892,16 @@ function confetti(n=26){
 
 /* ================= audio ================= */
 let VOICE=null, AC=null;
+function learningSpeechLocale(){
+  const language=(CURRENT_LEARNER_PROFILE.learningLanguage||'English').toLowerCase();
+  if(language.startsWith('french')) return 'fr-FR';
+  if(language.startsWith('spanish')) return 'es-ES';
+  if(language.startsWith('hebrew')) return 'he-IL';
+  return 'en-US';
+}
 function initVoice(){
   if(!('speechSynthesis' in window)) return;
-  const pick=()=>{ const v=speechSynthesis.getVoices(); VOICE=v.find(x=>/^en[-_]US/i.test(x.lang)&&/Google|Natural|Samantha|Aria|Jenny/i.test(x.name))||v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null; };
+  const pick=()=>{ const lang=learningSpeechLocale().replace('-','[-_]'); const v=speechSynthesis.getVoices(); VOICE=v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang)&&/Google|Natural|Samantha|Aria|Jenny/i.test(x.name))||v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang))||null; };
   pick(); speechSynthesis.onvoiceschanged=pick;
 }
 function speak(text, rate){
@@ -1722,8 +1909,10 @@ function speak(text, rate){
   try{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]*>/g,''));
-    u.lang='en-US'; u.rate=rate || S.settings.ttsRate || .9;
-    if(VOICE) u.voice=VOICE;
+    u.lang=learningSpeechLocale(); u.rate=rate || S.settings.ttsRate || .9;
+    const lang=u.lang.replace('-','[-_]');
+    const voice=speechSynthesis.getVoices().find(item=>new RegExp(`^${lang}`,'i').test(item.lang));
+    if(voice||VOICE) u.voice=voice||VOICE;
     speechSynthesis.speak(u);
   }catch(e){}
 }
@@ -1864,6 +2053,24 @@ const COMMON_WORD_TRANSLATIONS={
   music:'מוזיקה', studio:'סטודיו', kind:'נחמד/ה', picture:'תמונה', costume:'תלבושת',
   phone:'טלפון', camera:'מצלמה', shoes:'נעליים', red:'אדום/ה', pink:'ורוד/ה',
 };
+const SPANISH_WORD_TRANSLATIONS={
+  a:'un / una', an:'un / una', the:'el / la', i:'yo', you:'tú', he:'él', she:'ella', it:'eso',
+  we:'nosotros / nosotras', they:'ellos / ellas', my:'mi', your:'tu', is:'es / está', am:'soy / estoy',
+  are:'eres / estás', have:'tener', has:'tiene', can:'poder', do:'hacer', does:'hace',
+  and:'y', or:'o', but:'pero', because:'porque', with:'con', for:'para', from:'de', in:'en',
+  on:'sobre / en', at:'en', to:'a / para', of:'de', this:'este / esta', that:'ese / esa',
+  what:'qué', when:'cuándo', where:'dónde', who:'quién', why:'por qué', how:'cómo',
+  not:'no', very:'muy', more:'más', every:'cada', after:'después', before:'antes',
+  friend:'amigo / amiga', friends:'amigos / amigas', sister:'hermana', brother:'hermano',
+  day:'día', school:'escuela', student:'estudiante', learn:'aprender', learned:'aprendió',
+  good:'bueno / buena', nice:'agradable', new:'nuevo / nueva', happy:'feliz', best:'mejor',
+  love:'amar / encantar', dance:'bailar', dancing:'baile', song:'canción', music:'música',
+  party:'fiesta', friday:'viernes', studio:'estudio', practice:'practicar', class:'clase',
+  lesson:'lección', weekend:'fin de semana', always:'siempre', sometimes:'a veces',
+  listen:'escuchar', wear:'llevar', meet:'encontrarse', watch:'mirar', sing:'cantar',
+  jump:'saltar', spin:'girar', clap:'aplaudir', smile:'sonreír', stage:'escenario',
+  step:'paso', move:'moverse', funny:'divertido / divertida', favorite:'favorito / favorita',
+};
 let wordBubbleTimer=null;
 function wordTranslation(word,vocabulary=[]){
   const key=String(word||'').toLocaleLowerCase('en');
@@ -1872,13 +2079,17 @@ function wordTranslation(word,vocabulary=[]){
     ||ALL_WORDS[key.replace(/ies$/,'y')]
     ||ALL_WORDS[key.replace(/s$/,'')]
     ||ALL_WORDS[key.replace(/(?:ing|ed)$/,'')];
-  return entry?.he||COMMON_WORD_TRANSLATIONS[key]||'תרגום לא זמין';
+  if(entry?.he&&ACTIVE_CURRICULUM) return entry.he;
+  if(CURRENT_UI_LANGUAGE==='es'&&SPANISH_WORD_TRANSLATIONS[key]) return SPANISH_WORD_TRANSLATIONS[key];
+  if(entry?.he&&CURRENT_UI_LANGUAGE==='he') return entry.he;
+  return CURRENT_UI_LANGUAGE==='he'?COMMON_WORD_TRANSLATIONS[key]||'תרגום לא זמין':'';
 }
 function clickableEnglish(text,vocabulary=[]){
   return String(text||'').match(/[A-Za-z]+(?:['’][A-Za-z]+)*|[^A-Za-z]+/g)?.map(part=>{
     if(!/^[A-Za-z]/.test(part)) return esc(part);
     const translation=wordTranslation(part,vocabulary);
-    return `<button type="button" class="tap-word" data-word-audio="${escA(part)}" data-word-translation="${escA(translation)}" aria-label="${escA(`${part}: ${translation}; השמעה ותרגום`)}">${esc(part)}</button>`;
+    const label=translation?`${part}: ${translation}; ${localizedText('השמעה')}`:`${localizedText('תרגום')}: ${part}`;
+    return `<button type="button" class="tap-word" data-word-audio="${escA(part)}" data-word-translation="${escA(translation)}" aria-label="${escA(label)}">${esc(part)}</button>`;
   }).join('')||'';
 }
 function fallbackReading(unit){
@@ -2540,7 +2751,7 @@ function markProg(ex,ok){
 function showFeedback(ok,gain){
   const ex=QS.ex, slot=$('#fb-slot'); if(!slot) return;
   const accepted=currentAccepted();
-  const answerLine=accepted.map(a=>`<span class="en">${esc(a)}</span>`).join(' / ');
+  const answerLine=accepted.map(a=>`<span class="en">${fmt(a,true)}</span>`).join(' / ');
   const clickableAnswers=ok
     ?accepted.filter(answer=>/[A-Za-z]/.test(String(answer))).map(answer=>clickableEnglish(answer)).join(' / ')
     :'';
@@ -2956,7 +3167,7 @@ function speakMic(){
   }
   const s=SPEAK_SENTENCES[SPEAK.idx];
   if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">🎧 מקשיבה… דברי עכשיו</div>';
-  RECOGNIZER=listenOnce('en-US',alts=>{
+  RECOGNIZER=listenOnce(learningSpeechLocale(),alts=>{
     const heard=alts[0]||'';
     const score=similarity(heard,s.en);
     SPEAK.last={heard,score}; SPEAK.results.push(score);
@@ -3465,13 +3676,16 @@ function mountExam(){
 }
 
 /* ================= settings / data ================= */
-function updateSyncBadge(state){
+function updateSyncBadge(state,detail=''){
   const el=document.getElementById('sync-badge');
   if(!el) return;
-  const map={saved:['✅','מסונכרן בענן'],server:['💾','נשמר בשרת'],syncing:['🔄','מסנכרן…'],offline:['📴','לא מקוון'],error:['⚠️','שגיאת סנכרון'],off:['💾','מקומי בלבד']};
+  const map={saved:['✅','מסונכרן בענן'],server:['💾','נשמר בשרת מקומי'],syncing:['🔄','מסנכרן…'],offline:['📴','לא מקוון'],error:['⚠️','שגיאת סנכרון'],off:['💾','מקומי בלבד']};
   const [icon,label]=map[state]||map.off;
   el.textContent=`${icon} ${label}`;
   el.className='tag '+(state==='saved'?'lime':state==='error'||state==='server'?'gold':'');
+  el.title=detail|| (state==='server'
+    ?'השמירה כרגע בקובץ מקומי בשרת; שירותי אירוח ללא דיסק מתמיד עלולים למחוק אותו באתחול.'
+    :state==='error'?'הסנכרון נכשל. בדקי חיבור ואת הגדרות האחסון.':'');
 }
 function renderSyncPanel(){
   const enabled=cloudReady();
@@ -3485,7 +3699,7 @@ function renderSyncPanel(){
     return `<div class="field"><div class="row" style="align-items:center">
       <span style="flex:1"><b>${esc(account?.username||'תלמידה')}</b> · רמה ${esc(account?.level||S.settings.level)}</span>${badge}
       <button class="btn xs danger" data-act="student-logout">יציאה</button></div></div>
-      <p class="tiny muted">${window.apiSync.storage()==='netlify-blobs'?'ההתקדמות נשמרת בחשבון האישי ב-Netlify Blobs ומסתנכרנת בין מכשירים.':'ההתקדמות נשמרת בקובץ מקומי ואינה מסתנכרנת בין מכשירים.'}</p>`;
+      <p class="tiny muted">${window.apiSync.storage()==='netlify-blobs'?'ההתקדמות נשמרת בחשבון האישי ב-Netlify Blobs ומסתנכרנת בין מכשירים.':'האחסון הנוכחי הוא קובץ מקומי בשרת, ללא סנכרון בין מכשירים. בשרת ללא דיסק מתמיד, הנתונים עלולים להימחק באתחול.'}</p>`;
   }
   return `<div class="field"><p class="tiny muted">יש להתחבר עם שם משתמש וסיסמה כדי לצפות בהתקדמות האישית.</p>
     <button class="btn primary wide" data-act="student-login-open">כניסה</button></div>`;
@@ -3705,12 +3919,84 @@ function handleImportRoute(data){
 }
 let PENDING_IMPORT=null;
 
+let VOCAB_TOOLTIP_TIMER=null;
+const VOCAB_TRANSLATION_CACHE=new Map();
+function closeVocabTooltip(){
+  clearTimeout(VOCAB_TOOLTIP_TIMER);
+  VOCAB_TOOLTIP_TIMER=null;
+  $('#vocab-tooltip')?.remove();
+}
+function showVocabTooltip(anchor,word,translation='טוען תרגום…'){
+  closeVocabTooltip();
+  const tooltip=document.createElement('div');
+  tooltip.id='vocab-tooltip';
+  tooltip.className='vocab-tooltip';
+  tooltip.setAttribute('role','status');
+  tooltip.setAttribute('aria-live','polite');
+  tooltip.style.direction=CURRENT_UI_LANGUAGE==='he'?'rtl':'ltr';
+  tooltip.innerHTML=`<div class="vocab-tooltip-text"><span class="vocab-tooltip-word">${esc(word)}</span><span class="vocab-tooltip-translation">${esc(translation)}</span></div><button class="iconbtn" data-vocab-say="${escA(word)}" aria-label="${escA(localizedText('השמעה'))}" title="${escA(localizedText('השמעה'))}">🔊</button>`;
+  document.body.appendChild(tooltip);
+  const rect=anchor.getBoundingClientRect();
+  const above=rect.top>90;
+  tooltip.style.left=`${Math.max(8,Math.min(rect.left,window.innerWidth-tooltip.offsetWidth-8))}px`;
+  tooltip.style.top=`${Math.max(8,above?rect.top-8:rect.bottom+8)}px`;
+  if(above) tooltip.style.transform='translateY(-100%)';
+  VOCAB_TOOLTIP_TIMER=setTimeout(closeVocabTooltip,4000);
+  return tooltip;
+}
+function knownWordTranslation(word){
+  if(CURRENT_UI_LANGUAGE!=='he'&&!ACTIVE_CURRICULUM) return '';
+  const key=word.toLowerCase();
+  const found=wordByKey(key);
+  if(found&&found.he&&(CURRENT_UI_LANGUAGE==='he'||ACTIVE_CURRICULUM)) return found.he;
+  const learned=(S.chat&&S.chat.learned)||{};
+  const learnedKey=Object.keys(learned).find(k=>k.toLowerCase()===key);
+  if(learnedKey&&learned[learnedKey]) return learned[learnedKey];
+  for(const message of (S.chat&&S.chat.messages)||[]){
+    const match=(message.words||[]).find(w=>w.en&&w.en.toLowerCase()===key&&w.he);
+    if(match) return match.he;
+  }
+  return '';
+}
+async function translateVocabWord(word){
+  const known=knownWordTranslation(word);
+  if(known) return known;
+  const translationLanguage=CURRENT_UI_LANGUAGE==='he'?'Hebrew':CURRENT_UI_LANGUAGE==='es'?'Spanish':'English';
+  const cacheKey=`${translationLanguage}:${word.toLowerCase()}`;
+  if(VOCAB_TRANSLATION_CACHE.has(cacheKey)) return VOCAB_TRANSLATION_CACHE.get(cacheKey);
+  if(!canUseAI()||!window.apiSync?.aiChat) return '';
+  const request=window.apiSync.aiChat([
+    {role:'system',content:`Translate the supplied ${CURRENT_LEARNER_PROFILE.learningLanguage||'English'} word or short phrase into natural ${translationLanguage}. Reply with only the translation; if it has several common meanings, give up to two concise meanings.`},
+    {role:'user',content:word}
+  ],{temperature:0,max_tokens:60}).then(data=>{
+    const translation=String(data.choices?.[0]?.message?.content||'').trim().replace(/^["'“”]+|["'“”]+$/g,'').slice(0,120);
+    if(!translation) throw new Error('Empty word translation');
+    VOCAB_TRANSLATION_CACHE.set(cacheKey,translation);
+    return translation;
+  }).catch(error=>{
+    VOCAB_TRANSLATION_CACHE.delete(cacheKey);
+    throw error;
+  });
+  VOCAB_TRANSLATION_CACHE.set(cacheKey,request);
+  return request;
+}
+async function showWordTranslation(anchor,word){
+  const tooltip=showVocabTooltip(anchor,word,localizedText('טוען תרגום…'));
+  try{
+    const translation=await translateVocabWord(word);
+    if(tooltip.isConnected) tooltip.querySelector('.vocab-tooltip-translation').textContent=
+      translation||localizedText(PUBLIC_AI_STATUS.enabled?'התחברי כדי לתרגם מילים חדשות':'המילה לא נמצאה במילון המקומי');
+  }catch(error){
+    if(tooltip.isConnected) tooltip.querySelector('.vocab-tooltip-translation').textContent=localizedText('התרגום לא זמין כרגע. נסי שוב.');
+  }
+}
+
 /* ================= global events ================= */
 function handleGlobalClick(e){
   const resetLink=e.target.closest('[data-whatsapp-reset][aria-disabled="true"]');
   if(resetLink){ e.preventDefault(); toast('קישור הוואטסאפ עדיין לא הוגדר. פני למורה ישירות.'); return; }
-  const vocabWord=e.target.closest('[data-word-audio]');
-  if(vocabWord){
+  const readingWord=e.target.closest('[data-word-audio]');
+  if(readingWord){
     e.preventDefault();
     e.stopPropagation();
     document.querySelectorAll('.word-translation-bubble').forEach(bubble=>bubble.remove());
@@ -3718,14 +4004,22 @@ function handleGlobalClick(e){
     const bubble=document.createElement('span');
     bubble.className='word-translation-bubble';
     bubble.setAttribute('role','status');
-    bubble.textContent=vocabWord.dataset.wordTranslation||'תרגום לא זמין';
-    vocabWord.appendChild(bubble);
+    const translation=readingWord.dataset.wordTranslation||'';
+    bubble.textContent=translation||localizedText('טוען תרגום…');
+    readingWord.appendChild(bubble);
+    if(!translation) translateVocabWord(readingWord.dataset.wordAudio).then(result=>{
+      if(bubble.isConnected) bubble.textContent=result||localizedText('תרגום לא זמין');
+    }).catch(()=>{ if(bubble.isConnected) bubble.textContent=localizedText('התרגום לא זמין כרגע. נסי שוב.'); });
     wordBubbleTimer=setTimeout(()=>bubble.remove(),4000);
-    speak(vocabWord.dataset.wordAudio);
+    speak(readingWord.dataset.wordAudio);
     return;
   }
   const t=e.target.closest('[data-say]');
   if(t){ speak(t.dataset.say); return; }
+  const vocabSay=e.target.closest('[data-vocab-say]');
+  if(vocabSay){ speak(vocabSay.dataset.vocabSay); return; }
+  const vocabWord=e.target.closest('[data-vocab-word]');
+  if(vocabWord){ showWordTranslation(vocabWord,vocabWord.dataset.vocabWord); return; }
   const nav=e.target.closest('[data-nav]');
   if(nav){ e.preventDefault(); go(nav.getAttribute('href') || '#/'+nav.dataset.nav); 
     // Close sidebar on mobile after navigation
@@ -4002,25 +4296,31 @@ function chatScreenHTML(sc){
     </div>
   </div>`;
 }
-function fmt(t){
-  return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+function fmt(t,clickable=false){
+  const formatted=esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+  if(!clickable) return formatted;
+  return formatted.split(/(<[^>]+>)/g).map(part=>part.startsWith('<')?part:part.replace(/[A-Za-z]+(?:['’][A-Za-z]+)*/g,word=>
+    `<button class="vocab-word" type="button" data-vocab-word="${escA(word)}" aria-label="תרגום למילה ${escA(word)}">${word}</button>`
+  )).join('');
 }
 function chatMessagesHTML(){
   const msgs=S.chat.messages||[];
   let out=msgs.map((m,i)=>{
     if(m.role==='me'){
-      return `<div class="msg me" data-mi="${i}"><div class="bubble">${fmt(m.text)}</div></div>`;
+      return `<div class="msg me" data-mi="${i}"><div class="bubble">${fmt(m.text,true)}</div></div>`;
     }
-    const corr=(m.error?`<div class="corr" style="border-color:rgba(255,128,128,.35);background:rgba(255,128,128,.07)">⚠️ ${esc(m.error)} <button class="mini-chip" data-act="settings">הגדרות</button></div>`:'')+((m.corrections&&m.corrections.length)?`<div class="corr"><b>פידבק על מה שכתבת</b>${m.corrections.map(c=>`<div class="fix">${c.wrong?`<s>${esc(c.wrong)}</s> → `:''}<em>${esc(c.right)}</em></div>${c.why?`<div class="tiny muted">${esc(c.why)}</div>`:''}`).join('')}</div>`:'');
+    const corr=(m.error?`<div class="corr" style="border-color:rgba(255,128,128,.35);background:rgba(255,128,128,.07)">⚠️ ${esc(m.error)} <button class="mini-chip" data-act="settings">הגדרות</button></div>`:'')+((m.corrections&&m.corrections.length)?`<div class="corr"><b>פידבק על התשובה שלך</b>${m.corrections.map(c=>`<div class="fix">${c.wrong?`<s>${fmt(c.wrong,true)}</s> → `:''}<em>${fmt(c.right,true)}</em></div>${c.why?`<div class="tiny muted">${esc(c.why)}</div>`:''}`).join('')}</div>`:'');
+    const praise=m.praise?`<div class="chat-praise">${esc(m.praise)}</div>`:'';
     const words=(m.words&&m.words.length)?`<div class="suggest" style="margin-top:5px">${m.words.slice(0,2).map(w=>`<span class="tag lime">${esc(w.en)} = ${esc(w.he)}</span>`).join('')}</div>`:'';
-    const sugg=(m.suggestions&&m.suggestions.length && i===msgs.length-1 && !CHAT_BUSY)?`<div class="suggest" aria-label="תשובות לדוגמה לקריאה בלבד">${m.suggestions.slice(0,3).map(s=>`<span class="suggestion-text">${esc(s)}</span>`).join('')}</div>`:'';
+    const sugg=(m.suggestions&&m.suggestions.length && i===msgs.length-1 && !CHAT_BUSY)?`<div class="suggest" aria-label="הצעות לתשובה"><span class="suggest-label">💡 אפשר לענות כך:</span>${m.suggestions.slice(0,3).map(s=>`<span class="suggestion-text">${fmt(s,true)}</span>`).join('')}</div>`:'';
     return `<div class="msg ai ${S.settings.showTr?'show-tr':''}" data-mi="${i}">
-      <div class="bubble"><span class="en">${fmt(m.text)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
+      ${corr}${praise}
+      <div class="bubble"><span class="en">${fmt(m.text,true)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
+      ${sugg}${words}
       <div class="bubble-actions">
         <button class="iconbtn" data-chat-say="${i}" title="השמע">🔊</button>
         <button class="iconbtn" data-chat-tr="${i}" title="תרגום">🌐</button>
       </div>
-      ${corr}${words}${sugg}
     </div>`;
   }).join('');
   if(CHAT_BUSY) out+=`<div class="msg ai"><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div></div>`;
@@ -4134,38 +4434,40 @@ function buildSystemPrompt(sc){
   const style={gentle:'Only correct serious mistakes (max 1). Be very gentle.',balanced:'Correct up to 2 clear mistakes. Be encouraging.',strict:'Correct up to 3 mistakes, including small ones.'}[S.settings.correction]||'Correct up to 2 clear mistakes. Be encouraging.';
   const target=sc.words.map(w=>w.en).join(', ');
  const learnerName=S.name||'the learner';
- const levelGuidance=level==='A1'||level==='A1+'?'Use short, simple sentences and familiar words. Focus on basic grammar.':level==='A2'?'Use clear everyday English, with simple past and future when useful.':'Use natural, age-appropriate English and explanations suited to this CEFR level.';
- const genderGuidance=CURRENT_LEARNER_GENDER==='male'
-   ? 'The learner is a boy. Address him using masculine singular forms in Hebrew; never address him in feminine forms.'
-   : 'The learner is a girl. Address her using feminine singular forms in Hebrew.';
+ const learningLanguage=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
+ const explanationLanguage=CURRENT_LEARNER_PROFILE.uiLanguage==='es'?'Spanish':CURRENT_LEARNER_PROFILE.uiLanguage==='en'?'English':'Hebrew';
+ const levelGuidance=level==='A1'||level==='A1+'?`Use short, simple ${learningLanguage} sentences and familiar words. Focus on basic grammar.`:level==='A2'?`Use clear everyday ${learningLanguage}, with simple past and future when useful.`:`Use natural, age-appropriate ${learningLanguage} and explanations suited to this CEFR level.`;
+ const genderGuidance=explanationLanguage==='Hebrew'
+   ?(CURRENT_LEARNER_GENDER==='male'?'The learner is a boy. Address him using masculine singular forms in Hebrew; never address him in feminine forms.':'The learner is a girl. Address her using feminine singular forms in Hebrew.')
+   :`Use respectful, natural forms of address in ${explanationLanguage}.`;
  const learnerInterests=CURRENT_LEARNER_PROFILE.interests.length
    ? CURRENT_LEARNER_PROFILE.interests.join(', ')
    : 'everyday topics appropriate to the lesson';
  const levelTarget=CURRENT_LEARNER_PROFILE.targetLevel&&CURRENT_LEARNER_PROFILE.targetLevel!==level
    ? `The learner is approaching CEFR ${CURRENT_LEARNER_PROFILE.targetLevel}.`
    : '';
- return `You are ${sc.who}, a ${sc.role}, inside a personal English-learning app for ${learnerName}. ${genderGuidance} Known interests: ${learnerInterests}. Use these interests naturally for examples and questions, without forcing them into every turn. ${levelTarget}
+ return `You are ${sc.who}, a ${sc.role}, inside a personal ${learningLanguage}-learning app for ${learnerName}. ${genderGuidance} The scenario metadata is only topic guidance; conduct the conversation in ${learningLanguage}, even if the metadata is written in another language. Known interests: ${learnerInterests}. Use these interests naturally for examples and questions, without forcing them into every turn. ${levelTarget}
 
-YOUR ROLE: Be a warm, funny, encouraging English conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
+YOUR ROLE: Be a warm, funny, encouraging ${learningLanguage} conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
 Target vocabulary you may weave in naturally: ${target}.
 CEFR level: ${level}. ${levelGuidance} Reply with 2–3 sentences, then exactly ONE question that fits the learner's level.
 Correction style: ${style}
 
-If the learner writes in Hebrew: understand it, reply in English suited to their level, and gently give a useful English model. Do not shame them.
+If the learner writes in ${CURRENT_LEARNER_PROFILE.nativeLanguage||'Hebrew'}: understand it, reply in ${learningLanguage} suited to their level, and gently give a useful ${learningLanguage} model. Do not shame them.
 If the learner writes very little (one or two words), encourage a full sentence and give a model.
 Praise effort specifically (e.g. "Nice past tense!").
 Never ask for private information or discuss inappropriate topics. Keep it school-safe.
 Use only well-known, accurate facts; if you are not sure, say "I'm not sure" instead of inventing.
 
 Return ONLY valid JSON, with no markdown fences, exactly in this shape:
-{"reply":"English reply, 2-4 sentences, ends with one question","translation":"תרגום טבעי של reply לעברית","corrections":[{"wrong":"the learner's exact error","right":"the corrected English","why":"הסבר קצר בעברית פשוטה, עד 12 מילים"}],"suggestions":["short English reply the learner could say","...","..."],"words":[{"en":"useful word from your reply","he":"תרגום"}],"praise":"משפט עידוד קצר בעברית"}
+{"reply":"${learningLanguage} reply, 2-4 sentences, ends with one question","translation":"natural translation of reply into ${explanationLanguage}","corrections":[{"wrong":"the learner's exact error","right":"the corrected ${learningLanguage}","why":"short, simple explanation in ${explanationLanguage}, up to 12 words"}],"suggestions":["short ${learningLanguage} reply the learner could say","...","..."],"words":[{"en":"useful word from your reply","he":"translation into ${explanationLanguage}"}],"praise":"short encouraging message in ${explanationLanguage}"}
 
 Rules for fields:
 - "corrections": max 2, only real errors in the learner's latest message. If none, use [].
 - "suggestions": exactly 3 possible replies, at the learner's level, directly answering your question. These are for reading only; never ask the learner to click or select one.
-- "words": max 2 useful new words/phrases from your reply, with accurate Hebrew.
-- "translation" and "why" must be Hebrew. "reply" and "suggestions" must be English.
-- Do not put Hebrew inside "reply". Do not add any text outside the JSON object.`;
+- "words": max 2 useful new words/phrases from your reply, with accurate translations into ${explanationLanguage}.
+- "translation", "why", and "praise" must be in ${explanationLanguage}. "reply" and "suggestions" must be in ${learningLanguage}.
+- Do not put ${explanationLanguage} inside "reply". Do not add any text outside the JSON object.`;
 }
 function parseAI(raw){
   let t=String(raw).trim().replace(/^```(json)?/i,'').replace(/```$/,'').trim();
@@ -4376,7 +4678,7 @@ function chatMic(){
   const btn=$('#chat-mic');
   if(RECOGNIZER){ RECOGNIZER.stop(); RECOGNIZER=null; setChatMicState(false); return; }
   setChatMicState(true);
-  RECOGNIZER=listenOnce('en-US',alts=>{
+  RECOGNIZER=listenOnce(learningSpeechLocale(),alts=>{
     const heard=(alts&&alts[0])||'';
     const inp=$('#chat-input'); if(inp&&heard){ inp.value=heard; inp.focus(); }
     if(heard) setTimeout(()=>{ if($('#chat-input')) sendChat(); },250);

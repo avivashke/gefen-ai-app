@@ -42,10 +42,30 @@ characters. After a password-reset request is verified, use **Reset code**;
 reset codes expire after 30 minutes. Progress is stored separately for each
 learner and syncs across devices using the same account.
 
-Learner profiles are configured in `server/students.js`. The profile's gender
-controls Hebrew forms; CEFR level and interests are sent to the AI course
-generator and conversation coach. The admin course prompt is prefilled with
-these settings and can be adjusted before generating a course.
+### Verify persistent progress
+
+Before sharing the site, open `https://<your-site>/.netlify/functions/api/health`
+or `https://<your-site>/api/health`. Confirm the response reports
+`"storage":"netlify-blobs"`. If it reports `"local"` or the endpoint returns an
+error, do not treat progress as safely stored: check the Netlify environment
+variables and the function logs. Sign in as a learner, complete an exercise,
+wait for the sync badge to say **מסונכרן בענן**, refresh, and confirm the result
+is still present. Repeat on another device using the same learner account.
+
+Progress is scoped to the Netlify site and learner account. Keep using the same
+production Netlify site; another Netlify site or a Deploy Preview has a separate
+Blobs store. Export a backup from the app before changing hosts. Existing
+browser-local or Render data is not automatically copied into Blobs; import a
+backup after signing in on the destination site if one is available.
+
+Learner profiles are configured in `server/students.js`. Gender, CEFR level,
+interests, native language, interface language, and learning language are sent
+to the course generator and conversation coach. Yuli's interface and coaching
+explanations are Spanish while she studies English at A2 toward B1; Aviv's
+interface is English while he studies French at A2. Use the admin dashboard's
+course-generation action for each profile so its curriculum is generated in
+the assigned learning and interface languages. Other learners retain the
+Hebrew interface and their existing learning setup.
 
 The admin dashboard shows learner-level progress cards, including exercise
 completion, accuracy, XP, streaks, vocabulary mastery, and unit progress.
@@ -75,6 +95,16 @@ from the previous curriculum is kept separate.
 The app writes to the Netlify Blobs store named `gefen-coach-data`. Each deployed
 Netlify site has its own store; the learners visiting that site share its
 student roster and data.
+
+## Render deployments
+
+The checked-in `render.yaml` currently uses Render's **free** web-service plan.
+The app's JSON-file storage (`data/`) is not durable on an ephemeral service, so
+progress and account records can disappear after a restart or redeploy. For
+reliable multi-device progress, use the Netlify Blobs setup above. If you must
+stay on Render, use a paid service with a persistent disk, mount it at a stable
+path, and set `DATA_DIR` to that mount path. A file on the service's ordinary
+filesystem is not a persistent-storage solution.
 
 ## Local development
 

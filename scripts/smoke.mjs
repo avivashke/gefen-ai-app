@@ -59,11 +59,11 @@ page.on('request', (request) => {
     };
   } else if (path === '/api/admin/students') {
     response = {
-      students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה', 'יולי'].map((username, index) => ({
-        username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA', 'YULI'][index],
-        level: index === 1 || index === 4 ? 'A2' : index === 6 ? 'B1' : 'A1',
-        targetLevel: index === 1 || index === 4 ? 'B1' : index === 6 ? 'B2' : 'A1',
-        gender: [1, 3, 4].includes(index) ? 'male' : 'female',
+      students: ['גפן', 'בארי', 'שקד', 'מעיין', 'הדר', 'מיה', 'יולי', 'אביב'].map((username, index) => ({
+        username, key: ['GEFEN', 'BARRY', 'SHAKED', 'MAAYAN', 'HADAR', 'MIA', 'YULI', 'AVIV'][index],
+        level: index === 1 || index === 4 || index >= 6 ? 'A2' : 'A1',
+        targetLevel: index === 1 || index === 4 || index === 6 ? 'B1' : 'A2',
+        gender: [1, 3, 4, 7].includes(index) ? 'male' : 'female',
         interests: index === 1 ? ['כדורגל', 'חיות', 'טבע'] : [],
         profilePrompt: 'רמת אנגלית: A2. התלמיד: בארי. תחומי עניין: כדורגל, חיות וטבע.',
         activated: index !== 0, missing: index === 0, xp: index * 10, streak: index,
@@ -260,6 +260,19 @@ const microphone = await page.evaluate(async () => {
   return result;
 });
 
+await page.type('#chat-input', 'I like music.');
+await page.click('#chat-send');
+await page.waitForFunction(() => S.chat.messages.filter((message) => message.role === 'ai').length > 1);
+const wordButtons = await page.$$('.msg.ai [data-vocab-word]');
+await wordButtons[wordButtons.length - 1].click();
+await page.waitForSelector('#vocab-tooltip [data-vocab-say]');
+const vocabularyPopup = await page.$eval('#vocab-tooltip', (tooltip) => ({
+  hasSpeaker: Boolean(tooltip.querySelector('[data-vocab-say]')),
+  text: tooltip.textContent,
+}));
+await new Promise((resolve) => setTimeout(resolve, 4100));
+const vocabularyPopupClosed = !(await page.$('#vocab-tooltip'));
+
 await page.evaluate(() => openPasswordSetup());
 await page.select('#activation-username', 'בארי');
 await page.type('#activation-code', 'activation-smoke-code');
@@ -329,9 +342,12 @@ if (!microphone.started || microphone.startedSynchronously || !microphone.starte
   || !microphone.failedControllerNull || microphone.permissionError !== 'not-allowed') {
   throw new Error(`Microphone permission flow failed: ${JSON.stringify(microphone)}`);
 }
-if (!activationWorked || adminDashboard.rows !== 7 || adminDashboard.initialAction !== 'קוד הפעלה'
+if (!activationWorked || adminDashboard.rows !== 8 || adminDashboard.initialAction !== 'קוד הפעלה'
   || adminDashboard.enterAction !== 'בדיקת החשבון' || adminDashboard.resetCode !== 'reset-smoke-code') {
   throw new Error(`Activation/admin dashboard failed: ${JSON.stringify({ activationWorked, adminDashboard })}`);
+}
+if (!vocabularyPopup.hasSpeaker || !vocabularyPopupClosed) {
+  throw new Error(`Vocabulary popup failed: ${JSON.stringify({ vocabularyPopup, vocabularyPopupClosed })}`);
 }
 if (inactiveStudentPreview.user !== 'גפן' || inactiveStudentPreview.activated !== false
   || !inactiveStudentPreview.banner.includes('עדיין לא הופעל') || !adminReturned) {
