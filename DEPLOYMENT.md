@@ -61,11 +61,13 @@ backup after signing in on the destination site if one is available.
 Learner profiles are configured in `server/students.js`. Gender, CEFR level,
 interests, native language, interface language, and learning language are sent
 to the course generator and conversation coach. Yuli's interface and coaching
-explanations are Spanish while she studies English at A2 toward B1; Aviv's
-interface is English while he studies French at A2. Use the admin dashboard's
-course-generation action for each profile so its curriculum is generated in
-the assigned learning and interface languages. Other learners retain the
-Hebrew interface and their existing learning setup.
+explanations are Spanish while she studies English at B1; Aviv's interface and
+coaching explanations are Hebrew while he studies French at A2. After changing
+a profile's level or interface language, use the admin dashboard's
+course-generation action to regenerate its curriculum in the assigned learning
+and interface languages. Existing curricula are not translated or upgraded
+automatically. Other learners retain the Hebrew interface and their existing
+learning setup.
 
 The admin dashboard shows learner-level progress cards, including exercise
 completion, accuracy, XP, streaks, vocabulary mastery, and unit progress.

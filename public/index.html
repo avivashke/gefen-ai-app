@@ -3957,26 +3957,38 @@ function updateNav(){
 }
 function personalizedCoursePendingHTML(){
   const isSpanish=CURRENT_UI_LANGUAGE==='es';
+  const isHebrew=CURRENT_UI_LANGUAGE==='he';
   const learningLanguage=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
   const languageLabel=isSpanish
     ?({English:'inglés',French:'francés',Spanish:'español'}[learningLanguage]||learningLanguage)
-    :learningLanguage;
+    :isHebrew
+      ?({English:'אנגלית',French:'צרפתית',Spanish:'ספרדית'}[learningLanguage]||learningLanguage)
+      :learningLanguage;
   const level=CURRENT_LEARNER_PROFILE.level||'A2';
   const target=CURRENT_LEARNER_PROFILE.targetLevel;
   const levelText=target&&target!==level?`${level} → ${target}`:level;
   const title=isSpanish
     ?`Tu curso personalizado de ${languageLabel} aún no está listo`
-    :`Your personalized ${learningLanguage} course is not ready yet`;
+    :isHebrew
+      ?`הקורס האישי שלך ב${languageLabel} עדיין לא מוכן`
+      :`Your personalized ${learningLanguage} course is not ready yet`;
   const profile=isSpanish
     ?`Tu perfil está configurado para aprender ${languageLabel} en el nivel ${levelText}, con instrucciones en español.`
-    :`Your profile is set up to learn ${learningLanguage} at level ${levelText}, with instructions in English.`;
+    :isHebrew
+      ?`הפרופיל שלך מוגדר ללימוד ${languageLabel} ברמה ${levelText}, עם הסברים בעברית.`
+      :`Your profile is set up to learn ${learningLanguage} at level ${levelText}, with instructions in English.`;
   const next=isSpanish
     ?'Pide al profesor que genere tu curso desde el panel docente. Después, vuelve a entrar para empezar.'
-    :'Ask your teacher to generate your course in the teacher dashboard. Then sign in again to get started.';
+    :isHebrew
+      ?'אפשר לבקש מהמורה ליצור את הקורס בלוח המורה. לאחר מכן, יש להתחבר מחדש כדי להתחיל.'
+      :'Ask your teacher to generate your course in the teacher dashboard. Then sign in again to get started.';
   const saved=isSpanish
     ?'Tu progreso se guardará por separado en tu cuenta cuando empieces a estudiar.'
-    :'Your progress will be saved to your account as soon as you start learning.';
-  return `<section class="page" lang="${CURRENT_UI_LANGUAGE}" dir="ltr">
+    :isHebrew
+      ?'ההתקדמות שלך תישמר בחשבון שלך כשתתחיל ללמוד.'
+      :'Your progress will be saved to your account as soon as you start learning.';
+  const direction=isHebrew?'rtl':'ltr';
+  return `<section class="page" lang="${CURRENT_UI_LANGUAGE}" dir="${direction}">
     <div class="card center" role="status" aria-live="polite">
       <div style="font-size:2.4rem" aria-hidden="true">📚</div>
       <h1 class="page-title" style="margin:8px 0 12px">${esc(title)}</h1>
@@ -3991,7 +4003,8 @@ function render(){
   clearInterval(examTimer);
   const p=parts(), root=p[0]||'home';
   const main=$('#main'); if(!main) return;
-  const personalizedCoursePending=CURRENT_UI_LANGUAGE!=='he'&&!ACTIVE_CURRICULUM&&root!=='admin';
+  const personalizedCoursePending=!ACTIVE_CURRICULUM&&root!=='admin'
+    &&(CURRENT_UI_LANGUAGE!=='he'||CURRENT_LEARNER_PROFILE.learningLanguage!=='English');
   let html='';
   try{
     if(personalizedCoursePending) html=personalizedCoursePendingHTML();

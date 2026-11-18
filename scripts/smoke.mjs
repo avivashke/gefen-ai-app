@@ -364,8 +364,8 @@ if (!curriculumGeneration || curriculumGeneration.body?.prompt !== 'A2 English f
 }
 const localizedProfiles = await page.evaluate(() => {
   const profiles = [
-    { username: 'יולי', displayName: 'Yuli', gender: 'female', level: 'A2', targetLevel: 'B1', uiLanguage: 'es', learningLanguage: 'English', nativeLanguage: 'Spanish', interests: [] },
-    { username: 'אביב', displayName: 'Aviv', gender: 'male', level: 'A2', uiLanguage: 'en', learningLanguage: 'French', nativeLanguage: 'Hebrew', interests: [] },
+    { username: 'יולי', displayName: 'Yuli', gender: 'female', level: 'B1', uiLanguage: 'es', learningLanguage: 'English', nativeLanguage: 'Spanish', interests: [] },
+    { username: 'אביב', displayName: 'Aviv', gender: 'male', level: 'A2', uiLanguage: 'he', learningLanguage: 'French', nativeLanguage: 'Hebrew', interests: [] },
   ];
   return profiles.map((profile) => {
     setStudentIdentity(profile);
@@ -382,9 +382,10 @@ const localizedProfiles = await page.evaluate(() => {
   });
 });
 if (localizedProfiles.some((profile) => profile.hasHebrew
-  || profile.language !== (profile.displayName === 'Yuli' ? 'es' : 'en')
-  || profile.direction !== 'ltr'
-  || !profile.coursePendingMessage.includes(profile.displayName === 'Yuli' ? 'español' : 'English'))) {
+  !== (profile.displayName === 'Aviv')
+  || profile.language !== (profile.displayName === 'Yuli' ? 'es' : 'he')
+  || profile.direction !== (profile.displayName === 'Yuli' ? 'ltr' : 'rtl')
+  || !profile.coursePendingMessage.includes(profile.displayName === 'Yuli' ? 'español' : 'צרפתית'))) {
   throw new Error(`Localized learner interface failed: ${JSON.stringify(localizedProfiles)}`);
 }
 if (errors.length || consoleErrors.length) {

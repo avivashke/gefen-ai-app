@@ -5,8 +5,8 @@ export const STUDENTS = Object.freeze([
   { username: 'מעיין', key: 'MAAYAN', level: 'A1', levelStage: 'תחילת A1', gender: 'male', interests: ['פוקימון'] },
   { username: 'הדר', key: 'HADAR', level: 'A2', targetLevel: 'B1', levelStage: 'מתקרב ל-B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
   { username: 'מיה', key: 'MIA', level: 'A1', levelStage: 'תחילת A1', gender: 'female', interests: [] },
-  { username: 'יולי', displayName: 'Yuli', key: 'YULI', level: 'A2', targetLevel: 'B1', levelStage: 'A2, avanzando hacia B1', gender: 'female', nativeLanguage: 'Spanish', uiLanguage: 'es', learningLanguage: 'English', interests: ['cocina', 'negocios', 'arquitectura', 'moda'] },
-  { username: 'אביב', displayName: 'Aviv', key: 'AVIV', level: 'A2', levelStage: 'A2', gender: 'male', nativeLanguage: 'Hebrew', uiLanguage: 'en', learningLanguage: 'French', interests: [] },
+  { username: 'יולי', displayName: 'Yuli', key: 'YULI', level: 'B1', levelStage: 'B1', gender: 'female', nativeLanguage: 'Spanish', uiLanguage: 'es', learningLanguage: 'English', interests: ['cocina', 'negocios', 'arquitectura', 'moda'] },
+  { username: 'אביב', displayName: 'Aviv', key: 'AVIV', level: 'A2', levelStage: 'A2', gender: 'male', nativeLanguage: 'Hebrew', uiLanguage: 'he', learningLanguage: 'French', interests: [] },
 ]);
 
 export function studentByUsername(username) {
