@@ -1311,7 +1311,10 @@ function cloudPush(force){
   persistLocal();
   window.apiSync.save(S, {force:!!force});
 }
-const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה','יולי'];
+const STUDENT_NAMES=['גפן','בארי','שקד','מעיין','הדר','מיה','יולי','אביב'];
+function studentDisplayName(username){
+  return username==='יולי'?'Yuli':username==='אביב'?'Aviv':username;
+}
 let TEACHER_WHATSAPP='';
 let CURRENT_LEARNER_GENDER='female';
 let CURRENT_UI_LANGUAGE='he';
@@ -1333,6 +1336,7 @@ const UI_TRANSLATIONS=[
   ['מסונכרן בענן','Synced to cloud','Sincronizado en la nube'],
   ['נשמר במכשיר','Saved on this device','Guardado en este dispositivo'],
   ['לא מסונכרן','Not synced','Sin sincronizar'],
+  ['ימים','days','días'],['נקודות ניסיון','experience points','puntos de experiencia'],
   ['משהו נתקע 🙂','Something went wrong 🙂','Algo salió mal 🙂'],
   ['נסי לרענן. השגיאה לא מוחקת את ההתקדמות.','Try refreshing. This error does not erase your progress.','Prueba a actualizar. Este error no borra tu progreso.'],
   ['היי ','Hi, ','Hola, '],['מוכנה לתרגל אנגלית?','Ready to practice?','¿Lista para practicar?'],
@@ -1415,10 +1419,96 @@ const UI_TRANSLATIONS=[
   ['הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.','It starts with one step. Ten minutes a day makes a difference.','Todo empieza con un paso. Diez minutos al día marcan la diferencia.'],
   ['דיוק כללי','Overall accuracy','Precisión general'],['מילים יציבות','mastered words','palabras dominadas'],
   ['הכלל','The rule','La regla'],['הכלל עוזר','The rule helps','La regla ayuda'],
+  ['🗺️ מסלול הלמידה','🗺️ Learning path','🗺️ Ruta de aprendizaje'],
+  ['סדר מומלץ: כל יחידה בונה על הקודמת. אפשר לחזור לכל יחידה בכל רגע – החזרות מחזירות אותך למילים ולתחביר שוב ושוב.','Recommended order: each unit builds on the previous one. You can revisit any unit at any time.','Orden recomendado: cada unidad se basa en la anterior. Puedes volver a cualquier unidad cuando quieras.'],
+  ['🏁 מבחן סוף המסלול','🏁 Course-end test','🏁 Examen final del curso'],
+  ['טרם בוצע','Not taken yet','Aún no realizado'],
+  ['20 שאלות מכל היחידות, בלי לחץ זמן. בסוף תקבלי ציון, פירוט לפי נושא וטיפים לחזרה.','20 questions from all units, with no time limit. Get a score, topic breakdown, and review tips.','20 preguntas de todas las unidades, sin límite de tiempo. Recibe una puntuación, un resumen por tema y consejos.'],
+  ['📝 למבחן המסכם','📝 Take the final test','📝 Hacer el examen final'],
+  ['📖 הסבר','📖 Explanation','📖 Explicación'],['📚 מילים','📚 Vocabulary','📚 Vocabulario'],
+  ['✏️ תרגול','✏️ Practice','✏️ Práctica'],['🎯 מה תדעי לעשות','🎯 What you’ll learn','🎯 Lo que aprenderás'],
+  ['📌 הכללים – בקצרה ולעומק','📌 Grammar rules','📌 Reglas gramaticales'],
+  ['פתוח תמיד בתרגיל','Always available during practice','Disponible durante la práctica'],
+  ['⚠️ הטעות הנפוצה:','⚠️ Common mistake:','⚠️ Error frecuente:'],
+  ['💡 טריק לזכור:','💡 Memory tip:','💡 Truco para recordar:'],
+  ['💡 עובדה שתדביק אותך','💡 A fact to remember','💡 Un dato para recordar'],
+  ['▶ בואי נתרגל את היחידה','▶ Practice this unit','▶ Practicar esta unidad'],
+  ['הסבר היחידה','Unit explanation','Explicación de la unidad'],
+  ['למילים','Vocabulary','Vocabulario'],['לתרגול','Practice','Practicar'],
+  ['תרגיל','Exercise','Ejercicio'],['מפה','Map','Mapa'],['אוצר מילים','Vocabulary','Vocabulario'],
+  ['💡 רמז','💡 Hint','💡 Pista'],['📖 על הכללים','📖 About the rules','📖 Sobre las reglas'],
+  ['📚 המילים','📚 Vocabulary','📚 Vocabulario'],['פתרון','Answer','Respuesta'],
+  ['🔁 עוד סיבוב','🔁 Another round','🔁 Otra ronda'],['לתפריט','Menu','Menú'],
+  ['🔁 מעגל החזרה','🔁 Review cycle','🔁 Ciclo de repaso'],
+  ['מרווחת: כל מילה חוזרת בדיוק כשהמוח עומד לשכוח אותה. זה מה שהופך מילה מ״הכרתי״ ל״ידעתי״.','Spaced review brings each word back just before you forget it.','El repaso espaciado presenta cada palabra justo antes de que la olvides.'],
+  ['מילים ממתינות לחזרה עכשיו','Words due for review','Palabras pendientes de repaso'],
+  ['▶ על החלשות','▶ Review difficult words','▶ Repasar palabras difíciles'],
+  ['⏳ מה חוזר בקרוב','⏳ Coming up soon','⏳ Próximamente'],
+  ['🎯 אימונים קצרים','🎯 Quick practice','🎯 Prácticas cortas'],
+  ['ספרינט 5 דקות','5-minute sprint','Reto de 5 minutos'],
+  ['10 תרגילים מעורבים מכל מה שלמדת','10 mixed exercises from everything you’ve learned','10 ejercicios variados de todo lo que has aprendido'],
+  ['אוזן חדה','Listening challenge','Reto auditivo'],
+  ['שמיעה – מילה שנשמעת, את מזהה','Listen to a word and identify it','Escucha una palabra e identifícala'],
+  ['ציד טעויות','Spot the mistake','Encuentra el error'],
+  ['מצאו את המשפט הנכון','Find the correct sentence','Encuentra la frase correcta'],
+  ['תרגול דיבור','Speaking practice','Práctica oral'],
+  ['אמרי בקול, קבלי ציון על ההגייה','Speak aloud and get a pronunciation score','Habla en voz alta y recibe una puntuación de pronunciación'],
+  ['🧠 למה דווקא במעגלים?','🧠 Why spaced review?','🧠 ¿Por qué repasar por ciclos?'],
+  ['כשתפגשי מילה שוב אחרי יום, ואז אחרי שלושה, ואז אחרי שבוע – המוח מבין שזה חשוב ושומר אותה.','When you review a word after a day, then three days, then a week, your brain keeps it.','Al repasar una palabra al día siguiente, luego a los tres días y después a la semana, tu cerebro la retiene.'],
+  ['📈 ההתקדמות שלך','📈 Your progress','📈 Tu progreso'],
+  ['לא רק ציונים – תמונת מצב של איך את לומדת, זוכרת ומדברת.','More than scores: see how you learn, remember, and speak.','Más que notas: descubre cómo aprendes, recuerdas y hablas.'],
+  ['מוכנות כללית','Overall readiness','Preparación general'],
+  ['בתחילת הדרך – כל יום מוסיף לבסיס 🌱','Just getting started—every day builds your foundation 🌱','Estás empezando: cada día fortalece tu base 🌱'],
+  ['🔥 השבוע שלך','🔥 Your week','🔥 Tu semana'],['ימים ברצף','day streak','días seguidos'],
+  ['📊 פרופיל כישורים','📊 Skill profile','📊 Perfil de habilidades'],
+  ['📚 אוצר מילים','📚 Vocabulary','📚 Vocabulario'],['📘 דקדוק','📘 Grammar','📘 Gramática'],
+  ['כללים נפגשו','rules practiced','reglas practicadas'],['📖 הבנת הנקרא','📖 Reading','📖 Comprensión lectora'],
+  ['תרגילי קריאה','reading exercises','ejercicios de lectura'],['👂 שמיעה','👂 Listening','👂 Comprensión auditiva'],
+  ['תרגילי שמיעה','listening exercises','ejercicios de comprensión auditiva'],
+  ['🎤 דיבור','🎤 Speaking','🎤 Expresión oral'],['אימוני דיבור','speaking practices','prácticas orales'],
+  ['שיחות','conversations','conversaciones'],['למסלול ←','Course →','Curso →'],
+  ['🏅 הישגים','🏅 Achievements','🏅 Logros'],['הצעד הראשון','First step','Primer paso'],
+  ['תשובה ראשונה','First answer','Primera respuesta'],['10 תשובות','10 answers','10 respuestas'],
+  ['רצף של 3','3-day streak','Racha de 3 días'],['3 ימים ברצף','3 days in a row','3 días seguidos'],
+  ['שבוע שלם','A full week','Una semana completa'],['7 ימים ברצף','7 days in a row','7 días seguidos'],
+  ['25 מילים','25 words','25 palabras'],['60 מילים','60 words','60 palabras'],
+  ['20 מילים ברמה 4+','20 words at level 4+','20 palabras en nivel 4+'],
+  ['יחידה ראשונה','First unit','Primera unidad'],['המסלול המלא','Full course','Curso completo'],
+  ['מבחן מצוין','Excellent test','Excelente examen'],['85+ במבחן מסכם','85+ on the final test','85+ en el examen final'],
+  ['50 חזרות','50 reviews','50 repasos'],['קול של רקדנית','Confident voice','Voz segura'],
+  ['תרגול דיבור ראשון','First speaking practice','Primera práctica oral'],
+  ['בלי טעויות','No mistakes','Sin errores'],['10 תשובות נכונות ברצף','10 correct answers in a row','10 respuestas correctas seguidas'],
+  ['📝 מבחן מסכם','📝 Final test','📝 Examen final'],
+  ['20 שאלות מכל היחידות. בסוף תקבלי ציון ופירוט.','20 questions from all units, followed by a score and breakdown.','20 preguntas de todas las unidades y luego recibirás una puntuación y un resumen.'],
+  ['התחילי מבחן','Start test','Empezar examen'],
+  ['💾 הנתונים והגיבוי','💾 Data and backup','💾 Datos y copia de seguridad'],
+  ['ההתקדמות נשמרת אוטומטית בדפדפן הזה. ליתר ביטחון אפשר לייצא גיבוי או ליצור קישור למכשיר אחר.','Progress is saved automatically. Export a backup or create a link to move it to another device.','El progreso se guarda automáticamente. Exporta una copia o crea un enlace para usarlo en otro dispositivo.'],
+  ['⬇️ ייצוא גיבוי','⬇️ Export backup','⬇️ Exportar copia'],
+  ['🔗 קישור למכשיר אחר','🔗 Link to another device','🔗 Enlace para otro dispositivo'],
+  ['⬆️ ייבוא','⬆️ Import','⬆️ Importar'],['המפתח של Groq לא נכלל בגיבוי או בקישור.','The Groq key is not included in backups or links.','La clave de Groq no se incluye en copias ni enlaces.'],
+  ['✨ מה יש כאן','✨ What you’ll find here','✨ Qué encontrarás aquí'],
+  ['שיחה אמיתית באנגלית – עם תיקון עדין, הצעות תשובה, תרגום והקראה. בחרי תרחיש, או דברי בחופשיות.','Practice with gentle corrections, reply suggestions, translations, and audio. Choose a scenario or chat freely.','Practica con correcciones amables, sugerencias, traducciones y audio. Elige una situación o conversa libremente.'],
+  ['טעית? המאמנת מראה מה נכון ולמה, בעברית פשוטה.','Make a mistake? Your coach shows the correction and explains why.','¿Te equivocaste? Tu tutora te muestra la corrección y te explica por qué.'],
+  ['תקועה? קבלי 3 דרכים לומר את מה שרצית – ברמה שלך.','Need help? Get three ways to say what you mean at your level.','¿No sabes qué decir? Recibe tres opciones adaptadas a tu nivel.'],
+  ['בסוף שיחה: כמה דיברת, מה לתקן ומה הצעד הבא.','At the end: see how much you spoke, what to improve, and what to do next.','Al final: descubre cuánto hablaste, qué mejorar y cuál es el siguiente paso.'],
+  ['בלי תסריט. דברי על ריקוד, חברות או סתם על היום שלך.','No script. Talk about anything you like.','Sin guion. Habla de lo que quieras.'],
+  ['▶ פתחי שיחה','▶ Start conversation','▶ Iniciar conversación'],
+  ['מצב מקומי:','Local mode:','Modo local:'],['📊 סיום','📊 Finish','📊 Finalizar'],['✚ חדש','✚ New','✚ Nuevo'],
 ];
 const SORTED_UI_TRANSLATIONS=UI_TRANSLATIONS.slice().sort((a,b)=>b[0].length-a[0].length);
 function localizedText(value){
   if(typeof value!=='string'||CURRENT_UI_LANGUAGE==='he') return value;
+  let localized=value;
+  localized=localized.replace(/יחידה (\d+) · ([A-Z0-9+]+)/g,(_,n,level)=>`Unit ${n} · ${level}`);
+  localized=localized.replace(/(\d+) מתוך (\d+) · (\d+) נכונות/g,'$1 of $2 · $3 correct');
+  localized=localized.replace(/(\d+) מתוך (\d+) נכונות/g,'$1 of $2 correct');
+  localized=localized.replace(/(\d+) יחידות/g,'$1 units').replace(/(\d+) עולמות/g,'$1 scenarios');
+  if(CURRENT_UI_LANGUAGE==='es'){
+    localized=localized.replace(/Unit (\d+) · ([A-Z0-9+]+)/g,'Unidad $1 · $2');
+    localized=localized.replace(/(\d+) units/g,'$1 unidades').replace(/(\d+) scenarios/g,'$1 situaciones');
+    localized=localized.replace(/(\d+) of (\d+) · (\d+) correct/g,'$1 de $2 · $3 correctas');
+    localized=localized.replace(/(\d+) of (\d+) correct/g,'$1 de $2 correctas');
+  }
   return SORTED_UI_TRANSLATIONS
     .reduce((text,[he,english,spanish])=>{
       const replacement=CURRENT_UI_LANGUAGE==='es'?spanish:english;
@@ -1427,7 +1517,7 @@ function localizedText(value){
         ?new RegExp(escaped,'g')
         :new RegExp(`(^|[^\\u0590-\\u05FF])${escaped}(?=$|[^\\u0590-\\u05FF])`,'g');
       return text.replace(pattern,(match,prefix)=>replacement+(/\s/.test(he)?'':prefix||''));
-    },value);
+    },localized);
 }
 let ADMIN_STUDENTS=null;
 let ADMIN_RESET_CODES={};
@@ -1642,7 +1732,7 @@ function refreshWhatsAppLinks(root=document){
 }
 function setStudentIdentity(account){
   if(!account) return;
-  const name=account.username||'תלמידה';
+  const name=account.displayName||account.username||'תלמידה';
   const gender=account.gender==='male'?'male':'female';
   const genderChanged=CURRENT_LEARNER_GENDER!==gender;
   CURRENT_LEARNER_GENDER=gender;
@@ -1679,7 +1769,7 @@ function clearStudentIdentity(){
   personalizeVisibleText(document.body);
 }
 function openStudentLogin(message=''){
-  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(name)}</option>`).join('');
+  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(studentDisplayName(name))}</option>`).join('');
   openModal(`<h3>👋 כניסה לתלמידים</h3>
     <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שלך.</p>
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
@@ -1699,7 +1789,7 @@ function openStudentLogin(message=''){
 }
 function openPasswordSetup(message=''){
   const username=$('#activation-username')?.value||$('#student-username')?.value||STUDENT_NAMES[0];
-  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}" ${name===username?'selected':''}>${esc(name)}</option>`).join('');
+  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}" ${name===username?'selected':''}>${esc(studentDisplayName(name))}</option>`).join('');
   openModal(`<h3>🔐 הגדרת סיסמה</h3>
     <p class="small muted">הזיני את קוד ההפעלה שקיבלת מהמורה ובחרי סיסמה חדשה. לאיפוס, בקשי קוד חדש בוואטסאפ.</p>
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
@@ -3862,13 +3952,50 @@ function updateNav(){
   const p=parts(), root=p[0]||'home';
   const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
   $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===(map[root]||'home')));
+  const isLearner=Boolean(window.apiSync?.user?.());
+  $$('[data-nav="admin"]').forEach(button=>button.classList.toggle('hide',isLearner));
+}
+function personalizedCoursePendingHTML(){
+  const isSpanish=CURRENT_UI_LANGUAGE==='es';
+  const learningLanguage=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
+  const languageLabel=isSpanish
+    ?({English:'inglés',French:'francés',Spanish:'español'}[learningLanguage]||learningLanguage)
+    :learningLanguage;
+  const level=CURRENT_LEARNER_PROFILE.level||'A2';
+  const target=CURRENT_LEARNER_PROFILE.targetLevel;
+  const levelText=target&&target!==level?`${level} → ${target}`:level;
+  const title=isSpanish
+    ?`Tu curso personalizado de ${languageLabel} aún no está listo`
+    :`Your personalized ${learningLanguage} course is not ready yet`;
+  const profile=isSpanish
+    ?`Tu perfil está configurado para aprender ${languageLabel} en el nivel ${levelText}, con instrucciones en español.`
+    :`Your profile is set up to learn ${learningLanguage} at level ${levelText}, with instructions in English.`;
+  const next=isSpanish
+    ?'Pide al profesor que genere tu curso desde el panel docente. Después, vuelve a entrar para empezar.'
+    :'Ask your teacher to generate your course in the teacher dashboard. Then sign in again to get started.';
+  const saved=isSpanish
+    ?'Tu progreso se guardará por separado en tu cuenta cuando empieces a estudiar.'
+    :'Your progress will be saved to your account as soon as you start learning.';
+  return `<section class="page" lang="${CURRENT_UI_LANGUAGE}" dir="ltr">
+    <div class="card center" role="status" aria-live="polite">
+      <div style="font-size:2.4rem" aria-hidden="true">📚</div>
+      <h1 class="page-title" style="margin:8px 0 12px">${esc(title)}</h1>
+      <p class="small">${esc(profile)}</p>
+      <p class="small muted" style="margin-top:8px">${esc(next)}</p>
+      <div class="divider"></div>
+      <p class="tiny muted">${esc(saved)}</p>
+    </div>
+  </section>`;
 }
 function render(){
   clearInterval(examTimer);
   const p=parts(), root=p[0]||'home';
   const main=$('#main'); if(!main) return;
+  const personalizedCoursePending=CURRENT_UI_LANGUAGE!=='he'&&!ACTIVE_CURRICULUM&&root!=='admin';
   let html='';
   try{
+    if(personalizedCoursePending) html=personalizedCoursePendingHTML();
+    else
     if(root==='home') html=pageHome();
     else if(root==='learn') html=pageLearn();
     else if(root==='unit') html=pageUnit(p[1],p[2]||'explain');
@@ -3893,13 +4020,15 @@ function render(){
   main.innerHTML=banner+html;
   personalizeVisibleText(main);
   updateHeader(); updateNav();
-  if(root==='unit' && p[2]==='practice'){ const u=UNITS.find(x=>x.id===p[1]); if(u) mountUnitPractice(u); }
-  if(root==='review' && p[1]==='session' && !S.review.finished) mountReview();
-  if(root==='drill') mountDrill();
-  if(root==='speak') {} // rendered directly
-  if(root==='exam') mountExam();
-  if(root==='chat' && typeof mountChat==='function') mountChat();
-  if(root==='admin'&&window.adminApi?.isEnabled()&&!ADMIN_STUDENTS) loadAdminDashboard();
+  if(!personalizedCoursePending){
+    if(root==='unit' && p[2]==='practice'){ const u=UNITS.find(x=>x.id===p[1]); if(u) mountUnitPractice(u); }
+    if(root==='review' && p[1]==='session' && !S.review.finished) mountReview();
+    if(root==='drill') mountDrill();
+    if(root==='speak') {} // rendered directly
+    if(root==='exam') mountExam();
+    if(root==='chat' && typeof mountChat==='function') mountChat();
+    if(root==='admin'&&window.adminApi?.isEnabled()&&!ADMIN_STUDENTS) loadAdminDashboard();
+  }
   if(root!=='admin'){ S.last.route=location.hash||'#/home'; save(); }
   window.scrollTo({top:0,behavior:'instant'});
 }

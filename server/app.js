@@ -897,6 +897,7 @@ function learnerProfile(student) {
   return {
     id: student.key,
     username: student.username,
+    displayName: student.displayName || student.username,
     level: student.level,
     targetLevel: student.targetLevel || student.level,
     levelStage: student.levelStage,

@@ -362,9 +362,34 @@ if (!authenticatedProgressRequest) {
 if (!curriculumGeneration || curriculumGeneration.body?.prompt !== 'A2 English for travel and nature topics') {
   throw new Error('Admin curriculum prompt was not submitted correctly');
 }
+const localizedProfiles = await page.evaluate(() => {
+  const profiles = [
+    { username: 'יולי', displayName: 'Yuli', gender: 'female', level: 'A2', targetLevel: 'B1', uiLanguage: 'es', learningLanguage: 'English', nativeLanguage: 'Spanish', interests: [] },
+    { username: 'אביב', displayName: 'Aviv', gender: 'male', level: 'A2', uiLanguage: 'en', learningLanguage: 'French', nativeLanguage: 'Hebrew', interests: [] },
+  ];
+  return profiles.map((profile) => {
+    setStudentIdentity(profile);
+    history.replaceState(null, '', '#/home');
+    render();
+    const text = document.body.innerText;
+    return {
+      displayName: profile.displayName,
+      language: document.documentElement.lang,
+      direction: document.documentElement.dir,
+      coursePendingMessage: document.querySelector('#main')?.innerText || '',
+      hasHebrew: /[\u0590-\u05ff]/.test(text),
+    };
+  });
+});
+if (localizedProfiles.some((profile) => profile.hasHebrew
+  || profile.language !== (profile.displayName === 'Yuli' ? 'es' : 'en')
+  || profile.direction !== 'ltr'
+  || !profile.coursePendingMessage.includes(profile.displayName === 'Yuli' ? 'español' : 'English'))) {
+  throw new Error(`Localized learner interface failed: ${JSON.stringify(localizedProfiles)}`);
+}
 if (errors.length || consoleErrors.length) {
   throw new Error(`Browser smoke errors: ${JSON.stringify({ errors, consoleErrors })}`);
 }
 
-console.log(JSON.stringify({ account, suggestions, microphone, activationWorked, adminDashboard, inactiveStudentPreview, adminReturned, whatsappResetLinkConfigured, apiCalls, errors, consoleErrors }, null, 2));
+console.log(JSON.stringify({ account, suggestions, microphone, activationWorked, adminDashboard, inactiveStudentPreview, adminReturned, whatsappResetLinkConfigured, localizedProfiles, apiCalls, errors, consoleErrors }, null, 2));
 await browser.close();
