@@ -1029,99 +1029,381 @@ function defaultUnitsForProfile(){
   const lang=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
   const level=CURRENT_LEARNER_PROFILE.level||'A1';
   const ui=CURRENT_LEARNER_PROFILE.uiLanguage||'he';
-  const isFrench=lang==='French';
-  const isEnglish=lang==='English';
-  const isHebrewUI=ui==='he';
-  const isSpanishUI=ui==='es';
-  const t=(fr,en,es,he)=> isFrench?fr : isSpanishUI ? es : isHebrewUI ? he : en;
-  const levelText=level==='B1'? t('B1 (intermédiaire)','B1 (intermediate)','B1 (intermedio)','בינוני (B1)') : t('A2 (élémentaire)','A2 (elementary)','A2 (elemental)','בסיסי (A2)');
-  const greeting = isFrench ? 'Bonjour' : isEnglish ? 'Hello' : 'היי';
-  return [
-    {
-      id:'u1', n:1, icon:'👋', color:'pink', cefr:level,
-      title: t('Bonjour et présentations','Greetings and introductions','Saludos y presentaciones','ברכות והיכרויות'),
-      he: t('Apprendre à se présenter','Learn to introduce yourself','Aprender a presentarse','ללמוד להציג את עצמך'),
-      canDo: t(['Dire bonjour','Se présenter','Dire je m\'appelle…'],['Say hello','Introduce yourself','Say my name is…'],['Decir hola','Presentarse','Decir me llamo…'],['לומר שלום','להציג את עצמי','לומר אני קוראים לי…']),
-      fact: t('Le français est parlé sur 5 continents.','French is spoken on 5 continents.','El francés se habla en 5 continentes.','צרפתית נמדברת ב-5 יבשות.'),
-      rules:[
-        {id:'r1', title:t('Les salutations','Greetings','Saludos','ברכות'), short:t('Bonjour / Bonsoir','Hello / Good evening','Hola / Buenas noches','שלום / ערב טוב'), formula:'Bonjour ! / Comment ça va ?', body:t('Pour saluer quelqu\'un, on dit bonjour (jour) ou bonsoir (soir).','To greet someone, say hello (day) or good evening (evening).','Para saludar a alguien, se dice hola o buenas tardes/noches.','כדי לברך מישהו, אומרים שלום (יום) או ערב טוב (ערב).'), examples:[{en:t('Bonjour, je m\'appelle Aviv.','Hello, my name is Aviv.','Hola, me llamo Aviv.','שלום, קוראים לי Aviv.'),he:t('Bonjour, je m\'appelle Aviv.','Hello, my name is Aviv.','Hola, me llamo Aviv.','שלום, קוראים לי Aviv.')},{en:t('Bonsoir, madame.','Good evening, ma\'am.','Buenas noches, señora.','ערב טוב, גברת.'),he:t('Bonsoir, madame.','Good evening, ma\'am.','Buenas noches, señora.','ערב טוב, גברת.')}], mistake:t('Ne pas oublier la majuscule à Bonjour.','Don\'t forget the capital letter on Bonjour.','No olvidar la mayúscula en Hola.','לא לשכוח אות ריש בשלום.'), hook:t('Bonjour commence toujours par B majuscule.','Bonjour always starts with capital B.','Hola siempre empieza con H mayúscula.','שלום תמיד מתחיל ב-ש רישית.')},
-      ],
-      words:[
-        {en:t('bonjour','hello','hola','שלום'),he:t('bonjour','hello','hola','שלום'),pron:'bon-ZHOOR',ex:t('Bonjour !','Hello !','¡Hola !','שלום !'),exHe:t('Bonjour !','Hello !','¡Hola !','שלום !')},
-        {en:t('oui','yes','sì','כן'),he:t('oui','yes','sì','כן'),pron:'wi',ex:t('Oui, je suis là.','Yes, I am here.','Sí, estoy aquí.','כן, אני כאן.'),exHe:t('Oui, je suis là.','Yes, I am here.','Sí, estoy aquí.','כן, אני כאן.')},
-        {en:t('non','no','no','לא'),he:t('non','no','no','לא'),pron:'no(n)',ex:t('Non, merci.','No, thank you.','No, gracias.','לא, תודה.'),exHe:t('Non, merci.','No, thank you.','No, gracias.','לא, תודה.')},
-        {en:t('merci','thank you','gracias','תודה'),he:t('merci','thank you','gracias','תודה'),pron:'mair-SEE',ex:t('Merci beaucoup.','Thank you very much.','Muchas gracias.','תודה רבה.'),exHe:t('Merci beaucoup.','Thank you very much.','Muchas gracias.','תודה רבה.')},
-        {en:t('s\'appeler','to be called','llamarse','להיקרא'),he:t('s\'appeler','to be called','llamarse','להיקרא'),pron:'sap-PLE',ex:t('Je m\'appelle Yuli.','My name is Yuli.','Me llamo Yuli.','קוראים לי יולי.'),exHe:t('Je m\'appelle Yuli.','My name is Yuli.','Me llamo Yuli.','קוראים לי יולי.')}
-      ],
-      grammar:[
-        {t:'mcq',id:'u1.x1',skill:'grammar',rule:'r1',q:t('Comment dit-on bonjour en français ?','How do you say hello in French?','¿Cómo se dice hola en francés?','איך אומרים שלום בצרפתית?'),opts:[t('Bonjour','Hello','Hola','שלום'),t('Merci','Thank you','Gracias','תודה'),t('Non','No','No','לא')],ans:t('Bonjour','Hello','Hola','שלום'),why:t('Bonjour signifie bonjour.','Bonjour means hello.','Bonjour significa hola.','Bonjour פירושו שלום.'),hint:t('Commence par B.','Starts with B.','Empieza con B.','מתחיל ב-ש.')},
-        {t:'type',id:'u1.x2',skill:'grammar',rule:'r1',q:t('Traduisez: "Bonjour !"','Translate: "Hello!"','Traduce: "¡Hola!"','תרגמי: "שלום!"'),ans:[t('Bonjour','Hello','Hola','שלום')],why:t('Bonjour = hello.','Bonjour = hello.','Bonjour = hola.','Bonjour = שלום.'),hint:t('B majuscule.','Capital B.','B mayúscula.','ב-ש רישית.')}
-      ]
-    },
-    {
-      id:'u2', n:2, icon:'🏠', color:'purple', cefr:level,
-      title: t('La maison et la famille','Home and family','El hogar y la familia','בית ומשפחה'),
-      he: t('Parler de chez soi et de sa famille','Talk about home and family','Hablar del hogar y la familia','לדבר על בית ומשפחה'),
-      canDo: t(['Dire où j\'habite','Parler de ma famille','Nommer les pièces'],['Say where I live','Talk about my family','Name the rooms'],['Decir dónde vivo','Hablar de mi familia','Nombrar las habitaciones'],['לומר איפה אני גר','לדבר על המשפחה שלי','לקרוא לחדרים בשמות']),
-      fact: t('La tour Eiffel se trouve à Paris.','The Eiffel Tower is in Paris.','La Torre Eiffel está en París.','מגדל אייפל נמצא בפריז.'),
-      rules:[
-        {id:'r2', title:t('Le verbe être','The verb to be','El verbo ser/estar','הפועל להיות'), short:t('je suis / tu es / il est','I am / you are / he is','yo soy / tú eres / él está','אני אתה הוא היא'), formula:'je suis + adjectif / nom', body:t('Le verbe être sert à dire qui on est et où on est.','The verb to be is used to say who we are and where we are.','El verbo ser/estar sirve para decir quiénes somos y dónde estamos.','הפועל להיות משמש כדי לומר מי אנחנו ואיפה אנחנו.'), examples:[{en:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.'),he:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.')},{en:t('Elle est française.','She is French.','Ella es francesa.','היא צרפתייה.'),he:t('Elle est française.','She is French.','Ella es francesa.','היא צרפתייה.')}], mistake:t('Ne pas confondre je suis et tu es.','Don\'t confuse I am and you are.','No confundir yo soy y tú eres.','לא לבלבל אני אתה ואתה את.'), hook:t('Suis = je, es = tu / il / elle.','Am = I, is = you / he / she.','Soy = yo, es = tú / él / ella.','אני = אני, אתה = אתה/הוא/היא.')}
-      ],
-      words:[
-        {en:t('maison','home','casa','בית'),he:t('maison','home','casa','בית'),pron:'me-ZOH',ex:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.'),exHe:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.')},
-        {en:t('famille','family','familia','משפחה'),he:t('famille','family','familia','משפחה'),pron:'fa-MEE',ex:t('Ma famille est grande.','My family is big.','Mi familia es grande.','המשפחה שלי גדולה.'),exHe:t('Ma famille est grande.','My family is big.','Mi familia es grande.','המשפחה שלי גדולה.')},
-        {en:t('papa','dad','papá','אבא'),he:t('papa','dad','papá','אבא'),pron:'PA-pa',ex:t('Mon papa est gentil.','My dad is kind.','Mi papá es amable.','אבא שלי נחמד.'),exHe:t('Mon papa est gentil.','My dad is kind.','Mi papá es amable.','אבא שלי נחמד.')},
-        {en:t('maman','mom','mamá','אמא'),he:t('maman','mom','mamá','אמא'),pron:'ma-MAN',ex:t('Ma maman est là.','My mom is here.','Mi mamá está aquí.','אמא שלי כאן.'),exHe:t('Ma maman est là.','My mom is here.','Mi mamá está aquí.','אמא שלי כאן.')},
-        {en:t('frère','brother','hermano','אח'),he:t('frère','brother','hermano','אח'),pron:'frehr',ex:t('J\'ai un frère.','I have a brother.','Tengo un hermano.','יש לי אח.'),exHe:t('J\'ai un frère.','I have a brother.','Tengo un hermano.','יש לי אח.')}
-      ],
-      grammar:[
-        {t:'mcq',id:'u2.x1',skill:'grammar',rule:'r2',q:t('Comment dit-on "je suis" en français ?','How do you say "I am" in French?','¿Cómo se dice "yo soy" en francés?','איך אומרים "אני" בצרפתית?'),opts:[t('je suis','I am','yo soy','אני'),t('tu es','you are','tú eres','אתה את'),t('il est','he is','él está','הוא הוא')],ans:t('je suis','I am','yo soy','אני'),why:t('Je suis = I am.','Je suis = I am.','Je soy = yo soy.','Je suis = אני.') ,hint:t('Commence par j.','Starts with j.','Empieza con j.','מתחיל ב-א.')},
-        {t:'type',id:'u2.x2',skill:'grammar',rule:'r2',q:t('Traduisez: "Ma famille"','Translate: "My family"','Traduce: "Mi familia"','תרגמי: "המשפחה שלי"'),ans:[t('Ma famille','My family','Mi familia','המשפחה שלי')],why:t('Ma famille = my family.','Ma famille = my family.','Ma familia = mi familia.','Ma famille = המשפחה שלי.'),hint:t('Ma = my.','Ma = my.','Mi = mi.','Ma = שלי.')}
-      ]
-    },
-    {
-      id:'u3', n:3, icon:'🍎', color:'cyan', cefr:level,
-      title: t('Manger et boire','Eating and drinking','Comer y beber','אכילה ושתייה'),
-      he: t('Parler de la nourriture et des boissons','Talk about food and drinks','Hablar de la comida y las bebidas','לדבר על אוכל ושתייה'),
-      canDo: t(['Dire ce que j\'aime manger','Commander au café','Dire j\'ai faim / soif'],['Say what I like to eat','Order at the café','Say I am hungry / thirsty'],['Decir qué me gusta comer','Pedir en el café','Decir tengo hambre / sed'],['לומר מה אני אוהב לאכול','להזמין בבית קפה','לומר אני רעב / צמא']),
-      fact: t('Le croissant est un symbole de la France.','The croissant is a symbol of France.','El croissant es un símbolo de Francia.','קרואסון הוא סמל של צרפת.'),
-      rules:[
-        {id:'r3', title:t('Les articles le / la / les','The articles the','Los artículos el / la / los','היחידים המוגדרים'), short:t('le / la / les','the','el / la / los','ה'), formula:'le + masculin / la + féminin', body:t('En français, les noms ont un genre : masculin ou féminin.','In French, nouns have a gender: masculine or feminine.','En francés, los sustantivos tienen género: masculino o femenino.','בצרפתית, לשמות יש מין: זכר או נקבה.'), examples:[{en:t('le pain','the bread','el pan','הלחם'),he:t('le pain','the bread','el pan','הלחם')},{en:t('la pomme','the apple','la manzana','התפוח'),he:t('la pomme','the apple','la manzana','התפוח')}], mistake:t('Ne pas dire le pomme.','Don\'t say the apple (wrong gender).','No decir la manzana (género equivocado).','לא להגיד le pomme (מין שגוי).'), hook:t('La pomme = féminin (fille).','La apple = feminine (girl).','La manzana = femenino (niña).','La תפוח = נקבה (ילדה).')}
-      ],
-      words:[
-        {en:t('pain','bread','pan','לחם'),he:t('pain','bread','pan','לחם'),pron:'pan(n)',ex:t('Je veux du pain.','I want bread.','Quiero pan.','אני רוצה לחם.'),exHe:t('Je veux du pain.','I want bread.','Quiero pan.','אני רוצה לחם.')},
-        {en:t('eau','water','agua','מים'),he:t('eau','water','agua','מים'),pron:'oh',ex:t('Je bois de l\'eau.','I drink water.','Bebo agua.','אני שותה מים.'),exHe:t('Je bois de l\'eau.','I drink water.','Bebo agua.','אני שותה מים.')},
-        {en:t('pomme','apple','manzana','תפוח'),he:t('pomme','apple','manzana','תפוח'),pron:'pom',ex:t('J\'aime la pomme.','I like the apple.','Me gusta la manzana.','אני אוהב את התפוח.'),exHe:t('J\'aime la pomme.','I like the apple.','Me gusta la manzana.','אני אוהב את התפוח.')},
-        {en:t('café','coffee','café','קפה'),he:t('café','coffee','café','קפה'),pron:'ka-FAY',ex:t('Je bois du café.','I drink coffee.','Bebo café.','אני שותה קפה.'),exHe:t('Je bois du café.','I drink coffee.','Bebo café.','אני שותה קפה.')},
-        {en:t('fromage','cheese','queso','גבינה'),he:t('fromage','cheese','queso','גבינה'),pron:'fro-MAHZH',ex:t('Le fromage est bon.','The cheese is good.','El queso es bueno.','הגבינה טעימה.'),exHe:t('Le fromage est bon.','The cheese is good.','El queso es bueno.','הגבינה טעימה.')}
-      ],
-      grammar:[
-        {t:'mcq',id:'u3.x1',skill:'grammar',rule:'r3',q:t('Quel est l\'article de pomme ?','What is the article for apple?','¿Cuál es el artículo de manzana?','מה היחיד של תפוח?'),opts:[t('le','the','el','ה'),t('la','the','la','ה'),t('les','the','los','ה')],ans:t('la','the','la','ה'),why:t('Pomme est féminin.','Apple is feminine.','Manzana es femenino.','תפוח הוא נקבה.') ,hint:t('La pomme.','The apple.','La manzana.','התפוח.')},
-        {t:'type',id:'u3.x2',skill:'grammar',rule:'r3',q:t('Traduisez: "le pain"','Translate: "the bread"','Traduce: "el pan"','תרגמי: "הלחם"'),ans:[t('le pain','the bread','el pan','הלחם')],why:t('Le pain = the bread.','Le pain = the bread.','El pan = el pan.','Le pain = הלחם.'),hint:t('Le + masculin.','Le + masculine.','El + masculino.','Le + זכר.')}
-      ]
-    },
-    {
-      id:'u4', n:4, icon:'🗓️', color:'gold', cefr:level,
-      title: t('Les jours et le temps','Days and time','Los días y el tiempo','ימים וזמן'),
-      he: t('Parler des jours et de l\'heure','Talk about days and time','Hablar de los días y la hora','לדבר על ימים ושעה'),
-      canDo: t(['Dire le jour','Dire l\'heure','Prendre rendez-vous'],['Say the day','Say the time','Make an appointment'],['Decir el día','Decir la hora','Pedir una cita'],['לומר את היום','לומר את השעה','לקבוע פגישה']),
-      fact: t('La semaine commence le lundi en France.','The week starts on Monday in France.','La semana empieza el lunes en Francia.','השבוע מתחיל ביום שני בצרפת.'),
-      rules:[
-        {id:'r4', title:t('Les jours de la semaine','Days of the week','Los días de la semana','ימי השבוע'), short:t('lundi / mardi / mercredi','Monday / Tuesday / Wednesday','lunes / martes / miércoles','שני / שלישי / רביעי'), formula:'Aujourd\'hui c\'est + jour', body:t('Les jours de la semaine en français commencent par une minuscule.','Days of the week in French start with a lowercase letter.','Los días de la semana en francés empiezan con minúscula.','ימי השבוע בצרפתית מתחילים באות קטנה.'), examples:[{en:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.'),he:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.')},{en:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.'),he:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.')}], mistake:t('Ne pas mettre de majuscule aux jours.','Don\'t capitalize days of the week.','No poner mayúscula a los días.','לא לשים אות ריש על ימים בשבוע.'), hook:t('Lundi commence par L minuscule.','Monday starts with lowercase l.','Lunes empieza con l minúscula.','שני מתחיל באות ש קטנה.')}
-      ],
-      words:[
-        {en:t('lundi','Monday','lunes','שני'),he:t('lundi','Monday','lunes','שני'),pron:'lun-DEE',ex:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.'),exHe:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.')},
-        {en:t('mardi','Tuesday','martes','שלישי'),he:t('mardi','Tuesday','martes','שלישי'),pron:'mar-DEE',ex:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.'),exHe:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.')},
-        {en:t('mercredi','Wednesday','miércoles','רביעי'),he:t('mercredi','Wednesday','miércoles','רביעי'),pron:'mare-CRDEE',ex:t('Mercredi j\'ai cours.','Wednesday I have class.','Miércoles tengo clase.','רביעי יש לי שיעור.'),exHe:t('Mercredi j\'ai cours.','Wednesday I have class.','Miércoles tengo clase.','רביעי יש לי שיעור.')},
-        {en:t('aujourd\'hui','today','hoy','היום'),he:t('aujourd\'hui','today','hoy','היום'),pron:'oh-ZHOOR-dwee',ex:t('Aujourd\'hui il fait beau.','Today it is nice weather.','Hoy hace buen tiempo.','היום מזג האוויר יפה.'),exHe:t('Aujourd\'hui il fait beau.','Today it is nice weather.','Hoy hace buen tiempo.','היום מזג האוויר יפה.')},
-        {en:t('demain','tomorrow','mañana','מחר'),he:t('demain','tomorrow','mañana','מחר'),pron:'duh-MAN',ex:t('Demain je vais à Paris.','Tomorrow I am going to Paris.','Mañana voy a París.','מחר אני נוסע לפריז.'),exHe:t('Demain je vais à Paris.','Tomorrow I am going to Paris.','Mañana voy a París.','מחר אני נוסע לפריז.')}
-      ],
-      grammar:[
-        {t:'mcq',id:'u4.x1',skill:'grammar',rule:'r4',q:t('Quel jour est demain ?','What day is tomorrow?','¿Qué día es mañana?','איזה יום הוא מחר?'),opts:[t('lundi','Monday','lunes','שני'),t('mardi','Tuesday','martes','שלישי'),t('mercredi','Wednesday','miércoles','רביעי')],ans:t('mardi','Tuesday','martes','שלישי'),why:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר הוא יום שלישי.'),hint:t('Demain = demain.','Tomorrow = tomorrow.','Mañana = mañana.','מחר = מחר.')},
-        {t:'type',id:'u4.x2',skill:'grammar',rule:'r4',q:t('Traduisez: "Aujourd\'hui c\'est lundi"','Translate: "Today is Monday"','Traduce: "Hoy es lunes"','תרגמי: "היום יום שני"'),ans:[t('Aujourd\'hui c\'est lundi','Today is Monday','Hoy es lunes','היום יום שני')],why:t('Aujourd\'hui c\'est lundi = Today is Monday.','Aujourd\'hui c\'est lundi = Today is Monday.','Hoy es lunes = Hoy es lunes.','היום יום שני = היום יום שני.'),hint:t('Aujourd\'hui = today.','Today = today.','Hoy = hoy.','היום = היום.')}
-      ]
-    }
-  ];
+  if(lang==='French'){
+    return [
+      {
+        id:'u1', n:1, icon:'🥐', color:'pink', cefr:level,
+        title:'La vie quotidienne et les projets',
+        he:'חיי היומיום ותוכניות (צרפתית A2)',
+        lead:'ביחידה הזו מתרגלים שיחות יומיומיות בצרפתית ברמת A2: איך להציג את עצמך, לספר על השגרה ולדבר על תוכניות לעתיד הקרוב עם aller + פועל.',
+        canDo:['לספר על השגרה היומית והעבודה בצרפתית','לדבר על תוכניות קרובות עם העתיד הקרוב (Futur proche)','לשאול שאלות מנומסות בחיי היומיום'],
+        fact:'צרפתית מדוברת ב-5 יבשות על ידי יותר מ-320 מיליון בני אדם ברחבי העולם.',
+        rules:[
+          {id:'fr-futur-proche', title:'העתיד הקרוב – Futur proche (aller + infinitif)', short:'je vais / tu vas / il va + פועל בצורת המקור',
+           formula:'Je vais + פועל במקור (infinitif)\nTu vas + פועל במקור\nIl / Elle / On va + פועל במקור\nNous allons / Vous allez / Ils vont + פועל במקור',
+           body:'כדי לדבר בצרפתית על תוכנית קרובה ("אני הולך/ת לעשות"), מטים את הפועל <b>aller</b> בהווה ומוסיפים אחריו את הפועל בצורת המקור (ללא הטיה).',
+           examples:[{en:'Ce soir, je vais cuisiner avec mes amis.',he:'הערב אני הולך לבשל עם החברים שלי.'},{en:'Demain, nous allons visiter un musée à Paris.',he:'מחר אנחנו הולכים לבקר במוזיאון בפריז.'},{en:'Est-ce que tu vas travailler demain ?',he:'האם אתה הולך לעבוד מחר?'}],
+           mistake:'Je vais <b>travaille</b>. → Je vais <b>travailler</b> (הפועל השני נשאר בצורת המקור).',
+           hook:'aller בהווה הוא המנוע, והפועל שאחריו נשאר שלם עם סיומת er / ir / re.'},
+          {id:'fr-questions-a2', title:'שאלות מנומסות עם Est-ce que ואינטונציה', short:'Est-ce que + משפט רגיל ?',
+           formula:'Tu habites ici. → Est-ce que tu habites ici ?\nOù est-ce que tu travailles ?',
+           body:'ברמת A2 קל מאוד לבנות שאלות: מוסיפים <b>Est-ce que</b> בתחילת המשפט (או אחרי מילת שאלה כמו Où / Quand / Pourquoi), וסדר המילים נשאר רגיל.',
+           examples:[{en:'Où est-ce que tu habites ?',he:'איפה אתה גר?'},{en:'Quand est-ce que le train part ?',he:'מתי הרכבת יוצאת?'},{en:'Pourquoi est-ce que tu apprends le français ?',he:'למה אתה לומד צרפתית?'}],
+           mistake:'Où est-ce que <b>habites-tu</b> ? → Où est-ce que <b>tu habites</b> ?',
+           hook:'אחרי Est-ce que לא הופכים את הסדר – פשוט נושא ואז פועל.'}
+        ],
+        words:[
+          {en:'quotidien',he:'יומיומי / שגרה',pron:'ko-tee-DYEN',ex:'Mon travail quotidien est très intéressant.',exHe:'העבודה היומיומית שלי מעניינת מאוד.'},
+          {en:'projet',he:'תוכנית / פרויקט',pron:'pro-ZHEH',ex:'J\'ai un nouveau projet pour le week-end.',exHe:'יש לי תוכנית חדשה לסוף השבוע.'},
+          {en:'quartier',he:'שכונה',pron:'kar-TYEH',ex:'Mon quartier est calme et agréable.',exHe:'השכונה שלי שקטה ונעימה.'},
+          {en:'rendez-vous',he:'פגישה / תור',pron:'rahn-day-VOO',ex:'J\'ai un rendez-vous à dix heures.',exHe:'יש לי פגישה בשעה עשר.',skipGap:true},
+          {en:'ensemble',he:'ביחד',pron:'ahn-SAHM-bl',ex:'Nous allons déjeuner ensemble.',exHe:'אנחנו הולכים לאכול צהריים ביחד.'},
+          {en:'bientôt',he:'בקרוב',pron:'byen-TOH',ex:'Je vais partir bientôt.',exHe:'אני הולך לצאת בקרוב.'},
+          {en:'choisir',he:'לבחור',pron:'shwa-ZEER',ex:'Tu vas choisir quel film ?',exHe:'איזה סרט אתה הולך לבחור?'}
+        ],
+        reading:{
+          title:'סוף שבוע בפריז',
+          passage:'Samedi matin, Aviv va retrouver son ami Marc dans un petit café du quartier. Ensemble, ils vont organiser leur projet pour le week-end. D\'abord, ils vont visiter une exposition de photographie, puis ils vont déjeuner près de la rivière. Dimanche, Aviv va se reposer et préparer sa semaine de travail.',
+          vocabulary:[
+            {en:'samedi',he:'יום שבת'},{en:'matin',he:'בוקר'},{en:'retrouver',he:'לפגוש'},{en:'quartier',he:'שכונה'},
+            {en:'ensemble',he:'ביחד'},{en:'projet',he:'תוכנית / פרויקט'},{en:'exposition',he:'תערוכה'},{en:'déjeuner',he:'לאכול צהריים'},
+            {en:'rivière',he:'נהר'},{en:'dimanche',he:'יום ראשון'},{en:'semaine',he:'שבוע'},{en:'travail',he:'עבודה'}
+          ],
+          questions:[
+            {q:'איפה אביב הולך לפגוש את מארק בשבת בבוקר?',opts:['בבית קפה קטן בשכונה','בתחנת הרכבת המרכזית','במשרד שלו'],ans:'בבית קפה קטן בשכונה',why:'בקטע כתוב: dans un petit café du quartier.'},
+            {q:'מה הם הולכים לעשות אחרי התערוכה?',opts:['לאכול צהריים ליד הנהר','לחזור מיד הביתה','ללכת לקולנוע'],ans:'לאכול צהריים ליד הנהר',why:'בקטע כתוב: puis ils vont déjeuner près de la rivière.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'fr-futur-proche',q:'השלם בעתיד הקרוב: Demain, je ___ visiter le musée.',opts:['vais','vas','va'],ans:'vais',why:'עם je משתמשים ב-vais ואחריו פועל במקור (visiter).',hint:'je → vais.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'fr-futur-proche',q:'Nous ___ déjeuner ensemble à midi.',opts:['allons','allez','vont'],ans:'allons',why:'עם nous הצורה של aller היא allons.',hint:'nous → allons.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'fr-futur-proche',q:'תרגם לצרפתית: "אני הולך לבחור" (Je + aller + choisir)',ans:['Je vais choisir'],why:'Je vais + הפועל במקור choisir.',hint:'Je vais + choisir.'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'fr-questions-a2',q:'סדר את השאלה בצרפתית: איפה אתה גר?',sentence:'Où est-ce que tu habites ?',ans:['Où est-ce que tu habites ?'],why:'מילת שאלה Où + est-ce que + נושא ופועל.',hint:'מתחילים ב-Où.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'fr-futur-proche',q:'השלם את הפועל בצורת המקור (לעבוד – travailler):',sentence:'Demain, elle va ___ au bureau.',ans:['travailler'],why:'אחרי va הפועל בא בצורת המקור: travailler.',hint:'מסתיים ב-er.'}
+        ]
+      },
+      {
+        id:'u2', n:2, icon:'📖', color:'purple', cefr:level,
+        title:'Souvenirs et passé composé',
+        he:'חוויות וזמן עבר (Passé composé)',
+        lead:'ברמת A2 חשוב לדעת לספר מה עשית אתמול או בחופשה האחרונה. ביחידה הזו נלמד את זמן העבר Passé composé עם הפועל העוזר avoir.',
+        canDo:['לספר על פעולות שהסתיימו בעבר עם Passé composé','להשתמש בביטויי זמן בעבר: hier, la semaine dernière','לספר על חוויה או טיול קצר בצרפתית'],
+        fact:'בצרפתית מדוברת משתמשים כמעט תמיד ב-Passé composé כדי לספר על אירועים בעבר.',
+        rules:[
+          {id:'fr-passe-avoir', title:'זמן עבר עם avoir – Passé composé', short:'j\'ai / tu as / il a + participe passé (é / i / u)',
+           formula:'J\'ai parlé (דיברתי)\nTu as fini (סיימת)\nIl / Elle a vu (הוא/היא ראה/ראתה)\nNous avons visité (ביקרנו)',
+           body:'זמן העבר מורכב משתי מילים: הפועל העוזר <b>avoir</b> בהווה (j\'ai, tu as, il a, nous avons, vous avez, ils ont) + צורת העבר של הפועל. פעלים שמסתיימים ב-<b>er</b> מקבלים <b>é</b> (כמו visiter → visité).',
+           examples:[{en:'Hier, j\'ai visité une belle ville.',he:'אתמול ביקרתי בעיר יפה.'},{en:'Nous avons goûté un plat délicieux.',he:'טעמנו מנה טעימה מאוד.'},{en:'Tu as regardé le match hier soir ?',he:'צפית במשחק אתמול בערב?'}],
+           mistake:'J\'ai <b>visiter</b>. → J\'ai <b>visité</b> (עם צורת עבר ב-é).',
+           hook:'שומעים אותו דבר (visiter / visité), אבל אחרי j\'ai כותבים עם é!'}
+        ],
+        words:[
+          {en:'hier',he:'אתמול',pron:'ee-YAIR',ex:'Hier, j\'ai travaillé toute la journée.',exHe:'אתמול עבדתי כל היום.'},
+          {en:'dernier',he:'אחרון / שעבר',pron:'dair-NYEH',ex:'Le week-end dernier, nous avons voyagé.',exHe:'בסוף השבוע שעבר טיילנו.'},
+          {en:'goûter',he:'לטעום',pron:'goo-TEH',ex:'J\'ai goûté une soupe française.',exHe:'טעמתי מרק צרפתי.',skipGap:true},
+          {en:'découvrir',he:'לגלות',pron:'day-koo-VREER',ex:'Nous avons découvert un bon restaurant.',exHe:'גילינו מסעדה טובה.',skipGap:true},
+          {en:'oublier',he:'לשכוח',pron:'oo-blee-YEH',ex:'Il a oublié ses clés sur la table.',exHe:'הוא שכח את המפתחות שלו על השולחן.',skipGap:true},
+          {en:'souvenir',he:'זיכרון / מזכרת',pron:'soov-NEER',ex:'C\'est un très bon souvenir.',exHe:'זה זיכרון טוב מאוד.'},
+          {en:'spectacle',he:'מופע / הצגה',pron:'spek-TAKL',ex:'Elles ont adoré le spectacle.',exHe:'הן אהבו מאוד את המופע.'}
+        ],
+        reading:{
+          title:'ערב תרבות בליון',
+          passage:'La semaine dernière, Aviv a passé deux jours à Lyon. Le premier jour, il a marché dans le vieux centre et il a découvert une petite librairie. Le soir, il a dîné dans un bouchon traditionnel et il a goûté une spécialité locale. Il a aussi assisté à un spectacle de musique.',
+          vocabulary:[
+            {en:'semaine',he:'שבוע'},{en:'passé',he:'בילה / עבר'},{en:'jours',he:'ימים'},{en:'marché',he:'הלך / צעד'},
+            {en:'vieux',he:'עתיק / ישן'},{en:'découvert',he:'גילה'},{en:'librairie',he:'חנות ספרים'},{en:'soir',he:'ערב'},
+            {en:'dîné',he:'אכל ארוחת ערב'},{en:'goûté',he:'טעם'},{en:'spectacle',he:'מופע'},{en:'musique',he:'מוזיקה'}
+          ],
+          questions:[
+            {q:'מה אביב גילה במרכז העתיק של ליון?',opts:['חנות ספרים קטנה','מוזיאון לאמנות מודרנית','פארק גדול'],ans:'חנות ספרים קטנה',why:'בקטע כתוב: il a découvert une petite librairie.'},
+            {q:'מה הוא עשה בערב בנוסף לארוחת הערב?',opts:['נכח במופע מוזיקה','נסע ברכבת לפריז','קנה בגדים'],ans:'נכח במופע מוזיקה',why:'בקטע כתוב: Il a aussi assisté à un spectacle de musique.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u2.x1',skill:'grammar',rule:'fr-passe-avoir',q:'Hier, j\'___ visité le vieux quartier.',opts:['ai','as','a'],ans:'ai',why:'עם je הפועל העוזר avoir הוא ai → j\'ai visité.',hint:'j\' + ai.'},
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'fr-passe-avoir',q:'Nous avons ___ un spectacle magnifique.',opts:['regardé','regarder','regardons'],ans:'regardé',why:'אחרי avons באה צורת העבר (participe passé) עם é.',hint:'מסתיים ב-é.'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'fr-passe-avoir',q:'כתוב בצרפתית: "אתמול עבדתי" (Hier, j\'ai + travaillé)',ans:['Hier, j\'ai travaillé','Hier j\'ai travaillé'],why:'Hier, j\'ai travaillé.',hint:'Hier, j\'ai travaillé.'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'fr-passe-avoir',q:'סדר את המשפט: גילינו מסעדה טובה.',sentence:'Nous avons découvert un bon restaurant.',ans:['Nous avons découvert un bon restaurant.'],why:'Nous avons + découvert + un bon restaurant.',hint:'מתחילים ב-Nous.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'fr-passe-avoir',q:'השלם את הפועל העוזר המתאים ל-tu:',sentence:'Est-ce que tu ___ aimé le film ?',ans:['as'],why:'עם tu משתמשים ב-as: tu as aimé.',hint:'tu → as.'}
+        ]
+      },
+      {
+        id:'u3', n:3, icon:'🍽️', color:'cyan', cefr:level,
+        title:'Au restaurant et faire des achats',
+        he:'במסעדה וקניות (כמויות ובקשות מנומסות)',
+        lead:'לומדים להזמין אוכל ושתייה בנימוס עם je voudrais, ולהשתמש בביטויי כמות ומילות יחס (du, de la, beaucoup de) ברמת A2.',
+        canDo:['להזמין בנימוס במסעדה או בחנות עם Je voudrais…','להשתמש ב-du / de la / des ובכמויות (beaucoup de, un peu de)','לשאול על מחירים, תפריט והמלצות'],
+        fact:'בצרפת נהוג תמיד לפתוח פנייה למוכר או למלצר במילה Bonjour לפני שמבקשים משהו.',
+        rules:[
+          {id:'fr-voudrais', title:'בקשה מנומסת – Je voudrais וביטויי כמות', short:'Je voudrais + שם עצם / פועל · du / de la / un peu de',
+           formula:'Je voudrais un café, s\'il vous plaît.\nJe prends du pain et de la salade.\nJe bois un peu d\'eau / beaucoup de thé.',
+           body:'במקום לומר Je veux ("אני רוצה" – ישיר מדי), אומרים <b>Je voudrais</b> ("הייתי רוצה"). כשמדברים על אוכל כמותי לא ספיר משתמשים ב-<b>du</b> (זכר), <b>de la</b> (נקבה), וכשיש תיאור כמות כמו <b>un peu de</b> (קצת) או <b>beaucoup de</b> (הרבה) משתמשים רק ב-<b>de</b>.',
+           examples:[{en:'Bonjour, je voudrais réserver une table pour deux personnes.',he:'שלום, הייתי רוצה להזמין שולחן לשני אנשים.'},{en:'Je prends du poisson avec un peu de riz.',he:'אני לוקח דג עם קצת אורז.'},{en:'L\'addition, s\'il vous plaît.',he:'החשבון, בבקשה.'}],
+           mistake:'beaucoup <b>des</b> fruits → beaucoup <b>de</b> fruits.',
+           hook:'אחרי כמות (beaucoup / un peu / trop) תמיד בא de פשוט!'}
+        ],
+        words:[
+          {en:'addition',he:'חשבון (במסעדה)',pron:'a-dee-SYON',ex:'L\'addition, s\'il vous plaît.',exHe:'החשבון, בבקשה.'},
+          {en:'commander',he:'להזמין',pron:'ko-mahn-DEH',ex:'Nous sommes prêts à commander.',exHe:'אנחנו מוכנים להזמין.'},
+          {en:'plat',he:'מנה',pron:'plah',ex:'Quel est le plat du jour ?',exHe:'מהי מנת היום?'},
+          {en:'conseiller',he:'להמליץ / לייעץ',pron:'kon-say-YEH',ex:'Qu\'est-ce que vous me conseillez ?',exHe:'על מה אתה ממליץ לי?',skipGap:true},
+          {en:'morceau',he:'חתיכה / פרוסה',pron:'mor-SOH',ex:'Je voudrais un morceau de fromage.',exHe:'הייתי רוצה חתיכת גבינה.'},
+          {en:'bouteille',he:'בקבוק',pron:'boo-TAY',ex:'Une bouteille d\'eau fraîche, s\'il vous plaît.',exHe:'בקבוק מים קרים, בבקשה.'},
+          {en:'marché',he:'שוק',pron:'mar-SHEH',ex:'J\'achète des légumes frais au marché.',exHe:'אני קונה ירקות טריים בשוק.'}
+        ],
+        reading:{
+          title:'ארוחת צהריים בביסטרו',
+          passage:'À midi, Aviv entre dans un bistrot animé. Le serveur apporte la carte et présente le plat du jour : du saumon grillé avec des légumes du marché. Aviv dit : « Bonjour, je voudrais le plat du jour et une carafe d\'eau, s\'il vous plaît. » À la fin du repas, il demande un café et l\'addition.',
+          vocabulary:[
+            {en:'midi',he:'צהריים'},{en:'bistrot',he:'ביסטרו / מסעדה'},{en:'serveur',he:'מלצר'},{en:'carte',he:'תפריט'},
+            {en:'plat',he:'מנה'},{en:'saumon',he:'סלמון'},{en:'légumes',he:'ירקות'},{en:'marché',he:'שוק'},
+            {en:'voudrais',he:'הייתי רוצה'},{en:'carafe',he:'קנקן'},{en:'repas',he:'ארוחה'},{en:'addition',he:'חשבון'}
+          ],
+          questions:[
+            {q:'מהי מנת היום שהמלצר מציג?',opts:['סלמון בגריל עם ירקות מהשוק','מרק בצל וגבינה','עוף עם תפוחי אדמה'],ans:'סלמון בגריל עם ירקות מהשוק',why:'בקטע כתוב: du saumon grillé avec des légumes du marché.'},
+            {q:'מה אביב מבקש בסוף הארוחה?',opts:['קפה ואת החשבון','קינוח שוקולד','עוד קנקן מים'],ans:'קפה ואת החשבון',why:'בקטע כתוב: il demande un café et l\'addition.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'fr-voudrais',q:'איך מבקשים בנימוס: "הייתי רוצה להזמין שולחן"?',opts:['Je voudrais réserver une table.','Je veux réserver une table.','J\'ai réservé une table.'],ans:'Je voudrais réserver une table.',why:'Je voudrais היא הצורה המנומסת לבקשה.',hint:'Je voudrais…'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'fr-voudrais',q:'Il achète beaucoup ___ fruits au marché.',opts:['de','des','du'],ans:'de',why:'אחרי ביטוי כמות כמו beaucoup משתמשים ב-de.',hint:'beaucoup + de.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'fr-voudrais',q:'כתוב בצרפתית: "החשבון, בבקשה"',ans:['L\'addition, s\'il vous plaît','L\'addition s\'il vous plaît'],why:'L\'addition, s\'il vous plaît.',hint:'L\'addition…'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'fr-voudrais',q:'סדר את המשפט: מהי מנת היום?',sentence:'Quel est le plat du jour ?',ans:['Quel est le plat du jour ?'],why:'Quel est + le plat du jour ?',hint:'מתחילים ב-Quel.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'fr-voudrais',q:'השלם את המילה החסרה לבקשה מנומסת:',sentence:'Bonjour, je ___ un café, s\'il vous plaît.',ans:['voudrais'],why:'Je voudrais = הייתי רוצה.',hint:'מתחיל ב-v.'}
+        ]
+      },
+      {
+        id:'u4', n:4, icon:'🚄', color:'gold', cefr:level,
+        title:'Voyages, déplacements et comparaisons',
+        he:'נסיעות, התמצאות והשוואות',
+        lead:'ביחידה הרביעית לומדים להתמצא בעיר ובתחבורה, להשוות בין אפשרויות עם plus / moins / aussi… que, ולתת או לבקש הכוונה.',
+        canDo:['להשוות בין מקומות ואמצעי תחבורה (plus rapide que…)','לבקש ולהבין הוראות הגעה בעיר','לקנות כרטיסים ולהסתדר בתחנת הרכבת'],
+        fact:'רכבת ה-TGV הצרפתית מגיעה למהירות של 320 קמ"ש ומחברת בין ערים מרכזיות תוך שעתיים.',
+        rules:[
+          {id:'fr-comparatif', title:'השוואה בצרפתית – Le comparatif', short:'plus / moins / aussi + תואר + que',
+           formula:'Le train est plus rapide que la voiture. (הרכבת מהירה יותר מהמכונית)\nLe bus est moins cher que le taxi. (האוטובוס זול יותר מהמונית)\nCe quartier est aussi calme que l\'autre. (השכונה הזו שקטה כמו האחרת)',
+           body:'כדי להשוות בין שני דברים בצרפתית: שמים <b>plus</b> (יותר), <b>moins</b> (פחות) או <b>aussi</b> (אותו דבר) לפני התואר, ואחריו את המילה <b>que</b> (מאשר / כמו). יוצא דופן חשוב: טוב יותר = <b>meilleur(e) que</b>.',
+           examples:[{en:'Le TGV est plus rapide que le bus.',he:'הרכבת המהירה מהירה יותר מהאוטובוס.'},{en:'Ce billet est moins cher aujourd\'hui.',he:'הכרטיס הזה זול יותר היום.'},{en:'La boulangerie est tout droit, puis à gauche.',he:'המאפייה ישר, ואז שמאלה.'}],
+           mistake:'plus <b>bon</b> que → <b>meilleur</b> que.',
+           hook:'plus… que (+) · moins… que (-) · aussi… que (=).'}
+        ],
+        words:[
+          {en:'gare',he:'תחנת רכבת',pron:'gahr',ex:'La gare est à dix minutes à pied.',exHe:'תחנת הרכבת נמצאת במרחק עשר דקות הליכה.'},
+          {en:'billet',he:'כרטיס נסיעה',pron:'bee-YEH',ex:'J\'ai réservé un billet de train.',exHe:'הזמנתי כרטיס רכבת.'},
+          {en:'rapide',he:'מהיר',pron:'ra-PEED',ex:'Le métro est plus rapide que le bus.',exHe:'המטרו מהיר יותר מהאוטובוס.'},
+          {en:'cher',he:'יקר',pron:'shair',ex:'Ce trajet est moins cher le matin.',exHe:'הנסיעה הזו זולה יותר בבוקר.'},
+          {en:'droite',he:'ימין / ימינה',pron:'drwat',ex:'Tournez à droite après le pont.',exHe:'פנו ימינה אחרי הגשר.'},
+          {en:'gauche',he:'שמאל / שמאלה',pron:'gohsh',ex:'La pharmacie est à gauche de la banque.',exHe:'בית המרקחת נמצא משמאל לבנק.'},
+          {en:'horaire',he:'לוח זמנים',pron:'o-RAIR',ex:'Je vérifie les horaires des trains.',exHe:'אני בודק את לוחות הזמנים של הרכבות.',skipGap:true}
+        ],
+        reading:{
+          title:'נסיעה ברכבת המהירה',
+          passage:'Pour aller de Paris à Marseille, Aviv compare les moyens de transport. L\'avion est rapide, mais l\'aéroport est loin du centre. Le train TGV est plus pratique parce que la gare est au cœur de la ville. De plus, le billet de train est moins cher s\'il réserve à l\'avance.',
+          vocabulary:[
+            {en:'aller',he:'לנסוע / ללכת'},{en:'compare',he:'משווה'},{en:'transport',he:'תחבורה'},{en:'avion',he:'מטוס'},
+            {en:'rapide',he:'מהיר'},{en:'loin',he:'רחוק'},{en:'pratique',he:'נוח / שימושי'},{en:'gare',he:'תחנת רכבת'},
+            {en:'ville',he:'עיר'},{en:'billet',he:'כרטיס'},{en:'cher',he:'יקר'},{en:'avance',he:'מראש'}
+          ],
+          questions:[
+            {q:'למה רכבת ה-TGV נוחה יותר עבור אביב?',opts:['כי תחנת הרכבת נמצאת בלב העיר','כי היא חינמית בסופי שבוע','כי אין צורך בכרטיס'],ans:'כי תחנת הרכבת נמצאת בלב העיר',why:'בקטע כתוב: parce que la gare est au cœur de la ville.'},
+            {q:'מתי כרטיס הרכבת זול יותר?',opts:['כשמזמינים מראש','כשקונים במטוס','רק בלילה'],ans:'כשמזמינים מראש',why:'בקטע כתוב: moins cher s\'il réserve à l\'avance.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'fr-comparatif',q:'Le train est plus rapide ___ la voiture.',opts:['que','de','comme'],ans:'que',why:'בהשוואה עם plus/moins משתמשים ב-que.',hint:'plus + תואר + que.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'fr-comparatif',q:'איך אומרים "זול יותר" (פחות יקר) בצרפתית?',opts:['moins cher','plus cher','aussi cher'],ans:'moins cher',why:'cher = יקר, ולכן moins cher = פחות יקר (זול יותר).',hint:'moins = פחות.'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'fr-comparatif',q:'תרגם לצרפתית: "תחנת הרכבת" (השתמש ב-la)',ans:['la gare','La gare'],why:'la gare = תחנת הרכבת.',hint:'la g…'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'fr-comparatif',q:'סדר את המשפט: המטרו מהיר יותר מהאוטובוס.',sentence:'Le métro est plus rapide que le bus.',ans:['Le métro est plus rapide que le bus.'],why:'Le métro est + plus rapide que + le bus.',hint:'מתחילים ב-Le métro.'},
+          {t:'gap',id:'u4.x5',skill:'grammar',rule:'fr-comparatif',q:'השלם את מילת ההשוואה ("טוב יותר" = meilleur ___):',sentence:'Ce gâteau est meilleur ___ l\'autre.',ans:['que'],why:'meilleur que = טוב יותר מ-.',hint:'3 אותיות, מתחילה ב-q.'}
+        ]
+      }
+    ];
+  }
+  if(ui==='es'){
+    return [
+      {
+        id:'u1', n:1, icon:'🍳', color:'pink', cefr:level,
+        title:'Gastronomy & Culinary Experiences',
+        he:'Gastronomía y experiencias culinarias',
+        lead:'En esta unidad de nivel B1 practicarás cómo hablar de experiencias culinarias, recetas e ingredientes usando el Present Perfect y el Past Simple.',
+        canDo:['Diferenciar entre Present Perfect (experiencias) y Past Simple (momentos específicos)','Describir platos, técnicas de cocina e ingredientes en inglés','Expresar opiniones sobre restaurantes y tendencias gastronómicas'],
+        fact:'El inglés culinario adoptó cientos de términos internacionales, pero los verbos de técnica (simmer, roast, whisk) son puramente anglosajones.',
+        rules:[
+          {id:'es-b1-perf-past', title:'Present Perfect vs. Past Simple', short:'have/has + participio (experiencia) vs. verbo en pasado (fecha concreta)',
+           formula:'I have tried Peruvian food several times. (experiencia sin fecha)\nI tried that recipe last Saturday. (momento específico en el pasado)',
+           body:'Usamos <b>Present Perfect</b> (have/has + past participle) para hablar de experiencias de vida o acciones con relevancia actual sin decir cuándo ocurrieron. Usamos <b>Past Simple</b> cuando mencionamos un momento cerrado en el pasado (<i>yesterday, last week, in 2022</i>).',
+           examples:[{en:'Have you ever baked sourdough bread at home?',he:'¿Alguna vez has horneado pan de masa madre en casa?'},{en:'She opened her own catering business two years ago.',he:'Ella abrió su propio negocio de catering hace dos años.'},{en:'We have already tasted the new seasonal menu.',he:'Ya hemos probado el nuevo menú de temporada.'}],
+           mistake:'I <b>have visited</b> that restaurant yesterday. → I <b>visited</b> that restaurant yesterday.',
+           hook:'Si hay fecha o "yesterday / last / ago" → Past Simple. Si es experiencia abierta → Present Perfect.'}
+        ],
+        words:[
+          {en:'ingredient',he:'ingrediente',pron:'in-GREE-dee-ent',ex:'Fresh herbs are the key ingredient in this sauce.',exHe:'Las hierbas frescas son el ingrediente clave en esta salsa.'},
+          {en:'recipe',he:'receta',pron:'RES-ih-pee',ex:'She has adapted a traditional family recipe.',exHe:'Ella ha adaptado una receta familiar tradicional.'},
+          {en:'flavor',he:'sabor',pron:'FLAY-ver',ex:'Roasting the garlic gives the dish a rich flavor.',exHe:'Asar el ajo le da al plato un sabor rico.'},
+          {en:'season',he:'sazonar / condimentar',pron:'SEE-zen',ex:'Always season the soup before serving it.',exHe:'Sazona siempre la sopa antes de servirla.'},
+          {en:'cuisine',he:'cocina / gastronomía',pron:'kwih-ZEEN',ex:'Mediterranean cuisine uses plenty of olive oil.',exHe:'La cocina mediterránea utiliza abundante aceite de oliva.'},
+          {en:'homemade',he:'casero / hecho en casa',pron:'hohm-MAYD',ex:'Nothing beats homemade pasta on a Sunday.',exHe:'Nada supera a la pasta casera un domingo.'},
+          {en:'appetizer',he:'entrante / aperitivo',pron:'AP-eh-ty-zer',ex:'We ordered a light appetizer to share.',exHe:'Pedimos un entrante ligero para compartir.'}
+        ],
+        reading:{
+          title:'De la cocina casera a un proyecto gastronómico',
+          passage:'Over the last three years, Sofia has transformed her passion for cooking into a thriving local business. She started by testing recipes in her apartment and sharing photos online. Last spring, she rented a small commercial kitchen in the city center. Since then, she has supplied fresh, homemade meals to dozens of offices and has recently launched weekend cooking workshops.',
+          vocabulary:[
+            {en:'transformed',he:'transformado'},{en:'passion',he:'pasión'},{en:'thriving',he:'próspero'},{en:'business',he:'negocio'},
+            {en:'recipes',he:'recetas'},{en:'spring',he:'primavera'},{en:'rented',he:'alquiló'},{en:'kitchen',he:'cocina'},
+            {en:'supplied',he:'suministrado'},{en:'homemade',he:'caseras'},{en:'launched',he:'lanzado'},{en:'workshops',he:'talleres'}
+          ],
+          questions:[
+            {q:'¿Cuándo alquiló Sofía una cocina comercial?',opts:['La primavera pasada','Hace tres días','Todavía cocina en su apartamento'],ans:'La primavera pasada',why:'El texto dice: "Last spring, she rented a small commercial kitchen".'},
+            {q:'¿Qué actividad nueva ha lanzado recientemente?',opts:['Talleres de cocina de fin de semana','Un libro de arquitectura','Una tienda de ropa'],ans:'Talleres de cocina de fin de semana',why:'El texto dice: "has recently launched weekend cooking workshops".'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'es-b1-perf-past',q:'Elige la opción correcta: I ___ this Mediterranean recipe three times so far.',opts:['have made','made','am making'],ans:'have made',why:'"So far" (hasta ahora) indica experiencia acumulada → Present Perfect (have made).',hint:'Experiencia hasta hoy → have + participio.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'es-b1-perf-past',q:'We ___ a wonderful bistro in Madrid last month.',opts:['discovered','have discovered','discover'],ans:'discovered',why:'"Last month" es un momento cerrado en el pasado → Past Simple.',hint:'"Last month" requiere Past Simple.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'es-b1-perf-past',q:'Completa con Present Perfect: She ___ (open) a new bakery recently.',ans:['has opened'],why:'She + has + opened.',hint:'has + verbo con -ed.'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'es-b1-perf-past',q:'Ordena la pregunta en inglés: ¿Alguna vez has probado la pasta casera?',sentence:'Have you ever tried homemade pasta?',ans:['Have you ever tried homemade pasta?'],why:'Have + you + ever + tried + homemade pasta?',hint:'Empieza con Have.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'es-b1-perf-past',q:'Completa con el pasado simple de "cook":',sentence:'Last night, we ___ dinner for our guests.',ans:['cooked'],why:'"Last night" requiere Past Simple: cooked.',hint:'cook + ed.'}
+        ]
+      },
+      {
+        id:'u2', n:2, icon:'💼', color:'purple', cefr:level,
+        title:'Business, Innovation & Negotiations',
+        he:'Negocios, innovación y proyectos',
+        lead:'Aprende a expresar planes futuros, predicciones y condiciones reales en el mundo de los negocios usando First Conditional y conectores como unless y as soon as.',
+        canDo:['Usar el First Conditional para negociar y planificar proyectos','Conectar ideas con unless, as soon as y provided that','Hablar sobre presupuestos, clientes y estrategias comerciales'],
+        fact:'En reuniones internacionales de negocios en inglés, usar condicionales suaviza las propuestas y muestra profesionalidad.',
+        rules:[
+          {id:'es-b1-first-cond', title:'First Conditional y conectores temporales', short:'If / Unless / As soon as + Present Simple, will + verbo',
+           formula:'If we improve the design, clients will invest more.\nUnless we reduce costs, the budget won\'t be enough.\nI will call you as soon as the meeting finishes.',
+           body:'En las oraciones condicionales reales (<b>First Conditional</b>), la parte que lleva <b>if</b>, <b>unless</b> (a menos que) o <b>as soon as</b> (tan pronto como) va en <b>Present Simple</b>, aunque se refiera al futuro. El resultado lleva <b>will / won\'t / can / might</b> + verbo base.',
+           examples:[{en:'If the client approves the proposal, we will launch in May.',he:'Si el cliente aprueba la propuesta, lanzaremos en mayo.'},{en:'We won\'t sign the contract unless they change the deadline.',he:'No firmaremos el contrato a menos que cambien la fecha límite.'},{en:'I will send the report as soon as I arrive at the office.',he:'Enviaré el informe tan pronto como llegue a la oficina.'}],
+           mistake:'If the client <b>will approve</b>… → If the client <b>approves</b>…',
+           hook:'Después de if / unless / as soon as nunca pongas "will": usa Present Simple.'}
+        ],
+        words:[
+          {en:'budget',he:'presupuesto',pron:'BUJ-it',ex:'We need to stay within our annual budget.',exHe:'Necesitamos mantenernos dentro de nuestro presupuesto anual.'},
+          {en:'deadline',he:'fecha límite',pron:'DED-lyn',ex:'The deadline for the design project is Friday.',exHe:'La fecha límite para el proyecto de diseño es el viernes.'},
+          {en:'proposal',he:'propuesta',pron:'pruh-POH-zel',ex:'She presented a clear business proposal.',exHe:'Ella presentó una propuesta de negocios clara.'},
+          {en:'invest',he:'invertir',pron:'in-VEST',ex:'They want to invest in sustainable fashion.',exHe:'Quieren invertir en moda sostenible.'},
+          {en:'schedule',he:'horario / programar',pron:'SKEJ-ool',ex:'Let\'s schedule a call with the supplier.',exHe:'Programemos una llamada con el proveedor.'},
+          {en:'profit',he:'beneficio / ganancia',pron:'PROF-it',ex:'The company increased its profit this quarter.',exHe:'La empresa aumentó sus ganancias este trimestre.'},
+          {en:'partner',he:'socio / socia',pron:'PART-ner',ex:'She is looking for a reliable business partner.',exHe:'Está buscando un socio comercial confiable.'}
+        ],
+        reading:{
+          title:'Lanzamiento de una marca creativa',
+          passage:'Elena and her business partner are preparing to launch an online store that combines modern fashion and artisanal home decor. If their marketing campaign succeeds this month, they will expand to international shipping before the holidays. However, they won\'t sign with the new manufacturer unless the company guarantees sustainable materials and fair delivery deadlines.',
+          vocabulary:[
+            {en:'partner',he:'socio'},{en:'launch',he:'lanzar'},{en:'combines',he:'combina'},{en:'fashion',he:'moda'},
+            {en:'campaign',he:'campaña'},{en:'succeeds',he:'tiene éxito'},{en:'expand',he:'expandirse'},{en:'shipping',he:'envío'},
+            {en:'manufacturer',he:'fabricante'},{en:'unless',he:'a menos que'},{en:'sustainable',he:'sostenibles'},{en:'deadlines',he:'plazos'}
+          ],
+          questions:[
+            {q:'¿Qué harán Elena y su socio si la campaña de marketing tiene éxito?',opts:['Ampliarán los envíos a nivel internacional','Cerrarán la tienda en línea','Cambiarán de sector a la gastronomía'],ans:'Ampliarán los envíos a nivel internacional',why:'El texto dice: "they will expand to international shipping".'},
+            {q:'¿Bajo qué condición firmarán con el nuevo fabricante?',opts:['Solo si garantiza materiales sostenibles y plazos justos','Si reduce el precio a la mitad','Si está ubicado en la misma calle'],ans:'Solo si garantiza materiales sostenibles y plazos justos',why:'El texto dice: "unless the company guarantees sustainable materials and fair delivery deadlines".'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u2.x1',skill:'grammar',rule:'es-b1-first-cond',q:'If the client ___ the budget today, we will start tomorrow.',opts:['approves','will approve','approved'],ans:'approves',why:'En la cláusula con "if" usamos Present Simple (approves).',hint:'the client (he/she) + Present Simple.'},
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'es-b1-first-cond',q:'We won\'t finish on time ___ everyone helps with the presentation.',opts:['unless','if not','as soon'],ans:'unless',why:'"Unless" significa "a menos que".',hint:'Equivale a "a menos que".'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'es-b1-first-cond',q:'Traduce la palabra: "presupuesto"',ans:['budget'],why:'Presupuesto = budget.',hint:'Empieza por b (6 letras).'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'es-b1-first-cond',q:'Ordena la frase: Te llamaré tan pronto como termine la reunión.',sentence:'I will call you as soon as the meeting ends.',ans:['I will call you as soon as the meeting ends.'],why:'I will call you + as soon as + the meeting ends.',hint:'Empieza con I will.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'es-b1-first-cond',q:'Completa con "will" para formar el resultado del condicional:',sentence:'If we invest in quality, customers ___ trust our brand.',ans:['will'],why:'El resultado del First Conditional lleva will + verbo base.',hint:'Futuro con w…'}
+        ]
+      },
+      {
+        id:'u3', n:3, icon:'🏛️', color:'cyan', cefr:level,
+        title:'Architecture, Design & Urban Spaces',
+        he:'Arquitectura, diseño y espacios urbanos',
+        lead:'En esta unidad aprenderás a describir edificios, interiores y obras arquitectónicas utilizando la voz pasiva (Passive Voice) y cláusulas relativas.',
+        canDo:['Usar la voz pasiva en presente y pasado (is built / was designed by)','Describir materiales, estilos arquitectónicos y espacios interiores','Unir información con who, which, that y where'],
+        fact:'La arquitectura sostenible moderna reutiliza materiales locales para reducir la huella de carbono de los edificios.',
+        rules:[
+          {id:'es-b1-passive', title:'La voz pasiva (Passive Voice) en presente y pasado', short:'am/is/are/was/were + participio pasado (+ by)',
+           formula:'This building was designed by a famous architect in 1998.\nNatural stone and glass are used in modern facades.',
+           body:'Usamos la <b>voz pasiva</b> cuando el objeto o edificio es más importante que quién hizo la acción. Se forma con el verbo <b>to be</b> (<i>is / are / was / were</i>) seguido del <b>past participle</b> (<i>designed, built, restored, made</i>). Para indicar el autor usamos <b>by</b>.',
+           examples:[{en:'The old warehouse was converted into a bright design studio.',he:'El antiguo almacén fue convertido en un luminoso estudio de diseño.'},{en:'Many contemporary homes are built with recycled materials.',he:'Muchas casas contemporáneas se construyen con materiales reciclados.'},{en:'The exhibition is visited by thousands of architects every year.',he:'La exposición es visitada por miles de arquitectos cada año.'}],
+           mistake:'The museum <b>designed</b> by Zaha Hadid. → The museum <b>was designed</b> by Zaha Hadid.',
+           hook:'No olvides el verbo "to be" (was / were / is / are) antes del participio.'}
+        ],
+        words:[
+          {en:'architect',he:'arquitecto / arquitecta',pron:'AR-kih-tekt',ex:'The architect presented the 3D model of the house.',exHe:'La arquitecta presentó el modelo 3D de la casa.'},
+          {en:'sustainable',he:'sostenible',pron:'suh-STAY-nuh-bel',ex:'Sustainable architecture saves energy and water.',exHe:'La arquitectura sostenible ahorra energía y agua.'},
+          {en:'restore',he:'restaurar',pron:'rih-STOR',ex:'They plan to restore the historic facade.',exHe:'Planean restaurar la fachada histórica.'},
+          {en:'spacious',he:'espacioso / amplio',pron:'SPAY-shus',ex:'The living room feels bright and spacious.',exHe:'El salón se siente luminoso y espacioso.'},
+          {en:'structure',he:'estructura',pron:'STRUK-cher',ex:'The steel structure supports the glass roof.',exHe:'La estructura de acero sostiene el techo de cristal.'},
+          {en:'layout',he:'distribución / diseño',pron:'LAY-owt',ex:'An open-plan layout connects the kitchen and dining area.',exHe:'Una distribución abierta conecta la cocina y el comedor.'},
+          {en:'courtyard',he:'patio interior',pron:'KORT-yard',ex:'The rooms are organized around a central courtyard.',exHe:'Las habitaciones están organizadas alrededor de un patio central.'}
+        ],
+        reading:{
+          title:'Un edificio histórico renovado',
+          passage:'In the heart of the district stands an old textile factory that was built in the nineteenth century. Five years ago, the building was purchased by a group of young architects and was carefully restored. Today, the ground floor is used as a culinary market and café, while the upper floors house spacious studios where designers and fashion creators work together.',
+          vocabulary:[
+            {en:'factory',he:'fábrica'},{en:'built',he:'construida'},{en:'century',he:'siglo'},{en:'purchased',he:'comprado'},
+            {en:'architects',he:'arquitectos'},{en:'restored',he:'restaurado'},{en:'ground',he:'planta baja'},{en:'market',he:'mercado'},
+            {en:'upper',he:'superiores'},{en:'spacious',he:'espaciosos'},{en:'studios',he:'estudios'},{en:'designers',he:'diseñadores'}
+          ],
+          questions:[
+            {q:'¿Qué era originalmente el edificio en el siglo XIX?',opts:['Una antigua fábrica textil','Un hotel de lujo','Una estación de tren'],ans:'Una antigua fábrica textil',why:'El texto dice: "an old textile factory that was built in the nineteenth century".'},
+            {q:'¿Para qué se utiliza hoy la planta baja?',opts:['Como mercado gastronómico y cafetería','Como aparcamiento privado','Como almacén de madera'],ans:'Como mercado gastronómico y cafetería',why:'El texto dice: "the ground floor is used as a culinary market and café".'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'es-b1-passive',q:'This iconic bridge ___ built in 2005.',opts:['was','is','has'],ans:'was',why:'"In 2005" es pasado y "bridge" es singular → was built.',hint:'Pasado singular del verbo to be.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'es-b1-passive',q:'Recycled wood and glass ___ used in this studio.',opts:['are','is','was'],ans:'are',why:'Dos materiales (plural) en presente → are used.',hint:'Plural en presente.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'es-b1-passive',q:'Completa en voz pasiva (pasado): The house ___ designed by a local architect.',ans:['was'],why:'The house (singular) + was designed.',hint:'3 letras: w…'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'es-b1-passive',q:'Ordena la frase: La fachada histórica fue restaurada el año pasado.',sentence:'The historic facade was restored last year.',ans:['The historic facade was restored last year.'],why:'The historic facade + was restored + last year.',hint:'Empieza con The historic.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'es-b1-passive',q:'Completa con la preposición que introduce al autor en voz pasiva:',sentence:'The pavilion was designed ___ an Italian team.',ans:['by'],why:'En la voz pasiva usamos "by" para indicar quién realizó la acción.',hint:'2 letras: b…'}
+        ]
+      },
+      {
+        id:'u4', n:4, icon:'👗', color:'gold', cefr:level,
+        title:'Fashion, Style & Creative Trends',
+        he:'Moda, estilo y tendencias creativas',
+        lead:'En la cuarta unidad practicarás modales de deducción y consejo, comparaciones avanzadas y vocabulario sobre moda, tejidos y sostenibilidad.',
+        canDo:['Dar recomendaciones y expresar opiniones matizadas con should, ought to, might y must','Hablar sobre tendencias de moda, tejidos y diseño ético','Debatir sobre calidad, estilo personal y consumo responsable'],
+        fact:'Las marcas de moda de autor priorizan cada vez más tejidos orgánicos y colecciones cápsula atemporales.',
+        rules:[
+          {id:'es-b1-modals', title:'Modales de consejo, posibilidad y deducción (should, might, must)', short:'should / must / might / can\'t + verbo en forma base',
+           formula:'You should invest in timeless pieces. (consejo)\nThat jacket must be handmade—look at the stitching! (deducción segura)\nThis trend might become popular next winter. (posibilidad)',
+           body:'En nivel B1 usamos verbos modales no solo para obligación, sino también para deducir y aconsejar: <b>should</b> (deberías), <b>must</b> (debe de ser – certeza lógica), <b>might / could</b> (puede que – posibilidad) y <b>can\'t</b> (no puede ser). Siempre van seguidos del verbo sin "to".',
+           examples:[{en:'Designers should choose durable fabrics.',he:'Los diseñadores deberían elegir tejidos duraderos.'},{en:'That silk dress must be very comfortable.',he:'Ese vestido de seda debe de ser muy cómodo.'},{en:'We might attend the fashion exhibition in Milan.',he:'Puede que asistamos a la exposición de moda en Milán.'}],
+           mistake:'She must <b>to be</b> the designer. → She must <b>be</b> the designer.',
+           hook:'Después de must / should / might el verbo va directo, nunca lleva "to".'}
+        ],
+        words:[
+          {en:'fabric',he:'tejido / tela',pron:'FAB-rik',ex:'Linen is a breathable fabric for summer.',exHe:'El lino es un tejido transpirable para el verano.'},
+          {en:'trend',he:'tendencia',pron:'TREND',ex:'Minimalist tailoring is a major trend this year.',exHe:'La sastrería minimalista es una gran tendencia este año.'},
+          {en:'pattern',he:'patrón / estampado',pron:'PAT-ern',ex:'She sketched a geometric pattern for the collection.',exHe:'Ella dibujó un patrón geométrico para la colección.'},
+          {en:'tailored',he:'a medida / entallado',pron:'TAY-lerd',ex:'A tailored blazer looks elegant in any business meeting.',exHe:'Una chaqueta entallada luce elegante en cualquier reunión de negocios.'},
+          {en:'timeless',he:'atemporal',pron:'TYM-les',ex:'Good architecture and classic fashion are timeless.',exHe:'La buena arquitectura y la moda clásica son atemporales.'},
+          {en:'craftsmanship',he:'artesanía / manufactura',pron:'KRAFTS-mun-ship',ex:'Customers appreciate high-quality craftsmanship.',exHe:'Los clientes aprecian la artesanía de alta calidad.'},
+          {en:'wardrobe',he:'armario / vestuario',pron:'WOR-drohb',ex:'Building a capsule wardrobe saves time every morning.',exHe:'Crear un armario cápsula ahorra tiempo cada mañana.'}
+        ],
+        reading:{
+          title:'El auge del armario cápsula y el diseño ético',
+          passage:'More consumers are rethinking how they buy clothes. Instead of following fast trends that disappear in a few weeks, many professionals prefer a capsule wardrobe made of timeless, tailored garments. Although high-quality fabrics and ethical craftsmanship cost more at first, these pieces last for years and can be combined effortlessly for both business meetings and social events.',
+          vocabulary:[
+            {en:'consumers',he:'consumidores'},{en:'trends',he:'tendencias'},{en:'disappear',he:'desaparecen'},{en:'wardrobe',he:'armario'},
+            {en:'timeless',he:'atemporales'},{en:'tailored',he:'a medida / de corte'},{en:'garments',he:'prendas'},{en:'fabrics',he:'tejidos'},
+            {en:'craftsmanship',he:'artesanía'},{en:'pieces',he:'piezas'},{en:'combined',he:'combinadas'},{en:'meetings',he:'reuniones'}
+          ],
+          questions:[
+            {q:'¿Qué prefieren muchos profesionales en lugar de las tendencias rápidas?',opts:['Un armario cápsula con prendas atemporales y bien cortadas','Comprar ropa nueva todas las semanas','Usar únicamente ropa deportiva'],ans:'Un armario cápsula con prendas atemporales y bien cortadas',why:'El texto dice: "prefer a capsule wardrobe made of timeless, tailored garments".'},
+            {q:'¿Cuál es la ventaja de los tejidos de alta calidad según el texto?',opts:['Duran años y se combinan fácilmente','Son siempre los más baratos de producir','Solo se pueden usar una vez'],ans:'Duran años y se combinan fácilmente',why:'El texto dice: "these pieces last for years and can be combined effortlessly".'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'es-b1-modals',q:'Look at the fine details on that coat—it ___ be handmade!',opts:['must','shouldn\'t','can'],ans:'must',why:'Usamos "must" para una deducción lógica casi segura.',hint:'Deducción positiva segura.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'es-b1-modals',q:'Brands ___ use more sustainable fabrics in their collections.',opts:['should','might to','must to'],ans:'should',why:'"Should" + verbo base expresa recomendación.',hint:'Sin "to".'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'es-b1-modals',q:'Traduce al inglés: "tejido / tela"',ans:['fabric'],why:'Tejido o tela = fabric.',hint:'Empieza con f (6 letras).'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'es-b1-modals',q:'Ordena la frase: Puede que asistamos al desfile de moda mañana.',sentence:'We might attend the fashion show tomorrow.',ans:['We might attend the fashion show tomorrow.'],why:'We + might + attend + the fashion show tomorrow.',hint:'Empieza con We might.'},
+          {t:'gap',id:'u4.x5',skill:'grammar',rule:'es-b1-modals',q:'Completa con el verbo base "be" después del modal:',sentence:'Good design should ___ both functional and beautiful.',ans:['be'],why:'Después de un verbo modal (should) siempre va el infinitivo sin "to" (be).',hint:'Verbo ser/estar en forma base.'}
+        ]
+      }
+    ];
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_UNITS));
 }
 let UNITS = JSON.parse(JSON.stringify(DEFAULT_UNITS));
 let CURRENT_COURSE_ID='default';
@@ -1207,6 +1489,82 @@ const DEFAULT_SCENARIOS = [
 }
 ];
 let SCENARIOS = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+function defaultScenariosForProfile(){
+  const lang=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
+  const level=CURRENT_LEARNER_PROFILE.level||'A1';
+  const ui=CURRENT_LEARNER_PROFILE.uiLanguage||'he';
+  if(lang==='French'){
+    return [
+      {
+        id:'fr-cafe', icon:'🥐', title:'בבית קפה בפריז', en:'Au café à Paris',
+        who:'Claire', role:'מלצרית וחברה בפריז', level, focus:'Futur proche & commandes', unit:'u1',
+        desc:'קלייר פוגשת אותך בבית קפה בשכונה. דברו על השגרה ועל התוכניות לסוף השבוע.',
+        opening:'Bonjour Aviv ! Bienvenue au café du quartier. Qu\'est-ce que tu vas faire ce week-end ?',
+        openingHe:'שלום אביב! ברוך הבא לבית הקפה השכונתי. מה אתה הולך לעשות בסוף השבוע הזה?',
+        startWords:[{en:'quartier',he:'שכונה'},{en:'projet',he:'תוכנית'}],
+        steps:[
+          {bot:'Super idée ! Et qu\'est-ce que tu voudrais boire ou manger aujourd\'hui ?',he:'רעיון מעולה! ומה היית רוצה לשתות או לאכול היום?',suggestions:['Je voudrais un café et un croissant, s\'il vous plaît.','Je prends un thé avec un morceau de fromage.','Je voudrais le plat du jour, s\'il vous plaît.']},
+          {bot:'Très bien ! Qu\'est-ce que tu as fait la semaine dernière ?',he:'מצוין! מה עשית בשבוע שעבר?',suggestions:['La semaine dernière, j\'ai visité un musée.','Hier, j\'ai travaillé et j\'ai dîné avec des amis.','J\'ai découvert un bon restaurant.']},
+          {bot:'Comment est-ce que tu préfères voyager en ville ?',he:'איך אתה מעדיף להתנייד בעיר?',suggestions:['Le métro est plus rapide que le bus.','Je préfère marcher dans le quartier.','Le train est très pratique.']}
+        ],
+        more:['Quel est ton plat français préféré ?','Est-ce que tu vas voyager bientôt ?','Où est-ce que tu habites ?'],
+        words:[{en:'voudrais',he:'הייתי רוצה'},{en:'ensemble',he:'ביחד'},{en:'rapide',he:'מהיר'}]
+      },
+      {
+        id:'fr-voyage', icon:'🚄', title:'בתחנת הרכבת ובטיול', en:'À la gare et en voyage',
+        who:'Marc', role:'חבר לעבודה בליון', level, focus:'Passé composé & comparaisons', unit:'u4',
+        desc:'מארק מתכנן איתך נסיעה ברכבת המהירה ומשווה בין אפשרויות.',
+        opening:'Salut Aviv ! Le train TGV part bientôt. Est-ce que tu as déjà réservé ton billet ?',
+        openingHe:'היי אביב! רכבת ה-TGV יוצאת בקרוב. האם כבר הזמנת את הכרטיס שלך?',
+        startWords:[{en:'gare',he:'תחנת רכבת'},{en:'billet',he:'כרטיס'}],
+        steps:[
+          {bot:'Parfait ! Pourquoi est-ce que tu préfères le train à l\'avion ?',he:'מושלם! למה אתה מעדיף את הרכבת על פני המטוס?',suggestions:['Le train est plus pratique et moins cher.','La gare est au centre de la ville.','Le voyage en train est plus agréable.']},
+          {bot:'Qu\'est-ce que nous allons visiter en premier ?',he:'במה אנחנו הולכים לבקר קודם?',suggestions:['Nous allons visiter le vieux quartier.','D\'abord, nous allons déjeuner au bistrot.','Nous allons voir une exposition.']},
+          {bot:'Quel est ton meilleur souvenir de voyage ?',he:'מהו זיכרון הטיול הכי טוב שלך?',suggestions:['J\'ai adoré mon voyage l\'année dernière.','J\'ai goûté des plats délicieux.','C\'était un week-end magnifique.']}
+        ],
+        more:['À quelle heure est le prochain train ?','Est-ce que tu aimes la cuisine française ?','Qu\'est-ce que tu vas faire demain ?'],
+        words:[{en:'horaire',he:'לוח זמנים'},{en:'cher',he:'יקר'},{en:'souvenir',he:'זיכרון'}]
+      }
+    ];
+  }
+  if(ui==='es'){
+    return [
+      {
+        id:'es-culinary-biz', icon:'🍳', title:'Proyecto gastronómico y de negocios', en:'Culinary & Business Pitch',
+        who:'Elena', role:'Socia creativa y consultora', level, focus:'Present Perfect & First Conditional', unit:'u1',
+        desc:'Conversa con Elena sobre gastronomía, propuestas de negocio y tendencias creativas en inglés B1.',
+        opening:'Hi Yuli! I have just reviewed our new culinary and design concept. Have you ever worked on a project that combines food and business?',
+        openingHe:'¡Hola, Yuli! Acabo de revisar nuestro nuevo concepto gastronómico y de diseño. ¿Alguna vez has trabajado en un proyecto que combine cocina y negocios?',
+        startWords:[{en:'proposal',he:'propuesta'},{en:'cuisine',he:'gastronomía'}],
+        steps:[
+          {bot:'That sounds fascinating! If we launch the studio next month, what kind of experience will we offer our clients?',he:'¡Suena fascinante! Si lanzamos el estudio el próximo mes, ¿qué tipo de experiencia ofreceremos a nuestros clientes?',suggestions:['If we launch next month, we will offer homemade tasting menus.','We will organize creative workshops if the budget allows it.','Clients will love it if we combine modern architecture and local cuisine.']},
+          {bot:'Great point! How should we design the interior layout of the space?',he:'¡Buen punto! ¿Cómo deberíamos diseñar la distribución interior del espacio?',suggestions:['The main room should be spacious and bright.','It could be designed around a central courtyard.','We should use sustainable materials like wood and glass.']},
+          {bot:'And what about the brand style and wardrobe for our team?',he:'¿Y qué hay del estilo de la marca y el vestuario de nuestro equipo?',suggestions:['They should wear timeless, tailored aprons and jackets.','Natural linen fabric must be the best option for comfort.','A minimalist pattern might fit our brand identity.']}
+        ],
+        more:['What dish have you cooked recently that you are proud of?','What architectural style inspires you the most?','How do you choose between fast trends and timeless fashion?'],
+        words:[{en:'sustainable',he:'sostenible'},{en:'spacious',he:'espacioso'},{en:'timeless',he:'atemporal'}]
+      },
+      {
+        id:'es-arch-fashion', icon:'🏛️', title:'Estudio de arquitectura y moda', en:'Architecture & Fashion Studio',
+        who:'Lucas', role:'Arquitecto y diseñador en Milán', level, focus:'Passive Voice & Modals', unit:'u3',
+        desc:'Habla con Lucas sobre restauración de espacios urbanos, exposiciones de diseño y moda ética.',
+        opening:'Welcome to the studio, Yuli! This building was restored two years ago. What do you notice first when you enter a well-designed space?',
+        openingHe:'¡Bienvenida al estudio, Yuli! Este edificio fue restaurado hace dos años. ¿En qué te fijas primero cuando entras en un espacio bien diseñado?',
+        startWords:[{en:'restore',he:'restaurar'},{en:'craftsmanship',he:'artesanía'}],
+        steps:[
+          {bot:'I completely agree. Natural light changes everything. Have you visited any memorable buildings or exhibitions recently?',he:'Estoy totalmente de acuerdo. La luz natural lo cambia todo. ¿Has visitado algún edificio o exposición memorable recientemente?',suggestions:['Last year I visited a historic building that was converted into a gallery.','I have seen several modern spaces with open-plan layouts.','I love buildings where traditional structure meets modern glass.']},
+          {bot:'We are hosting a sustainable fashion pop-up here next week. Why do you think ethical craftsmanship is becoming so important?',he:'La semana que viene organizaremos aquí un evento de moda sostenible. ¿Por qué crees que la artesanía ética se está volviendo tan importante?',suggestions:['People prefer garments that last for years instead of fast trends.','High-quality fabrics feel better and are more sustainable.','Brands should invest in timeless design rather than mass production.']},
+          {bot:'If you could design your own creative space or collection, what would it look like?',he:'Si pudieras diseñar tu propio espacio creativo o colección, ¿cómo sería?',suggestions:['It would combine warm architecture, fashion, and a small café.','I would focus on clean lines, natural fabrics, and a welcoming kitchen.','If I had the budget, I would restore an old courtyard house.']}
+        ],
+        more:['Which material do you prefer in interior design?','What makes a piece of clothing truly timeless?','What business deadline are you working toward right now?'],
+        words:[{en:'layout',he:'distribución'},{en:'tailored',he:'a medida'},{en:'budget',he:'presupuesto'}]
+      }
+    ];
+  }
+  return CURRENT_LEARNER_GENDER==='male'
+    ? masculineCurriculum(JSON.parse(JSON.stringify(DEFAULT_SCENARIOS)))
+    : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+}
 const QUICK_PHRASES = [
   {en:'Can you repeat that, please?',he:'אפשר לחזור על זה?'},
   {en:'How do you say … in English?',he:'איך אומרים … באנגלית?'},
@@ -2002,6 +2360,13 @@ function initCloudSync(){
       installCurriculum(payload);
     }else if(event === 'saved'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge(window.apiSync.storage()==='netlify-blobs'?'saved':'server');
+      if(payload?.nextModuleUnlocked){
+        window.apiSync.curriculum().then(assigned=>{
+          if(payload.level) CURRENT_LEARNER_PROFILE.level=payload.level;
+          installCurriculum(assigned,true);
+          toast(CURRENT_UI_LANGUAGE==='es'?'🎉 ¡Felicidades! Has desbloqueado el siguiente módulo con 80+ en el examen.':'🎉 כל הכבוד! עברת את המבחן בציון 80+ והמודול הבא נפתח עבורך!');
+        }).catch(error=>console.warn('[sync] next module unlock refresh failed:',error.message));
+      }
     }else if(event === 'offline'){
       if(typeof updateSyncBadge === 'function') updateSyncBadge('offline');
     }else if(event === 'online'){
@@ -2265,14 +2630,14 @@ function wordTranslation(word,vocabulary=[]){
     ||ALL_WORDS[key.replace(/ies$/,'y')]
     ||ALL_WORDS[key.replace(/s$/,'')]
     ||ALL_WORDS[key.replace(/(?:ing|ed)$/,'')];
-  if(entry?.he&&ACTIVE_CURRICULUM) return entry.he;
+  if(entry?.he&&(ACTIVE_CURRICULUM||CURRENT_UI_LANGUAGE==='es'||CURRENT_LEARNER_PROFILE.learningLanguage==='French')) return entry.he;
   if(CURRENT_UI_LANGUAGE==='es'&&SPANISH_WORD_TRANSLATIONS[key]) return SPANISH_WORD_TRANSLATIONS[key];
   if(entry?.he&&CURRENT_UI_LANGUAGE==='he') return entry.he;
   return CURRENT_UI_LANGUAGE==='he'?COMMON_WORD_TRANSLATIONS[key]||'תרגום לא זמין':'';
 }
 function clickableEnglish(text,vocabulary=[]){
-  return String(text||'').match(/[A-Za-z]+(?:['’][A-Za-z]+)*|[^A-Za-z]+/g)?.map(part=>{
-    if(!/^[A-Za-z]/.test(part)) return esc(part);
+  return String(text||'').match(/[\p{L}]+(?:['’][\p{L}]+)*|[^\p{L}]+/gu)?.map(part=>{
+    if(!/^[\p{L}]/u.test(part)) return esc(part);
     const translation=wordTranslation(part,vocabulary);
     const label=translation?`${part}: ${translation}; ${localizedText('השמעה')}`:`${localizedText('תרגום')}: ${part}`;
     return `<button type="button" class="tap-word" data-word-audio="${escA(part)}" data-word-translation="${escA(translation)}" aria-label="${escA(label)}">${esc(part)}</button>`;
@@ -2330,9 +2695,11 @@ function courseSnapshot(){
     }))
   };
 }
+let PENDING_NEXT_CURRICULUM=null;
 function installCurriculum(result,force=false){
   const sourceCurriculum=result?.curriculum||null;
-  const curriculum=sourceCurriculum&&CURRENT_LEARNER_GENDER==='male'
+  PENDING_NEXT_CURRICULUM=result?.pendingNextCurriculum||null;
+  const curriculum=sourceCurriculum&&CURRENT_LEARNER_GENDER==='male'&&CURRENT_UI_LANGUAGE==='he'
     ? masculineCurriculum(sourceCurriculum)
     : sourceCurriculum;
   const courseId=result?.courseId||curriculum?.id||'default';
@@ -2348,10 +2715,8 @@ function installCurriculum(result,force=false){
   ACTIVE_CURRICULUM=curriculum;
   const fallbackUnits=defaultUnitsForProfile();
   const courseUnits=JSON.parse(JSON.stringify(curriculum?.units||fallbackUnits));
-  UNITS=CURRENT_LEARNER_GENDER==='male'&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
-  const fallbackScenarios=CURRENT_LEARNER_GENDER==='male'
-    ? masculineCurriculum(JSON.parse(JSON.stringify(DEFAULT_SCENARIOS)))
-    : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+  UNITS=CURRENT_LEARNER_GENDER==='male'&&CURRENT_UI_LANGUAGE==='he'&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
+  const fallbackScenarios=defaultScenariosForProfile();
   SCENARIOS=curriculum
     ? curriculum.units.map((unit,index)=>({
       id:`scenario-${unit.id}`,
@@ -2393,7 +2758,7 @@ function installCurriculum(result,force=false){
     S.exam=fresh.exam;
     S.review=fresh.review;
     S.chat=fresh.chat;
-    S.settings.level=curriculum?.level||S.settings.level||'A1';
+    S.settings.level=curriculum?.level||CURRENT_LEARNER_PROFILE.level||S.settings.level||'A1';
   }
   S.courseSnapshot=courseSnapshot();
   persistLocal();
@@ -2402,6 +2767,10 @@ function installCurriculum(result,force=false){
 }
 function buildVocabExercises(u){
   const exs=[];
+  const isSpanish=CURRENT_UI_LANGUAGE==='es';
+  const isFrenchLearning=CURRENT_LEARNER_PROFILE.learningLanguage==='French';
+  const targetLangHe=isFrenchLearning?'בצרפתית':'באנגלית';
+  const targetLangEs=isFrenchLearning?'en francés':'en inglés';
   const hePool = [...new Set(u.words.map(w=>w.he))];
   const allHe = [...new Set(ALL_WORD_LIST.map(w=>w.he))];
   const distractors = (correct, n) => {
@@ -2411,18 +2780,18 @@ function buildVocabExercises(u){
   u.words.forEach((w,idx)=>{
     exs.push({
       t:'mcq', id:`${u.id}.m.${w.en}`, unit:u.id, skill:'vocab', word:w.en, rule:'',
-      q:`מה המשמעות של <b class="en">${w.en}</b>?`,
+      q:isSpanish?`¿Cuál es el significado de <b class="en">${w.en}</b>?`:`מה המשמעות של <b class="en">${w.en}</b>?`,
       opts:shuffle([w.he,...distractors(w.he,3)]), ans:w.he,
-      why:`<b class="en">${w.en}</b> = ${w.he}. דוגמה: ${w.ex} — ${w.exHe}`,
-      hint:`המילה מופיעה בתחילת הדוגמה: ${w.ex}`
+      why:isSpanish?`<b class="en">${w.en}</b> = ${w.he}. Ejemplo: ${w.ex} — ${w.exHe}`:`<b class="en">${w.en}</b> = ${w.he}. דוגמה: ${w.ex} — ${w.exHe}`,
+      hint:isSpanish?`La palabra aparece en el ejemplo: ${w.ex}`:`המילה מופיעה בתחילת הדוגמה: ${w.ex}`
     });
   });
-  u.words.filter(w=>w.en.replace(/[^a-z]/gi,'').length>=5).slice(0,4).forEach(w=>{
+  u.words.filter(w=>w.en.replace(/[^\p{L}]/gu,'').length>=5).slice(0,4).forEach(w=>{
     exs.push({
       t:'type', id:`${u.id}.t.${w.en}`, unit:u.id, skill:'vocab', word:w.en, rule:'',
-      q:`איך כותבים באנגלית: <b>${w.he}</b>?`,
+      q:isSpanish?`¿Cómo se escribe ${targetLangEs}: <b>${w.he}</b>?`:`איך כותבים ${targetLangHe}: <b>${w.he}</b>?`,
       ans:[w.en], why:`<b class="en">${w.en}</b> = ${w.he}. ${w.ex} — ${w.exHe}`,
-      hint:`${w.en.length} אותיות, מתחילה ב-${w.en[0].toUpperCase()}.${w.pron?` הגייה: ${w.pron}`:''}`
+      hint:isSpanish?`${w.en.length} letras, empieza por ${w.en[0].toUpperCase()}.${w.pron?` Pronunciación: ${w.pron}`:''}`:`${w.en.length} אותיות, מתחילה ב-${w.en[0].toUpperCase()}.${w.pron?` הגייה: ${w.pron}`:''}`
     });
   });
   const gapWords = u.words.map(w=>{
@@ -2436,25 +2805,25 @@ function buildVocabExercises(u){
   gapWords.forEach(g=>{
     exs.push({
       t:'gap', id:`${u.id}.g.${g.w.en}`, unit:u.id, skill:'vocab', word:g.w.en, rule:'',
-      q:`השלימי עם הצורה הנכונה של <b class="en">${g.w.en}</b> (${g.w.he}):`,
+      q:isSpanish?`Completa con la forma correcta de <b class="en">${g.w.en}</b> (${g.w.he}):`:`השלימי עם הצורה הנכונה של <b class="en">${g.w.en}</b> (${g.w.he}):`,
       sentence:g.sentence, ans:[g.form],
-      why:`המשפט המלא: ${g.w.ex} — ${g.w.exHe} במשפט הזה הצורה היא <b>${g.form}</b>.`,
-      hint:`הצורה במשפט מתחילה ב-${g.form[0]}.`
+      why:isSpanish?`Frase completa: ${g.w.ex} — ${g.w.exHe}. En esta frase la forma es <b>${g.form}</b>.`:`המשפט המלא: ${g.w.ex} — ${g.w.exHe} במשפט הזה הצורה היא <b>${g.form}</b>.`,
+      hint:isSpanish?`La palabra empieza por ${g.form[0]}.`:`הצורה במשפט מתחילה ב-${g.form[0]}.`
     });
   });
   const l1=u.words[0], l2=u.words[Math.min(6,u.words.length-1)];
   if(l1) exs.push({
     t:'listenmcq', id:`${u.id}.lc.${l1.en}`, unit:u.id, skill:'listening', word:l1.en, rule:'', audio:l1.en,
-    q:'לחצי על הכפתור, הקלידי מה שמעת – ובחרי את המשמעות.',
+    q:isSpanish?'Pulsa el botón para escuchar la palabra y elige su significado.':'לחצי על הכפתור, הקשיבי למילה – ובחרי את המשמעות.',
     opts:shuffle([l1.he,...distractors(l1.he,3)]), ans:l1.he,
-    why:`שמעת <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`,
-    hint:`המילה מתחילה ב-${l1.en[0].toUpperCase()} (${l1.en.length} אותיות).`
+    why:isSpanish?`Escuchaste <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`:`שמעת <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`,
+    hint:isSpanish?`La palabra empieza por ${l1.en[0].toUpperCase()} (${l1.en.length} letras).`:`המילה מתחילה ב-${l1.en[0].toUpperCase()} (${l1.en.length} אותיות).`
   });
   if(l2) exs.push({
     t:'listen', id:`${u.id}.lw.${l2.en}`, unit:u.id, skill:'listening', word:l2.en, rule:'', audio:l2.en,
-    q:'לחצי על הכפתור וכתבי את המילה ששמעת.',
+    q:isSpanish?'Pulsa el botón y escribe la palabra que escuchaste.':'לחצי על הכפתור וכתבי את המילה ששמעת.',
     ans:[l2.en], why:`<b class="en">${l2.en}</b> = ${l2.he}. ${l2.ex}`,
-    hint:`${l2.en.length} אותיות, מתחילה ב-${l2.en[0].toUpperCase()}.`
+    hint:isSpanish?`${l2.en.length} letras, empieza por ${l2.en[0].toUpperCase()}.`:`${l2.en.length} אותיות, מתחילה ב-${l2.en[0].toUpperCase()}.`
   });
   return exs;
 }
@@ -2586,19 +2955,25 @@ function pageHome(){
   const lastUnit=UNITS.find(x=>x.id===(S.last.unit||''))||u;
   const lastPct=unitPct(lastUnit);
   const word=ALL_WORD_LIST[dayIndex()%ALL_WORD_LIST.length] || ALL_WORD_LIST[0];
-  const fact=FACTS[dayIndex()%FACTS.length];
+  const unitFacts=UNITS.map(unit=>unit.fact).filter(Boolean);
+  const fact=(unitFacts.length&&(CURRENT_UI_LANGUAGE!=='he'||CURRENT_LEARNER_PROFILE.learningLanguage!=='English'))
+    ?unitFacts[dayIndex()%unitFacts.length]
+    :FACTS[dayIndex()%FACTS.length];
+  const isFrenchLearning=CURRENT_LEARNER_PROFILE.learningLanguage==='French';
+  const practiceHeading=isFrenchLearning?'מוכן לתרגל צרפתית?':'מוכנה לתרגל אנגלית?';
+  const chatTaskTitle=isFrenchLearning?'שיחה בצרפתית':'שיחה באנגלית';
   const reviewDone=S.review.doneToday||0;
   const tasks=[
     {done:reviewDone>=5, t:'חזרה חכמה', s:`${Math.min(reviewDone,5)}/5 מילים במעגל`, route:'#/review', btn:'לחזרה'},
     {done:(S.daily.answers||0)>=10, t:'תרגול יומי', s:`${Math.min(S.daily.answers||0,10)}/10 תשובות`, route:`#/unit/${u.id}/practice`, btn:'לתרגל'},
-    {done:(S.daily.chats||0)>=1, t:'שיחה באנגלית', s:(S.daily.chats||0)>=1?'בוצע':'עוד לא דיברת היום', route:'#/chat', btn:'לדבר'}
+    {done:(S.daily.chats||0)>=1, t:chatTaskTitle, s:(S.daily.chats||0)>=1?'בוצע':'עוד לא דיברת היום', route:'#/chat', btn:'לדבר'}
   ];
   return `<div class="page">
     <section class="hero">
       <div class="hero-top">
         <div style="flex:1;min-width:220px">
           <span class="tag lime">⚡ יום ${S.streak||1} ברצף · רמה ${li.lvl}</span>
-          <h1>היי <span>${esc(S.name||'תלמידה')}</span> 👋<br>מוכנה לתרגל אנגלית?</h1>
+          <h1>היי <span>${esc(S.name||'תלמידה')}</span> 👋<br>${practiceHeading}</h1>
           <p>${accuracy()?`דיוק כללי ${accuracy()}% · ${ds.mastered} מילים יציבות · ${ds.due} ממתינות לחזרה`:`הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.`}</p>
           <div class="hero-actions">
             <button class="btn primary" data-go="#/unit/${u.id}/practice">▶ המשיכי ללמוד</button>
@@ -2714,6 +3089,14 @@ function pageLearn(){
       <p class="small muted">20 שאלות מכל היחידות, בלי לחץ זמן. בסוף תקבלי ציון, פירוט לפי נושא וטיפים לחזרה.</p>
       <button class="btn gold" style="margin-top:10px;background:linear-gradient(135deg,#ffc94d,#e9a51f);border-color:transparent;color:#241a02" data-go="#/exam">📝 למבחן המסכם</button>
     </div>
+    ${PENDING_NEXT_CURRICULUM?`<div class="card" style="margin-top:16px;border-color:rgba(255,201,77,.45);background:linear-gradient(135deg,rgba(255,201,77,.09),transparent)">
+      <div class="section-head">
+        <h2>🔒 ${CURRENT_UI_LANGUAGE==='es'?'Siguiente módulo preparado':'המודול הבא מוכן עבורך'}</h2>
+        <span class="tag gold">${esc(PENDING_NEXT_CURRICULUM.level||'')}</span>
+      </div>
+      <p class="small"><b>${esc(PENDING_NEXT_CURRICULUM.title||'')}</b></p>
+      <p class="small muted">${CURRENT_UI_LANGUAGE==='es'?'Este módulo se desbloqueará automáticamente cuando obtengas 80/100 o más en el examen final del curso, o cuando el profesor lo apruebe en el panel de administración.':'המודול הזה ייפתח אוטומטית ברגע שתסיימ/י את המבחן המסכם בציון של 80 מתוך 100 לפחות, או ברגע שהמורה יאשר אותו בלוח הניהול.'}</p>
+    </div>`:''}
   </div>`;
 }
 
@@ -3463,7 +3846,7 @@ function adminStudentCard(student){
         <span class="tag">${esc(levelLabel)}</span></div></div>
       <span class="tag purple">${esc(student.curriculum?.title||'מסלול בסיסי')}</span>
     </div>
-    <div class="tiny muted" style="margin-top:8px">${student.gender==='male'?'בן':'בת'} · תחומי עניין: ${interests.length?interests.map(esc).join(' · '):'לא הוגדרו'}</div>
+    <div class="tiny muted" style="margin-top:8px">${student.gender==='male'?'בן':'בת'} · שפת לימוד: ${esc(student.learningLanguage||'English')} · שפת ממשק: ${esc(student.nativeLanguage||'Hebrew')} · תחומי עניין: ${interests.length?interests.map(esc).join(' · '):'לא הוגדרו'}</div>
     ${student.missing?'<p class="tiny muted" style="margin-top:10px">עדיין לא נוצר חשבון לתלמיד/ה.</p>':`
       <div class="admin-kpis">
         <div class="admin-kpi"><b>${Number(student.xp)||0}</b><span>XP</span></div>
@@ -3474,7 +3857,7 @@ function adminStudentCard(student){
       <div class="admin-progress-block">
         <div class="row"><span class="small">תרגילים שהושלמו</span><b class="small spacer" style="text-align:end">${completed}${student.totalExercises?` / ${total}`:''}</b></div>
         <div class="admin-progress-track" role="img" aria-label="${completion}% מהתרגילים הושלמו"><i style="width:${completion}%"></i></div>
-        <div class="tiny muted" style="margin-top:4px">${attempted} נוסו · פעילות אחרונה: ${student.lastActive?esc(new Date(student.lastActive).toLocaleString('he-IL')):'טרם התחיל/ה'}</div>
+        <div class="tiny muted" style="margin-top:4px">${attempted} נוסו · מבחן מסכם: ${student.examBest?`${student.examBest}/100`:'טרם בוצע'} · פעילות אחרונה: ${student.lastActive?esc(new Date(student.lastActive).toLocaleString('he-IL')):'טרם התחיל/ה'}</div>
       </div>
       ${units.length?`<div class="admin-unit-bars" aria-label="התקדמות ביחידות">${units.map(unit=>{
         const percent=Math.max(0,Math.min(100,Number(unit.percent)||0));
@@ -3485,10 +3868,21 @@ function adminStudentCard(student){
         return `<div class="admin-mini-bar"><span>${skillLabels[skill.key]||esc(skill.key)}</span><div class="admin-progress-track"><i style="width:${percent}%"></i></div><b>${skill.accuracy==null?'—':`${percent}%`}</b></div>`;
       }).join('')}</div>`:''}
     `}
-    <div class="tiny muted" style="margin-top:10px">מסלול אישי: ${student.curriculum?`${esc(student.curriculum.level)} · ${Number(student.curriculum.unitCount)||0} יחידות`:'מסלול בסיסי'}</div>
-    <div class="admin-student-actions row">
+    <div class="tiny muted" style="margin-top:10px">מסלול נוכחי: ${student.curriculum?`${esc(student.curriculum.title)} (${esc(student.curriculum.level)} · ${Number(student.curriculum.unitCount)||0} יחידות)`:'מסלול בסיסי מותאם פרופיל'}</div>
+    ${student.pendingNextCurriculum?`<div class="card flat" style="margin-top:8px;padding:10px;border-color:rgba(255,201,77,.4);background:rgba(255,201,77,.07)">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <span class="tag gold">⏳ מודול הבא מוכן (${esc(student.pendingNextCurriculum.level)})</span>
+          <div class="small" style="margin-top:4px"><b>${esc(student.pendingNextCurriculum.title)}</b></div>
+          <div class="tiny muted">ייפתח אוטומטית בציון 80/100 במבחן המסכם או באישור מיידי שלך.</div>
+        </div>
+        <button class="btn xs primary" data-act="admin-approve-next-curriculum" data-key="${escA(student.key)}">✅ אישור ופתיחת המודול</button>
+      </div>
+    </div>`:''}
+    <div class="admin-student-actions row" style="flex-wrap:wrap;gap:6px">
       <button class="btn xs primary" data-act="admin-impersonate" data-key="${escA(student.key)}" title="${student.activated?'כניסה לחשבון התלמיד':'בדיקת החשבון לפני הפעלתו'}">${student.activated?'כניסה לחשבון':'בדיקת החשבון'}</button>
-      <button class="btn xs ghost" data-act="admin-edit-curriculum" data-key="${escA(student.key)}">עריכת מסלול AI</button>
+      <button class="btn xs ghost" data-act="admin-edit-curriculum" data-key="${escA(student.key)}" data-mode="replace">עריכת מסלול / רמה</button>
+      <button class="btn xs ghost" data-act="admin-edit-curriculum" data-key="${escA(student.key)}" data-mode="next">🚀 הכנת מודול הבא (80+ / אישור)</button>
       <button class="btn xs ghost" data-act="admin-view-reports" data-key="${escA(student.key)}">דוחות</button>
       <button class="btn xs ghost" data-act="admin-reset-code" data-key="${escA(student.key)}">${student.activated?'קוד איפוס':'קוד הפעלה'}</button>
     </div>
@@ -3715,17 +4109,55 @@ async function issueStudentResetCode(key){
     render();
   }
 }
-function openCurriculumEditor(key,message='',promptValue){
+const CEFR_LEVEL_OPTIONS=['Pre-A1','A1','A1+','A2','B1','B1+','B2','C1','C2'];
+function openCurriculumEditor(key,message='',promptValue,modeValue,levelValue){
   const student=ADMIN_STUDENTS?.find(item=>item.key===key);
   if(!student) return;
-  const initialPrompt=promptValue??student.curriculumPrompt??student.profilePrompt??'';
-  openModal(`<h3>✨ יצירת מסלול Lamda אישי</h3>
-    <p class="small muted">המסלול כולו ייבנה מחדש עבור ${esc(student.username)} לפי הרמה, המגדר ותחומי העניין שהוגדרו. אפשר לערוך את ההנחיות כאן. לפני ההחלפה יישמר דוח של ההתקדמות הקודמת.</p>
-    ${student.curriculum?`<div class="tag lime" style="margin:8px 0">מסלול נוכחי: ${esc(student.curriculum.title)} · ${esc(student.curriculum.level)}</div>`:''}
+  const mode=modeValue==='next'?'next':'replace';
+  const defaultLevel=mode==='next'
+    ?(student.pendingNextCurriculum?.level||student.suggestedNextLevel||student.targetLevel||student.level||'A2')
+    :(student.curriculum?.level||student.level||'A1');
+  const selectedLevel=levelValue||defaultLevel;
+  const initialPrompt=promptValue??(mode==='next'
+    ?(student.pendingNextCurriculumPrompt||student.nextModulePrompt||student.profilePrompt||'')
+    :(student.curriculumPrompt||student.profilePrompt||''));
+  const levelOptions=CEFR_LEVEL_OPTIONS.map(lvl=>`<option value="${escA(lvl)}" ${lvl===selectedLevel?'selected':''}>${esc(lvl)}${lvl===student.level?' (רמה נוכחית)':lvl===student.suggestedNextLevel?' (הרמה הבאה המומלצת)':''}</option>`).join('');
+  openModal(`<h3>✨ ${mode==='next'?'הכנת מודול הבא':'יצירה ועדכון מסלול / רמת לימוד'} — ${esc(student.username)}</h3>
+    <p class="small muted">בחר/י את רמת ה-CEFR המבוקשת לתרגילים ואת אופן העדכון: החלפה מיידית של המסלול הנוכחי, או שמירה כ<b>מודול הבא</b> שייפתח אוטומטית כשהתלמיד/ה יסיימו את המבחן המסכם בציון <b>80 מתוך 100</b> (או ברגע שתאשר/י אותו בלוח הניהול).</p>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0">
+      ${student.curriculum?`<span class="tag lime">מסלול נוכחי: ${esc(student.curriculum.title)} · ${esc(student.curriculum.level)}</span>`:`<span class="tag">מסלול נוכחי: מסלול בסיסי (${esc(student.level)})</span>`}
+      ${student.pendingNextCurriculum?`<span class="tag gold">ממתין לאישור / 80+: ${esc(student.pendingNextCurriculum.title)} · ${esc(student.pendingNextCurriculum.level)}</span>`:''}
+    </div>
     ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
-    <div class="field"><label for="curriculum-prompt">הנחיות למורה / פרומפט</label><textarea id="curriculum-prompt" rows="8" maxlength="5000" placeholder="הוסיפי נושאים, מטרות וסגנון לימוד.">${esc(initialPrompt)}</textarea></div>
-    <div class="row"><button class="btn primary" data-act="admin-generate-curriculum" data-key="${escA(key)}">יצירה והחלפת המסלול</button><button class="btn ghost" data-close>ביטול</button></div>
-    <p class="tiny muted" style="margin-top:8px">התוכן נוצר דרך שירות ה-AI שהוגדר בשרת; אם היצירה נכשלת, המסלול הנוכחי נשאר ללא שינוי.</p>`);
+    <div class="grid two">
+      <div class="field">
+        <label for="curriculum-level">רמת לימוד לתרגילים (CEFR)</label>
+        <select id="curriculum-level">${levelOptions}</select>
+      </div>
+      <div class="field">
+        <label for="curriculum-mode">אופן פתיחת המודול</label>
+        <select id="curriculum-mode">
+          <option value="next" ${mode==='next'?'selected':''}>🚀 מודול הבא (נפתח בציון 80/100 במבחן או באישור אדמין)</option>
+          <option value="replace" ${mode==='replace'?'selected':''}>⚡ החלפה מיידית של המסלול הנוכחי</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label for="curriculum-prompt">הנחיות למורה / פרומפט</label><textarea id="curriculum-prompt" rows="7" maxlength="5000" placeholder="הוסיפי נושאים, מטרות וסגנון לימוד.">${esc(initialPrompt)}</textarea></div>
+    <div class="row">
+      <button class="btn primary" data-act="admin-generate-curriculum" data-key="${escA(key)}">${mode==='next'?'יצירה ושמירה כמודול הבא':'יצירה והחלפת המסלול'}</button>
+      ${student.pendingNextCurriculum?`<button class="btn ghost" data-act="admin-approve-next-curriculum" data-key="${escA(key)}">✅ אשר ופתח מודול ממתין עכשיו</button>`:''}
+      <button class="btn ghost" data-close>ביטול</button>
+    </div>
+    <p class="tiny muted" style="margin-top:8px">התוכן נוצר דרך שירות ה-AI שהוגדר בשרת; לפני מעבר למודול חדש נשמר דוח מלא של ההתקדמות הקודמת.</p>`);
+  $('#curriculum-mode')?.addEventListener('change',event=>{
+    const newMode=event.target.value;
+    const btn=$('#overlay [data-act="admin-generate-curriculum"]');
+    if(btn) btn.textContent=newMode==='next'?'יצירה ושמירה כמודול הבא':'יצירה והחלפת המסלול';
+    const lvlSelect=$('#curriculum-level');
+    if(lvlSelect&&newMode==='next'&&lvlSelect.value===student.level&&student.suggestedNextLevel){
+      lvlSelect.value=student.suggestedNextLevel;
+    }
+  });
 }
 function reportDate(value){
   const date=new Date(value);
@@ -3765,23 +4197,64 @@ async function showCurriculumReports(key){
 }
 async function generateStudentCurriculum(key){
   const prompt=$('#curriculum-prompt')?.value?.trim()||'';
+  const mode=$('#curriculum-mode')?.value==='next'?'next':'replace';
+  const level=$('#curriculum-level')?.value||'';
   if(ADMIN_CURRICULUM_BUSY[key]) return;
   ADMIN_CURRICULUM_BUSY[key]=true;
   const button=$('#overlay [data-act="admin-generate-curriculum"]');
   if(button){ button.disabled=true; button.textContent='יוצרת מסלול…'; }
   try{
-    const result=await window.adminApi.generateCurriculum(key,prompt);
+    const result=await window.adminApi.generateCurriculum(key,prompt,{mode,level});
     const student=ADMIN_STUDENTS?.find(item=>item.key===key);
     if(student){
-      student.curriculum=result.curriculum;
-      student.curriculumPrompt=prompt;
+      if(result.mode==='next'){
+        student.pendingNextCurriculum=result.pendingNextCurriculum;
+        student.pendingNextCurriculumPrompt=prompt;
+      }else{
+        student.curriculum=result.curriculum;
+        student.curriculumPrompt=prompt;
+        if(result.level) student.level=result.level;
+      }
     }
     ADMIN_ERROR='';
     closeModal();
     render();
-    toast(result.archivedReport?'המסלול החדש נשמר ודוח ההתקדמות הקודם נוצר ✓':'המסלול האישי נשמר ✓');
+    if(result.mode==='next'){
+      toast(`המודול הבא (${result.pendingNextCurriculum?.level||level}) מוכן וייפתח בציון 80/100 או באישור שלך ✓`);
+    }else{
+      toast(result.archivedReport?'המסלול החדש נשמר ודוח ההתקדמות הקודם נוצר ✓':'המסלול האישי נשמר ✓');
+    }
   }catch(error){
-    openCurriculumEditor(key,`יצירת המסלול נכשלה: ${error.message}`,prompt);
+    openCurriculumEditor(key,`יצירת המסלול נכשלה: ${error.message}`,prompt,mode,level);
+  }finally{
+    ADMIN_CURRICULUM_BUSY[key]=false;
+  }
+}
+async function approveStudentNextCurriculum(key){
+  if(ADMIN_CURRICULUM_BUSY[key]) return;
+  ADMIN_CURRICULUM_BUSY[key]=true;
+  try{
+    toast('מאשרת ופותחת את המודול הבא…');
+    const result=await window.adminApi.approveNextCurriculum(key);
+    const student=ADMIN_STUDENTS?.find(item=>item.key===key);
+    if(student){
+      student.curriculum=result.curriculum;
+      student.pendingNextCurriculum=null;
+      student.pendingNextCurriculumPrompt='';
+      if(result.level) student.level=result.level;
+      if(result.targetLevel) student.targetLevel=result.targetLevel;
+      student.xp=0;
+      student.completedExercises=0;
+      student.attemptedExercises=0;
+      student.examBest=0;
+    }
+    closeModal();
+    render();
+    toast(`המודול החדש (${result.level||result.curriculum?.level||''}) נפתח לתלמיד/ה ✓`);
+  }catch(error){
+    ADMIN_ERROR=`אישור המודול הבא נכשל: ${error.message}`;
+    toast(ADMIN_ERROR);
+    render();
   }finally{
     ADMIN_CURRICULUM_BUSY[key]=false;
   }
@@ -3821,20 +4294,28 @@ function finishExam(){
   S.exam.last={score,correct,total,date:Date.now()};
   S.exam.best=Math.max(S.exam.best||0,score); S.exam.attempts=(S.exam.attempts||0)+1;
   S.exam.active=null;
-  EXAM_RESULT={score,correct,total};
+  const unlockedNext=Boolean(PENDING_NEXT_CURRICULUM && score>=80);
+  EXAM_RESULT={score,correct,total,unlockedNext,nextTitle:PENDING_NEXT_CURRICULUM?.title||'',nextLevel:PENDING_NEXT_CURRICULUM?.level||''};
   addXP(Math.max(10,Math.round(score/3)),$('#ex-host'));
-  checkBadges(); saveNow(); EXAM=null;
+  checkBadges(); saveNow();
+  if(cloudReady()) window.apiSync.flush();
+  EXAM=null;
   confetti(score>=70?34:12);
   render();
 }
 function pageExam(){
   if(EXAM_RESULT){
-    const {score,correct,total}=EXAM_RESULT;
+    const {score,correct,total,unlockedNext,nextTitle,nextLevel}=EXAM_RESULT;
     return `<div class="page"><div class="chat-summary"><div class="card result-hero">
-      <div style="font-size:2.4rem">${score>=85?'🏆':score>=60?'🎯':'🌱'}</div>
+      <div style="font-size:2.4rem">${score>=80?'🏆':score>=60?'🎯':'🌱'}</div>
       <div class="result-score">${score}</div>
-      <h2>${score>=85?`מצוין, ${esc(S.name||'תלמידה')}!`:score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
+      <h2>${score>=80?`מצוין, ${esc(S.name||'תלמידה')}!`:score>=60?'עבודה טובה':'בסיס טוב – ממשיכים'}</h2>
       <p class="muted small">${correct} מתוך ${total} נכונות · הציון נשמר בפרופיל שלך.</p>
+      ${unlockedNext?`<div class="card flat" style="margin-top:12px;border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)">
+        <b>🚀 ${CURRENT_UI_LANGUAGE==='es'?'¡Nuevo módulo desbloqueado!':'המודול הבא נפתח!'}</b>
+        <p class="small" style="margin-top:4px">${CURRENT_UI_LANGUAGE==='es'?`Con tu puntuación de ${score}/100 (mínimo 80), ya tienes acceso a:`:`בזכות ציון ${score}/100 (לפחות 80), נפתח עבורך המודול הבא:`} <b>${esc(nextTitle)} (${esc(nextLevel)})</b></p>
+        <button class="btn sm primary" style="margin-top:8px" data-go="#/learn">${CURRENT_UI_LANGUAGE==='es'?'Ir al nuevo módulo →':'למעבר למודול החדש ←'}</button>
+      </div>`:''}
       <div class="cert"><div class="seal">🥇</div><b>תעודת מבחן</b><span>Lamda · ${esc(S.name||'')} · ${new Date().toLocaleDateString('he-IL')} · ציון ${score}/100</span></div>
       <div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" data-act="start-exam">🔁 נסי שוב</button><button class="btn ghost" data-go="#/stats">📈 להתקדמות</button><button class="btn ghost" data-go="#/review">🔁 לחזרה</button></div>
     </div></div></div>`;
@@ -4106,8 +4587,7 @@ function render(){
   clearInterval(examTimer);
   const p=parts(), root=p[0]||'home';
   const main=$('#main'); if(!main) return;
-  const personalizedCoursePending=!ACTIVE_CURRICULUM&&root!=='admin'
-    &&(CURRENT_UI_LANGUAGE!=='he'||CURRENT_LEARNER_PROFILE.learningLanguage!=='English');
+  const personalizedCoursePending=false;
   let html='';
   try{
     if(personalizedCoursePending) html=personalizedCoursePendingHTML();
@@ -4322,7 +4802,8 @@ function handleGlobalClick(e){
     case 'admin-impersonate': enterAdminStudent(act.dataset.key); break;
     case 'admin-impersonation-exit': exitAdminStudent(); break;
     case 'admin-reset-code': issueStudentResetCode(act.dataset.key); break;
-    case 'admin-edit-curriculum': openCurriculumEditor(act.dataset.key); break;
+    case 'admin-edit-curriculum': openCurriculumEditor(act.dataset.key,'',undefined,act.dataset.mode||'replace'); break;
+    case 'admin-approve-next-curriculum': approveStudentNextCurriculum(act.dataset.key); break;
     case 'admin-view-reports': showCurriculumReports(act.dataset.key); break;
     case 'admin-generate-curriculum': generateStudentCurriculum(act.dataset.key); break;
     case 'admin-logout':

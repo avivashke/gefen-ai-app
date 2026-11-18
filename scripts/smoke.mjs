@@ -364,11 +364,12 @@ if (!curriculumGeneration || curriculumGeneration.body?.prompt !== 'A2 English f
 }
 const localizedProfiles = await page.evaluate(() => {
   const profiles = [
-    { username: 'יולי', displayName: 'Yuli', gender: 'female', level: 'B1', uiLanguage: 'es', learningLanguage: 'English', nativeLanguage: 'Spanish', interests: [] },
+    { username: 'יולי', displayName: 'Yuli', gender: 'female', level: 'B1', uiLanguage: 'es', learningLanguage: 'English', nativeLanguage: 'Spanish', interests: ['cocina', 'negocios', 'arquitectura', 'moda'] },
     { username: 'אביב', displayName: 'Aviv', gender: 'male', level: 'A2', uiLanguage: 'he', learningLanguage: 'French', nativeLanguage: 'Hebrew', interests: [] },
   ];
   return profiles.map((profile) => {
     setStudentIdentity(profile);
+    installCurriculum({ curriculum: null, courseId: 'default' }, true);
     history.replaceState(null, '', '#/home');
     render();
     const text = document.body.innerText;
@@ -376,7 +377,9 @@ const localizedProfiles = await page.evaluate(() => {
       displayName: profile.displayName,
       language: document.documentElement.lang,
       direction: document.documentElement.dir,
-      coursePendingMessage: document.querySelector('#main')?.innerText || '',
+      unitCount: UNITS.length,
+      firstUnitTitle: UNITS[0]?.title || '',
+      firstUnitLocalTitle: UNITS[0]?.he || '',
       hasHebrew: /[\u0590-\u05ff]/.test(text),
     };
   });
@@ -385,7 +388,8 @@ if (localizedProfiles.some((profile) => profile.hasHebrew
   !== (profile.displayName === 'Aviv')
   || profile.language !== (profile.displayName === 'Yuli' ? 'es' : 'he')
   || profile.direction !== (profile.displayName === 'Yuli' ? 'ltr' : 'rtl')
-  || !profile.coursePendingMessage.includes(profile.displayName === 'Yuli' ? 'español' : 'צרפתית'))) {
+  || profile.unitCount !== 4
+  || !profile.firstUnitTitle.includes(profile.displayName === 'Yuli' ? 'Gastronomy' : 'quotidienne'))) {
   throw new Error(`Localized learner interface failed: ${JSON.stringify(localizedProfiles)}`);
 }
 if (errors.length || consoleErrors.length) {

@@ -16,6 +16,7 @@ delete process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 const {
   handleActivateStudent,
+  handleAdminApproveNextCurriculum,
   handleAdminLogin,
   handleAdminCurriculumReports,
   handleAdminGenerateCurriculum,
@@ -536,7 +537,73 @@ try {
   assert.equal(Boolean(miaDashboard.missing), false);
   assert.equal(miaDashboard.activated, false);
 
-  console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, reset, and admin reports.');
+  // Test staging a next-level module and unlocking via 80/100 exam score vs. admin approval
+  aiResult = generatedCurriculum('גפן: מודול הבא A1+', 'A1+');
+  const stagedNext = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'GEFEN' },
+    body: { prompt: 'Prepare next module at A1+ for Gefen', mode: 'next', level: 'A1+' },
+  });
+  assert.equal(stagedNext.statusCode, 200);
+  assert.equal(stagedNext.body.mode, 'next');
+  assert.equal(stagedNext.body.pendingNextCurriculum.level, 'A1+');
+  assert.equal((await getStudentRecord('GEFEN')).curriculum.id, secondCourseId);
+  assert.ok((await getStudentRecord('GEFEN')).pendingNextCurriculum?.id);
+
+  // Exam score < 80 should not unlock next module
+  const gefenHeaders = { authorization: `Bearer ${login.body.token}` };
+  const exam75Save = await call(handleSaveProgress, {
+    headers: gefenHeaders,
+    body: {
+      data: {
+        courseId: secondCourseId,
+        xp: 20,
+        exam: { best: 75, last: { score: 75 } },
+      },
+      client_updated_at: null,
+    },
+  });
+  assert.equal(exam75Save.statusCode, 200);
+  assert.equal(Boolean(exam75Save.body.nextModuleUnlocked), false);
+  assert.equal((await getStudentRecord('GEFEN')).curriculum.id, secondCourseId);
+
+  // Exam score >= 80 should automatically unlock the staged next module
+  const exam80Save = await call(handleSaveProgress, {
+    headers: gefenHeaders,
+    body: {
+      data: {
+        courseId: secondCourseId,
+        xp: 35,
+        exam: { best: 80, last: { score: 80 } },
+      },
+      client_updated_at: new Date(Date.now() + 2000).toISOString(),
+    },
+  });
+  assert.equal(exam80Save.statusCode, 200);
+  assert.equal(exam80Save.body.nextModuleUnlocked, true);
+  assert.equal(exam80Save.body.level, 'A1+');
+  assert.equal((await getStudentRecord('GEFEN')).level, 'A1+');
+  assert.equal((await getStudentRecord('GEFEN')).pendingNextCurriculum, null);
+
+  // Test admin approval of a staged next module (for Yuli B1 -> B1+)
+  aiResult = generatedCurriculum('Yuli: Business & Architecture B1+', 'B1+');
+  const yuliStaged = await call(handleAdminGenerateCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'YULI' },
+    body: { prompt: 'Next module B1+ for Yuli', mode: 'next', level: 'B1+' },
+  });
+  assert.equal(yuliStaged.statusCode, 200);
+  assert.equal(yuliStaged.body.pendingNextCurriculum.level, 'B1+');
+  const yuliApproved = await call(handleAdminApproveNextCurriculum, {
+    headers: adminHeaders,
+    params: { key: 'YULI' },
+  });
+  assert.equal(yuliApproved.statusCode, 200);
+  assert.equal(yuliApproved.body.level, 'B1+');
+  assert.equal((await getStudentRecord('YULI')).level, 'B1+');
+  assert.equal((await getStudentRecord('YULI')).pendingNextCurriculum, null);
+
+  console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, next-module staging/approval/80-score unlock, reset, and admin reports.');
 } finally {
   globalThis.fetch = originalFetch;
   fs.rmSync(dataDir, { recursive: true, force: true });

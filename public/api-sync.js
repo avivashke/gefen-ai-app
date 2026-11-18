@@ -241,10 +241,16 @@
     return adminRequest(`/admin/students/${encodeURIComponent(key)}/reset-code`, { method: 'POST' });
   }
 
-  function adminGenerateCurriculum(key, prompt) {
+  function adminGenerateCurriculum(key, prompt, options = {}) {
     return adminRequest(`/admin/students/${encodeURIComponent(key)}/curriculum`, {
       method: 'POST',
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, ...options }),
+    });
+  }
+
+  function adminApproveNextCurriculum(key) {
+    return adminRequest(`/admin/students/${encodeURIComponent(key)}/approve-next-curriculum`, {
+      method: 'POST',
     });
   }
 
@@ -435,6 +441,7 @@
     impersonatingStudent: adminImpersonatingStudent,
     issueResetCode: adminIssueResetCode,
     generateCurriculum: adminGenerateCurriculum,
+    approveNextCurriculum: adminApproveNextCurriculum,
     curriculumReports: adminCurriculumReports,
   };
   window.apiSync.config = config;
