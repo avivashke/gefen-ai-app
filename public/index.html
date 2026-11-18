@@ -542,8 +542,11 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   color:var(--mu);font-size:.8rem;line-height:1.6;
 }
 .msg.show-tr .bubble .he-tr{display:block}
-.bubble-actions{display:flex;gap:4px;margin-top:4px;opacity:.75}
+.bubble-actions{display:flex;gap:4px;margin-top:4px;opacity:.85}
 .bubble-actions .iconbtn{width:27px;height:27px;font-size:.75rem;border-radius:8px}
+.bubble-actions .iconbtn.speaking{background:rgba(255,128,128,.18);border-color:rgba(255,128,128,.55);color:var(--red)}
+.bubble-actions .iconbtn.stop-btn{background:rgba(255,128,128,.16);border-color:rgba(255,128,128,.5);color:var(--red)}
+.bubble-actions .iconbtn.stop-btn.hide{display:none}
 .corr{
   background:rgba(255,201,77,.07);border:1px solid rgba(255,201,77,.25);border-radius:12px;
   padding:9px 11px;margin-top:6px;font-size:.8rem;max-width:100%;
@@ -1834,6 +1837,7 @@ const UI_TRANSLATIONS=[
   ['💬 המאמנת שלך','💬 Your coach','💬 Tu tutora'],['📜 שיחות אחרונות','📜 Recent conversations','📜 Conversaciones recientes'],
   ['💡 אפשר לענות כך:','💡 You could say:','💡 Puedes responder así:'],
   ['פידבק על התשובה שלך','Feedback on your answer','Comentarios sobre tu respuesta'],
+  ['עצירת השמעה','Stop audio','Detener audio'],
   ['השמעה','Play audio','Reproducir audio'],['תרגום','Translate','Traducir'],
   ['🔊 השמע שוב','🔊 Play again','🔊 Reproducir de nuevo'],['לחצי על מילה באנגלית כדי לשמוע אותה ולראות את התרגום.','Tap an English word to hear it and see its translation.','Toca una palabra en inglés para escucharla y ver su traducción.'],
   ['לחצי על מילה באנגלית כדי לראות תרגום ולשמוע אותה.','Tap an English word to see its translation and hear it.','Toca una palabra en inglés para ver su traducción y escucharla.'],
@@ -2442,7 +2446,7 @@ function confetti(n=26){
 }
 
 /* ================= audio ================= */
-let VOICE=null, AC=null;
+let VOICE=null, AC=null, SPEAKING_CHAT_INDEX=null, SPEAKING_TOKEN=0;
 function learningSpeechLocale(){
   const language=(CURRENT_LEARNER_PROFILE.learningLanguage||'English').toLowerCase();
   if(language.startsWith('french')) return 'fr-FR';
@@ -2455,17 +2459,52 @@ function initVoice(){
   const pick=()=>{ const lang=learningSpeechLocale().replace('-','[-_]'); const v=speechSynthesis.getVoices(); VOICE=v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang)&&/Google|Natural|Samantha|Aria|Jenny/i.test(x.name))||v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang))||null; };
   pick(); speechSynthesis.onvoiceschanged=pick;
 }
-function speak(text, rate){
+function updateChatSpeakButtons(){
+  $$('[data-chat-say]').forEach(btn=>{
+    const idx=Number(btn.dataset.chatSay);
+    const active=SPEAKING_CHAT_INDEX===idx;
+    btn.classList.toggle('speaking',active);
+    btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+  $$('[data-chat-stop]').forEach(btn=>{
+    const idx=Number(btn.dataset.chatStop);
+    const active=SPEAKING_CHAT_INDEX===idx;
+    btn.classList.toggle('hide',!active);
+  });
+}
+function stopSpeaking(){
+  SPEAKING_TOKEN++;
+  SPEAKING_CHAT_INDEX=null;
+  try{
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+  }catch(e){}
+  updateChatSpeakButtons();
+}
+function speak(text, rate, options={}){
   if(!('speechSynthesis' in window)){ toast('הדפדפן לא תומך בהשמעה'); return; }
   try{
+    const token=++SPEAKING_TOKEN;
     speechSynthesis.cancel();
+    SPEAKING_CHAT_INDEX=Number.isInteger(options.chatIndex)?options.chatIndex:null;
+    updateChatSpeakButtons();
     const u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]*>/g,''));
     u.lang=learningSpeechLocale(); u.rate=rate || S.settings.ttsRate || .9;
     const lang=u.lang.replace('-','[-_]');
     const voice=speechSynthesis.getVoices().find(item=>new RegExp(`^${lang}`,'i').test(item.lang));
     if(voice||VOICE) u.voice=voice||VOICE;
+    const clear=()=>{
+      if(SPEAKING_TOKEN===token){
+        SPEAKING_CHAT_INDEX=null;
+        updateChatSpeakButtons();
+      }
+    };
+    u.onend=clear;
+    u.onerror=clear;
     speechSynthesis.speak(u);
-  }catch(e){}
+  }catch(e){
+    SPEAKING_CHAT_INDEX=null;
+    updateChatSpeakButtons();
+  }
 }
 function beep(ok){
   if(S.settings && !S.settings.sound) return;
@@ -5048,8 +5087,9 @@ function chatMessagesHTML(){
       <div class="bubble"><span class="en">${fmt(m.text,true)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
       ${sugg}${words}
       <div class="bubble-actions">
-        <button class="iconbtn" data-chat-say="${i}" title="השמע">🔊</button>
-        <button class="iconbtn" data-chat-tr="${i}" title="תרגום">🌐</button>
+        <button class="iconbtn ${SPEAKING_CHAT_INDEX===i?'speaking':''}" data-chat-say="${i}" title="השמעה" aria-label="השמעה" aria-pressed="${SPEAKING_CHAT_INDEX===i?'true':'false'}">🔊</button>
+        <button class="iconbtn stop-btn ${SPEAKING_CHAT_INDEX===i?'':'hide'}" data-chat-stop="${i}" title="עצירת השמעה" aria-label="עצירת השמעה">⏹️</button>
+        <button class="iconbtn" data-chat-tr="${i}" title="תרגום" aria-label="תרגום">🌐</button>
       </div>
     </div>`;
   }).join('');
@@ -5102,7 +5142,7 @@ function sendText(text){
     aiTurn(text).then(res=>{
       CHAT_BUSY=false;
       appendAI(res);
-      if(S.settings.autoSpeak) speak(res.reply);
+      if(S.settings.autoSpeak) speak(res.reply,undefined,{chatIndex:(S.chat.messages||[]).length-1});
     }).catch(err=>{
       CHAT_BUSY=false;
       // The AI service is unreachable: keep the conversation alive locally.
@@ -5119,7 +5159,7 @@ function sendText(text){
       CHAT_BUSY=false;
       const res=localCoachReply(text);
       appendAI(res);
-      if(S.settings.autoSpeak) speak(res.reply);
+      if(S.settings.autoSpeak) speak(res.reply,undefined,{chatIndex:(S.chat.messages||[]).length-1});
     },650);
   }
 }
@@ -5353,8 +5393,20 @@ function addChatWordsToReview(){
 
 /* ================= chat events ================= */
 function chatDelegatedClick(e){
+  const stop=e.target.closest('[data-chat-stop]');
+  if(stop){ stopSpeaking(); e.stopPropagation(); return; }
   const say=e.target.closest('[data-chat-say]');
-  if(say){ const i=+say.dataset.chatSay; const m=S.chat.messages[i]; if(m) speak(m.text); e.stopPropagation(); return; }
+  if(say){
+    const i=+say.dataset.chatSay;
+    if(SPEAKING_CHAT_INDEX===i && window.speechSynthesis?.speaking){
+      stopSpeaking();
+    }else{
+      const m=S.chat.messages[i];
+      if(m) speak(m.text,undefined,{chatIndex:i});
+    }
+    e.stopPropagation();
+    return;
+  }
   const tr=e.target.closest('[data-chat-tr]');
   if(tr){ const i=+tr.dataset.chatTr; const el=document.querySelector('.msg[data-mi="'+i+'"]'); if(el) el.classList.toggle('show-tr'); e.stopPropagation(); return; }
   const corr=e.target.closest('[data-set-corr]');
