@@ -1024,6 +1024,104 @@ const DEFAULT_UNITS = [
   ]
 }
 ];
+function defaultUnitsForProfile(){
+  const lang=CURRENT_LEARNER_PROFILE.learningLanguage||'English';
+  const level=CURRENT_LEARNER_PROFILE.level||'A1';
+  const ui=CURRENT_LEARNER_PROFILE.uiLanguage||'he';
+  const isFrench=lang==='French';
+  const isEnglish=lang==='English';
+  const isHebrewUI=ui==='he';
+  const isSpanishUI=ui==='es';
+  const t=(fr,en,es,he)=> isFrench?fr : isSpanishUI ? es : isHebrewUI ? he : en;
+  const levelText=level==='B1'? t('B1 (intermédiaire)','B1 (intermediate)','B1 (intermedio)','בינוני (B1)') : t('A2 (élémentaire)','A2 (elementary)','A2 (elemental)','בסיסי (A2)');
+  const greeting = isFrench ? 'Bonjour' : isEnglish ? 'Hello' : 'היי';
+  return [
+    {
+      id:'u1', n:1, icon:'👋', color:'pink', cefr:level,
+      title: t('Bonjour et présentations','Greetings and introductions','Saludos y presentaciones','ברכות והיכרויות'),
+      he: t('Apprendre à se présenter','Learn to introduce yourself','Aprender a presentarse','ללמוד להציג את עצמך'),
+      canDo: t(['Dire bonjour','Se présenter','Dire je m\'appelle…'],['Say hello','Introduce yourself','Say my name is…'],['Decir hola','Presentarse','Decir me llamo…'],['לומר שלום','להציג את עצמי','לומר אני קוראים לי…']),
+      fact: t('Le français est parlé sur 5 continents.','French is spoken on 5 continents.','El francés se habla en 5 continentes.','צרפתית נמדברת ב-5 יבשות.'),
+      rules:[
+        {id:'r1', title:t('Les salutations','Greetings','Saludos','ברכות'), short:t('Bonjour / Bonsoir','Hello / Good evening','Hola / Buenas noches','שלום / ערב טוב'), formula:'Bonjour ! / Comment ça va ?', body:t('Pour saluer quelqu\'un, on dit bonjour (jour) ou bonsoir (soir).','To greet someone, say hello (day) or good evening (evening).','Para saludar a alguien, se dice hola o buenas tardes/noches.','כדי לברך מישהו, אומרים שלום (יום) או ערב טוב (ערב).'), examples:[{en:t('Bonjour, je m\'appelle Aviv.','Hello, my name is Aviv.','Hola, me llamo Aviv.','שלום, קוראים לי Aviv.'),he:t('Bonjour, je m\'appelle Aviv.','Hello, my name is Aviv.','Hola, me llamo Aviv.','שלום, קוראים לי Aviv.')},{en:t('Bonsoir, madame.','Good evening, ma\'am.','Buenas noches, señora.','ערב טוב, גברת.'),he:t('Bonsoir, madame.','Good evening, ma\'am.','Buenas noches, señora.','ערב טוב, גברת.')}], mistake:t('Ne pas oublier la majuscule à Bonjour.','Don\'t forget the capital letter on Bonjour.','No olvidar la mayúscula en Hola.','לא לשכוח אות ריש בשלום.'), hook:t('Bonjour commence toujours par B majuscule.','Bonjour always starts with capital B.','Hola siempre empieza con H mayúscula.','שלום תמיד מתחיל ב-ש רישית.')},
+      ],
+      words:[
+        {en:t('bonjour','hello','hola','שלום'),he:t('bonjour','hello','hola','שלום'),pron:'bon-ZHOOR',ex:t('Bonjour !','Hello !','¡Hola !','שלום !'),exHe:t('Bonjour !','Hello !','¡Hola !','שלום !')},
+        {en:t('oui','yes','sì','כן'),he:t('oui','yes','sì','כן'),pron:'wi',ex:t('Oui, je suis là.','Yes, I am here.','Sí, estoy aquí.','כן, אני כאן.'),exHe:t('Oui, je suis là.','Yes, I am here.','Sí, estoy aquí.','כן, אני כאן.')},
+        {en:t('non','no','no','לא'),he:t('non','no','no','לא'),pron:'no(n)',ex:t('Non, merci.','No, thank you.','No, gracias.','לא, תודה.'),exHe:t('Non, merci.','No, thank you.','No, gracias.','לא, תודה.')},
+        {en:t('merci','thank you','gracias','תודה'),he:t('merci','thank you','gracias','תודה'),pron:'mair-SEE',ex:t('Merci beaucoup.','Thank you very much.','Muchas gracias.','תודה רבה.'),exHe:t('Merci beaucoup.','Thank you very much.','Muchas gracias.','תודה רבה.')},
+        {en:t('s\'appeler','to be called','llamarse','להיקרא'),he:t('s\'appeler','to be called','llamarse','להיקרא'),pron:'sap-PLE',ex:t('Je m\'appelle Yuli.','My name is Yuli.','Me llamo Yuli.','קוראים לי יולי.'),exHe:t('Je m\'appelle Yuli.','My name is Yuli.','Me llamo Yuli.','קוראים לי יולי.')}
+      ],
+      grammar:[
+        {t:'mcq',id:'u1.x1',skill:'grammar',rule:'r1',q:t('Comment dit-on bonjour en français ?','How do you say hello in French?','¿Cómo se dice hola en francés?','איך אומרים שלום בצרפתית?'),opts:[t('Bonjour','Hello','Hola','שלום'),t('Merci','Thank you','Gracias','תודה'),t('Non','No','No','לא')],ans:t('Bonjour','Hello','Hola','שלום'),why:t('Bonjour signifie bonjour.','Bonjour means hello.','Bonjour significa hola.','Bonjour פירושו שלום.'),hint:t('Commence par B.','Starts with B.','Empieza con B.','מתחיל ב-ש.')},
+        {t:'type',id:'u1.x2',skill:'grammar',rule:'r1',q:t('Traduisez: "Bonjour !"','Translate: "Hello!"','Traduce: "¡Hola!"','תרגמי: "שלום!"'),ans:[t('Bonjour','Hello','Hola','שלום')],why:t('Bonjour = hello.','Bonjour = hello.','Bonjour = hola.','Bonjour = שלום.'),hint:t('B majuscule.','Capital B.','B mayúscula.','ב-ש רישית.')}
+      ]
+    },
+    {
+      id:'u2', n:2, icon:'🏠', color:'purple', cefr:level,
+      title: t('La maison et la famille','Home and family','El hogar y la familia','בית ומשפחה'),
+      he: t('Parler de chez soi et de sa famille','Talk about home and family','Hablar del hogar y la familia','לדבר על בית ומשפחה'),
+      canDo: t(['Dire où j\'habite','Parler de ma famille','Nommer les pièces'],['Say where I live','Talk about my family','Name the rooms'],['Decir dónde vivo','Hablar de mi familia','Nombrar las habitaciones'],['לומר איפה אני גר','לדבר על המשפחה שלי','לקרוא לחדרים בשמות']),
+      fact: t('La tour Eiffel se trouve à Paris.','The Eiffel Tower is in Paris.','La Torre Eiffel está en París.','מגדל אייפל נמצא בפריז.'),
+      rules:[
+        {id:'r2', title:t('Le verbe être','The verb to be','El verbo ser/estar','הפועל להיות'), short:t('je suis / tu es / il est','I am / you are / he is','yo soy / tú eres / él está','אני אתה הוא היא'), formula:'je suis + adjectif / nom', body:t('Le verbe être sert à dire qui on est et où on est.','The verb to be is used to say who we are and where we are.','El verbo ser/estar sirve para decir quiénes somos y dónde estamos.','הפועל להיות משמש כדי לומר מי אנחנו ואיפה אנחנו.'), examples:[{en:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.'),he:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.')},{en:t('Elle est française.','She is French.','Ella es francesa.','היא צרפתייה.'),he:t('Elle est française.','She is French.','Ella es francesa.','היא צרפתייה.')}], mistake:t('Ne pas confondre je suis et tu es.','Don\'t confuse I am and you are.','No confundir yo soy y tú eres.','לא לבלבל אני אתה ואתה את.'), hook:t('Suis = je, es = tu / il / elle.','Am = I, is = you / he / she.','Soy = yo, es = tú / él / ella.','אני = אני, אתה = אתה/הוא/היא.')}
+      ],
+      words:[
+        {en:t('maison','home','casa','בית'),he:t('maison','home','casa','בית'),pron:'me-ZOH',ex:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.'),exHe:t('Je suis à la maison.','I am at home.','Estoy en casa.','אני בבית.')},
+        {en:t('famille','family','familia','משפחה'),he:t('famille','family','familia','משפחה'),pron:'fa-MEE',ex:t('Ma famille est grande.','My family is big.','Mi familia es grande.','המשפחה שלי גדולה.'),exHe:t('Ma famille est grande.','My family is big.','Mi familia es grande.','המשפחה שלי גדולה.')},
+        {en:t('papa','dad','papá','אבא'),he:t('papa','dad','papá','אבא'),pron:'PA-pa',ex:t('Mon papa est gentil.','My dad is kind.','Mi papá es amable.','אבא שלי נחמד.'),exHe:t('Mon papa est gentil.','My dad is kind.','Mi papá es amable.','אבא שלי נחמד.')},
+        {en:t('maman','mom','mamá','אמא'),he:t('maman','mom','mamá','אמא'),pron:'ma-MAN',ex:t('Ma maman est là.','My mom is here.','Mi mamá está aquí.','אמא שלי כאן.'),exHe:t('Ma maman est là.','My mom is here.','Mi mamá está aquí.','אמא שלי כאן.')},
+        {en:t('frère','brother','hermano','אח'),he:t('frère','brother','hermano','אח'),pron:'frehr',ex:t('J\'ai un frère.','I have a brother.','Tengo un hermano.','יש לי אח.'),exHe:t('J\'ai un frère.','I have a brother.','Tengo un hermano.','יש לי אח.')}
+      ],
+      grammar:[
+        {t:'mcq',id:'u2.x1',skill:'grammar',rule:'r2',q:t('Comment dit-on "je suis" en français ?','How do you say "I am" in French?','¿Cómo se dice "yo soy" en francés?','איך אומרים "אני" בצרפתית?'),opts:[t('je suis','I am','yo soy','אני'),t('tu es','you are','tú eres','אתה את'),t('il est','he is','él está','הוא הוא')],ans:t('je suis','I am','yo soy','אני'),why:t('Je suis = I am.','Je suis = I am.','Je soy = yo soy.','Je suis = אני.') ,hint:t('Commence par j.','Starts with j.','Empieza con j.','מתחיל ב-א.')},
+        {t:'type',id:'u2.x2',skill:'grammar',rule:'r2',q:t('Traduisez: "Ma famille"','Translate: "My family"','Traduce: "Mi familia"','תרגמי: "המשפחה שלי"'),ans:[t('Ma famille','My family','Mi familia','המשפחה שלי')],why:t('Ma famille = my family.','Ma famille = my family.','Ma familia = mi familia.','Ma famille = המשפחה שלי.'),hint:t('Ma = my.','Ma = my.','Mi = mi.','Ma = שלי.')}
+      ]
+    },
+    {
+      id:'u3', n:3, icon:'🍎', color:'cyan', cefr:level,
+      title: t('Manger et boire','Eating and drinking','Comer y beber','אכילה ושתייה'),
+      he: t('Parler de la nourriture et des boissons','Talk about food and drinks','Hablar de la comida y las bebidas','לדבר על אוכל ושתייה'),
+      canDo: t(['Dire ce que j\'aime manger','Commander au café','Dire j\'ai faim / soif'],['Say what I like to eat','Order at the café','Say I am hungry / thirsty'],['Decir qué me gusta comer','Pedir en el café','Decir tengo hambre / sed'],['לומר מה אני אוהב לאכול','להזמין בבית קפה','לומר אני רעב / צמא']),
+      fact: t('Le croissant est un symbole de la France.','The croissant is a symbol of France.','El croissant es un símbolo de Francia.','קרואסון הוא סמל של צרפת.'),
+      rules:[
+        {id:'r3', title:t('Les articles le / la / les','The articles the','Los artículos el / la / los','היחידים המוגדרים'), short:t('le / la / les','the','el / la / los','ה'), formula:'le + masculin / la + féminin', body:t('En français, les noms ont un genre : masculin ou féminin.','In French, nouns have a gender: masculine or feminine.','En francés, los sustantivos tienen género: masculino o femenino.','בצרפתית, לשמות יש מין: זכר או נקבה.'), examples:[{en:t('le pain','the bread','el pan','הלחם'),he:t('le pain','the bread','el pan','הלחם')},{en:t('la pomme','the apple','la manzana','התפוח'),he:t('la pomme','the apple','la manzana','התפוח')}], mistake:t('Ne pas dire le pomme.','Don\'t say the apple (wrong gender).','No decir la manzana (género equivocado).','לא להגיד le pomme (מין שגוי).'), hook:t('La pomme = féminin (fille).','La apple = feminine (girl).','La manzana = femenino (niña).','La תפוח = נקבה (ילדה).')}
+      ],
+      words:[
+        {en:t('pain','bread','pan','לחם'),he:t('pain','bread','pan','לחם'),pron:'pan(n)',ex:t('Je veux du pain.','I want bread.','Quiero pan.','אני רוצה לחם.'),exHe:t('Je veux du pain.','I want bread.','Quiero pan.','אני רוצה לחם.')},
+        {en:t('eau','water','agua','מים'),he:t('eau','water','agua','מים'),pron:'oh',ex:t('Je bois de l\'eau.','I drink water.','Bebo agua.','אני שותה מים.'),exHe:t('Je bois de l\'eau.','I drink water.','Bebo agua.','אני שותה מים.')},
+        {en:t('pomme','apple','manzana','תפוח'),he:t('pomme','apple','manzana','תפוח'),pron:'pom',ex:t('J\'aime la pomme.','I like the apple.','Me gusta la manzana.','אני אוהב את התפוח.'),exHe:t('J\'aime la pomme.','I like the apple.','Me gusta la manzana.','אני אוהב את התפוח.')},
+        {en:t('café','coffee','café','קפה'),he:t('café','coffee','café','קפה'),pron:'ka-FAY',ex:t('Je bois du café.','I drink coffee.','Bebo café.','אני שותה קפה.'),exHe:t('Je bois du café.','I drink coffee.','Bebo café.','אני שותה קפה.')},
+        {en:t('fromage','cheese','queso','גבינה'),he:t('fromage','cheese','queso','גבינה'),pron:'fro-MAHZH',ex:t('Le fromage est bon.','The cheese is good.','El queso es bueno.','הגבינה טעימה.'),exHe:t('Le fromage est bon.','The cheese is good.','El queso es bueno.','הגבינה טעימה.')}
+      ],
+      grammar:[
+        {t:'mcq',id:'u3.x1',skill:'grammar',rule:'r3',q:t('Quel est l\'article de pomme ?','What is the article for apple?','¿Cuál es el artículo de manzana?','מה היחיד של תפוח?'),opts:[t('le','the','el','ה'),t('la','the','la','ה'),t('les','the','los','ה')],ans:t('la','the','la','ה'),why:t('Pomme est féminin.','Apple is feminine.','Manzana es femenino.','תפוח הוא נקבה.') ,hint:t('La pomme.','The apple.','La manzana.','התפוח.')},
+        {t:'type',id:'u3.x2',skill:'grammar',rule:'r3',q:t('Traduisez: "le pain"','Translate: "the bread"','Traduce: "el pan"','תרגמי: "הלחם"'),ans:[t('le pain','the bread','el pan','הלחם')],why:t('Le pain = the bread.','Le pain = the bread.','El pan = el pan.','Le pain = הלחם.'),hint:t('Le + masculin.','Le + masculine.','El + masculino.','Le + זכר.')}
+      ]
+    },
+    {
+      id:'u4', n:4, icon:'🗓️', color:'gold', cefr:level,
+      title: t('Les jours et le temps','Days and time','Los días y el tiempo','ימים וזמן'),
+      he: t('Parler des jours et de l\'heure','Talk about days and time','Hablar de los días y la hora','לדבר על ימים ושעה'),
+      canDo: t(['Dire le jour','Dire l\'heure','Prendre rendez-vous'],['Say the day','Say the time','Make an appointment'],['Decir el día','Decir la hora','Pedir una cita'],['לומר את היום','לומר את השעה','לקבוע פגישה']),
+      fact: t('La semaine commence le lundi en France.','The week starts on Monday in France.','La semana empieza el lunes en Francia.','השבוע מתחיל ביום שני בצרפת.'),
+      rules:[
+        {id:'r4', title:t('Les jours de la semaine','Days of the week','Los días de la semana','ימי השבוע'), short:t('lundi / mardi / mercredi','Monday / Tuesday / Wednesday','lunes / martes / miércoles','שני / שלישי / רביעי'), formula:'Aujourd\'hui c\'est + jour', body:t('Les jours de la semaine en français commencent par une minuscule.','Days of the week in French start with a lowercase letter.','Los días de la semana en francés empiezan con minúscula.','ימי השבוע בצרפתית מתחילים באות קטנה.'), examples:[{en:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.'),he:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.')},{en:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.'),he:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.')}], mistake:t('Ne pas mettre de majuscule aux jours.','Don\'t capitalize days of the week.','No poner mayúscula a los días.','לא לשים אות ריש על ימים בשבוע.'), hook:t('Lundi commence par L minuscule.','Monday starts with lowercase l.','Lunes empieza con l minúscula.','שני מתחיל באות ש קטנה.')}
+      ],
+      words:[
+        {en:t('lundi','Monday','lunes','שני'),he:t('lundi','Monday','lunes','שני'),pron:'lun-DEE',ex:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.'),exHe:t('Aujourd\'hui c\'est lundi.','Today is Monday.','Hoy es lunes.','היום יום שני.')},
+        {en:t('mardi','Tuesday','martes','שלישי'),he:t('mardi','Tuesday','martes','שלישי'),pron:'mar-DEE',ex:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.'),exHe:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר יום שלישי.')},
+        {en:t('mercredi','Wednesday','miércoles','רביעי'),he:t('mercredi','Wednesday','miércoles','רביעי'),pron:'mare-CRDEE',ex:t('Mercredi j\'ai cours.','Wednesday I have class.','Miércoles tengo clase.','רביעי יש לי שיעור.'),exHe:t('Mercredi j\'ai cours.','Wednesday I have class.','Miércoles tengo clase.','רביעי יש לי שיעור.')},
+        {en:t('aujourd\'hui','today','hoy','היום'),he:t('aujourd\'hui','today','hoy','היום'),pron:'oh-ZHOOR-dwee',ex:t('Aujourd\'hui il fait beau.','Today it is nice weather.','Hoy hace buen tiempo.','היום מזג האוויר יפה.'),exHe:t('Aujourd\'hui il fait beau.','Today it is nice weather.','Hoy hace buen tiempo.','היום מזג האוויר יפה.')},
+        {en:t('demain','tomorrow','mañana','מחר'),he:t('demain','tomorrow','mañana','מחר'),pron:'duh-MAN',ex:t('Demain je vais à Paris.','Tomorrow I am going to Paris.','Mañana voy a París.','מחר אני נוסע לפריז.'),exHe:t('Demain je vais à Paris.','Tomorrow I am going to Paris.','Mañana voy a París.','מחר אני נוסע לפריז.')}
+      ],
+      grammar:[
+        {t:'mcq',id:'u4.x1',skill:'grammar',rule:'r4',q:t('Quel jour est demain ?','What day is tomorrow?','¿Qué día es mañana?','איזה יום הוא מחר?'),opts:[t('lundi','Monday','lunes','שני'),t('mardi','Tuesday','martes','שלישי'),t('mercredi','Wednesday','miércoles','רביעי')],ans:t('mardi','Tuesday','martes','שלישי'),why:t('Demain c\'est mardi.','Tomorrow is Tuesday.','Mañana es martes.','מחר הוא יום שלישי.'),hint:t('Demain = demain.','Tomorrow = tomorrow.','Mañana = mañana.','מחר = מחר.')},
+        {t:'type',id:'u4.x2',skill:'grammar',rule:'r4',q:t('Traduisez: "Aujourd\'hui c\'est lundi"','Translate: "Today is Monday"','Traduce: "Hoy es lunes"','תרגמי: "היום יום שני"'),ans:[t('Aujourd\'hui c\'est lundi','Today is Monday','Hoy es lunes','היום יום שני')],why:t('Aujourd\'hui c\'est lundi = Today is Monday.','Aujourd\'hui c\'est lundi = Today is Monday.','Hoy es lunes = Hoy es lunes.','היום יום שני = היום יום שני.'),hint:t('Aujourd\'hui = today.','Today = today.','Hoy = hoy.','היום = היום.')}
+      ]
+    }
+  ];
+}
 let UNITS = JSON.parse(JSON.stringify(DEFAULT_UNITS));
 let CURRENT_COURSE_ID='default';
 let ACTIVE_CURRICULUM=null;
@@ -2250,8 +2348,12 @@ function installCurriculum(result,force=false){
   }
   CURRENT_COURSE_ID=courseId;
   ACTIVE_CURRICULUM=curriculum;
-  const courseUnits=JSON.parse(JSON.stringify(curriculum?.units||DEFAULT_UNITS));
+  const fallbackUnits=defaultUnitsForProfile();
+  const courseUnits=JSON.parse(JSON.stringify(curriculum?.units||fallbackUnits));
   UNITS=CURRENT_LEARNER_GENDER==='male'&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
+  const fallbackScenarios=CURRENT_LEARNER_GENDER==='male'
+    ? masculineCurriculum(JSON.parse(JSON.stringify(DEFAULT_SCENARIOS)))
+    : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
   SCENARIOS=curriculum
     ? curriculum.units.map((unit,index)=>({
       id:`scenario-${unit.id}`,
@@ -2271,9 +2373,7 @@ function installCurriculum(result,force=false){
       more:unit.scenario.more,
       words:unit.words.slice(0,3).map(word=>({en:word.en,he:word.he}))
     }))
-    : CURRENT_LEARNER_GENDER==='male'
-      ? masculineCurriculum(JSON.parse(JSON.stringify(DEFAULT_SCENARIOS)))
-      : JSON.parse(JSON.stringify(DEFAULT_SCENARIOS));
+    : fallbackScenarios;
   Object.keys(RULE_MAP).forEach(key=>delete RULE_MAP[key]);
   Object.keys(EX_MAP).forEach(key=>delete EX_MAP[key]);
   Object.keys(ALL_WORDS).forEach(key=>delete ALL_WORDS[key]);
