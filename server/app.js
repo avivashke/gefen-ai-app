@@ -413,6 +413,12 @@ function isHmacToken(token) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+function activeCourseId(account) {
+  if (account?.curriculum?.id) return account.curriculum.id;
+  const stage = Math.max(1, Number(account?.moduleStage) || 1);
+  return stage > 1 ? `stage-${stage}` : 'default';
+}
+
 export async function resolveCaller(authorization) {
   const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
   if (!token) return null;
@@ -429,7 +435,7 @@ export async function resolveCaller(authorization) {
   return {
     id: student.key,
     source: activeStorage(),
-    courseId: account.curriculum?.id || 'default',
+    courseId: activeCourseId(account),
     impersonatedByAdmin: Boolean(claims.impersonatedByAdmin),
     student,
     account,
@@ -663,11 +669,13 @@ function effectiveStudent(student, account) {
   const level = account?.level || account?.curriculum?.level || student.level;
   const targetLevel = account?.targetLevel || (level !== student.level ? nextCefrLevel(level) : student.targetLevel);
   const levelStage = account?.levelStage || (level === student.level ? student.levelStage : level);
+  const moduleStage = Math.max(1, Number(account?.moduleStage) || 1);
   return {
     ...student,
     level,
     ...(targetLevel ? { targetLevel } : {}),
     levelStage,
+    moduleStage,
   };
 }
 
@@ -983,6 +991,7 @@ function learnerProfile(student) {
     level: student.level,
     targetLevel: student.targetLevel || student.level,
     levelStage: student.levelStage,
+    moduleStage: Math.max(1, Number(student.moduleStage) || 1),
     gender: student.gender,
     interests: student.interests || [],
     nativeLanguage: student.nativeLanguage || 'Hebrew',
@@ -1298,19 +1307,152 @@ async function promotePendingNextCurriculum(studentKey, baseStudent, account, pr
   };
 }
 
+async function advanceBuiltInModuleStage(studentKey, baseStudent, account, progressRecord, reason = 'completed-module', requestedStage = null) {
+  const currentAccount = account || { activated: false, authVersion: 0 };
+  if (currentAccount.pendingNextCurriculum) {
+    return promotePendingNextCurriculum(studentKey, baseStudent, currentAccount, progressRecord, reason);
+  }
+  const student = effectiveStudent(baseStudent, currentAccount);
+  const currentStage = Math.max(1, Number(currentAccount.moduleStage) || 1);
+  const nextStage = Number.isInteger(requestedStage) && requestedStage >= 1 && requestedStage <= 3
+    ? requestedStage
+    : Math.min(3, currentStage + 1);
+  const previousData = progressRecord?.data;
+  const hasPreviousProgress = Boolean(
+    currentAccount.curriculum
+    || (previousData && (
+      Object.keys(previousData.prog || {}).length
+      || Object.keys(previousData.words || {}).length
+      || Number(previousData.stats?.answers)
+      || Number(previousData.xp)
+      || Number(previousData.streak)
+    )),
+  );
+  const archivedReport = hasPreviousProgress
+    ? buildPreviousProgressReport(student, currentAccount, progressRecord)
+    : null;
+  if (archivedReport) {
+    archivedReport.unlockReason = reason;
+    archivedReport.moduleStage = currentStage;
+  }
+  const curriculumReports = archivedReport
+    ? [archivedReport, ...(currentAccount.curriculumReports || [])].slice(0, 50)
+    : currentAccount.curriculumReports || [];
+  const updatedLevel = nextStage > currentStage
+    ? nextCefrLevel(student.level, student.targetLevel)
+    : student.level;
+  const updatedAccount = {
+    ...currentAccount,
+    moduleStage: nextStage,
+    level: updatedLevel,
+    targetLevel: nextCefrLevel(updatedLevel),
+    levelStage: updatedLevel,
+    curriculum: null,
+    curriculumPrompt: '',
+    curriculumReports,
+  };
+  await setStudentRecord(studentKey, updatedAccount);
+  return {
+    account: updatedAccount,
+    curriculum: null,
+    courseId: activeCourseId(updatedAccount),
+    moduleStage: nextStage,
+    archivedReport,
+    reportsCount: curriculumReports.length,
+  };
+}
+
 export async function handleGetCurriculum(req, res) {
   const caller = await resolveCaller(req.headers.authorization);
   if (!caller) return fail(res, 401, 'נדרשת התחברות');
   try {
     const account = await getStudentRecord(caller.id);
+    const moduleStage = Math.max(1, Number(account?.moduleStage) || 1);
     res.setHeader('Cache-Control', 'no-store');
     res.json({
       curriculum: account?.curriculum || null,
-      courseId: account?.curriculum?.id || 'default',
+      courseId: activeCourseId(account),
+      moduleStage,
+      completedModulesCount: (account?.curriculumReports || []).length,
       pendingNextCurriculum: nextCurriculumMeta(account?.pendingNextCurriculum, account?.pendingNextCurriculumPrompt),
     });
   } catch (e) {
     fail(res, e.status || 500, `טעינת הלומדה נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleAdvanceModuleStage(req, res) {
+  const caller = await resolveCaller(req.headers.authorization);
+  if (!caller) return fail(res, 401, 'נדרשת התחברות');
+  const baseStudent = STUDENTS.find((candidate) => candidate.key === caller.id);
+  if (!baseStudent) return fail(res, 404, 'תלמיד לא נמצא');
+  try {
+    const account = await getStudentRecord(baseStudent.key) || { activated: true, authVersion: 0 };
+    const currentCourseId = activeCourseId(account);
+    const currentProgress = await getProgressRecord(baseStudent.key);
+    const progressRecord = currentProgress && (currentProgress.courseId || 'default') === currentCourseId
+      ? currentProgress
+      : null;
+    const requestedStage = Number.isInteger(Number(req.body?.stage)) ? Number(req.body.stage) : null;
+    const promoted = await advanceBuiltInModuleStage(
+      baseStudent.key,
+      baseStudent,
+      account,
+      progressRecord,
+      'learner-completed',
+      requestedStage,
+    );
+    const updatedStudent = effectiveStudent(baseStudent, promoted.account);
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      ok: true,
+      courseId: promoted.curriculum?.id || promoted.courseId || activeCourseId(promoted.account),
+      moduleStage: promoted.moduleStage || Math.max(1, Number(promoted.account.moduleStage) || 1),
+      level: promoted.account.level,
+      targetLevel: promoted.account.targetLevel,
+      curriculum: promoted.curriculum || null,
+      user: learnerProfile(updatedStudent),
+      archivedReport: promoted.archivedReport,
+      reportsCount: promoted.reportsCount,
+    });
+  } catch (e) {
+    fail(res, e.status || 500, `פתיחת מודול ההמשך נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleAdminAdvanceModuleStage(req, res) {
+  if (!adminTokenIsValid(req.headers.authorization)) return fail(res, 401, 'נדרשת כניסת אדמין');
+  const baseStudent = STUDENTS.find((candidate) => candidate.key === req.params.key);
+  if (!baseStudent) return fail(res, 404, 'תלמיד לא נמצא');
+  try {
+    const account = await getStudentRecord(baseStudent.key) || { activated: false, authVersion: 0 };
+    const currentCourseId = activeCourseId(account);
+    const currentProgress = await getProgressRecord(baseStudent.key);
+    const progressRecord = currentProgress && (currentProgress.courseId || 'default') === currentCourseId
+      ? currentProgress
+      : null;
+    const requestedStage = Number.isInteger(Number(req.body?.stage)) ? Number(req.body.stage) : null;
+    const promoted = await advanceBuiltInModuleStage(
+      baseStudent.key,
+      baseStudent,
+      account,
+      progressRecord,
+      'admin-advanced-stage',
+      requestedStage,
+    );
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      ok: true,
+      courseId: promoted.curriculum?.id || promoted.courseId || activeCourseId(promoted.account),
+      moduleStage: promoted.moduleStage || Math.max(1, Number(promoted.account.moduleStage) || 1),
+      level: promoted.account.level,
+      targetLevel: promoted.account.targetLevel,
+      curriculum: curriculumMeta(promoted.curriculum),
+      archivedReport: promoted.archivedReport,
+      reportsCount: promoted.reportsCount,
+    });
+  } catch (e) {
+    fail(res, e.status || 500, `קידום המודול נכשל: ${e.message}`);
   }
 }
 
@@ -1336,7 +1478,7 @@ export async function handleAdminApproveNextCurriculum(req, res) {
     if (!account?.pendingNextCurriculum) {
       return fail(res, 404, 'אין מודול הבא הממתין לאישור עבור תלמיד זה');
     }
-    const currentCourseId = account.curriculum?.id || 'default';
+    const currentCourseId = activeCourseId(account);
     const currentProgress = await getProgressRecord(baseStudent.key);
     const progressRecord = currentProgress && (currentProgress.courseId || 'default') === currentCourseId
       ? currentProgress
@@ -1510,13 +1652,15 @@ export async function handleAdminGenerateCurriculum(req, res) {
 export async function handleAdminStudents(req, res) {
   if (!adminTokenIsValid(req.headers.authorization)) return fail(res, 401, 'נדרשת כניסת אדמין');
   res.setHeader('Cache-Control', 'no-store');
+  const todayIsoDate = new Date().toISOString().slice(0, 10);
   try {
     const students = [];
     for (const baseStudent of STUDENTS) {
       const account = await getStudentRecord(baseStudent.key);
       const student = effectiveStudent(baseStudent, account);
       const suggestedNextLevel = nextCefrLevel(student.level, student.targetLevel);
-      if (!account) {
+      const record = await getProgressRecord(student.key);
+      if (!account && !record) {
         students.push({
           username: student.username,
           displayName: student.displayName || student.username,
@@ -1525,6 +1669,8 @@ export async function handleAdminStudents(req, res) {
           targetLevel: student.targetLevel || student.level,
           suggestedNextLevel,
           levelStage: student.levelStage || '',
+          moduleStage: 1,
+          completedModulesCount: 0,
           gender: student.gender,
           nativeLanguage: student.nativeLanguage || 'Hebrew',
           uiLanguage: student.uiLanguage || 'he',
@@ -1534,12 +1680,34 @@ export async function handleAdminStudents(req, res) {
           nextModulePrompt: learnerEditorPrompt({ ...student, level: suggestedNextLevel, targetLevel: nextCefrLevel(suggestedNextLevel), levelStage: suggestedNextLevel }),
           pendingNextCurriculum: null,
           missing: true,
+          xp: 0,
+          streak: 0,
+          completedExercises: 0,
+          attemptedExercises: 0,
+          totalExercises: 0,
+          overallPercent: 0,
+          completedUnits: 0,
+          totalUnits: 4,
+          accuracy: null,
+          masteredWords: 0,
+          unitProgress: [],
+          skills: [],
+          dailyXp: 0,
+          dailyAnswers: 0,
+          dailyChats: 0,
+          activeToday: false,
+          chatSessions: 0,
+          totalAnswers: 0,
+          examBest: 0,
+          examAttempts: 0,
+          readyForContinuation: false,
+          lastActive: null,
         });
         continue;
       }
-      const record = await getProgressRecord(student.key);
       const data = record ? parseJsonMaybe(record.data) : null;
-      const currentCourse = (record?.courseId || 'default') === (account.curriculum?.id || 'default');
+      const expectedCourseId = activeCourseId(account);
+      const currentCourse = (record?.courseId || 'default') === expectedCourseId;
       const currentData = currentCourse ? data || {} : {};
       const prog = currentData.prog && typeof currentData.prog === 'object' ? currentData.prog : {};
       const progressEntries = Object.entries(prog);
@@ -1549,24 +1717,71 @@ export async function handleAdminStudents(req, res) {
         || progressEntries.reduce((sum, [, item]) => sum + (Number(item?.correct) || 0), 0);
       const totalAnswers = Number(currentData.stats?.answers)
         || progressEntries.reduce((sum, [, item]) => sum + (Number(item?.correct) || 0) + (Number(item?.wrong) || 0), 0);
-      const unitProgress = (account.curriculum?.units || []).map((unit) => {
+
+      const snapshotUnits = Array.isArray(currentData.courseSnapshot?.units) ? currentData.courseSnapshot.units : [];
+      let sourceUnits = [];
+      if (account?.curriculum?.units?.length) {
+        sourceUnits = account.curriculum.units;
+      } else if (snapshotUnits.length) {
+        sourceUnits = snapshotUnits;
+      } else if (progressEntries.length) {
+        const prefixSet = new Set(progressEntries.map(([id]) => String(id).split('.')[0]).filter(Boolean));
+        const prefixes = [...prefixSet].sort();
+        const defaultPrefixes = prefixes.length >= 4 ? prefixes : ['u1', 'u2', 'u3', 'u4'];
+        sourceUnits = defaultPrefixes.map((id, idx) => ({ id, he: `יחידה ${idx + 1}`, title: `Unit ${idx + 1}` }));
+      } else {
+        sourceUnits = ['u1', 'u2', 'u3', 'u4'].map((id, idx) => ({ id, he: `יחידה ${idx + 1}`, title: `Unit ${idx + 1}` }));
+      }
+
+      const unitProgress = sourceUnits.map((unit) => {
         const unitExercises = progressEntries.filter(([id]) => id.startsWith(`${unit.id}.`));
-        const total = curriculumExerciseCount(unit);
+        const computedTotal = unit.words ? curriculumExerciseCount(unit) : 0;
+        const snapshotTotal = Number(unit.exerciseCount) || 0;
         const completed = unitExercises.filter(([, item]) => item?.done).length;
+        const total = computedTotal || snapshotTotal || Math.max(unitExercises.length, 0);
         return {
+          id: unit.id,
           title: unit.he || unit.title || 'יחידה',
           completed,
           total,
           percent: total ? Math.min(100, Math.round((completed / total) * 100)) : 0,
         };
       });
+
+      const totalExercises = unitProgress.reduce((sum, unit) => sum + (Number(unit.total) || 0), 0)
+        || Number(currentData.courseSnapshot?.totalExercises)
+        || 0;
+      const overallPercent = totalExercises
+        ? Math.min(100, Math.round((completedExercises / totalExercises) * 100))
+        : (attemptedExercises ? Math.min(100, Math.round((completedExercises / attemptedExercises) * 100)) : 0);
+      const completedUnits = unitProgress.filter((unit) => unit.total > 0 && unit.completed >= unit.total).length;
+      const totalUnits = unitProgress.length || 4;
+
       const skills = Object.entries(currentData.stats?.bySkill || {}).map(([key, metric]) => ({
         key,
         attempts: Number(metric?.a) || 0,
         accuracy: ratio(Number(metric?.c) || 0, Math.max(0, (Number(metric?.a) || 0) - (Number(metric?.c) || 0))),
       }));
       const examBest = Math.max(Number(currentData.exam?.best) || 0, Number(currentData.exam?.last?.score) || 0);
-      const adaptiveProfile = extractLearnerAdaptiveContext(currentCourse ? record : null, account.curriculum);
+      const examAttempts = Number(currentData.exam?.attempts) || (currentData.exam?.last ? 1 : 0);
+      const adaptiveProfile = extractLearnerAdaptiveContext(currentCourse ? record : null, account?.curriculum);
+      const lastActive = currentCourse ? record?.updated || null : null;
+      const isDailyToday = currentData.daily?.date === todayIsoDate;
+      const dailyXp = isDailyToday ? Number(currentData.daily?.xp) || 0 : 0;
+      const dailyAnswers = isDailyToday ? Number(currentData.daily?.answers) || 0 : 0;
+      const dailyChats = isDailyToday ? Number(currentData.daily?.chats) || 0 : 0;
+      const activeToday = Boolean(
+        (isDailyToday && (dailyXp > 0 || dailyAnswers > 0 || dailyChats > 0))
+        || (lastActive && (Date.now() - Date.parse(lastActive)) < 24 * 60 * 60 * 1000),
+      );
+      const chatSessions = Number(currentData.chat?.sessions) || Number(currentData.stats?.chats) || 0;
+      const moduleStage = Math.max(1, Number(account?.moduleStage) || Number(currentData.moduleStage) || 1);
+      const completedModulesCount = Array.isArray(account?.curriculumReports) ? account.curriculumReports.length : 0;
+      const readyForContinuation = Boolean(
+        (totalUnits > 0 && completedUnits >= totalUnits && totalExercises > 0)
+        || examBest >= 80,
+      );
+
       students.push({
         username: student.username,
         displayName: student.displayName || student.username,
@@ -1575,6 +1790,8 @@ export async function handleAdminStudents(req, res) {
         targetLevel: student.targetLevel || student.level,
         suggestedNextLevel,
         levelStage: student.levelStage || '',
+        moduleStage,
+        completedModulesCount,
         gender: student.gender,
         nativeLanguage: student.nativeLanguage || 'Hebrew',
         uiLanguage: student.uiLanguage || 'he',
@@ -1582,23 +1799,34 @@ export async function handleAdminStudents(req, res) {
         interests: student.interests || [],
         profilePrompt: learnerEditorPrompt(student),
         nextModulePrompt: learnerEditorPrompt({ ...student, level: suggestedNextLevel, targetLevel: nextCefrLevel(suggestedNextLevel), levelStage: suggestedNextLevel }),
-        activated: Boolean(account.activated),
-        curriculum: curriculumMeta(account.curriculum),
-        curriculumPrompt: account.curriculumPrompt || '',
-        pendingNextCurriculum: nextCurriculumMeta(account.pendingNextCurriculum, account.pendingNextCurriculumPrompt),
-        pendingNextCurriculumPrompt: account.pendingNextCurriculumPrompt || '',
+        activated: Boolean(account?.activated),
+        curriculum: curriculumMeta(account?.curriculum),
+        curriculumPrompt: account?.curriculumPrompt || '',
+        pendingNextCurriculum: nextCurriculumMeta(account?.pendingNextCurriculum, account?.pendingNextCurriculumPrompt),
+        pendingNextCurriculumPrompt: account?.pendingNextCurriculumPrompt || '',
         adaptiveProfile,
         examBest,
+        examAttempts,
         xp: Number(currentData.xp) || 0,
         streak: Number(currentData.streak) || 0,
         completedExercises,
         attemptedExercises,
-        totalExercises: (account.curriculum?.units || []).reduce((sum, unit) => sum + curriculumExerciseCount(unit), 0),
+        totalExercises,
+        overallPercent,
+        completedUnits,
+        totalUnits,
         accuracy: ratio(correctAnswers, Math.max(0, totalAnswers - correctAnswers)),
+        totalAnswers,
         masteredWords: Object.values(currentData.words || {}).filter((word) => Number(word?.box) >= 4).length,
         unitProgress,
         skills,
-        lastActive: currentCourse ? record?.updated || null : null,
+        dailyXp,
+        dailyAnswers,
+        dailyChats,
+        activeToday,
+        chatSessions,
+        readyForContinuation,
+        lastActive,
       });
     }
     res.json({ students });
@@ -1764,21 +1992,29 @@ export async function handleAiChat(req, res) {
 
   try {
     const aiTarget = await getActiveAiTarget();
-    const response = await fetch(aiTarget.url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(req.headers.origin ? { 'Origin': req.headers.origin } : {}),
-        ...(aiTarget.headers || {}),
-      },
-      signal: AbortSignal.timeout(45_000),
-      body: JSON.stringify({
-        model: aiTarget.model,
-        messages,
-        temperature: Number.isFinite(temperature) ? Math.min(1, Math.max(0, temperature)) : 0.72,
-        max_tokens: Number.isFinite(max_tokens) ? Math.min(1000, Math.max(1, max_tokens)) : 800,
-      }),
+    const requestBody = JSON.stringify({
+      model: aiTarget.model,
+      messages,
+      temperature: Number.isFinite(temperature) ? Math.min(1, Math.max(0, temperature)) : 0.72,
+      max_tokens: Number.isFinite(max_tokens) ? Math.min(1200, Math.max(1, max_tokens)) : 900,
     });
+    const requestHeaders = {
+      'Content-Type': 'application/json',
+      ...(req.headers.origin ? { 'Origin': req.headers.origin } : {}),
+      ...(aiTarget.headers || {}),
+    };
+
+    let response = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      response = await fetch(aiTarget.url, {
+        method: 'POST',
+        headers: requestHeaders,
+        signal: AbortSignal.timeout(45_000),
+        body: requestBody,
+      });
+      if (response.ok || ![429, 502, 503, 504].includes(response.status) || attempt === 1) break;
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    }
 
     const text = await response.text();
     let payload;
@@ -1817,10 +2053,29 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.use(cors());
   app.use(express.json({ limit: '2mb' }));
 
+  const isProd = process.env.NODE_ENV === 'production';
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    "img-src 'self' data: blob:",
+    "connect-src 'self'",
+    "media-src 'self' blob: data:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'self'",
+    "form-action 'self'",
+    ...(isProd ? ['upgrade-insecure-requests'] : []),
+  ].join('; ');
+
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=(), usb=(), microphone=(self)');
+    res.setHeader('Content-Security-Policy', cspDirectives);
+    if (isProd) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
     next();
   });
 
@@ -1828,7 +2083,7 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
     app.use(
       express.static(PUBLIC_DIR, {
         index: false,
-        maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+        maxAge: isProd ? '1h' : 0,
       }),
     );
   }
@@ -1848,10 +2103,12 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.post('/api/admin/students/:key/reset-code', handleAdminResetCode);
   app.post('/api/admin/students/:key/curriculum', handleAdminGenerateCurriculum);
   app.post('/api/admin/students/:key/approve-next-curriculum', handleAdminApproveNextCurriculum);
+  app.post('/api/admin/students/:key/advance-module', handleAdminAdvanceModuleStage);
   app.get('/api/admin/students/:key/curriculum-reports', handleAdminCurriculumReports);
   app.get('/api/auth/me', handleMe);
   app.post('/api/auth/logout', (req, res) => res.json({ ok: true }));
   app.get('/api/curriculum', handleGetCurriculum);
+  app.post('/api/curriculum/advance-stage', handleAdvanceModuleStage);
   app.get('/api/progress', handleGetProgress);
   app.post('/api/progress', handleSaveProgress);
   app.post('/api/ai/chat', handleAiChat);

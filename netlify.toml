@@ -1,5 +1,4 @@
-# Netlify deployment config — Gefen English Coach
-# Existing site: https://wonderful-squirrel-816721.netlify.app
+# Netlify deployment config — Lamda Language Coach
 # See: https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
@@ -9,6 +8,26 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
 
 [[redirects]]
   from = "/api/*"
@@ -22,7 +41,9 @@
   status = 200
 
 # Environment variables to set in Netlify (Site settings → Environment variables):
-# PB_URL = https://your-pocketbase-instance
 # AI_PROXY_URL = https://gefen-ai.avivashke95.workers.dev
-# LOCAL_AUTH_SECRET = random secret for local fallback tokens
+# AUTH_TOKEN_SECRET = random 32+ char secret
+# ADMIN_USERNAME = teacher username
+# ADMIN_PASSWORD = teacher password
+# ADMIN_SESSION_SECRET = random 32+ char secret
 # NODE_ENV = production

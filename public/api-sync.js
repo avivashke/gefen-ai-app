@@ -109,6 +109,16 @@
     return result;
   }
 
+  async function advanceModuleStage(stage) {
+    const result = await apiRequest('/curriculum/advance-stage', {
+      method: 'POST',
+      body: JSON.stringify(stage ? { stage } : {}),
+    });
+    if (result?.user) setSession(authToken, result.user);
+    emit('curriculum', result);
+    return result;
+  }
+
   function aiChat(messages, options = {}) {
     return apiRequest('/ai/chat', {
       method: 'POST',
@@ -258,6 +268,13 @@
   function adminApproveNextCurriculum(key) {
     return adminRequest(`/admin/students/${encodeURIComponent(key)}/approve-next-curriculum`, {
       method: 'POST',
+    });
+  }
+
+  function adminAdvanceModuleStage(key, stage) {
+    return adminRequest(`/admin/students/${encodeURIComponent(key)}/advance-module`, {
+      method: 'POST',
+      body: JSON.stringify(stage ? { stage } : {}),
     });
   }
 
@@ -418,6 +435,7 @@
     logout,
     load,
     curriculum,
+    advanceModuleStage,
     aiChat,
     aiAdaptiveBooster,
     save,
@@ -450,6 +468,7 @@
     issueResetCode: adminIssueResetCode,
     generateCurriculum: adminGenerateCurriculum,
     approveNextCurriculum: adminApproveNextCurriculum,
+    advanceModuleStage: adminAdvanceModuleStage,
     curriculumReports: adminCurriculumReports,
   };
   window.apiSync.config = config;

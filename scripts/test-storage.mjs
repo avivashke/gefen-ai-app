@@ -17,6 +17,7 @@ delete process.env.AWS_LAMBDA_FUNCTION_NAME;
 const {
   handleActivateStudent,
   handleAdaptiveBooster,
+  handleAdminAdvanceModuleStage,
   handleAdminApproveNextCurriculum,
   handleAdminLogin,
   handleAdminCurriculumReports,
@@ -27,6 +28,7 @@ const {
   handleAdminSaveAiModels,
   handleAdminStudents,
   handleAdminTestAiModel,
+  handleAdvanceModuleStage,
   handleAiChat,
   handleConfig,
   handleGetCurriculum,
@@ -655,7 +657,84 @@ try {
   assert.deepEqual(gefenAdminSummary.adaptiveProfile.weakWords.map((w) => w.en), ['studio']);
   assert.deepEqual(gefenAdminSummary.adaptiveProfile.discoveredInterests, ['music', 'painting']);
 
-  console.log('Storage/auth, curriculum, and adaptive AI learning flow passed.');
+  // Test default-course progress telemetry via courseSnapshot in Admin Dashboard (for SHAKED)
+  const shakedLogin = await call(handleLogin, {
+    body: { username: 'שקד', password: 'shaked-first-password' },
+  });
+  assert.equal(shakedLogin.statusCode, 200);
+  const shakedHeaders = { authorization: `Bearer ${shakedLogin.body.token}` };
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const shakedSave = await call(handleSaveProgress, {
+    headers: shakedHeaders,
+    body: {
+      data: {
+        courseId: 'default',
+        xp: 45,
+        streak: 3,
+        daily: { date: todayStr, xp: 20, answers: 6, chats: 1 },
+        chat: { sessions: 2 },
+        courseSnapshot: {
+          id: 'default',
+          title: 'מסלול בסיסי',
+          level: 'A1',
+          totalExercises: 8,
+          units: [
+            { id: 'u1', he: 'יחידה 1', exerciseCount: 2 },
+            { id: 'u2', he: 'יחידה 2', exerciseCount: 2 },
+            { id: 'u3', he: 'יחידה 3', exerciseCount: 2 },
+            { id: 'u4', he: 'יחידה 4', exerciseCount: 2 },
+          ],
+        },
+        prog: {
+          'u1.x1': { done: true, seen: 1, correct: 1, wrong: 0 },
+          'u1.x2': { done: true, seen: 1, correct: 1, wrong: 0 },
+          'u2.x1': { done: true, seen: 1, correct: 1, wrong: 0 },
+          'u2.x2': { done: true, seen: 1, correct: 1, wrong: 0 },
+        },
+        stats: { answers: 4, correct: 4, bySkill: { grammar: { a: 4, c: 4 } } },
+      },
+      client_updated_at: null,
+    },
+  });
+  assert.equal(shakedSave.statusCode, 200);
+
+  const dashboardWithDefaultCourse = await call(handleAdminStudents, { headers: adminHeaders });
+  const shakedAdmin = dashboardWithDefaultCourse.body.students.find((s) => s.key === 'SHAKED');
+  assert.equal(shakedAdmin.overallPercent, 50);
+  assert.equal(shakedAdmin.completedUnits, 2);
+  assert.equal(shakedAdmin.totalUnits, 4);
+  assert.equal(shakedAdmin.totalExercises, 8);
+  assert.equal(shakedAdmin.activeToday, true);
+  assert.equal(shakedAdmin.dailyXp, 20);
+  assert.equal(shakedAdmin.chatSessions, 2);
+  assert.equal(shakedAdmin.moduleStage, 1);
+
+  // Test student advancing to built-in Continuation Module (Stage 2)
+  const shakedAdvance = await call(handleAdvanceModuleStage, {
+    headers: shakedHeaders,
+    body: { stage: 2 },
+  });
+  assert.equal(shakedAdvance.statusCode, 200);
+  assert.equal(shakedAdvance.body.moduleStage, 2);
+  assert.equal(shakedAdvance.body.courseId, 'stage-2');
+  assert.equal(shakedAdvance.body.level, 'A1+');
+  assert.ok(shakedAdvance.body.archivedReport);
+
+  const shakedCurriculum = await call(handleGetCurriculum, { headers: shakedHeaders });
+  assert.equal(shakedCurriculum.body.moduleStage, 2);
+  assert.equal(shakedCurriculum.body.courseId, 'stage-2');
+
+  // Test admin advancing a student to Stage 3
+  const shakedAdminAdvance = await call(handleAdminAdvanceModuleStage, {
+    headers: adminHeaders,
+    params: { key: 'SHAKED' },
+    body: { stage: 3 },
+  });
+  assert.equal(shakedAdminAdvance.statusCode, 200);
+  assert.equal(shakedAdminAdvance.body.moduleStage, 3);
+  assert.equal(shakedAdminAdvance.body.courseId, 'stage-3');
+
+  console.log('Storage/auth, curriculum, continuation modules, admin progress, and adaptive AI flow passed.');
 } finally {
   globalThis.fetch = originalFetch;
   fs.rmSync(dataDir, { recursive: true, force: true });

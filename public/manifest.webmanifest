@@ -1,0 +1,19 @@
+{
+  "name": "Lamda — Language Coach",
+  "short_name": "Lamda",
+  "description": "אפליקציית לימוד שפות אישית עם מאמנת AI, חזרות חכמות ומסלול לימוד מותאם אישית.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080e18",
+  "theme_color": "#080e18",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
