@@ -500,10 +500,35 @@ export async function handleLogin(req, res) {
   if (!student || !password) return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
 
   try {
-    const account = await getStudentRecord(student.key);
-    if (!account?.activated || !account.passwordHash) {
-      return fail(res, 403, 'יש להגדיר סיסמה חדשה באמצעות קוד ההפעלה');
+    requireAuthSecret();
+    let account = await getStudentRecord(student.key);
+    
+    // First-time login: if account has no password yet, set it directly and activate!
+    if (!account?.activated || !account?.passwordHash) {
+      if (String(password).length < 6) {
+        return fail(res, 400, 'בכניסה ראשונית יש לבחור סיסמה בת 6 תווים לפחות');
+      }
+      const authVersion = (Number(account?.authVersion) || 0) + 1;
+      account = {
+        ...(account || {}),
+        passwordHash: hashPassword(password),
+        activated: true,
+        authVersion,
+        activationHash: '',
+        resetHash: '',
+        resetExpires: '',
+        createdAt: account?.createdAt || new Date().toISOString(),
+      };
+      await setStudentRecord(student.key, account);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.json({
+        token: signToken(student.key, authVersion),
+        user: learnerProfile(effectiveStudent(student, account)),
+        storage: activeStorage(),
+        initialSetup: true,
+      });
     }
+
     if (!verifyPassword(password, account.passwordHash)) {
       return fail(res, 401, 'שם המשתמש או הסיסמה שגויים');
     }
@@ -521,32 +546,31 @@ export async function handleLogin(req, res) {
 export async function handleActivateStudent(req, res) {
   const { username, code, password } = req.body || {};
   const student = studentByUsername(username);
-  if (!student || !code || !password) return fail(res, 400, 'יש לבחור תלמיד, להזין קוד וסיסמה חדשה');
-  if (String(password).length < 8) return fail(res, 400, 'הסיסמה חייבת להכיל 8 תווים לפחות');
-  if (String(code).length < 8 || String(code).length > 64) return fail(res, 400, 'קוד ההפעלה אינו תקין');
+  if (!student || !password) return fail(res, 400, 'יש לבחור תלמיד ולהזין סיסמה חדשה');
+  if (String(password).length < 6) return fail(res, 400, 'הסיסמה חייבת להכיל 6 תווים לפחות');
 
   try {
     requireAuthSecret();
     const record = await getStudentRecord(student.key);
-    if (!record) return fail(res, 401, 'קוד ההפעלה או האיפוס שגוי, נוצל או שפג תוקפו');
 
-    const isFirstActivation = !record.activated;
-    const codeHash = hashOneTimeCode(code.trim());
-    const matchesActivationCode = isFirstActivation
-      && record.activationHash
-      && secureEqual(record.activationHash, codeHash);
-    const expiresAt = Date.parse(record.resetExpires || '');
-    const matchesResetCode = record.resetHash
-      && Number.isFinite(expiresAt)
-      && expiresAt >= Date.now()
-      && secureEqual(record.resetHash, codeHash);
-    if (!matchesActivationCode && !matchesResetCode) {
-      return fail(res, 401, 'קוד ההפעלה או האיפוס שגוי, נוצל או שפג תוקפו');
+    const isFirstActivation = !record || !record.activated;
+    if (!isFirstActivation) {
+      // For existing active accounts, verify reset code
+      if (!code) return fail(res, 400, 'לאיפוס סיסמה קיימת יש להזין את קוד האיפוס שקיבלת מהמורה');
+      const codeHash = hashOneTimeCode(code.trim());
+      const expiresAt = Date.parse(record.resetExpires || '');
+      const matchesResetCode = record.resetHash
+        && Number.isFinite(expiresAt)
+        && expiresAt >= Date.now()
+        && secureEqual(record.resetHash, codeHash);
+      if (!matchesResetCode) {
+        return fail(res, 401, 'קוד האיפוס שגוי, נוצל או שפג תוקפו');
+      }
     }
 
-    const authVersion = (Number(record.authVersion) || 0) + 1;
+    const authVersion = (Number(record?.authVersion) || 0) + 1;
     await setStudentRecord(student.key, {
-      ...record,
+      ...(record || {}),
       passwordHash: hashPassword(password),
       activated: true,
       authVersion,
@@ -558,11 +582,43 @@ export async function handleActivateStudent(req, res) {
     res.setHeader('Cache-Control', 'no-store');
     res.json({
       token: signToken(student.key, authVersion),
-      user: learnerProfile(effectiveStudent(student, record)),
+      user: learnerProfile(effectiveStudent(student, record || {})),
       storage: activeStorage(),
     });
   } catch (e) {
     fail(res, e.status || 500, `הגדרת הסיסמה נכשלה: ${e.message}`);
+  }
+}
+
+export async function handleStudentChangePassword(req, res) {
+  const caller = await resolveCaller(req.headers.authorization);
+  if (!caller) return fail(res, 401, 'נדרשת התחברות');
+  const { currentPassword, newPassword } = req.body || {};
+  if (!newPassword || String(newPassword).length < 6) {
+    return fail(res, 400, 'הסיסמה החדשה חייבת להכיל 6 תווים לפחות');
+  }
+  try {
+    const student = STUDENTS.find((s) => s.key === caller.id);
+    if (!student) return fail(res, 404, 'תלמיד לא נמצא');
+    const record = await getStudentRecord(student.key);
+    if (record?.passwordHash && (!currentPassword || !verifyPassword(currentPassword, record.passwordHash))) {
+      return fail(res, 401, 'הסיסמה הנוכחית שגויה');
+    }
+    const authVersion = (Number(record?.authVersion) || 0) + 1;
+    await setStudentRecord(student.key, {
+      ...(record || {}),
+      passwordHash: hashPassword(newPassword),
+      activated: true,
+      authVersion,
+    });
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      ok: true,
+      token: signToken(student.key, authVersion),
+      message: 'הסיסמה עודכנה בהצלחה',
+    });
+  } catch (e) {
+    fail(res, e.status || 500, `עדכון הסיסמה נכשל: ${e.message}`);
   }
 }
 
@@ -1782,6 +1838,7 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.post('/api/auth/signup', handleSignup);
   app.post('/api/auth/login', handleLogin);
   app.post('/api/auth/activate', handleActivateStudent);
+  app.post('/api/auth/change-password', handleStudentChangePassword);
   app.post('/api/auth/admin/login', handleAdminLogin);
   app.get('/api/admin/ai/models', handleAdminGetAiModels);
   app.put('/api/admin/ai/models', handleAdminSaveAiModels);

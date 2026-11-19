@@ -11,7 +11,47 @@ const NETLIFY_RUNTIME = process.env.NETLIFY === 'true'
   || Boolean(process.env.NETLIFY_SITE_ID)
   || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
 
+const SUPABASE_URL = process.env.SUPABASE_URL?.trim();
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
+const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_KEY);
+
 let blobStorePromise = null;
+
+async function supabaseGet(key) {
+  if (!SUPABASE_ENABLED) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/gefen_storage?key=eq.${encodeURIComponent(key)}&select=value`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return rows && rows.length > 0 ? rows[0].value : null;
+  } catch {
+    return null;
+  }
+}
+
+async function supabaseSet(key, value) {
+  if (!SUPABASE_ENABLED) return false;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/gefen_storage`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 function readLocalFile(file) {
   if (!fs.existsSync(file)) return {};
@@ -51,16 +91,24 @@ async function getBlobStore() {
 }
 
 export function activeStorage() {
+  if (SUPABASE_ENABLED) return 'supabase';
   return NETLIFY_RUNTIME ? 'netlify-blobs' : 'local';
 }
 
 async function getRecord(file, key) {
+  if (SUPABASE_ENABLED) {
+    const data = await supabaseGet(key);
+    if (data !== null) return data;
+  }
   const store = await getBlobStore();
   if (store) return store.get(key, { type: 'json', consistency: 'strong' });
   return readLocalFile(file)[key] ?? null;
 }
 
 async function setRecord(file, key, value) {
+  if (SUPABASE_ENABLED) {
+    await supabaseSet(key, value);
+  }
   const store = await getBlobStore();
   if (store) {
     await store.setJSON(key, value);
@@ -93,6 +141,12 @@ export function getProgressRecord(studentKey) {
 
 export async function compareAndSetProgressRecord(studentKey, record, expectedUpdated) {
   const key = `progress:${studentKey}`;
+  if (SUPABASE_ENABLED) {
+    const current = await supabaseGet(key);
+    if ((current?.updated ?? null) !== (expectedUpdated ?? null)) return false;
+    await supabaseSet(key, record);
+    return true;
+  }
   const store = await getBlobStore();
   if (store) {
     const current = await store.getWithMetadata(key, { type: 'json', consistency: 'strong' });

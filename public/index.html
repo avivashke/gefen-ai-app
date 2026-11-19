@@ -1043,59 +1043,109 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   40%,80%{transform:rotateY(180deg) translateX(6px)}
 }
 
-/* ============ mobile bottom navigation ============ */
-.mobile-nav{display:none}
-@media(max-width:899px){
-  .mobile-nav{
-    position:fixed;bottom:0;left:0;right:0;z-index:70;
-    display:flex;align-items:center;justify-content:space-around;
-    height:calc(62px + var(--safe-b));padding:4px 6px calc(4px + var(--safe-b));
-    background:rgba(10,18,30,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-    border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -8px 24px rgba(0,0,0,.45);
-  }
-  .navbtn{
-    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:3px;padding:6px 2px;height:100%;color:var(--mu);font-size:.72rem;font-weight:700;
-    transition:all .18s ease;position:relative;text-decoration:none;-webkit-tap-highlight-color:transparent;
-    border-radius:12px;
-  }
-  .navbtn .ic{font-size:1.32rem;transition:transform .18s ease;line-height:1}
-  .navbtn:active .ic{transform:scale(.92)}
-  .navbtn.active{color:var(--lime);font-weight:900}
-  .navbtn.active .ic{transform:translateY(-2px);filter:drop-shadow(0 0 8px rgba(255,143,199,.65))}
-  .navbtn .badge{
-    position:absolute;top:6px;inset-inline-end:calc(50% - 16px);
-    width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--bg);
-  }
-  body{padding-bottom:calc(78px + var(--safe-b))}
-  body:has(.chat-shell){padding-bottom:0}
-  body:has(.chat-shell) .mobile-nav{display:none}
-  body:has(.chat-shell) .main{padding-bottom:8px}
+/* ============ Netlify Badge & Watermark Neutralization ============ */
+iframe[src*="netlify"],
+[data-netlify-badge],
+.netlify-badge,
+#netlify-badge,
+div[style*="position: fixed"][style*="bottom: 0"]:has(a[href*="netlify.com"]),
+div[style*="position: fixed"][style*="bottom: 12px"]:has(a[href*="netlify.com"]),
+div[style*="position:fixed"][style*="bottom:0"]:has(a[href*="netlify.com"]),
+div[style*="position:fixed"][style*="bottom:12px"]:has(a[href*="netlify.com"]),
+div:has(> a[href*="netlify.com"][target="_blank"]),
+a[href*="netlify.com"][target="_blank"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: -9999 !important;
 }
 
-/* ============ mobile comfort & spacing ============ */
+/* ============ Top Navigation Bar (Mobile / Responsive) ============ */
+.topbar{
+  position:sticky;top:0;z-index:60;padding:8px 12px;
+  background:rgba(8,14,24,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(34,52,79,.7);
+}
+.topbar-in{
+  max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:8px;width:100%;
+}
+.topbar-row{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;
+}
+.topbar-brand-mini{
+  display:flex;align-items:center;gap:7px;min-width:0;
+}
+.topbar-brand-mini .brand-mark{
+  width:32px;height:32px;font-size:1.1rem;border-radius:10px;
+}
+.topbar-brand-mini .brand-name{
+  font-size:.92rem;font-weight:900;letter-spacing:.2px;white-space:nowrap;
+}
+.top-nav-bar{
+  display:flex;align-items:center;gap:6px;overflow-x:auto;width:100%;
+  padding:2px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.top-nav-bar::-webkit-scrollbar{display:none}
+.top-nav-tab{
+  flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 13px;
+  border-radius:99px;background:rgba(22,36,58,.75);border:1px solid var(--line);
+  color:var(--mu);font-size:.8rem;font-weight:700;cursor:pointer;
+  transition:all .18s ease;text-decoration:none;white-space:nowrap;
+  position:relative;
+}
+.top-nav-tab:active{transform:scale(.95)}
+.top-nav-tab .ic{font-size:1.05rem;line-height:1}
+.top-nav-tab.active{
+  background:var(--lime);color:#080e18;border-color:transparent;
+  font-weight:900;box-shadow:0 3px 12px rgba(0,0,0,.35);
+}
+.top-nav-tab.active .ic{filter:drop-shadow(0 0 6px rgba(0,0,0,.3))}
+.top-nav-tab .badge{
+  width:7px;height:7px;border-radius:50%;background:var(--red);margin-inline-start:2px;
+}
+.mobile-nav{display:none!important}
+
+@media(min-width:900px){
+  .top-nav-bar{display:none}
+  .topbar-in{flex-direction:row;align-items:center}
+  .topbar-row{flex:1}
+  .topbar-brand-mini{display:none}
+}
+
+/* ============ mobile comfort & overflow protection ============ */
+html, body { max-width: 100vw; overflow-x: hidden; }
+#app, .main, .page { max-width: 100%; overflow-x: hidden; }
+body{padding-bottom:24px!important}
+@media(max-width:899px){
+  .hide-mobile{display:none}
+  .topbar-action{min-height:34px;padding:5px 9px;font-size:.76rem;border-radius:10px}
+  .hpill{padding:5px 8px;font-size:.75rem}
+}
 @media(max-width:680px){
-  body{line-height:1.72;padding-bottom:calc(78px + var(--safe-b))}
-  body:has(.chat-shell){padding-bottom:0}
+  body{line-height:1.72;padding-bottom:24px!important}
+  body:has(.chat-shell){padding-bottom:0!important}
   input, textarea, select, .txt, .field input, .field textarea, .field select{
     font-size:16px!important; /* Prevents unwanted iOS Safari page zoom on tap */
   }
-  .topbar{padding:10px 14px}
-  .topbar-in{gap:8px;justify-content:space-between}
-  .topbar-nav{gap:7px;flex-wrap:nowrap}
-  .topbar-action{min-height:38px;padding:6px 11px;font-size:.78rem;border-radius:11px}
-  .hstats{gap:6px}
-  .hpill{padding:6px 10px;font-size:.78rem}
-  .main{padding:16px 14px 34px}
-  .section{margin-top:20px}
-  .section-head{margin-bottom:12px;gap:10px}
-  .section-head h2{font-size:1.06rem}
-  .page-head{gap:10px;margin-bottom:16px}
-  .page-title{font-size:1.24rem;line-height:1.3}
-  .page-sub{font-size:.86rem;line-height:1.6;margin-top:0}
-  .card{padding:16px 14px;border-radius:18px}
-  .row{gap:8px}
-  .col{gap:10px}
+  .topbar{padding:8px 10px}
+  .topbar-row{gap:6px}
+  .topbar-nav{gap:5px;flex-wrap:nowrap}
+  .topbar-action{min-height:34px;padding:5px 8px;font-size:.75rem;border-radius:9px}
+  .hstats{gap:4px}
+  .hpill{padding:5px 7px;font-size:.74rem}
+  .main{padding:12px 10px 28px}
+  .section{margin-top:16px}
+  .section-head{margin-bottom:10px;gap:8px}
+  .section-head h2{font-size:1.02rem}
+  .page-head{gap:8px;margin-bottom:14px}
+  .page-title{font-size:1.2rem;line-height:1.3}
+  .page-sub{font-size:.84rem;line-height:1.55;margin-top:0}
+  .card{padding:14px 12px;border-radius:16px}
+  .row{gap:6px}
+  .col{gap:8px}
   .tok{padding:8px 12px;font-size:.95rem;min-height:38px;border-radius:10px}
   .scr-zone{min-height:48px;padding:8px;gap:6px}
   .adaptive-card .btn{width:100%}
@@ -1217,29 +1267,34 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
   <header class="topbar">
     <div class="topbar-in">
-      <button class="menu-toggle" id="menu-toggle" aria-label="פתח תפריט" aria-expanded="false">☰</button>
-      <div class="topbar-nav">
-        <button class="topbar-action" data-act="nav-back" aria-label="חזרה למסך הקודם">→ <span>חזרה</span></button>
-        <button class="topbar-action" data-go="#/home" aria-label="חזרה לדף הבית">🏠 <span>בית</span></button>
-        <button class="topbar-action primary" id="topbar-login-btn" data-act="student-login-open" aria-label="כניסה לחשבון">🔑 <span>כניסה</span></button>
-        <button class="topbar-action danger" data-act="student-logout" aria-label="יציאה מהחשבון">🚪 יציאה</button>
+      <div class="topbar-row">
+        <button class="menu-toggle" id="menu-toggle" aria-label="פתח תפריט" aria-expanded="false">☰</button>
+        <div class="topbar-brand-mini">
+          <span class="brand-mark">💃</span>
+          <b class="brand-name">Lamda</b>
+        </div>
+        <div class="topbar-nav">
+          <button class="topbar-action" data-act="nav-back" aria-label="חזרה למסך הקודם">→ <span class="hide-mobile">חזרה</span></button>
+          <button class="topbar-action primary" id="topbar-login-btn" data-act="student-login-open" aria-label="כניסה לחשבון">🔑 <span>כניסה</span></button>
+          <button class="topbar-action danger" data-act="student-logout" aria-label="יציאה מהחשבון">🚪 <span class="hide-mobile">יציאה</span></button>
+        </div>
+        <div class="hstats">
+          <div class="hpill sync-indicator" id="topbar-sync-indicator" title="מצב סנכרון בענן" style="cursor:pointer" data-act="settings">☁️</div>
+          <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
+          <div class="hpill" title="נקודות ניסיון">⭐ <b id="h-xp">0</b></div>
+        </div>
       </div>
-      <div class="hstats">
-        <div class="hpill sync-indicator" id="topbar-sync-indicator" title="מצב סנכרון בענן" style="cursor:pointer" data-act="settings">☁️</div>
-        <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
-        <div class="hpill" title="נקודות ניסיון">⭐ <b id="h-xp">0</b></div>
-      </div>
+      <nav class="top-nav-bar" id="top-nav-bar" aria-label="ניווט ראשי">
+        <button class="top-nav-tab" data-nav="home"><span class="ic">🏠</span><span>בית</span></button>
+        <button class="top-nav-tab" data-nav="learn"><span class="ic">📚</span><span>מסלול</span></button>
+        <button class="top-nav-tab" data-nav="cards"><span class="ic">🃏</span><span>כרטיסיות</span></button>
+        <button class="top-nav-tab" data-nav="review"><span class="ic">🔁</span><span>חזרה</span><span class="badge hide" id="nav-dot-review-top"></span></button>
+        <button class="top-nav-tab" data-nav="chat"><span class="ic">💬</span><span>מאמנת AI</span></button>
+        <button class="top-nav-tab" data-nav="stats"><span class="ic">📈</span><span>התקדמות</span></button>
+      </nav>
     </div>
   </header>
   <main id="main" class="main"></main>
-  <nav class="mobile-nav" id="mobile-nav" aria-label="ניווט תחתון">
-    <button class="navbtn" data-nav="home"><span class="ic">🏠</span><span>בית</span></button>
-    <button class="navbtn" data-nav="learn"><span class="ic">📚</span><span>מסלול</span></button>
-    <button class="navbtn" data-nav="cards"><span class="ic">🃏</span><span>כרטיסיות</span></button>
-    <button class="navbtn" data-nav="review"><span class="ic">🔁</span><span>חזרה</span><span class="badge hide" id="nav-dot-review-mobile"></span></button>
-    <button class="navbtn" data-nav="chat"><span class="ic">💬</span><span>מאמנת AI</span></button>
-    <button class="navbtn" data-nav="stats"><span class="ic">📈</span><span>התקדמות</span></button>
-  </nav>
 </div>
 <div id="overlay" class="overlay" hidden></div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -4605,6 +4660,7 @@ function pageLearn(){
           <div class="unit-body">
             <div class="unit-kicker">יחידה ${u.n} · ${u.cefr}</div>
             <div class="unit-title">${u.he} <span class="en">· ${u.title}</span></div>
+            <div class="tag purple" style="font-size:.72rem;margin:5px 0 3px;display:inline-flex">📚 נושא לשוני: ${esc(u.linguisticTopic || u.rules[0]?.title || u.title)}</div>
             <div class="unit-desc">${u.lead}</div>
             <div class="unit-foot"><div class="bar"><i style="width:${pct}%"></i></div><span class="unit-pct">${done?'הושלם ✓':pct+'%'}</span></div>
           </div>
@@ -4710,6 +4766,7 @@ function pageUnit(unitId, section){
 
 /* ================= exercise engine ================= */
 let QS=null;
+let PRACTICE_RULE_OPEN = true;
 function currentUnitExercise(u){
   const pos=clamp(S.unitPos[u.id]||0,0,u.exercises.length-1);
   return {ex:u.exercises[pos],index:pos};
@@ -4718,6 +4775,7 @@ function practiceHTML(u){
   const {ex,index}=currentUnitExercise(u);
   const done=unitDoneCount(u);
   const allDone=done===u.exercises.length;
+  const activeRule = (ex && ex.rule ? RULE_MAP[ex.rule] : null) || (u.rules && u.rules[0]) || null;
   return `<div class="card flat" style="margin-bottom:12px">
       <div class="row"><span class="tag">${u.icon} ${u.he}</span><span class="tag lime">${done}/${u.exercises.length} הושלמו</span>
       <button class="btn xs ghost" style="margin-inline-start:auto" data-act="toggle-map">מפה</button></div>
@@ -4730,7 +4788,28 @@ function practiceHTML(u){
       <div style="font-size:2rem">🏁</div><h2 style="margin:6px 0">סיימת את היחידה!</h2>
       <p class="muted small">${unitCorrectCount(u)} מתוך ${u.exercises.length} נכונים. המילים נכנסו למעגל החזרה – שם הן יהפכו ליציבות.</p>
       <div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" data-go="#/review">🔁 לחזרה החכמה</button><button class="btn ghost" data-act="re-practice">תרגלי שוב</button><button class="btn ghost" data-go="#/unit/${u.id}/chat">💬 שיחה</button></div>
-    </div>` : `<div id="ex-host"></div>`}
+    </div>` : `
+      <div class="card linguistic-rule-guide" style="margin-bottom:12px;border:1px solid rgba(var(--primary-rgb),.35);background:linear-gradient(145deg,rgba(22,36,58,.88),rgba(14,24,38,.96))">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="row" style="gap:6px">
+            <span class="tag purple">📚 נושא לשוני</span>
+            <b style="font-size:.92rem;color:var(--lime)">${esc(u.linguisticTopic || activeRule?.title || u.title)}</b>
+          </div>
+          <button class="btn xs ghost" data-act="toggle-practice-rule" style="font-size:.76rem">
+            ${PRACTICE_RULE_OPEN ? '▲ הסתר כלל' : '▼ הצג כלל ועזרה'}
+          </button>
+        </div>
+        <div id="practice-rule-box" class="${PRACTICE_RULE_OPEN ? '' : 'hide'}" style="margin-top:10px">
+          ${activeRule ? `
+            <div style="font-size:.88rem;color:#dbe4f0;line-height:1.75">${activeRule.body || u.lead}</div>
+            ${activeRule.formula ? `<div class="formula" style="margin:8px 0">${esc(activeRule.formula)}</div>` : ''}
+            ${activeRule.examples?.length ? `<div class="tiny" style="color:var(--cyan);margin-top:6px"><b>💡 דוגמה מנחה:</b> <span class="en">${activeRule.examples[0].en}</span> — ${activeRule.examples[0].he}</div>` : ''}
+            ${activeRule.mistake ? `<div class="tiny" style="margin-top:6px;color:var(--gold);background:rgba(255,201,77,.1);padding:6px 10px;border-radius:8px"><b>⚠️ שימי לב:</b> ${activeRule.mistake}</div>` : ''}
+          ` : `<div style="font-size:.88rem;color:#dbe4f0">${u.lead}</div>`}
+        </div>
+      </div>
+      <div id="ex-host"></div>
+    `}
     <div class="row" style="margin-top:12px"><button class="btn sm ghost" data-go="#/unit/${u.id}/explain">📖 חזרה על הכללים</button><button class="btn sm ghost" data-go="#/unit/${u.id}/words">📚 המילים</button></div>`;
 }
 function mountUnitPractice(u){
@@ -4788,11 +4867,12 @@ function exerciseCardHTML(){
          <button class="btn sm ghost" data-act="hint">💡 רמז</button>
          ${ex.t==='scr'?`<button class="btn sm ghost" data-act="clear">↩ ניקוי</button>`:''}
          ${ex.rule?`<button class="btn sm ghost" data-act="rule" data-rule="${ex.rule}">📘 הכלל</button>`:''}`);
+  const ruleObj = ex.rule ? RULE_MAP[ex.rule] : null;
   return `<div class="ex-shell">
     <div class="ex-top">
       <span class="tag">${badge}</span><span class="tag lime">${skillTag}</span>
       ${ctx.total?`<span class="tiny muted">${ctx.index+1} מתוך ${ctx.total}</span>`:''}
-      ${ctx.scope==='unit'?`<button class="btn xs ghost" style="margin-inline-start:auto" data-act="unit-rules">📖 הסבר היחידה</button>`:''}
+      ${ruleObj?`<button class="btn xs ghost" style="margin-inline-start:auto" data-act="rule" data-rule="${ex.rule}">📘 ${esc(ruleObj.short||ruleObj.title)}</button>`:ctx.scope==='unit'?`<button class="btn xs ghost" style="margin-inline-start:auto" data-act="unit-rules">📖 הסבר היחידה</button>`:''}
     </div>
     <div class="ex-progress"><i style="width:${ctx.total?Math.round((ctx.index)/ctx.total*100):0}%"></i></div>
     <div class="ex-card">
@@ -6957,6 +7037,7 @@ function updateNav(){
   const map={home:'home',learn:'learn',unit:'learn',cards:'cards',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
   const activeNav=map[root]||'home';
   $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeNav));
+  $$('.top-nav-tab').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeNav));
   $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeNav));
   const isLearner=Boolean(window.apiSync?.user?.());
   $$('[data-nav="admin"]').forEach(button=>button.classList.toggle('hide',isLearner));
@@ -7228,6 +7309,14 @@ function handleGlobalClick(e){
     case 'card-mode-switch': CARDS_STATE.mode = act.dataset.mode; initCards(CARDS_STATE.unitFilter, CARDS_STATE.mode); renderCardsPage(); break;
     case 'match-tile-click': handleMatchTileClick(Number(act.dataset.idx)); break;
     case 'match-restart': initMatchGame(CARDS_STATE.unitFilter); updateMatchGridUI(); break;
+    case 'toggle-practice-rule': {
+      PRACTICE_RULE_OPEN = !PRACTICE_RULE_OPEN;
+      const box = $('#practice-rule-box');
+      const btn = $('[data-act="toggle-practice-rule"]');
+      if(box) box.classList.toggle('hide', !PRACTICE_RULE_OPEN);
+      if(btn) btn.textContent = PRACTICE_RULE_OPEN ? '▲ הסתר כלל' : '▼ הצג כלל ועזרה';
+      break;
+    }
     case 'student-login': submitStudentLogin(); break;
     case 'nav-back': goBack(); break;
     case 'student-login-open': openStudentLogin(); break;
