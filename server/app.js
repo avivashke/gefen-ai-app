@@ -943,6 +943,250 @@ function parseCurriculumResponse(content) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
+function extractLearnerAdaptiveContext(progressRecord, curriculum) {
+  const data = progressRecord?.data && typeof progressRecord.data === 'object' ? progressRecord.data : {};
+  const rules = data.rules && typeof data.rules === 'object' ? data.rules : {};
+  const words = data.words && typeof data.words === 'object' ? data.words : {};
+  const adaptive = data.adaptive && typeof data.adaptive === 'object' ? data.adaptive : {};
+  const ruleTitles = new Map();
+  (curriculum?.units || []).forEach((unit) => {
+    (unit.rules || []).forEach((rule) => {
+      if (rule?.id) ruleTitles.set(rule.id, rule.title || rule.id);
+    });
+  });
+
+  const weakRules = Object.entries(rules)
+    .filter(([, metric]) => (Number(metric?.seen) || 0) >= 1 && (Number(metric?.wrong) || 0) > 0)
+    .map(([id, metric]) => ({
+      id,
+      title: ruleTitles.get(id) || id,
+      accuracy: ratio(metric.correct, metric.wrong) ?? 0,
+      wrong: Number(metric.wrong) || 0,
+    }))
+    .sort((a, b) => a.accuracy - b.accuracy || b.wrong - a.wrong)
+    .slice(0, 6);
+
+  const strongRules = Object.entries(rules)
+    .filter(([, metric]) => (Number(metric?.seen) || 0) >= 2 && (ratio(metric.correct, metric.wrong) ?? 0) >= 85)
+    .map(([id, metric]) => ({
+      id,
+      title: ruleTitles.get(id) || id,
+      accuracy: ratio(metric.correct, metric.wrong) ?? 100,
+    }))
+    .slice(0, 6);
+
+  const weakWords = Object.entries(words)
+    .map(([key, w]) => (w && typeof w === 'object' ? { ...w, en: w.en || key } : null))
+    .filter((w) => w && w.en && ((Number(w.wrong) || 0) > 0 || ((Number(w.seen) || 0) > 0 && (Number(w.box) || 0) <= 1)))
+    .sort((a, b) => (Number(b.wrong) || 0) - (Number(a.wrong) || 0))
+    .slice(0, 10)
+    .map((w) => ({ en: String(w.en).slice(0, 40), he: String(w.he || '').slice(0, 80), wrong: Number(w.wrong) || 0, box: Number(w.box) || 0 }));
+
+  const masteredWords = Object.entries(words)
+    .map(([key, w]) => (w && typeof w === 'object' ? { ...w, en: w.en || key } : null))
+    .filter((w) => w && w.en && (Number(w.box) || 0) >= 4)
+    .slice(0, 12)
+    .map((w) => String(w.en).slice(0, 40));
+
+  const recentMistakes = Array.isArray(adaptive.mistakes)
+    ? adaptive.mistakes.slice(0, 6).map((m) => ({
+      topic: String(m?.topic || m?.rule || '').slice(0, 80),
+      given: String(m?.given || '').slice(0, 120),
+      expected: String(m?.expected || '').slice(0, 120),
+    }))
+    : [];
+
+  const discoveredInterests = Array.isArray(adaptive.discoveredInterests)
+    ? adaptive.discoveredInterests.map((item) => String(item || '').slice(0, 40)).filter(Boolean).slice(0, 8)
+    : [];
+
+  return {
+    weakRules,
+    strongRules,
+    weakWords,
+    masteredWords,
+    recentMistakes,
+    discoveredInterests,
+    customExercisesCount: Array.isArray(adaptive.customExercises) ? adaptive.customExercises.length : 0,
+    lastAdaptedAt: adaptive.lastAdaptedAt || null,
+  };
+}
+
+function buildAdaptivePromptContext(adaptiveCtx) {
+  if (!adaptiveCtx) return '';
+  const parts = [];
+  if (adaptiveCtx.weakRules?.length) {
+    parts.push(`Topics needing reinforcement: ${adaptiveCtx.weakRules.map((r) => `${r.title} (${r.accuracy}%)`).join(', ')}.`);
+  }
+  if (adaptiveCtx.weakWords?.length) {
+    parts.push(`Words to review and weave into examples/questions: ${adaptiveCtx.weakWords.map((w) => `${w.en} (${w.he})`).join(', ')}.`);
+  }
+  if (adaptiveCtx.strongRules?.length) {
+    parts.push(`Already strong topics (advance beyond basic drills on these): ${adaptiveCtx.strongRules.map((r) => r.title).join(', ')}.`);
+  }
+  if (adaptiveCtx.recentMistakes?.length) {
+    parts.push(`Recent learner errors to address with clear explanations: ${adaptiveCtx.recentMistakes.map((m) => `"${m.given}" instead of "${m.expected}"`).join('; ')}.`);
+  }
+  if (adaptiveCtx.discoveredInterests?.length) {
+    parts.push(`Additional learner interests discovered during practice: ${adaptiveCtx.discoveredInterests.join(', ')}.`);
+  }
+  return parts.length ? `\nAdaptive learner telemetry from recent sessions:\n${parts.join('\n')}` : '';
+}
+
+function validateAdaptiveBooster(value, student, adaptiveCtx) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('The AI response must be a JSON object');
+  }
+  const id = `adapt-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  const title = curriculumText(value.title || 'אימון AI מותאם אישית', 'title', 120);
+  const insight = curriculumText(value.insight || value.coachInsight || 'המאמנת ניתחה את התשובות האחרונות שלך ובנתה תרגול ממוקד.', 'insight', 450);
+  const focusTip = curriculumText(value.focusTip || value.tip || value.focusRule || 'שימ/י לב לדוגמאות ולמבנה המשפט לפני הבחירה.', 'focusTip', 350);
+  const words = Array.isArray(value.words)
+    ? value.words.slice(0, 6).map((word) => {
+      const en = curriculumText(word.en, 'word.en', 40);
+      if (!/^[\p{L}][\p{L}'’ -]*$/u.test(en)) throw new Error('Adaptive vocabulary entries must be plain words or short phrases');
+      return {
+        en,
+        he: curriculumText(word.he, 'word.he', 90),
+        pron: word.pron ? curriculumText(word.pron, 'word.pron', 40) : '',
+        ex: curriculumText(word.ex, 'word.ex', 160),
+        exHe: curriculumText(word.exHe, 'word.exHe', 160),
+      };
+    })
+    : [];
+  const exercises = curriculumList(value.exercises, 'exercises', 3, 6).map((exercise, idx) => {
+    const rawType = exercise.type || exercise.t;
+    const type = curriculumText(rawType, 'exercise.type', 16);
+    if (!['mcq', 'type', 'scr', 'gap'].includes(type)) throw new Error(`Unsupported adaptive exercise type: ${type}`);
+    const result = {
+      t: type,
+      id: `${id}.x${idx + 1}`,
+      skill: exercise.skill === 'vocab' ? 'vocab' : 'grammar',
+      rule: adaptiveCtx?.weakRules?.[0]?.id || '',
+      q: curriculumText(exercise.q, 'exercise.q', 240),
+      why: curriculumText(exercise.why, 'exercise.why', 300),
+      hint: curriculumText(exercise.hint, 'exercise.hint', 180),
+      adaptive: true,
+    };
+    if (type === 'mcq') {
+      const rawOpts = exercise.opts || exercise.options;
+      result.opts = curriculumList(rawOpts, 'exercise.opts', 3, 4)
+        .map((option) => curriculumText(option, 'exercise option', 90));
+      result.ans = curriculumText(exercise.ans, 'exercise.ans', 90);
+      if (!result.opts.includes(result.ans)) throw new Error('Adaptive MCQ answer must match one of its options');
+    } else {
+      const answers = Array.isArray(exercise.ans) ? exercise.ans : [exercise.ans];
+      result.ans = curriculumList(answers, 'exercise.ans', 1, 4)
+        .map((answer) => curriculumText(answer, 'exercise answer', 140));
+      if (type === 'scr') {
+        result.sentence = curriculumText(exercise.sentence, 'exercise.sentence', 180);
+        if (result.sentence.split(/\s+/).length < 2) throw new Error('Sentence-order exercises need at least two words');
+      }
+      if (type === 'gap') {
+        result.sentence = curriculumText(exercise.sentence, 'exercise.sentence', 180);
+        if ((result.sentence.match(/___/g) || []).length !== 1) {
+          throw new Error('Gap exercises must contain exactly one blank (___)');
+        }
+      }
+    }
+    return result;
+  });
+
+  return {
+    id,
+    level: student.level,
+    title,
+    insight,
+    focusTip,
+    generatedAt: new Date().toISOString(),
+    words,
+    exercises,
+  };
+}
+
+export async function handleAdaptiveBooster(req, res) {
+  const caller = await resolveCaller(req.headers.authorization);
+  if (!caller) return fail(res, 401, 'יש להתחבר לחשבון תלמיד כדי להפעיל התאמה חכמה');
+
+  try {
+    const aiTarget = await getActiveAiTarget();
+    const student = caller.student;
+    const progressRecord = await getProgressRecord(caller.id);
+    const adaptiveCtx = extractLearnerAdaptiveContext(progressRecord, caller.account?.curriculum);
+    const clientSummary = req.body?.summary && typeof req.body.summary === 'object' ? req.body.summary : {};
+    if (Array.isArray(clientSummary.weakWords) && !adaptiveCtx.weakWords.length) {
+      adaptiveCtx.weakWords = clientSummary.weakWords.slice(0, 8).map((w) => ({
+        en: String(w?.en || '').slice(0, 40),
+        he: String(w?.he || '').slice(0, 80),
+      })).filter((w) => w.en);
+    }
+    if (Array.isArray(clientSummary.weakRules) && !adaptiveCtx.weakRules.length) {
+      adaptiveCtx.weakRules = clientSummary.weakRules.slice(0, 5).map((r) => ({
+        id: String(r?.id || '').slice(0, 40),
+        title: String(r?.title || '').slice(0, 80),
+        accuracy: Number(r?.accuracy) || 0,
+      })).filter((r) => r.title);
+    }
+    if (Array.isArray(clientSummary.recentMistakes) && !adaptiveCtx.recentMistakes.length) {
+      adaptiveCtx.recentMistakes = clientSummary.recentMistakes.slice(0, 5).map((m) => ({
+        topic: String(m?.topic || '').slice(0, 80),
+        given: String(m?.given || '').slice(0, 120),
+        expected: String(m?.expected || '').slice(0, 120),
+      }));
+    }
+    const focusTopic = typeof req.body?.focusTopic === 'string' ? req.body.focusTopic.trim().slice(0, 200) : '';
+    const learningLanguage = student.learningLanguage || 'English';
+    const explanationLanguage = student.uiLanguage === 'es'
+      ? 'Spanish'
+      : student.uiLanguage === 'en'
+        ? 'English'
+        : 'Hebrew';
+    const profilePrompt = learnerProfilePrompt(student);
+    const telemetryPrompt = buildAdaptivePromptContext(adaptiveCtx);
+    const systemPrompt = `You are an adaptive ${learningLanguage} AI tutor for a learner whose native language is ${student.nativeLanguage || 'Hebrew'}. Analyze the learner's real-time mistakes, weak vocabulary, grammar gaps, and interests, and generate a personalized micro-lesson and 5 targeted exercises that adapt the course on the fly. Address the learner warmly in ${explanationLanguage} (using appropriate gender: ${student.gender}). Use ${explanationLanguage} for all titles, insights, tips, questions/instructions, translations, and explanations, and ${learningLanguage} for target words, examples, and answers. Return ONLY one valid JSON object with no markdown fences:\n{"title":"short encouraging booster title in ${explanationLanguage}","insight":"2-3 sentences in ${explanationLanguage} explaining what you noticed about the learner's progress/strengths and what this personalized booster practices","focusTip":"one clear, memorable rule or tip in ${explanationLanguage} addressing their weak spots","words":[{"en":"${learningLanguage} word","he":"${explanationLanguage} meaning","pron":"optional pronunciation","ex":"${learningLanguage} example sentence","exHe":"${explanationLanguage} translation"}],"exercises":[{"type":"mcq|type|scr|gap","skill":"grammar|vocab","q":"question/instruction in ${explanationLanguage}","opts":["option 1","option 2","option 3"],"ans":"exact option for mcq or string/array for type/scr/gap","sentence":"required for scr (full correct sentence) and gap (sentence with one ___)","why":"clear explanation in ${explanationLanguage}","hint":"helpful hint in ${explanationLanguage}"}]}\nRequirements: 3-5 useful words and 4-5 varied exercises (mix mcq, gap, scr, type) tailored to CEFR ${student.level}.`;
+
+    const response = await fetch(aiTarget.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(req.headers.origin ? { Origin: req.headers.origin } : {}),
+        ...(aiTarget.headers || {}),
+      },
+      signal: AbortSignal.timeout(60_000),
+      body: JSON.stringify({
+        model: aiTarget.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: `${profilePrompt}${telemetryPrompt}${focusTopic ? `\nLearner requested focus: ${focusTopic}` : ''}`,
+          },
+        ],
+        temperature: 0.35,
+        max_tokens: 3500,
+      }),
+    });
+    const responseText = await response.text();
+    let payload;
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      throw Object.assign(new Error('שירות ה-AI החזיר תשובה לא תקינה'), { status: 502 });
+    }
+    if (!response.ok) {
+      const detail = payload?.error?.message || payload?.error || `HTTP ${response.status}`;
+      const safeDetail = String(detail).replaceAll(aiTarget.apiKey || '\u0000', '[מוסתר]').slice(0, 240);
+      throw Object.assign(new Error(`שירות ה-AI נכשל: ${safeDetail}`), { status: 502 });
+    }
+    const content = payload.choices?.[0]?.message?.content;
+    const booster = validateAdaptiveBooster(parseCurriculumResponse(content), student, adaptiveCtx);
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ booster, adaptiveContext: adaptiveCtx });
+  } catch (e) {
+    fail(res, e.status || 502, `יצירת התרגול המותאם נכשלה: ${e.message}`);
+  }
+}
+
 function nextCurriculumMeta(curriculum, prompt) {
   return curriculum
     ? {
@@ -1085,6 +1329,9 @@ export async function handleAdminGenerateCurriculum(req, res) {
       levelStage: desiredLevel === baseStudent.level ? baseStudent.levelStage : desiredLevel,
     };
     const initialCourseId = initialAccount.curriculum?.id || 'default';
+    const currentProgressForPrompt = await getProgressRecord(baseStudent.key);
+    const adaptiveCtx = extractLearnerAdaptiveContext(currentProgressForPrompt, initialAccount.curriculum);
+    const adaptiveTelemetryPrompt = buildAdaptivePromptContext(adaptiveCtx);
     const profilePrompt = learnerProfilePrompt(student);
     const learningLanguage = student.learningLanguage || 'English';
     const explanationLanguage = student.uiLanguage === 'es'
@@ -1110,7 +1357,7 @@ export async function handleAdminGenerateCurriculum(req, res) {
           { role: 'system', content: systemPrompt },
           {
             role: 'user',
-            content: `${profilePrompt}\nTeacher instructions: ${prompt}`,
+            content: `${profilePrompt}${adaptiveTelemetryPrompt}\nTeacher instructions: ${prompt}`,
           },
         ],
         temperature: 0.3,
@@ -1263,6 +1510,7 @@ export async function handleAdminStudents(req, res) {
         accuracy: ratio(Number(metric?.c) || 0, Math.max(0, (Number(metric?.a) || 0) - (Number(metric?.c) || 0))),
       }));
       const examBest = Math.max(Number(currentData.exam?.best) || 0, Number(currentData.exam?.last?.score) || 0);
+      const adaptiveProfile = extractLearnerAdaptiveContext(currentCourse ? record : null, account.curriculum);
       students.push({
         username: student.username,
         displayName: student.displayName || student.username,
@@ -1283,6 +1531,7 @@ export async function handleAdminStudents(req, res) {
         curriculumPrompt: account.curriculumPrompt || '',
         pendingNextCurriculum: nextCurriculumMeta(account.pendingNextCurriculum, account.pendingNextCurriculumPrompt),
         pendingNextCurriculumPrompt: account.pendingNextCurriculumPrompt || '',
+        adaptiveProfile,
         examBest,
         xp: Number(currentData.xp) || 0,
         streak: Number(currentData.streak) || 0,
@@ -1549,6 +1798,7 @@ export function createApp({ serveStatic = true } = {}, expressModule, corsModule
   app.get('/api/progress', handleGetProgress);
   app.post('/api/progress', handleSaveProgress);
   app.post('/api/ai/chat', handleAiChat);
+  app.post('/api/ai/adaptive-booster', handleAdaptiveBooster);
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 

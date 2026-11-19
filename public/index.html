@@ -279,6 +279,23 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
 }
 .fact b{color:var(--gold)}
 
+/* adaptive AI radar card */
+.adaptive-card{
+  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,rgba(24,38,64,.95),rgba(17,27,46,.95),rgba(42,22,58,.65));
+  border:1px solid rgba(192,132,252,.38);
+  box-shadow:0 14px 36px -14px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.adaptive-card::before{
+  content:"";position:absolute;top:-50px;inset-inline-end:-50px;width:150px;height:150px;
+  border-radius:50%;background:radial-gradient(circle,rgba(61,220,245,.18),transparent 70%);pointer-events:none;
+}
+.adaptive-insight{
+  margin-top:8px;padding:10px 13px;border-radius:13px;
+  background:rgba(10,18,32,.65);border:1px solid rgba(61,220,245,.25);
+  font-size:.86rem;line-height:1.55;color:#eef4fc;
+}
+
 /* ============ units ============ */
 .route{
   display:flex;gap:0;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:none;
@@ -544,10 +561,33 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   color:var(--mu);font-size:.8rem;line-height:1.6;
 }
 .msg.show-tr .bubble .he-tr{display:block}
-.bubble-actions{display:flex;gap:4px;margin-top:4px;opacity:.85}
-.bubble-actions .iconbtn{width:27px;height:27px;font-size:.75rem;border-radius:8px}
-.bubble-actions .iconbtn.speaking{background:rgba(255,128,128,.18);border-color:rgba(255,128,128,.55);color:var(--red)}
-.bubble-actions .iconbtn.stop-btn{background:rgba(255,128,128,.16);border-color:rgba(255,128,128,.5);color:var(--red)}
+.bubble-actions{
+  display:inline-flex;align-items:center;gap:6px;margin-top:6px;margin-bottom:6px;
+  padding:3px 6px;border-radius:12px;background:rgba(8,16,28,.45);
+  border:1px solid rgba(255,255,255,.06);
+}
+.bubble-actions .iconbtn{
+  width:30px;height:30px;font-size:.85rem;border-radius:9px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  display:inline-grid;place-items:center;transition:all .15s ease;
+}
+.bubble-actions .iconbtn:hover{
+  background:rgba(61,220,245,.15);border-color:rgba(61,220,245,.4);transform:scale(1.06);
+}
+.bubble-actions .iconbtn.speaking{
+  background:rgba(255,143,199,.22);border-color:rgba(255,143,199,.6);color:var(--lime);
+  animation:pulseSpeaking 1.5s infinite;
+}
+@keyframes pulseSpeaking{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,143,199,.4)}
+  50%{box-shadow:0 0 0 6px rgba(255,143,199,0)}
+}
+.bubble-actions .iconbtn.stop-btn{
+  background:rgba(255,128,128,.18);border-color:rgba(255,128,128,.5);color:var(--red);
+}
+.bubble-actions .iconbtn.stop-btn:hover{
+  background:rgba(255,128,128,.3);
+}
 .bubble-actions .iconbtn.stop-btn.hide{display:none}
 .corr{
   background:rgba(255,201,77,.07);border:1px solid rgba(255,201,77,.25);border-radius:12px;
@@ -1773,6 +1813,7 @@ function freshState(){
     badges:{}, exam:{last:null, best:0, attempts:0, active:null},
     review:{lastDate:'', doneToday:0, queue:[], idx:0, results:[]},
     chat:{scenario:'', messages:[], history:[], localTurn:0, sessionStart:0, learned:{}, sessions:0},
+    adaptive:{mistakes:[], discoveredInterests:[], customExercises:[], boosters:[], lastBooster:null, lastAdaptedAt:null, answersSinceAdapt:0},
     last:{route:'#/home',unit:'u1'}
   };
 }
@@ -1795,6 +1836,7 @@ function mergeState(base, incoming){
   out.chat = {...base.chat, ...(incoming.chat||{})};
   out.exam = {...base.exam, ...(incoming.exam||{})};
   out.daily = {...base.daily, ...(incoming.daily||{})};
+  out.adaptive = {...base.adaptive, ...(incoming.adaptive||{})};
   out.last = {...base.last, ...(incoming.last||{})};
   delete out.api;
   return out;
@@ -2041,6 +2083,19 @@ const UI_TRANSLATIONS=[
   ['בלי תסריט. דברי על ריקוד, חברות או סתם על היום שלך.','No script. Talk about anything you like.','Sin guion. Habla de lo que quieras.'],
   ['▶ פתחי שיחה','▶ Start conversation','▶ Iniciar conversación'],
   ['מצב מקומי:','Local mode:','Modo local:'],['📊 סיום','📊 Finish','📊 Finalizar'],['✚ חדש','✚ New','✚ Nuevo'],
+  ['🧠 המוח האדפטיבי של הלומדה','🧠 Adaptive Learning Brain','🧠 Cerebro de aprendizaje adaptativo'],
+  ['מותאם אישית בזמן אמת','Personalized in real time','Personalizado en tiempo real'],
+  ['המאמנת לומדת אותך תוך כדי תרגול ושיחה','Your coach learns how you study through practice and conversation','Tu tutora aprende de ti mientras practicas y conversas'],
+  ['לחיזוק כרגע:','Focus areas right now:','Para reforzar ahora:'],
+  ['מילים שהמנוע מחזק לך:','Words being reinforced for you:','Palabras que el sistema refuerza para ti:'],
+  ['נקודות חוזק שזוהו:','Identified strengths:','Puntos fuertes identificados:'],
+  ['נושאים שלמדתי שאת אוהבת:','Topics I noticed you enjoy:','Temas que noté que te gustan:'],
+  ['בוסטר אישי מוכן:','Personal booster ready:','Impulso personal listo:'],
+  ['⚡ תרגול מותאם אישית עכשיו','⚡ Start adaptive practice now','⚡ Practicar impulso adaptativo ahora'],
+  ['🔄 עדכון והתאמת הלומדה מחדש','🔄 Refresh adaptive booster','🔄 Actualizar impulso adaptativo'],
+  ['בונה תרגול אישי…','Building personal practice…','Creando práctica personal…'],
+  ['בוסטר AI אישי','Personal AI Booster','Impulso personal con IA'],
+  ['תרגילים שנבנו במיוחד לנקודות החיזוק שלך','Exercises built specifically for your focus areas','Ejercicios creados especialmente para tus puntos a reforzar'],
 ];
 const SORTED_UI_TRANSLATIONS=UI_TRANSLATIONS.slice().sort((a,b)=>b[0].length-a[0].length);
 function localizedText(value){
@@ -2540,10 +2595,56 @@ function learningSpeechLocale(){
   if(language.startsWith('hebrew')) return 'he-IL';
   return 'en-US';
 }
+function findBestVoice(locale){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices() || [];
+  if(!voices.length) return null;
+  const targetLocale = (locale || learningSpeechLocale()).replace('_', '-').toLowerCase();
+  const langPrefix = targetLocale.split('-')[0];
+  
+  let best = null;
+  let bestScore = -999;
+  
+  voices.forEach(v => {
+    const vLang = (v.lang || '').replace('_', '-').toLowerCase();
+    const isExact = vLang === targetLocale;
+    const isMatch = isExact || vLang.startsWith(langPrefix);
+    if(!isMatch) return;
+    
+    let score = 0;
+    if(isExact) score += 40;
+    
+    const name = (v.name || '').toLowerCase();
+    // High quality neural / natural indicators in modern OS & browsers
+    if(name.includes('natural') || name.includes('neural')) score += 120;
+    if(name.includes('online')) score += 80;
+    if(name.includes('enhanced') || name.includes('premium')) score += 75;
+    if(v.localService === false) score += 35; // Cloud neural voices
+    
+    // Top-tier voice models
+    if(/jenny|aria|guy|samantha|ava|zoe|serena|daniel|karen|siri/i.test(name)) score += 60;
+    if(/google/i.test(name)) score += 50;
+    if(/denise|henri|thomas|audrey|amélie|celeste/i.test(name)) score += 55;
+    if(/elvira|alvaro|mónica|jorge|paulina/i.test(name)) score += 55;
+    
+    // De-prioritize robotic/compact engines
+    if(name.includes('compact') || name.includes('espeak') || name.includes('whisper')) score -= 100;
+    
+    if(score > bestScore){
+      bestScore = score;
+      best = v;
+    }
+  });
+  
+  return best || voices.find(v => (v.lang||'').toLowerCase().startsWith(langPrefix)) || null;
+}
 function initVoice(){
   if(!('speechSynthesis' in window)) return;
-  const pick=()=>{ const lang=learningSpeechLocale().replace('-','[-_]'); const v=speechSynthesis.getVoices(); VOICE=v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang)&&/Google|Natural|Samantha|Aria|Jenny/i.test(x.name))||v.find(x=>new RegExp(`^${lang}`,'i').test(x.lang))||null; };
-  pick(); speechSynthesis.onvoiceschanged=pick;
+  const pick = () => {
+    VOICE = findBestVoice(learningSpeechLocale());
+  };
+  pick();
+  speechSynthesis.onvoiceschanged = pick;
 }
 function updateChatSpeakButtons(){
   $$('[data-chat-say]').forEach(btn=>{
@@ -2573,11 +2674,26 @@ function speak(text, rate, options={}){
     speechSynthesis.cancel();
     SPEAKING_CHAT_INDEX=Number.isInteger(options.chatIndex)?options.chatIndex:null;
     updateChatSpeakButtons();
-    const u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]*>/g,''));
-    u.lang=learningSpeechLocale(); u.rate=rate || S.settings.ttsRate || .9;
-    const lang=u.lang.replace('-','[-_]');
-    const voice=speechSynthesis.getVoices().find(item=>new RegExp(`^${lang}`,'i').test(item.lang));
-    if(voice||VOICE) u.voice=voice||VOICE;
+    
+    // Strip HTML tags, markdown fences, and emojis that distort natural pronunciation
+    const clean = String(text)
+      .replace(/<[^>]*>/g, '')
+      .replace(/[*#`_~]/g, '')
+      .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if(!clean) return;
+    
+    const u = new SpeechSynthesisUtterance(clean);
+    const locale = learningSpeechLocale();
+    u.lang = locale;
+    // Conversational, warm cadence suitable for language comprehension
+    u.rate = rate || S.settings.ttsRate || 0.93;
+    u.pitch = 1.02;
+    
+    const voice = findBestVoice(locale) || VOICE;
+    if(voice) u.voice = voice;
+    
     const clear=()=>{
       if(SPEAKING_TOKEN===token){
         SPEAKING_CHAT_INDEX=null;
@@ -3032,8 +3148,202 @@ function trackAnswer(ex, ok){
   S.daily.answers++;
   if(ex.word) recordWord(ex.word,ok);
   if(ex.rule) recordRule(ex.rule,ok);
+  recordAdaptiveAnswer(ex, ok);
   markActive();
   checkBadges();
+}
+function ensureAdaptiveState(){
+  if(!S.adaptive||typeof S.adaptive!=='object'){
+    S.adaptive={mistakes:[],discoveredInterests:[],customExercises:[],boosters:[],lastBooster:null,lastAdaptedAt:null,answersSinceAdapt:0};
+  }
+  if(!Array.isArray(S.adaptive.mistakes)) S.adaptive.mistakes=[];
+  if(!Array.isArray(S.adaptive.discoveredInterests)) S.adaptive.discoveredInterests=[];
+  if(!Array.isArray(S.adaptive.customExercises)) S.adaptive.customExercises=[];
+  if(!Array.isArray(S.adaptive.boosters)) S.adaptive.boosters=[];
+  return S.adaptive;
+}
+function recordAdaptiveAnswer(ex, ok){
+  const adaptive=ensureAdaptiveState();
+  adaptive.answersSinceAdapt=(Number(adaptive.answersSinceAdapt)||0)+1;
+  if(!ok && ex){
+    const ruleObj=ex.rule?RULE_MAP[ex.rule]:null;
+    const expected=Array.isArray(ex.ans)?ex.ans[0]:(ex.ans||ex.sentence||'');
+    const given=QS?.given||QS?.typed||QS?.choice||'';
+    adaptive.mistakes.unshift({
+      id:ex.id||'',
+      rule:ex.rule||'',
+      topic:ruleObj?.title||ex.word||ex.skill||'grammar',
+      q:String(ex.q||'').replace(/<[^>]*>/g,'').slice(0,140),
+      given:String(given||'').slice(0,120),
+      expected:String(expected||'').slice(0,120),
+      why:String(ex.why||'').replace(/<[^>]*>/g,'').slice(0,180),
+      ts:Date.now()
+    });
+    adaptive.mistakes=adaptive.mistakes.slice(0,15);
+  }
+  // Automatically trigger silent background AI adaptation when enough answers accumulate
+  if(adaptive.answersSinceAdapt>=8 && canUseAI() && !ADAPTIVE_BUSY){
+    adaptive.answersSinceAdapt=0;
+    generateAdaptiveBooster({silent:true});
+  }
+}
+function recordAdaptiveChatTurn(userText, aiRes){
+  const adaptive=ensureAdaptiveState();
+  (aiRes?.corrections||[]).forEach(c=>{
+    if(c&&c.right){
+      adaptive.mistakes.unshift({
+        id:'chat-corr',
+        rule:'chat',
+        topic:CURRENT_UI_LANGUAGE==='es'?'Conversación':'שיחה עם המאמנת',
+        q:String(userText||'').slice(0,120),
+        given:String(c.wrong||userText||'').slice(0,120),
+        expected:String(c.right||'').slice(0,120),
+        why:String(c.why||'').slice(0,180),
+        ts:Date.now()
+      });
+    }
+  });
+  adaptive.mistakes=adaptive.mistakes.slice(0,15);
+  const interestMatchers=[
+    ['music',/music|song|concert|band|מוזיקה|שיר/i,'מוזיקה / Music'],
+    ['travel',/travel|trip|paris|flight|train|hotel|טיול|נסיעה|פריז/i,'טיולים / Travel'],
+    ['food',/cook|recipe|food|restaurant|cafe|dinner|בישול|אוכל|מסעדה/i,'קולינריה / Gastronomy'],
+    ['sports',/football|soccer|sport|run|gym|dance|כדורגל|ספורט|ריקוד/i,'ספורט ותנועה / Sports'],
+    ['architecture',/architect|design|building|house|studio|אדריכלות|עיצוב/i,'עיצוב ואדריכלות / Design'],
+    ['fashion',/fashion|style|dress|fabric|trend|אופנה|סטייל/i,'אופנה / Fashion'],
+    ['tech',/game|pokemon|tech|app|computer|משחק|טכנולוגיה/i,'טכנולוגיה ומשחקים / Tech']
+  ];
+  interestMatchers.forEach(([,regex,label])=>{
+    if(regex.test(userText||'') && !adaptive.discoveredInterests.includes(label)){
+      adaptive.discoveredInterests.unshift(label);
+      adaptive.discoveredInterests=adaptive.discoveredInterests.slice(0,8);
+    }
+  });
+}
+function learnerAdaptiveSummary(){
+  const adaptive=ensureAdaptiveState();
+  const weakRules=Object.entries(S.rules||{})
+    .filter(([,m])=>(m.seen||0)>=1 && (m.wrong||0)>0)
+    .map(([id,m])=>{
+      const r=RULE_MAP[id];
+      const acc=Math.round((m.correct||0)/((m.correct||0)+(m.wrong||0))*100);
+      return {id,title:r?.title||id,accuracy:acc,wrong:m.wrong||0,seen:m.seen||0};
+    })
+    .sort((a,b)=>a.accuracy-b.accuracy||b.wrong-a.wrong)
+    .slice(0,4);
+  const strongRules=Object.entries(S.rules||{})
+    .filter(([,m])=>(m.seen||0)>=2 && Math.round((m.correct||0)/((m.correct||0)+(m.wrong||0))*100)>=80)
+    .map(([id,m])=>{
+      const r=RULE_MAP[id];
+      const acc=Math.round((m.correct||0)/((m.correct||0)+(m.wrong||0))*100);
+      return {id,title:r?.title||id,accuracy:acc};
+    })
+    .slice(0,4);
+  const weakWords=Object.values(S.words||{})
+    .filter(w=>w&&w.en&&((w.wrong||0)>0||((w.seen||0)>0&&(w.box||0)<=1)))
+    .sort((a,b)=>(b.wrong||0)-(a.wrong||0))
+    .slice(0,6)
+    .map(w=>({en:w.en,he:w.he||wordByKey(w.en.toLowerCase())?.he||'',wrong:w.wrong||0,box:w.box||0}));
+  return {
+    weakRules,
+    strongRules,
+    weakWords,
+    recentMistakes:adaptive.mistakes.slice(0,5),
+    discoveredInterests:adaptive.discoveredInterests,
+    customExercises:adaptive.customExercises||[],
+    lastBooster:adaptive.lastBooster||null,
+    lastAdaptedAt:adaptive.lastAdaptedAt||null
+  };
+}
+function buildLocalAdaptiveBooster(summary){
+  const isEs=CURRENT_UI_LANGUAGE==='es';
+  const isFr=CURRENT_LEARNER_PROFILE.learningLanguage==='French';
+  const id=`local-adapt-${Date.now()}`;
+  const focusRule=summary.weakRules[0];
+  const pool=UNITS.flatMap(u=>u.exercises).filter(e=>['mcq','type','gap','scr'].includes(e.t));
+  const weakPool=pool.filter(e=>{
+    const p=S.prog[e.id];
+    return (p&&p.wrong>0) || (focusRule&&e.rule===focusRule.id);
+  });
+  const chosen=shuffle(weakPool.length>=3?weakPool:pool).slice(0,5).map((e,idx)=>({
+    ...JSON.parse(JSON.stringify(e)),
+    id:`${id}.x${idx+1}`,
+    adaptive:true
+  }));
+  const words=(summary.weakWords.length?summary.weakWords:ALL_WORD_LIST.slice(0,4)).slice(0,4).map(w=>{
+    const full=wordByKey(String(w.en||'').toLowerCase())||w;
+    return {en:full.en,he:full.he||'',pron:full.pron||'',ex:full.ex||full.en,exHe:full.exHe||full.he||''};
+  });
+  return {
+    id,
+    level:S.settings.level||CURRENT_LEARNER_PROFILE.level||'A1',
+    title:isEs?'Entrenamiento adaptativo personalizado':isFr?'אימון צרפתית מותאם אישית':'אימון AI מותאם אישית עבורך',
+    insight:isEs
+      ?(focusRule?`Noté que podemos reforzar "${focusRule.title}" (${focusRule.accuracy}% de precisión). Preparé 5 ejercicios prácticos para dominarlo.`:'Analicé tu ritmo de estudio y seleccioné ejercicios clave para consolidar tu vocabulario y gramática de nivel B1.')
+      :(focusRule?`זיהיתי שכדאי לחזק את הנושא "${focusRule.title}" (דיוק נוכחי: ${focusRule.accuracy}%). בניתי עבורך מקבץ ממוקד שיעזור לך לשלוט בו בביטחון.`:'המערכת ניתחה את התשובות האחרונות שלך ובנתה תרגול חכם שמחזק בדיוק את המילים והמבנים שפגשת לאחרונה.'),
+    focusTip:focusRule&&(RULE_MAP[focusRule.id]?.hook||RULE_MAP[focusRule.id]?.short)
+      ?`${RULE_MAP[focusRule.id].title}: ${RULE_MAP[focusRule.id].hook||RULE_MAP[focusRule.id].short}`
+      :(isEs?'Lee toda la oración antes de elegir el tiempo verbal o la estructura.':'קרא/י את כל המשפט וזהה/י את מילת הזמן או הנושא לפני בחירת התשובה.'),
+    generatedAt:new Date().toISOString(),
+    words,
+    exercises:chosen
+  };
+}
+let ADAPTIVE_BUSY=false;
+async function generateAdaptiveBooster({silent=false,openAfter=false,focusTopic=''}={}){
+  if(ADAPTIVE_BUSY) return;
+  ADAPTIVE_BUSY=true;
+  if(!silent) render();
+  const summary=learnerAdaptiveSummary();
+  try{
+    let booster=null;
+    if(canUseAI() && window.apiSync?.aiAdaptiveBooster){
+      const res=await window.apiSync.aiAdaptiveBooster({
+        focusTopic,
+        summary:{
+          weakRules:summary.weakRules,
+          weakWords:summary.weakWords,
+          recentMistakes:summary.recentMistakes
+        }
+      });
+      booster=res?.booster||null;
+    }
+    if(!booster){
+      booster=buildLocalAdaptiveBooster(summary);
+    }
+    const adaptive=ensureAdaptiveState();
+    adaptive.lastBooster=booster;
+    adaptive.lastAdaptedAt=booster.generatedAt||new Date().toISOString();
+    adaptive.boosters=[booster,...(adaptive.boosters||[])].slice(0,8);
+    (booster.words||[]).forEach(w=>{
+      if(!w||!w.en) return;
+      const key=w.en.toLowerCase();
+      if(!ALL_WORDS[key]){ ALL_WORDS[key]={...w,key}; ALL_WORD_LIST.push(ALL_WORDS[key]); }
+    });
+    const newExs=(booster.exercises||[]).map(ex=>({...ex,unit:UNITS[0]?.id||'u1',adaptive:true}));
+    newExs.forEach(ex=>{ EX_MAP[ex.id]=ex; });
+    adaptive.customExercises=[...newExs,...(adaptive.customExercises||[])].slice(0,25);
+    saveNow();
+    if(!silent){
+      toast(CURRENT_UI_LANGUAGE==='es'?'✨ ¡Tu entrenamiento adaptativo está listo!':'✨ התרגול האישי החדש שלך מוכן!');
+    }
+    if(openAfter){
+      startDrill('adaptive');
+      return;
+    }
+  }catch(err){
+    const fallback=buildLocalAdaptiveBooster(summary);
+    const adaptive=ensureAdaptiveState();
+    adaptive.lastBooster=fallback;
+    adaptive.lastAdaptedAt=fallback.generatedAt;
+    (fallback.exercises||[]).forEach(ex=>{ EX_MAP[ex.id]=ex; });
+    adaptive.customExercises=[...(fallback.exercises||[]),...(adaptive.customExercises||[])].slice(0,25);
+    saveNow();
+    if(openAfter){ startDrill('adaptive'); return; }
+  }finally{
+    ADAPTIVE_BUSY=false;
+    if(!silent) render();
+  }
 }
 function recordWord(en, ok){
   const key=String(en).toLowerCase();
@@ -3066,9 +3376,74 @@ function hydrateExtraWords(){
       ALL_WORDS[key]=obj; ALL_WORD_LIST.push(obj);
     }
   });
+  const adaptive=ensureAdaptiveState();
+  (adaptive.customExercises||[]).forEach(ex=>{
+    if(ex&&ex.id) EX_MAP[ex.id]=ex;
+  });
+  (adaptive.boosters||[]).forEach(b=>{
+    (b.words||[]).forEach(w=>{
+      if(!w||!w.en) return;
+      const key=w.en.toLowerCase();
+      if(!ALL_WORDS[key]){ ALL_WORDS[key]={...w,key}; ALL_WORD_LIST.push(ALL_WORDS[key]); }
+    });
+  });
 }
 
-/* ================= dashboard ================= */
+function adaptiveCoachRadarHTML(){
+  const summary=learnerAdaptiveSummary();
+  const isEs=CURRENT_UI_LANGUAGE==='es';
+  const booster=summary.lastBooster;
+  const weakRules=summary.weakRules;
+  const weakWords=summary.weakWords;
+  const strongRules=summary.strongRules;
+  const interests=[...(CURRENT_LEARNER_PROFILE.interests||[]),...(summary.discoveredInterests||[])].slice(0,6);
+  const title=isEs?'🧠 Tu Tutor IA Adaptativo en Tiempo Real':'🧠 המאמנת האישית שלומדת אותך תוך כדי תנועה';
+  const sub=isEs
+    ?'La IA analiza tus respuestas, conversaciones y puntos fuertes para adaptar tus ejercicios continuamente.'
+    :'הבינה המלאכותית מנתחת את התשובות, השיחות והטעויות שלך ובונה עבורך חיזוקים מותאמים אישית בזמן אמת.';
+  const insightText=booster?.insight
+    ||(weakRules.length
+      ?(isEs?`Foco detectado: conviene reforzar "${weakRules[0].title}" (${weakRules[0].accuracy}% de precisión).`:`מוקד שזוהה: כדאי לחזק את הנושא "${weakRules[0].title}" (${weakRules[0].accuracy}% דיוק).`)
+      :(isEs?'Vas por excelente camino. Pulsa para generar un entrenamiento adaptado a tu nivel y tus intereses.':'ההתקדמות שלך יציבה! אפשר ליצור בכל רגע מקבץ תרגול חכם שמותאם לרמה ולתחומי העניין שלך.'));
+  return `<div class="card section adaptive-card">
+    <div class="section-head" style="flex-wrap:wrap">
+      <h2>${title}</h2>
+      <span class="tag purple">${isEs?'Adaptación activa':'התאמה חיה'} · ${esc(S.settings.level||CURRENT_LEARNER_PROFILE.level||'A1')}</span>
+    </div>
+    <p class="small muted">${sub}</p>
+    <div class="adaptive-insight">
+      <b>💡 ${esc(booster?.title||(isEs?'Análisis personalizado':'תובנת המאמנת האישית'))}:</b>
+      <p class="small" style="margin-top:4px">${esc(insightText)}</p>
+      ${booster?.focusTip?`<div class="tiny" style="margin-top:6px;color:var(--cyan)">📌 <b>${isEs?'Consejo clave':'טיפ ממוקד'}:</b> ${esc(booster.focusTip)}</div>`:''}
+    </div>
+    <div class="grid two" style="margin-top:12px">
+      <div class="card flat" style="padding:12px">
+        <div class="tiny muted"><b>🎯 ${isEs?'Temas para reforzar':'נושאים ומילים לחיזוק אישי'}</b></div>
+        <div class="chips" style="margin-top:8px">
+          ${weakRules.map(r=>`<span class="tag gold">📘 ${esc(r.title)} (${r.accuracy}%)</span>`).join('')}
+          ${weakWords.slice(0,4).map(w=>`<span class="tag"><span class="en">${esc(w.en)}</span> · ${esc(w.he)}</span>`).join('')}
+          ${(!weakRules.length&&!weakWords.length)?`<span class="tiny muted">${isEs?'Sin errores frecuentes detectados aún.':'עדיין לא זוהו נקודות תורפה – כל תשובה מעדכנת את המודל.'}</span>`:''}
+        </div>
+      </div>
+      <div class="card flat" style="padding:12px">
+        <div class="tiny muted"><b>🌟 ${isEs?'Puntos fuertes e intereses':'נקודות חוזק ותחומי עניין שהמערכת למדה'}</b></div>
+        <div class="chips" style="margin-top:8px">
+          ${strongRules.map(r=>`<span class="tag lime">✓ ${esc(r.title)} (${r.accuracy}%)</span>`).join('')}
+          ${interests.map(item=>`<span class="tag purple">✨ ${esc(item)}</span>`).join('')}
+          ${(!strongRules.length&&!interests.length)?`<span class="tiny muted">${isEs?'Practica para descubrir tus puntos fuertes.':'תרגל/י או שוחח/י עם המאמנת כדי לחשוף נקודות חוזק.'}</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" data-act="adaptive-generate-open" ${ADAPTIVE_BUSY?'disabled':''}>
+        ${ADAPTIVE_BUSY?(isEs?'⏳ Generando entrenamiento…':'⏳ בונה תרגול מותאם אישית…'):(isEs?'🚀 Entrenar con ejercicios adaptados':'🚀 פתח תרגול AI מותאם אישית עכשיו')}
+      </button>
+      <button class="btn ghost sm" data-act="adaptive-refresh" ${ADAPTIVE_BUSY?'disabled':''}>
+        🔄 ${isEs?'Actualizar análisis con IA':'בקש מה-AI לעדכן את המסלול עבורי'}
+      </button>
+    </div>
+  </div>`;
+}
 function praise(){ return rnd([`מעולה, ${S.name||'תלמידה'}!`,'בול!','מדויק!',`וואו, ${S.name||'תלמידה'}!`,'יפה מאוד!','אלופה! 🏆','בדיוק כך!']) }
 function nope(){ return rnd([`כמעט, ${S.name||'תלמידה'} 💪`,'לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']) }
 
@@ -3122,6 +3497,8 @@ function pageHome(){
         <span class="stat-chip">🔥 <b>${S.streak||0}</b> ימים</span>
       </div>
     </section>
+
+    ${adaptiveCoachRadarHTML()}
 
     <div class="grid two section" style="align-items:start">
       <div class="card">
@@ -3214,6 +3591,7 @@ function pageLearn(){
       <p class="small muted">20 שאלות מכל היחידות, בלי לחץ זמן. בסוף תקבלי ציון, פירוט לפי נושא וטיפים לחזרה.</p>
       <button class="btn gold" style="margin-top:10px;background:linear-gradient(135deg,#ffc94d,#e9a51f);border-color:transparent;color:#241a02" data-go="#/exam">📝 למבחן המסכם</button>
     </div>
+    ${adaptiveCoachRadarHTML()}
     ${PENDING_NEXT_CURRICULUM?`<div class="card" style="margin-top:16px;border-color:rgba(255,201,77,.45);background:linear-gradient(135deg,rgba(255,201,77,.09),transparent)">
       <div class="section-head">
         <h2>🔒 ${CURRENT_UI_LANGUAGE==='es'?'Siguiente módulo preparado':'המודול הבא מוכן עבורך'}</h2>
@@ -3669,6 +4047,7 @@ function reviewOverviewHTML(){
       <div class="card">
         <div class="section-head"><h2>🎯 אימונים קצרים</h2></div>
         <div class="col">
+          <button class="continue" data-act="adaptive-generate-open"><span class="ic">🧠</span><span style="flex:1"><b>אימון AI מותאם אישית</b><span>תרגול חכם שנבנה מהטעויות והמילים שלך בזמן אמת</span></span><span class="arr">←</span></button>
           <button class="continue" data-go="#/drill/sprint"><span class="ic">⚡</span><span style="flex:1"><b>ספרינט 5 דקות</b><span>10 תרגילים מעורבים מכל מה שלמדת</span></span><span class="arr">←</span></button>
           <button class="continue" data-go="#/drill/listen"><span class="ic">👂</span><span style="flex:1"><b>אוזן חדה</b><span>שמיעה – מילה שנשמעת, את מזהה</span></span><span class="arr">←</span></button>
           <button class="continue" data-go="#/drill/errors"><span class="ic">🕵️</span><span style="flex:1"><b>ציד טעויות</b><span>מצאו את המשפט הנכון</span></span><span class="arr">←</span></button>
@@ -3739,11 +4118,27 @@ let DRILL=null;
 const DRILL_META={
   sprint:{icon:'⚡',title:'ספרינט 5 דקות',desc:'10 שאלות מעורבות מכל המסלול. תרגול מהיר לכל המוחות.'},
   listen:{icon:'👂',title:'אוזן חדה',desc:'שמיעה בלבד: הקשיבי, זהי ובחרי. תרגול לאוזן של רקדנית.'},
-  errors:{icon:'🕵️',title:'ציד טעויות',desc:'בכל שאלה מחכים שלושה משפטים – רק אחד נכון.'}
+  errors:{icon:'🕵️',title:'ציד טעויות',desc:'בכל שאלה מחכים שלושה משפטים – רק אחד נכון.'},
+  adaptive:{icon:'🧠',title:'אימון AI מותאם אישית',desc:'תרגילים שהבינה המלאכותית בנתה במיוחד עבורך לפי הטעויות, המילים והנושאים שדורשים חיזוק תוך כדי תנועה.'}
 };
 function startDrill(kind){
   let pool=[];
-  if(kind==='sprint') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>['mcq','type','gap','scr'].includes(e.t))).slice(0,10);
+  const adaptive=ensureAdaptiveState();
+  if(kind==='adaptive'){
+    pool=(adaptive.lastBooster?.exercises?.length?adaptive.lastBooster.exercises:adaptive.customExercises)||[];
+    if(!pool.length){
+      const booster=buildLocalAdaptiveBooster(learnerAdaptiveSummary());
+      adaptive.lastBooster=booster;
+      adaptive.customExercises=booster.exercises;
+      pool=booster.exercises;
+    }
+    pool=pool.slice(0,8);
+  }
+  if(kind==='sprint'){
+    const custom=(adaptive.customExercises||[]).slice(0,4);
+    const base=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>['mcq','type','gap','scr'].includes(e.t))).slice(0,10-custom.length);
+    pool=shuffle([...custom,...base]);
+  }
   if(kind==='listen') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>['listen','listenmcq'].includes(e.t))).slice(0,10);
   if(kind==='errors') pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>e.t==='mcq'&&e.q.includes('איזה משפט'))).slice(0,10);
   if(pool.length<3) pool=shuffle(UNITS.flatMap(u=>u.exercises).filter(e=>e.t==='mcq')).slice(0,8);
@@ -3800,6 +4195,15 @@ const SPEAK_SENTENCES=[
   {en:'Where is the dance studio?',he:'איפה סטודיו הריקוד?'},
   {en:'The party is on Friday. Are you ready?',he:'המסיבה ביום שישי. את מוכנה?'}
 ];
+function getProfileSpeakSentences(){
+  const unitSentences=UNITS.flatMap(u=>(u.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe})));
+  const adaptiveWords=(ensureAdaptiveState().lastBooster?.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe}));
+  const combined=[...adaptiveWords,...unitSentences];
+  if(combined.length>=6 && (ACTIVE_CURRICULUM || CURRENT_UI_LANGUAGE!=='he' || CURRENT_LEARNER_PROFILE.learningLanguage!=='English')){
+    return combined.slice(0,10);
+  }
+  return SPEAK_SENTENCES;
+}
 
 
 
@@ -3813,14 +4217,15 @@ const SPEAK_SENTENCES=[
 
 let SPEAK={idx:0,results:[],started:false,last:null};
 function pageSpeak(){
+  const sentences=getProfileSpeakSentences();
   if(!SPEAK.started){
     return `<div class="page"><div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">🎤 תרגול דיבור</h1></div></div>
-      <div class="card center"><div style="font-size:2.6rem">🎤</div><h2 style="margin:6px 0">תדבר כמו על המגרש</h2>
-      <p class="muted small">10 משפטים על ריקוד וחברות. הקשיבי, אמרי בקול, וקבלי ציון על מה שנקלט. הדפדפן צריך לאשר גישה למיקרופון.</p>
-      <div class="fact" style="text-align:start;margin-top:12px">טיפ: לאט וברור מנצח מהר ומבולגן. גם שופט לא שומע הילה.</div>
+      <div class="card center"><div style="font-size:2.6rem">🎤</div><h2 style="margin:6px 0">תרגול הגייה שוטפת</h2>
+      <p class="muted small">${sentences.length} משפטים מתוך המסלול האישי שלך. הקשיבי, אמרי בקול, וקבלי ציון על מה שנקלט. הדפדפן צריך לאשר גישה למיקרופון.</p>
+      <div class="fact" style="text-align:start;margin-top:12px">טיפ: לאט וברור מנצח מהר ומבולגן.</div>
       <button class="btn primary" style="margin-top:14px" data-act="speak-start">▶ להתחיל</button></div></div>`;
   }
-  if(SPEAK.idx>=SPEAK_SENTENCES.length){
+  if(SPEAK.idx>=sentences.length){
     const avg=SPEAK.results.length?Math.round(SPEAK.results.reduce((a,b)=>a+b,0)/SPEAK.results.length):0;
     return `<div class="page"><div class="chat-summary"><div class="card result-hero">
       <div style="font-size:2.2rem">🎤</div><div class="result-score">${avg}%</div><h2>${avg>=80?'הגייה חזקה!':avg>=55?'יש בסיס טוב':'כל חזרה תשפר'}</h2>
@@ -3828,10 +4233,10 @@ function pageSpeak(){
       <div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" data-act="speak-start">🔁 עוד סיבוב</button><button class="btn ghost" data-go="#/review">לתפריט</button></div>
     </div></div></div>`;
   }
-  const s=SPEAK_SENTENCES[SPEAK.idx];
+  const s=sentences[SPEAK.idx];
   return `<div class="page"><div class="chat-summary">
-    <div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">🎤 תרגול דיבור</h1><div class="page-sub" style="margin:0">${SPEAK.idx+1} מתוך ${SPEAK_SENTENCES.length}</div></div></div>
-    <div class="ex-progress"><i style="width:${Math.round(SPEAK.idx/SPEAK_SENTENCES.length*100)}%"></i></div>
+    <div class="page-head"><button class="back" data-go="#/review">→</button><div><h1 class="page-title">🎤 תרגול דיבור</h1><div class="page-sub" style="margin:0">${SPEAK.idx+1} מתוך ${sentences.length}</div></div></div>
+    <div class="ex-progress"><i style="width:${Math.round(SPEAK.idx/sentences.length*100)}%"></i></div>
     <div class="card">
       <div class="ex-sentence" style="font-size:1.1rem">${esc(s.en)}</div>
       <div class="small muted">${s.he}</div>
@@ -3866,7 +4271,8 @@ function speakMic(){
     if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">ההקלטה הופסקה.</div>';
     return;
   }
-  const s=SPEAK_SENTENCES[SPEAK.idx];
+  const sentences=getProfileSpeakSentences();
+  const s=sentences[SPEAK.idx]||SPEAK_SENTENCES[0];
   if(box) box.innerHTML='<div class="fb info" style="margin-top:12px">🎧 מקשיבה… דברי עכשיו</div>';
   RECOGNIZER=listenOnce(learningSpeechLocale(),alts=>{
     const heard=alts[0]||'';
@@ -3902,8 +4308,23 @@ function pageStats(){
   ];
   const week=[]; for(let i=6;i>=0;i--){ const t=Date.now()-i*DAY, k=dateKey(t); week.push({k,label:new Date(t).toLocaleDateString('he-IL',{weekday:'short'}),xp:S.activeDays[k]||0,today:i===0}); }
   const max=Math.max(10,...week.map(w=>w.xp));
+  const adaptiveSum=learnerAdaptiveSummary();
+  const recentMistakes=(S.adaptive?.mistakeLog||[]).slice(-5).reverse();
   return `<div class="page">
     <div class="page-head"><h1 class="page-title">📈 ההתקדמות שלך</h1><p class="page-sub">לא רק ציונים – תמונת מצב של איך את לומדת, זוכרת ומדברת.</p></div>
+    ${adaptiveCoachRadarHTML()}
+    ${recentMistakes.length?`<div class="card section">
+      <div class="section-head"><h2>🔍 יומן למידה אדפטיבי – מה המאמנת זיהתה</h2><span class="tag purple">${(S.adaptive?.customExercises||[]).length} תרגילים אישיים נבנו</span></div>
+      <p class="small muted">הבינה המלאכותית שומרת דפוסי טעויות מהתרגולים ומהשיחות ומשלבת אותם אוטומטית באימונים הבאים שלך.</p>
+      <div class="col" style="margin-top:8px">
+        ${recentMistakes.map(m=>`<div class="card flat" style="padding:10px 12px">
+          <div class="row" style="justify-content:space-between"><span class="tag ${m.skill==='chat'?'cyan':'gold'}">${m.skill==='chat'?'💬 תיקון משיחה':m.ruleTitle||m.skill||'תרגול'}</span><span class="tiny muted">${m.at?new Date(m.at).toLocaleDateString('he-IL'):''}</span></div>
+          <div class="small" style="margin-top:5px">${esc(m.q||'')}</div>
+          ${m.expected?`<div class="tiny" style="margin-top:3px;color:var(--lime)">✓ צורה נכונה: <b class="en">${esc(m.expected)}</b></div>`:''}
+          ${m.why?`<div class="tiny muted" style="margin-top:2px">${esc(m.why)}</div>`:''}
+        </div>`).join('')}
+      </div>
+    </div>`:''}
     <div class="grid two">
       <div class="card">
         <div class="row"><span class="tag lime">רמה ${li.lvl}</span><span class="tag">${S.xp} XP</span></div>
@@ -3992,6 +4413,14 @@ function adminStudentCard(student){
         const percent=skill.accuracy==null?0:Math.max(0,Math.min(100,Number(skill.accuracy)||0));
         return `<div class="admin-mini-bar"><span>${skillLabels[skill.key]||esc(skill.key)}</span><div class="admin-progress-track"><i style="width:${percent}%"></i></div><b>${skill.accuracy==null?'—':`${percent}%`}</b></div>`;
       }).join('')}</div>`:''}
+      ${student.adaptiveProfile&&(student.adaptiveProfile.weakRules?.length||student.adaptiveProfile.weakWords?.length||student.adaptiveProfile.strongRules?.length||student.adaptiveProfile.discoveredInterests?.length)?`
+      <div class="card flat" style="margin-top:8px;padding:10px;border-color:rgba(192,132,252,.35);background:rgba(192,132,252,.06)">
+        <div class="tiny" style="font-weight:800;color:var(--purple)">🧠 פרופיל אדפטיבי שה-AI למד על התלמיד/ה:</div>
+        ${student.adaptiveProfile.weakRules?.length?`<div class="tiny muted" style="margin-top:4px">לחיזוק: <b>${student.adaptiveProfile.weakRules.map(esc).join(' · ')}</b></div>`:''}
+        ${student.adaptiveProfile.weakWords?.length?`<div class="tiny muted" style="margin-top:2px">מילים לחיזוק: <b class="en">${student.adaptiveProfile.weakWords.map(esc).join(', ')}</b></div>`:''}
+        ${student.adaptiveProfile.strongRules?.length?`<div class="tiny muted" style="margin-top:2px">שליטה חזקה: <b>${student.adaptiveProfile.strongRules.map(esc).join(' · ')}</b></div>`:''}
+        ${student.adaptiveProfile.discoveredInterests?.length?`<div class="tiny muted" style="margin-top:2px">תחומי עניין שהתגלו בשיחה: <b>${student.adaptiveProfile.discoveredInterests.map(esc).join(' · ')}</b></div>`:''}
+      </div>`:''}
     `}
     <div class="tiny muted" style="margin-top:10px">מסלול נוכחי: ${student.curriculum?`${esc(student.curriculum.title)} (${esc(student.curriculum.level)} · ${Number(student.curriculum.unitCount)||0} יחידות)`:'מסלול בסיסי מותאם פרופיל'}</div>
     ${student.pendingNextCurriculum?`<div class="card flat" style="margin-top:8px;padding:10px;border-color:rgba(255,201,77,.4);background:rgba(255,201,77,.07)">
@@ -4954,6 +5383,8 @@ function handleGlobalClick(e){
     case 'start-review': startReview(); break;
     case 'end-review': S.review.finished=true; S.review.queue=[]; save(); go('#/review'); break;
     case 'start-drill': startDrill(act.dataset.kind); break;
+    case 'adaptive-generate-open': generateAdaptiveBooster({openAfter:true}); break;
+    case 'adaptive-refresh': generateAdaptiveBooster({silent:false}); break;
     case 'speak-start': startSpeak(); break;
     case 'speak-mic': speakMic(); break;
     case 'speak-next': nextSpeak(); break;
@@ -5171,12 +5602,12 @@ function chatMessagesHTML(){
     return `<div class="msg ai ${S.settings.showTr?'show-tr':''}" data-mi="${i}">
       ${corr}${praise}
       <div class="bubble"><span class="en">${fmt(m.text,true)}</span>${m.he?`<div class="he-tr">${esc(m.he)}</div>`:''}</div>
-      ${sugg}${words}
       <div class="bubble-actions">
         <button class="iconbtn ${SPEAKING_CHAT_INDEX===i?'speaking':''}" data-chat-say="${i}" title="השמעה" aria-label="השמעה" aria-pressed="${SPEAKING_CHAT_INDEX===i?'true':'false'}">🔊</button>
         <button class="iconbtn stop-btn ${SPEAKING_CHAT_INDEX===i?'':'hide'}" data-chat-stop="${i}" title="עצירת השמעה" aria-label="עצירת השמעה">⏹️</button>
         <button class="iconbtn" data-chat-tr="${i}" title="תרגום" aria-label="תרגום">🌐</button>
       </div>
+      ${words}${sugg}
     </div>`;
   }).join('');
   if(CHAT_BUSY) out+=`<div class="msg ai"><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div></div>`;
@@ -5227,6 +5658,7 @@ function sendText(text){
   if(canUseAI()){
     aiTurn(text).then(res=>{
       CHAT_BUSY=false;
+      recordAdaptiveChatTurn(text,res);
       appendAI(res);
       if(S.settings.autoSpeak) speak(res.reply,undefined,{chatIndex:(S.chat.messages||[]).length-1});
     }).catch(err=>{
@@ -5234,7 +5666,9 @@ function sendText(text){
       // The AI service is unreachable: keep the conversation alive locally.
       if(err && (err.status===503 || err.status===502 || err.name==='AbortError')){
         AI_AVAILABLE=false;
-        appendAI({...localCoachReply(text), error:'השירות המקוון לא זמין כרגע – ממשיכים במאמנת המקומית.'});
+        const fallbackRes={...localCoachReply(text), error:'השירות המקוון לא זמין כרגע – ממשיכים במאמנת המקומית.'};
+        recordAdaptiveChatTurn(text,fallbackRes);
+        appendAI(fallbackRes);
         toast('עברנו למאמנת המקומית');
         return;
       }
@@ -5244,6 +5678,7 @@ function sendText(text){
     setTimeout(()=>{
       CHAT_BUSY=false;
       const res=localCoachReply(text);
+      recordAdaptiveChatTurn(text,res);
       appendAI(res);
       if(S.settings.autoSpeak) speak(res.reply,undefined,{chatIndex:(S.chat.messages||[]).length-1});
     },650);
@@ -5302,7 +5737,13 @@ function buildSystemPrompt(sc){
  const levelTarget=CURRENT_LEARNER_PROFILE.targetLevel&&CURRENT_LEARNER_PROFILE.targetLevel!==level
    ? `The learner is approaching CEFR ${CURRENT_LEARNER_PROFILE.targetLevel}.`
    : '';
- return `You are ${sc.who}, a ${sc.role}, inside a personal ${learningLanguage}-learning app for ${learnerName}. ${genderGuidance} The scenario metadata is only topic guidance; conduct the conversation in ${learningLanguage}, even if the metadata is written in another language. Known interests: ${learnerInterests}. Use these interests naturally for examples and questions, without forcing them into every turn. ${levelTarget}
+ const adaptiveSum=learnerAdaptiveSummary();
+ const adaptiveCoachingNotes=[
+   adaptiveSum.weakRules.length?`Grammar topics the learner currently struggles with (gently model these in conversation): ${adaptiveSum.weakRules.map(r=>`${r.title} (${r.acc}%)`).join(', ')}.`:'',
+   adaptiveSum.weakWords.length?`Vocabulary words the learner needs to reinforce (weave 1 of these naturally if relevant): ${adaptiveSum.weakWords.map(w=>w.en).join(', ')}.`:'',
+   adaptiveSum.discoveredInterests.length?`Topics the learner recently mentioned enjoying: ${adaptiveSum.discoveredInterests.join(', ')}.`:''
+ ].filter(Boolean).join(' ');
+ return `You are ${sc.who}, a ${sc.role}, inside a personal ${learningLanguage}-learning app for ${learnerName}. ${genderGuidance} The scenario metadata is only topic guidance; conduct the conversation in ${learningLanguage}, even if the metadata is written in another language. Known interests: ${learnerInterests}. Use these interests naturally for examples and questions, without forcing them into every turn. ${levelTarget} ${adaptiveCoachingNotes}
 
 YOUR ROLE: Be a warm, funny, encouraging ${learningLanguage} conversation coach and stay in character. The scenario: ${sc.title} / ${sc.desc}
 Target vocabulary you may weave in naturally: ${target}.

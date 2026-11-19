@@ -116,6 +116,13 @@
     });
   }
 
+  function aiAdaptiveBooster(options = {}) {
+    return apiRequest('/ai/adaptive-booster', {
+      method: 'POST',
+      body: JSON.stringify(options),
+    });
+  }
+
   async function login(username, password) {
     const result = await apiRequest('/auth/login', {
       method: 'POST',
@@ -412,6 +419,7 @@
     load,
     curriculum,
     aiChat,
+    aiAdaptiveBooster,
     save,
     flush,
     lastSyncedAt: () => lastSyncedAt,

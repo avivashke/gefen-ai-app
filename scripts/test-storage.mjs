@@ -16,6 +16,7 @@ delete process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 const {
   handleActivateStudent,
+  handleAdaptiveBooster,
   handleAdminApproveNextCurriculum,
   handleAdminLogin,
   handleAdminCurriculumReports,
@@ -603,7 +604,58 @@ try {
   assert.equal((await getStudentRecord('YULI')).level, 'B1+');
   assert.equal((await getStudentRecord('YULI')).pendingNextCurriculum, null);
 
-  console.log('Storage/auth and curriculum flow passed: activation, course isolation, AI validation, progress archiving, next-module staging/approval/80-score unlock, reset, and admin reports.');
+  // Test adaptive learning booster endpoint & learner telemetry
+  const adaptiveCourseId = (await getStudentRecord('GEFEN')).curriculum.id;
+  await call(handleSaveProgress, {
+    headers: gefenHeaders,
+    body: {
+      data: {
+        courseId: adaptiveCourseId,
+        xp: 50,
+        rules: { 'be-positive': { seen: 4, ok: 1, bad: 3 } },
+        words: { studio: { box: 1, seen: 3, wrong: 2, lastResult: false } },
+        adaptive: {
+          mistakeLog: [{ q: 'I ___ a dancer.', expected: 'am', why: 'With I use am.' }],
+          discoveredInterests: ['music', 'painting'],
+        },
+      },
+      client_updated_at: new Date(Date.now() + 5000).toISOString(),
+    },
+  });
+
+  aiResult = {
+    title: 'בוסטר חיזוק לפועל Be',
+    coachInsight: 'שמתי לב שכדאי לחזק את am / is / are עם דוגמאות מעולם המוזיקה והציור.',
+    focusRule: 'be-positive',
+    words: [
+      { en: 'melody', he: 'מנגינה', pron: 'MEL-uh-dee', ex: 'This melody is beautiful.', exHe: 'המנגינה הזו יפה.' },
+      { en: 'canvas', he: 'בד ציור', pron: 'KAN-vus', ex: 'The canvas is ready.', exHe: 'בד הציור מוכן.' },
+    ],
+    exercises: [
+      { t: 'mcq', q: 'I ___ ready for the music lesson.', opts: ['am', 'is', 'are'], ans: 'am', why: 'עם I משתמשים ב-am.', hint: 'I -> am' },
+      { t: 'type', q: 'Translate: המנגינה יפה (The melody is beautiful)', ans: ['The melody is beautiful'], why: 'The melody = it -> is.', hint: 'The melody is...' },
+      { t: 'scr', q: 'Arrange: בד הציור מוכן', sentence: 'The canvas is ready.', ans: ['The canvas is ready.'], why: 'The canvas + is + ready.', hint: 'Start with The' },
+      { t: 'gap', q: 'Complete with is:', sentence: 'My friend ___ a great painter.', ans: ['is'], why: 'My friend = she/he -> is.', hint: 'is' },
+    ],
+  };
+  const boosterRes = await call(handleAdaptiveBooster, {
+    headers: gefenHeaders,
+    body: { focusTopic: 'music and painting' },
+  });
+  assert.equal(boosterRes.statusCode, 200);
+  assert.equal(boosterRes.body.booster.title, 'בוסטר חיזוק לפועל Be');
+  assert.equal(boosterRes.body.booster.exercises.length, 4);
+  assert.equal(boosterRes.body.booster.words.length, 2);
+  assert.match(aiRequestBody.messages[1].content, /Words to review and weave into examples\/questions:.*studio/);
+  assert.match(aiRequestBody.messages[1].content, /music, painting/);
+
+  const adminStudentsWithAdaptive = await call(handleAdminStudents, { headers: adminHeaders });
+  const gefenAdminSummary = adminStudentsWithAdaptive.body.students.find((s) => s.key === 'GEFEN');
+  assert.ok(gefenAdminSummary.adaptiveProfile);
+  assert.deepEqual(gefenAdminSummary.adaptiveProfile.weakWords.map((w) => w.en), ['studio']);
+  assert.deepEqual(gefenAdminSummary.adaptiveProfile.discoveredInterests, ['music', 'painting']);
+
+  console.log('Storage/auth, curriculum, and adaptive AI learning flow passed.');
 } finally {
   globalThis.fetch = originalFetch;
   fs.rmSync(dataDir, { recursive: true, force: true });
