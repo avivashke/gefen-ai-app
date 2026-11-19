@@ -25,6 +25,30 @@
   --safe-b:env(safe-area-inset-bottom,0px);
   --fs:1;
 }
+html[data-theme="barry"]{
+  --bg:#07140e; --bg2:#0c1d15; --card:#10261c; --card2:#153225; --card3:#1c4030;
+  --line:#214c38; --line2:#2f664c; --tx:#f1f9f4; --mu:#9ebfae; --mu2:#7e9f8e;
+  --lime:#22c55e; --lime-d:#16a34a; --cyan:#38bdf8; --gold:#facc15; --pink:#10b981;
+  --purple:#818cf8; --red:#f87171; --green:#34d399; --orange:#fb923c;
+}
+html[data-theme="barry"] body::before{background:var(--bg)}
+html[data-theme="barry"] .brand-mark{
+  background:linear-gradient(140deg,#22c55e,#0284c7);
+  color:#052e16;
+  box-shadow:0 8px 22px -10px rgba(34,197,94,.7);
+}
+html[data-theme="barry"] ::selection{background:rgba(34,197,94,.3)}
+html[data-theme="barry"] .tag.lime{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.35);color:#4ade80}
+html[data-theme="barry"] .hero{
+  background:
+    radial-gradient(600px 240px at 90% -30%,rgba(34,197,94,.22),transparent 70%),
+    linear-gradient(135deg,#133022,#091a13 60%);
+  border-color:var(--line2);
+}
+html[data-theme="barry"] .hero::after{
+  content:"⚽";
+  position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.06;transform:rotate(-18deg);pointer-events:none;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
@@ -1579,6 +1603,215 @@ function defaultUnitsForProfile(){
       }
     ];
   }
+  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && lang==='English');
+  if(isBarry){
+    return [
+      {
+        id:'u1', n:1, icon:'⚽', color:'lime', cefr:'A2',
+        title:'Match Day, Tactics & Teamwork',
+        he:'יום המשחק, טקטיקה ועבודת צוות (כדורגל וספורט A2)',
+        lead:'אתה כבר יודע אנגלית בסיסית. עכשיו ברמת A2 לומדים לתאר משחקים מרגשים, פעולות מהירות על המגרש וניצחונות גדולים באמצעות פעלים לא-רגילים בעבר (Past Simple).',
+        canDo:['לספר על משחק כדורגל ואירועי ספורט בעבר באנגלית','להשתמש בפעלים לא-רגילים בעבר (won, scored, ran, caught, beat)','לתאר עבודת צוות, אסטרטגיה ומהלכים על המגרש'],
+        fact:'כדורגל הוא הספורט הנצפה ביותר בעולם עם מעל 4 מיליארד אוהדים! בעיטת הכדורגל המהירה ביותר שנמדדה אי פעם הגיעה למהירות מדהימה של 210 קמ"ש.',
+        rules:[
+          {id:'a2-past-irregular', title:'פעלים לא-רגילים בעבר (Past Simple Irregular Verbs)', short:'win → won · run → ran · score → scored · catch → caught',
+           formula:'Subject + Past verb (ran / scored / won / beat)\nWe won the championship yesterday!\nHe scored a brilliant goal in the 90th minute.',
+           body:'בזמן Past Simple, פעלים רבים באנגלית אינם מקבלים -ed אלא משנים צורה לחלוטין: <b>win</b> הופך ל-<b>won</b>, <b>run</b> הופך ל-<b>ran</b>, <b>catch</b> הופך ל-<b>caught</b>. משתמשים בצורות האלו כדי לספר מה קרה במשחק שהסתיים.',
+           examples:[{en:'Our team won the championship yesterday.',he:'הקבוצה שלנו זכתה באליפות אתמול.'},{en:'He ran past three defenders and scored.',he:'הוא רץ מעבר לשלושה מגנים והבקיע.'},{en:'The goalkeeper caught the ball in the last second.',he:'השוער תפס את הכדור בשנייה האחרונה.'}],
+           mistake:'We <b>winned</b> the final game. → We <b>won</b> the final game.',
+           hook:'פעלים חזקים בספורט משנים צורה בעבר: win הופך ל-won, ו-run הופך ל-ran!'},
+          {id:'a2-time-past', title:'ביטויי זמן בעבר: yesterday, last week, ago', short:'yesterday / last match / two days ago',
+           formula:'Time expression at start or end of sentence:\nYesterday, we practiced penalties.\nOur team beat the rivals two weeks ago.',
+           body:'כדי לדייק מתי התרחש המשחק או האימון, מוסיפים ביטויי זמן בעבר: <b>yesterday</b> (אתמול), <b>last week / last match</b> (בשבוע שעבר / במשחק שעבר), או <b>ago</b> (לפני – לדוגמה: three days ago).',
+           examples:[{en:'We had intense training yesterday.',he:'היה לנו אימון אינטנסיבי אתמול.'},{en:'They scored three goals ten minutes ago.',he:'הם הבקיעו שלושה שערים לפני עשר דקות.'}],
+           mistake:'two days <b>before</b> we won → two days <b>ago</b> we won.',
+           hook:'כשסופרים זמן לאחור מההווה משתמשים ב-ago: five minutes ago!'}
+        ],
+        words:[
+          {en:'stadium',he:'אצטדיון',pron:'STAY-dee-um',ex:'Eighty thousand fans cheered in the stadium.',exHe:'שמונים אלף אוהדים הריעו באצטדיון.'},
+          {en:'champion',he:'אלוף',pron:'CHAM-pee-on',ex:'Our team fought hard and became the champion.',exHe:'הקבוצה שלנו נלחמה קשה והפכה לאלופה.'},
+          {en:'score',he:'להבקיע / ניקוד',pron:'SKOR',ex:'He managed to score a goal from thirty meters.',exHe:'הוא הצליח להבקיע שער ממרחק שלושים מטרים.'},
+          {en:'match',he:'משחק / התמודדות',pron:'MATCH',ex:'The championship match was tense until the final whistle.',exHe:'משחק האליפות היה מותח עד שריקת הסיום.'},
+          {en:'teammate',he:'חבר לקבוצה',pron:'TEEM-mayt',ex:'He passed the ball directly to his teammate.',exHe:'הוא מסר את הכדור ישירות לחבר שלו לקבוצה.'},
+          {en:'coach',he:'מאמן',pron:'KOHTCH',ex:'The coach gave us inspiring instructions before the game.',exHe:'המאמן נתן לנו הוראות מעוררות השראה לפני המשחק.'},
+          {en:'trophy',he:'גביע',pron:'TROH-fee',ex:'The captain lifted the gold trophy with pride.',exHe:'הקפטן הניף את גביע הזהב בגאווה.'}
+        ],
+        reading:{
+          title:'הגמר הגדול והשער בדקה ה-90',
+          passage:'Last Saturday, Barry played in the regional football final. The stadium was packed with loud supporters. In the first half, the score was zero to zero because both defenses played aggressively. Five minutes before the final whistle, the opponent team attacked, but our goalkeeper made an unbelievable save. Then, Barry received a long pass, ran past two defenders, and scored the winning goal! The coach ran onto the pitch and the team lifted the trophy.',
+          vocabulary:[
+            {en:'final',he:'גמר'},{en:'stadium',he:'אצטדיון'},{en:'supporters',he:'אוהדים'},{en:'half',he:'מחצית'},
+            {en:'whistle',he:'שריקה'},{en:'goalkeeper',he:'שוער'},{en:'save',he:'הצלה'},{en:'received',he:'קיבל'},
+            {en:'defenders',he:'מגנים'},{en:'scored',he:'הבקיע'},{en:'coach',he:'מאמן'},{en:'trophy',he:'גביע'}
+          ],
+          questions:[
+            {q:'למה התוצאה במחצית הראשונה הייתה 0-0?',opts:['כי שתי ההגנות שיחקו בצורה אגרסיבית','כי אף אחד לא בעט לשער','כי השופט ביטל את השערים'],ans:'כי שתי ההגנות שיחקו בצורה אגרסיבית',why:'בקטע כתוב: the score was zero to zero because both defenses played aggressively.'},
+            {q:'מה קרה רגע לפני שבארי הבקיע את שער הניצחון?',opts:['השוער ביצע הצלה לא תיאמן','הקפטן נפצע והוחלף','הקהל פרץ למגרש'],ans:'השוער ביצע הצלה לא תיאמן',why:'בקטע כתוב: our goalkeeper made an unbelievable save.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a2-past-irregular',q:'Our team played amazingly and ___ the cup last night.',opts:['won','winned','wins'],ans:'won',why:'הפועל win הופך בעבר ל-won.',hint:'צורה לא-רגילה: win → won.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a2-time-past',q:'The referee blew the final whistle five minutes ___ .',opts:['ago','before','yesterday'],ans:'ago',why:'כשסופרים זמן לאחור ("לפני חמש דקות") משתמשים ב-ago.',hint:'five minutes + ago.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'a2-past-irregular',q:'השלם את צורת העבר של run: The striker ___ very fast.',ans:['ran'],why:'העבר של run הוא ran.',hint:'אות אחת משתנה: u הופכת ל-a.'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a2-past-irregular',q:'סדר את המשפט: הוא הבקיע שער מדהים אתמול.',sentence:'He scored an incredible goal yesterday.',ans:['He scored an incredible goal yesterday.'],why:'He + scored + an incredible goal + yesterday.',hint:'מתחילים ב-He.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a2-past-irregular',q:'השלם את צורת העבר של הפועל catch:',sentence:'The goalkeeper ___ the ball in the air.',ans:['caught'],why:'העבר של catch הוא caught.',hint:'מתחיל ב-c ומסתיים ב-aught.'}
+        ]
+      },
+      {
+        id:'u2', n:2, icon:'🦁', color:'gold', cefr:'A2',
+        title:'Animal Superpowers & Wildlife',
+        he:'כוחות-על בטבע ועולם החי (חיות וטבע A2)',
+        lead:'עולם החיות מלא בכישורי הישרדות עוצרי נשימה: ריצה במהירויות על, הסוואה בלתי נראית וחושים חדים פי עשרה משל בני אדם. ביחידה זו נלמד להשוות ביניהן בעזרת דרגות השוואה (Comparatives & Superlatives).',
+        canDo:['להשוות בין חיות וטורפים בטבע בעזרת דרגות השוואה באנגלית','להשתמש ב-faster than, the fastest, more dangerous than','לתאר סביבות מחיה ויכולות הישרדות מיוחדות'],
+        fact:'הברדלס (Cheetah) מאיץ מ-0 ל-100 קמ"ש תוך 3 שניות – מהר יותר מרוב מכוניות הספורט! אבל באוויר, הבז הנודד (Peregrine Falcon) צולל במהירות בלתי נתפסת של 390 קמ"ש!',
+        rules:[
+          {id:'a2-comparatives', title:'השוואה בין שניים: תואר + er + than', short:'fast → faster than · strong → stronger than',
+           formula:'Animal A + is + adjective-er + than + Animal B\nThe cheetah is faster than the lion.\nAn eagle is larger than a falcon.',
+           body:'כשמשווים בין שני דברים באנגלית, מוסיפים לסיומת של תואר קצר <b>-er</b> ואחריו את המילה <b>than</b> (מ-). לתארים ארוכים (כמו dangerous או intelligent) לא מוסיפים er אלא אומרים: <b>more + adjective + than</b>.',
+           examples:[{en:'A cheetah is faster than any horse.',he:'ברדלס מהיר יותר מכל סוס.'},{en:'Lions are more dangerous than wolves.',he:'אריות מסוכנים יותר מזאבים.'}],
+           mistake:'A cheetah is more fast than a lion. → A cheetah is <b>faster than</b> a lion.',
+           hook:'לתואר קצר (fast) מוסיפים er + than! לתואר ארוך (dangerous) שמים more מלפנים.'},
+          {id:'a2-superlatives', title:'השיאן בקבוצה: the + תואר-est / the most', short:'the fastest · the strongest · the most powerful',
+           formula:'The + adjective-est / The most + adjective\nThe blue whale is the largest animal on Earth.\nThe falcon is the most incredible diver.',
+           body:'כדי לתאר את השיאן של הקבוצה ("הכי מהיר", "הכי חזק"), שמים <b>the</b> לפני התואר ומוסיפים לו את הסיומת <b>-est</b>. לתארים ארוכים משתמשים ב-<b>the most</b>.',
+           examples:[{en:'The peregrine falcon is the fastest bird in the world.',he:'הבז הנודד הוא הציפור המהירה ביותר בעולם.'},{en:'Chameleons have the most colorful camouflage.',he:'לזיקיות יש את ההסוואה הצבעונית ביותר.'}],
+           mistake:'He is the most fast animal. → He is <b>the fastest</b> animal.',
+           hook:'השיאן מקבל תמיד the בהתחלה, ו-est בסוף: the fastest!'}
+        ],
+        words:[
+          {en:'predator',he:'טורף',pron:'PRED-uh-ter',ex:'The lion is a formidable apex predator in Africa.',exHe:'האריה הוא טורף-על אדיר באפריקה.'},
+          {en:'cheetah',he:'ברדלס / צ\'יטה',pron:'CHEE-tuh',ex:'The cheetah can sprint at hundred kilometers per hour.',exHe:'הברדלס יכול לרוץ בספרינט במאה קילומטרים לשעה.'},
+          {en:'camouflage',he:'הסוואה',pron:'KAM-oo-flahzh',ex:'Tigers use stripe camouflage to blend into tall grass.',exHe:'טיגריסים משתמשים בהסוואת פסים כדי להיטמע בעשב גבוה.'},
+          {en:'survival',he:'הישרדות',pron:'ser-VY-vul',ex:'Camouflage is essential for animal survival in the wild.',exHe:'הסוואה חיונית להישרדות בעלי חיים בטבע.'},
+          {en:'species',he:'מין (ביולוגי)',pron:'SPEE-sheez',ex:'Scientists discover new animal species every single year.',exHe:'מדענים מגלים מיני בעלי חיים חדשים בכל שנה ושנה.'},
+          {en:'wildlife',he:'חיות בר',pron:'WYLD-lyf',ex:'The national park protects endangered wildlife from poachers.',exHe:'הפארק הלאומי מגן על חיות בר בסכנת הכחדה מפני ציידים.'},
+          {en:'habitat',he:'סביבת מחיה / בית גידול',pron:'HAB-ih-tat',ex:'Polar bears depend on sea ice as their natural habitat.',exHe:'דובי קוטב תלויים בקרח הים כסביבת המחיה הטבעית שלהם.'}
+        ],
+        reading:{
+          title:'כוחות-העל של חיות הסוואנה',
+          passage:'The African savannah is home to some of the most extraordinary creatures on the planet. Animals here develop unique superpowers to survive. The cheetah is famous for being the fastest runner on four legs, using its long flexible spine and non-retractable claws like athletic cleats. Meanwhile, the leopard is not as fast, but it is much stronger than the cheetah. Leopards can drag prey twice their own weight high up into tree branches to keep it safe from hyenas. Across the sky, the martial eagle spots small movements from six kilometers away because its vision is eight times sharper than a human’s!',
+          vocabulary:[
+            {en:'savannah',he:'סוואנה'},{en:'extraordinary',he:'יוצא דופן'},{en:'survive',he:'לשרוד'},{en:'flexible',he:'גמיש'},
+            {en:'claws',he:'טפרים'},{en:'cleats',he:'פקקים (בנעלי ספורט)'},{en:'drag',he:'לגרור'},{en:'branches',he:'ענפים'},
+            {en:'hyenas',he:'צבועים'},{en:'eagle',he:'עיט'},{en:'vision',he:'ראייה'},{en:'sharper',he:'חדה יותר'}
+          ],
+          questions:[
+            {q:'במה הנמר (leopard) עולה על הברדלס (cheetah)?',opts:['הוא חזק ממנו ויכול לגרור טרף כבד על עצים','הוא רץ מהר יותר ממנו למרחקים ארוכים','יש לו ראיית לילה טובה יותר'],ans:'הוא חזק ממנו ויכול לגרור טרף כבד על עצים',why:'בקטע כתוב: it is much stronger than the cheetah. Leopards can drag prey twice their own weight high up into tree branches.'},
+            {q:'עד כמה ראייתו של העיט חדה יותר מזו של אדם?',opts:['פי 8 מראיית אדם','פי 2 מראיית אדם','פי 20 מראיית אדם'],ans:'פי 8 מראיית אדם',why:'בקטע כתוב: its vision is eight times sharper than a human’s!'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u2.x1',skill:'grammar',rule:'a2-comparatives',q:'A cheetah is ___ than a grizzly bear.',opts:['faster','fastest','more fast'],ans:'faster',why:'תואר קצר (fast) בהשוואה מקבל er + than: faster than.',hint:'fast + er.'},
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'a2-superlatives',q:'The blue whale is ___ animal in the ocean.',opts:['the largest','larger','most large'],ans:'the largest',why:'כדי לתאר את השיאן המוחלט שמים the ואז תואר עם est.',hint:'the + large + st.'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'a2-comparatives',q:'השלם את צורת ההשוואה של strong: The leopard is ___ than the cheetah.',ans:['stronger'],why:'strong הופך ל-stronger בהשוואה.',hint:'strong + er.'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'a2-superlatives',q:'סדר את המשפט: הבז הוא הציפור המהירה ביותר בעולם.',sentence:'The falcon is the fastest bird in the world.',ans:['The falcon is the fastest bird in the world.'],why:'The falcon + is + the fastest bird + in the world.',hint:'מתחילים ב-The falcon.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'a2-comparatives',q:'השלם את המילה החסרה אחרי תואר ההשוואה:',sentence:'An elephant is heavier ___ a rhino.',ans:['than'],why:'אחרי heavier חייבת לבוא המילה than (מ-).',hint:'מתחיל ב-t (4 אותיות).'}
+        ]
+      },
+      {
+        id:'u3', n:3, icon:'🌋', color:'pink', cefr:'A2',
+        title:'Wild Nature & Extreme Expeditions',
+        he:'טבע פראי, הרי געש ומסעות מחקר (טבע ומסעות A2)',
+        lead:'הטבע בכדור הארץ עוצמתי ובלתי צפוי: הרי געש מתפרצים, קרחונים ענקיים וסופות אוקיינוס. ביחידה זו לומדים לתכנן מסעות חקר עם be going to, ולדבר על סיבות ותוצאות עם משפטי תנאי ראשון (First Conditional).',
+        canDo:['לתכנן משלחת מחקר בטבע עם be going to באנגלית','להשתמש במשפטי תנאי ראשון (If we cross the river, we will find...)','לתאר תופעות טבע קיצוניות, הרי געש וקרחונים'],
+        fact:'מעל 80% מקרקעית האוקיינוסים מעולם לא נחקרה על ידי בני אדם! אנחנו יודעים יותר על פני הירח ומאדים מאשר על המעמקים המסתוריים ביותר של כדור הארץ.',
+        rules:[
+          {id:'a2-going-to', title:'תוכניות ומסעות לעתיד: be going to', short:'am / is / are + going to + פועל',
+           formula:'Subject + am/is/are + going to + verb\nWe are going to explore the volcanic crater tomorrow.\nHe is going to climb the glacier next week.',
+           body:'כשמתכננים פעולה עתידית שכבר הוחלט עליה (כמו מסע, טיול או ניסוי), משתמשים בצורה <b>be going to + פועל במקור</b>. זה מקביל ל"אני עומד/הולך לעשות".',
+           examples:[{en:'Our expedition team is going to study the volcano.',he:'צוות המשלחת שלנו הולך לחקור את הר הגעש.'},{en:'I am going to bring special heat-proof gear.',he:'אני הולך להביא ציוד מיוחד חסין חום.'}],
+           mistake:'We going to climb the mountain. → We <b>are going to climb</b> the mountain.',
+           hook:'אל תשכח את ה-be: I am going to, We are going to!'},
+          {id:'a2-first-conditional', title:'תנאי ראשון למצבים אמיתיים: If + Present, will + פועל', short:'If it rains, we will stay in the camp',
+           formula:'If + Present Simple, will / won\'t + base verb\nIf the volcano erupts, we will evacuate immediately.\nIf we follow the river, we will reach the ocean.',
+           body:'במשפטי תנאי ראשון (First Conditional), החלק עם <b>if</b> (אם) מתאר תנאי אפשרי בהווה ונוסח ב-Present Simple, והתוצאה בעתיד מקבלת <b>will</b> או <b>won\'t</b>.',
+           examples:[{en:'If we find water, the expedition will continue.',he:'אם נמצא מים, המשלחת תימשך.'},{en:'If the weather turns stormy, we won\'t cross the glacier.',he:'אם מזג האוויר יהפוך לסוער, לא נחצה את הקרחון.'}],
+           mistake:'If it <b>will rain</b>, we will wait. → If it <b>rains</b>, we will wait.',
+           hook:'אחרי if שמים הווה פשוט (Present Simple), ובתוצאה שמים will!'}
+        ],
+        words:[
+          {en:'volcano',he:'הר געש',pron:'vol-KAY-noh',ex:'The volcano spewed red lava high into the night sky.',exHe:'הר הגעש פלט לבה אדומה גבוה אל שמי הלילה.'},
+          {en:'rainforest',he:'יער גשם',pron:'RAYN-for-est',ex:'The Amazon is the largest tropical rainforest in the world.',exHe:'האמזונס הוא יער הגשם הטרופי הגדול בעולם.'},
+          {en:'expedition',he:'משלחת מחקר / מסע',pron:'ex-peh-DISH-un',ex:'The scientific expedition spent three months in Antarctica.',exHe:'משלחת המחקר המדעית בילתה שלושה חודשים באנטארקטיקה.'},
+          {en:'glacier',he:'קרחון',pron:'GLAY-sher',ex:'The massive glacier moves slowly down the mountain valley.',exHe:'הקרחון העצום נע לאט במורד עמק ההר.'},
+          {en:'ocean',he:'אוקיינוס',pron:'OH-shun',ex:'The deepest parts of the ocean remain totally dark.',exHe:'החלקים העמוקים ביותר באוקיינוס נותרים חשוכים לחלוטין.'},
+          {en:'danger',he:'סכנה',pron:'DAYN-jer',ex:'Explorers must watch out for the danger of falling rocks.',exHe:'חוקרים חייבים להיזהר מסכנת סלעים נופלים.'},
+          {en:'explore',he:'לחקור / לסייר',pron:'ex-PLOR',ex:'We plan to explore hidden caves along the coast.',exHe:'אנחנו מתכננים לחקור מערות נסתרות לאורך החוף.'}
+        ],
+        reading:{
+          title:'משלחת מדעית להר געש פעיל',
+          passage:'Next month, an international team of scientists is going to launch an ambitious expedition to Mount Yasur, an active volcano on a remote Pacific island. Mount Yasur has been erupting almost continuously for hundreds of years. The researchers are going to place heat-resistant seismic sensors right near the rim of the crater. "If we collect accurate sound waves from inside the magma chamber, we will predict future explosions much earlier," explains the lead geologist. The team wears silver protective suits because volcanic rock bombs can reach temperatures of over one thousand degrees Celsius!',
+          vocabulary:[
+            {en:'ambitious',he:'שאפתני'},{en:'remote',he:'מרוחק'},{en:'island',he:'אי'},{en:'continuously',he:'ברציפות'},
+            {en:'heat-resistant',he:'עמיד בחום'},{en:'seismic',he:'סייסמי / של רעידות'},{en:'rim',he:'שפה / קצה'},{en:'crater',he:'לוע'},
+            {en:'magma',he:'מגמה'},{en:'explosions',he:'פיצוצים'},{en:'geologist',he:'גיאולוג'},{en:'suits',he:'חליפות'}
+          ],
+          questions:[
+            {q:'מה המדענים הולכים להציב ליד לוע הר הגעש?',opts:['חיישנים סייסמיים עמידים בחום','רובוט תת-ימי','מצלמת וידאו רגילה'],ans:'חיישנים סייסמיים עמידים בחום',why:'בקטע כתוב: The researchers are going to place heat-resistant seismic sensors right near the rim of the crater.'},
+            {q:'מה יקרה אם המשלחת תאסוף גלי קול מדויקים מתוך תא המגמה?',opts:['הם יוכלו לחזות התפרצויות מוקדם בהרבה','הם יעצרו את ההתפרצות לחלוטין','הר הגעש יתקרר במהירות'],ans:'הם יוכלו לחזות התפרצויות מוקדם בהרבה',why:'בקטע כתוב: If we collect accurate sound waves... we will predict future explosions much earlier.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a2-going-to',q:'Our science team ___ to explore the deep cave tomorrow.',opts:['is going','are going','going'],ans:'is going',why:'נושא ביחיד (our team) מקבל is going to.',hint:'is + going.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a2-first-conditional',q:'If the volcano erupts, we ___ to a safe zone immediately.',opts:['will evacuate','evacuated','evacuate'],ans:'will evacuate',why:'תוצאה של First Conditional מקבלת will + פועל בסיסי.',hint:'will + פועל.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'a2-going-to',q:'השלם את המילה החסרה: We are ___ to climb the glacier.',ans:['going'],why:'התבנית היא be going to.',hint:'going.'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a2-first-conditional',q:'סדר את המשפט: אם מזג האוויר יהיה בהיר, נגיע לפסגה.',sentence:'If the weather is clear we will reach the summit.',ans:['If the weather is clear we will reach the summit.'],why:'If the weather is clear, we will reach the summit.',hint:'מתחילים ב-If.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a2-first-conditional',q:'השלם את הפועל ב-Present Simple אחרי If:',sentence:'If they ___ fresh water, they will set up camp.',ans:['find'],why:'אחרי If משתמשים ב-Present Simple: they find.',hint:'פועל בצורת המקור find.'}
+        ]
+      },
+      {
+        id:'u4', n:4, icon:'🚀', color:'cyan', cefr:'A2',
+        title:'Science Lab & Space Facts',
+        he:'מעבדת מדע ועובדות חלל מדהימות (מדע ועובדות מעניינות A2)',
+        lead:'היקום מלא בתופעות מדעיות שמאתגרות את ההיגיון: כוכבי לכת בלי לילה, כוח כבידה שגורם לך לקפוץ פי שישה לגובה, וחורים שחורים שבולעים אפילו קרני אור. ביחידה זו נלמד להסביר תופעות מדעיות עם מודאלים (can, could, might, must) ומילות קישור (because, so).',
+        canDo:['להסביר עובדות מדעיות ותופעות חלל מרתקות באנגלית','להשתמש בפעלי עזר להשערה ויכולת (can, could, might, must be)','לחבר סיבה ותוצאה עם because ו-so'],
+        fact:'יום אחד בכוכב הלכת נוגה (Venus) ארוך יותר משנה שלמה שלו! לוקח לו 243 ימי כדור הארץ להסתובב סביב עצמו, אבל רק 225 ימים להקיף את השמש.',
+        rules:[
+          {id:'a2-modals-science', title:'פעלי עזר להשערה ויכולת: can, could, might, must', short:'can (יכול) · might (אולי) · must (חייב להיות)',
+           formula:'Subject + modal (can / might / must) + base verb\nAstronauts can jump very high on the Moon.\nThat bright light must be planet Jupiter.\nScientists might find microbial life on Mars.',
+           body:'במדע ובהשערות משתמשים בפעלי עזר: <b>can</b> מציין יכולת מוכחת, <b>might</b> מציין אפשרות שאינה ודאית ("אולי / ייתכן ש..."), ו-<b>must be</b> מציין מסקנה הגיונית כמעט בטוחה ("זה חייב להיות..."). אחרי כל המודאלים הפועל תמיד נשאר בצורתו הבסיסית!',
+           examples:[{en:'Light can travel three hundred thousand kilometers per second.',he:'אור יכול לנוע שלוש מאות אלף קילומטרים בשנייה.'},{en:'There must be billions of galaxies in our universe.',he:'חייבות להיות מיליארדי גלקסיות ביקום שלנו.'},{en:'Telescopes might detect water on distant exoplanets.',he:'טלסקופים עשויים לזהות מים בכוכבי לכת חוץ-שמשיים רחוקים.'}],
+           mistake:'It might <b>to rain</b> acid on Venus. → It might <b>rain</b> acid on Venus.',
+           hook:'אחרי can / might / must לא שמים to לעולם!'},
+          {id:'a2-connectors', title:'סיבה ותוצאה במדע: because ו-so', short:'because (בגלל ש...) · so (לכן / אז)',
+           formula:'Result + because + Reason: We float because gravity is low.\nReason + so + Result: Gravity is low, so we float.',
+           body:'כדי לחבר רעיונות מדעיים, משתמשים ב-<b>because</b> כדי להסביר את הסיבה ("למה זה קורה?"), וב-<b>so</b> כדי להסביר את התוצאה ("ומה קורה בעקבות זאת?").',
+           examples:[{en:'The Moon has less mass, so its gravity is weaker.',he:'לירח יש פחות מסה, לכן כוח הכבידה שלו חלש יותר.'},{en:'Stars shine bright because nuclear fusion produces energy.',he:'כוכבים מאירים בחוזקה מכיוון שהיתוך גרעיני מייצר אנרגיה.'}],
+           mistake:'Because it was cold, <b>so</b> we wore suits. → It was cold, <b>so</b> we wore suits.',
+           hook:'תבחר אחד: או because בהסבר, או so בתוצאה!'}
+        ],
+        words:[
+          {en:'gravity',he:'כוח כבידה',pron:'GRAV-ih-tee',ex:'Zero gravity allows astronauts to float inside the spaceship.',exHe:'אפס כבידה מאפשר לאסטרונאוטים לרחף בתוך החללית.'},
+          {en:'galaxy',he:'גלקסיה',pron:'GAL-ak-see',ex:'The Milky Way is our home spiral galaxy.',exHe:'שביל החלב הוא גלקסיית הבית הספירלית שלנו.'},
+          {en:'experiment',he:'ניסוי מדעי',pron:'ex-PEER-ih-ment',ex:'The scientist conducted an experiment to test the magnetic field.',exHe:'המדען ערך ניסוי כדי לבדוק את השדה המגנטי.'},
+          {en:'universe',he:'יקום',pron:'YOO-nih-vers',ex:'The universe contains over two trillion galaxies.',exHe:'היקום מכיל מעל שני טריליון גלקסיות.'},
+          {en:'planet',he:'כוכב לכת',pron:'PLAN-it',ex:'Jupiter is the largest planet in our solar system.',exHe:'צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.'},
+          {en:'discover',he:'לגלות',pron:'dih-SKUV-er',ex:'Astronomers hope to discover signs of life on icy moons.',exHe:'אסטרונומים מקווים לגלות סימני חיים על ירחים מכוסי קרח.'},
+          {en:'evidence',he:'ראיות / הוכחות',pron:'EV-ih-dents',ex:'Fossils provide direct evidence of ancient creatures.',exHe:'מאובנים מספקים ראיות ישירות לקיומם של יצורים קדומים.'}
+        ],
+        reading:{
+          title:'סודות מערכת השמש וכוח הכבידה',
+          passage:'Our solar system is packed with mind-boggling scientific mysteries. Take the planet Saturn, for example. Even though Saturn is ninety-five times more massive than Earth, it is made mostly of hydrogen and helium gases. Because its density is lower than water, Saturn could literally float in an enormous cosmic bathtub! Meanwhile, on our neighboring Moon, the gravitational pull is only one-sixth of Earth’s gravity. That means an astronaut who weighs sixty kilograms feels like only ten kilograms on lunar soil, so you can jump over vehicles with ease. Scientists continue to launch robotic probes because each new mission discovers unexpected evidence about the origins of our universe.',
+          vocabulary:[
+            {en:'mysteries',he:'מסתורין'},{en:'hydrogen',he:'מימן'},{en:'helium',he:'הליום'},{en:'density',he:'צפיפות'},
+            {en:'literally',he:'פשוטו כמשמעו'},{en:'enormous',he:'ענק'},{en:'lunar',he:'של הירח'},{en:'soil',he:'אדמה'},
+            {en:'vehicles',he:'כלי רכב'},{en:'probes',he:'גשושיות חלל'},{en:'origins',he:'מקורות'},{en:'unexpected',he:'בלתי צפוי'}
+          ],
+          questions:[
+            {q:'למה כוכב הלכת שבתאי (Saturn) היה יכול לצוף באמבטיית מים ענקית?',opts:['כי הצפיפות הממוצעת שלו נמוכה מצפיפות של מים','כי יש לו טבעות קרח מסביבו','כי אין לו כוח כבידה כלל'],ans:'כי הצפיפות הממוצעת שלו נמוכה מצפיפות של מים',why:'בקטע כתוב: Because its density is lower than water, Saturn could literally float in an enormous cosmic bathtub!'},
+            {q:'כמה שוקל אדם של 60 ק"ג כשהוא נמצא על הירח?',opts:['הוא מרגיש כמו 10 ק"ג בלבד','הוא שוקל 60 ק"ג בדיוק','הוא שוקל 120 ק"ג'],ans:'הוא מרגיש כמו 10 ק"ג בלבד',why:'בקטע כתוב: an astronaut who weighs sixty kilograms feels like only ten kilograms on lunar soil.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a2-modals-science',q:'On the Moon, gravity is weak, so astronauts ___ jump high.',opts:['can','must to','might to'],ans:'can',why:'can מביע יכולת, ואחריו בא פועל בסיסי ללא to.',hint:'can + פועל.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a2-connectors',q:'Saturn is lighter than water ___ it is made mostly of gas.',opts:['because','so','although'],ans:'because',why:'because מסביר את הסיבה למה שבתאי קל ממים.',hint:'מסביר סיבה: because.'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'a2-modals-science',q:'השלם את המודאל שמביע ודאות הגיונית: That glowing dot ___ be planet Venus.',ans:['must'],why:'must be = חייב להיות (הסקה הגיונית כמעט ודאית).',hint:'must.'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'a2-connectors',q:'סדר את המשפט: לירח יש פחות כבידה ולכן קל לקפוץ.',sentence:'The Moon has less gravity so it is easy to jump.',ans:['The Moon has less gravity so it is easy to jump.'],why:'The Moon has less gravity so it is easy to jump.',hint:'מתחילים ב-The Moon.'},
+          {t:'gap',id:'u4.x5',skill:'grammar',rule:'a2-modals-science',q:'השלם את המודאל שמביע אפשרות לא ודאית ("עשוי / עלול"):',sentence:'Telescopes ___ discover water on that distant planet.',ans:['might'],why:'might = עשוי / ייתכן ש...',hint:'מתחיל ב-m (5 אותיות).'}
+        ]
+      }
+    ];
+  }
   return JSON.parse(JSON.stringify(DEFAULT_UNITS));
 }
 let UNITS = JSON.parse(JSON.stringify(DEFAULT_UNITS));
@@ -1734,6 +1967,56 @@ function defaultScenariosForProfile(){
         ],
         more:['Which material do you prefer in interior design?','What makes a piece of clothing truly timeless?','What business deadline are you working toward right now?'],
         words:[{en:'layout',he:'distribución'},{en:'tailored',he:'a medida'},{en:'budget',he:'presupuesto'}]
+      }
+    ];
+  }
+  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && lang==='English');
+  if(isBarry){
+    return [
+      {
+        id:'barry-football', icon:'⚽', title:'המשחק על האליפות', en:'The Championship Match',
+        who:'Coach Leo', role:'מאמן כדורגל', level, focus:'Past Simple & Match tactics', unit:'u1',
+        desc:'המאמן ליאו מנתח איתך את הניצחון הגדול במשחק הגמר והשער המכריע.',
+        opening:'What an incredible match today, Barry! You scored the winning goal in the final minute. How did you feel when the ball hit the net?',
+        openingHe:'איזה משחק מדהים היום, בארי! הבקעת את שער הניצחון בדקה האחרונה. איך הרגשת כשהכדור פגע ברשת?',
+        startWords:[{en:'stadium',he:'אצטדיון'},{en:'score',he:'להבקיע'}],
+        steps:[
+          {bot:'You ran so fast past their defense! Who passed you the ball before you scored?',he:'רצת כל כך מהר מעבר להגנה שלהם! מי מסר לך את הכדור לפני שהבקעת?',suggestions:['My teammate passed me the ball from the midfield.','Our captain kicked a great cross into the penalty box.','I intercepted the ball and ran straight to the goal.']},
+          {bot:'That teamwork was pure magic! What is our main strategy for the next big match?',he:'עבודת הצוות הזו הייתה קסם טהור! מהי האסטרטגיה המרכזית שלנו למשחק הגדול הבא?',suggestions:['We need to practice our defense and quick counter-attacks.','We should keep possession of the ball and pass faster.','We will win if everyone supports each other on the pitch.']},
+          {bot:'You have the heart of a true champion. Which world-famous football stadium would you love to play in?',he:'יש לך לב של אלוף אמיתי. באיזה אצטדיון כדורגל מפורסם בעולם היית רוצה לשחק?',suggestions:['I would love to play at Camp Nou or Wembley Stadium.','Santiago Bernabéu is my dream stadium because of its history.','Playing in front of eighty thousand roaring fans would be unforgettable.']}
+        ],
+        more:['Who is your favourite football player of all time?','Did you train hard yesterday before the game?','How do you celebrate with your teammates after a trophy win?'],
+        words:[{en:'champion',he:'אלוף'},{en:'teammate',he:'חבר לקבוצה'},{en:'trophy',he:'גביע'}]
+      },
+      {
+        id:'barry-safari', icon:'🦁', title:'מסע ספארי בעקבות טורפים', en:'Wild Safari Expedition',
+        who:'Ranger Alex', role:'חוקר חיות בר וספארי', level, focus:'Comparatives & Animal Superpowers', unit:'u2',
+        desc:'הריינג\'ר אלכס לוקח אותך לגילוי כוחות-העל המדהימים של טורפי הסוואנה.',
+        opening:'Welcome to the savannah research base, Barry! Look through your binoculars—a cheetah is resting under that acacia tree. Did you know it is the fastest land animal on Earth?',
+        openingHe:'ברוך הבא לתחנת המחקר בסוואנה, בארי! הסתכל במשקפת—ברדלס נח מתחת לעץ השיטה. ידעת שהוא חיית היבשה המהירה ביותר בכדור הארץ?',
+        startWords:[{en:'predator',he:'טורף'},{en:'cheetah',he:'ברדלס'}],
+        steps:[
+          {bot:'It can reach one hundred kilometers per hour in three seconds! Why do you think camouflage is so important for wild predators?',he:'הוא יכול להגיע ל-100 קמ"ש תוך 3 שניות! למה לדעתך הסוואה כל כך חשובה לטורפים בטבע?',suggestions:['Camouflage helps predators hide in the grass before they hunt.','It allows animals to stay invisible to their prey until the last second.','Without natural camouflage, it is much harder to survive in the wild.']},
+          {bot:'Exactly right. Look above us! A peregrine falcon is diving. Which animal superpower do you find the most fascinating?',he:'מדויק לגמרי. הסתכל מעלינו! בז נודד צולל. איזה כוח-על של בעל חיים הכי מרתק אותך?',suggestions:['I love the extreme speed of the cheetah and the diving falcon.','An eagle has sight that is much sharper than human vision.','Electric eels and deep-sea creatures with natural light are incredible.']},
+          {bot:'Nature is full of miracles. If we build a wildlife sanctuary, which endangered species should we protect first?',he:'הטבע מלא בניסים. אם נבנה שמורת טבע, על איזה מין בסכנת הכחדה נגן קודם?',suggestions:['We should protect big cats like lions, tigers, and cheetahs.','Rhinos and sea turtles need safe habitats away from danger.','Every single species is connected, so we must protect their entire ecosystem.']}
+        ],
+        more:['Have you ever seen an owl hunt at night?','Which animal is stronger: a grizzly bear or a gorilla?','How do chameleon colors change when their temperature shifts?'],
+        words:[{en:'camouflage',he:'הסוואה'},{en:'wildlife',he:'חיות בר'},{en:'habitat',he:'סביבת מחיה'}]
+      },
+      {
+        id:'barry-science', icon:'🔬', title:'מעבדת מדע וחלל', en:'Space Facts & Science Lab',
+        who:'Dr. Noah', role:'חוקר חלל ואסטרופיזיקאי', level, focus:'Modals & Mind-blowing Facts', unit:'u4',
+        desc:'ד"ר נח עורך איתך ניסויים ומגלה עובדות מדעיות מפתיעות על החלל.',
+        opening:'Hello Barry! Welcome to the astrophysics laboratory. Here is a mind-blowing fact: one single day on planet Venus is longer than its entire year! Can you guess why that happens?',
+        openingHe:'שלום בארי! ברוך הבא למעבדת האסטרופיזיקה. הנה עובדה שתפוצץ לך את המוח: יום אחד בכוכב הלכת נוגה ארוך יותר מכל השנה שלו! אתה יכול לנחש למה זה קורה?',
+        startWords:[{en:'galaxy',he:'גלקסיה'},{en:'gravity',he:'כוח כבידה'}],
+        steps:[
+          {bot:'Venus rotates backwards and spins extremely slowly! What happens to gravity when an astronaut walks on the Moon?',he:'נוגה מסתובב לאחור ומסתובב לאט בצורה קיצונית! מה קורה לכוח הכבידה כשאסטרונאוט הולך על הירח?',suggestions:['The Moon has weaker gravity, so you can jump six times higher!','There is less mass on the Moon, so gravity is much lighter than on Earth.','Astronauts almost float because gravitational pull is lower.']},
+          {bot:'Brilliant scientific thinking! What do you think would happen if we sent a robotic rover inside a black hole?',he:'חשיבה מדעית מבריקה! מה לדעתך יקרה אם נשלח רכב מחקר רובוטי לתוך חור שחור?',suggestions:['Gravity must be so intense that even light cannot escape it.','The rover might lose radio contact because space and time bend.','Scientists believe matter stretches like spaghetti near the center!']},
+          {bot:'You have the mind of a true scientist, Barry. If you could design your own science experiment, what would you test?',he:'יש לך מוח של מדען אמיתי, בארי. אם היית יכול לתכנן ניסוי מדעי משלך, מה היית בודק?',suggestions:['I would test how plants grow in zero gravity aboard the space station.','I would build a magnetic levitation train that travels with zero friction.','I would explore deep ocean trenches to discover new glowing organisms.']}
+        ],
+        more:['How many stars do you think exist in our galaxy?','Why is Mars called the Red Planet?','Can solar energy power an entire space base on Mars?'],
+        words:[{en:'universe',he:'יקום'},{en:'experiment',he:'ניסוי'},{en:'discover',he:'לגלות'}]
       }
     ];
   }
@@ -2400,6 +2683,16 @@ function setStudentIdentity(account){
   document.documentElement.dir=CURRENT_UI_LANGUAGE==='he'?'rtl':'ltr';
   document.title=`Lamda – ${name}`;
   const brand=$('#app-name'); if(brand) brand.textContent=`Lamda · ${name}`;
+  const isBarry = account.username==='בארי' || account.key==='BARRY' || (account.gender==='male' && Array.isArray(account.interests) && account.interests.includes('כדורגל'));
+  if(isBarry){
+    document.documentElement.dataset.theme='barry';
+    $$('.brand-mark').forEach(el=>el.textContent='⚽');
+    $$('.sidebar-user .avatar').forEach(el=>el.textContent='⚽');
+  }else{
+    delete document.documentElement.dataset.theme;
+    $$('.brand-mark').forEach(el=>el.textContent='💃');
+    $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
+  }
   S.name=name;
   S.settings.level=account.level||S.settings.level||'A1';
   updateHeader();
@@ -2410,6 +2703,9 @@ function clearStudentIdentity(){
   CURRENT_LEARNER_GENDER='female';
   CURRENT_UI_LANGUAGE='he';
   CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
+  delete document.documentElement.dataset.theme;
+  $$('.brand-mark').forEach(el=>el.textContent='💃');
+  $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
   document.documentElement.lang='he';
   document.documentElement.dir='rtl';
   S.name='תלמידה';
@@ -4243,7 +4539,21 @@ const SPEAK_SENTENCES=[
   {en:'Where is the dance studio?',he:'איפה סטודיו הריקוד?'},
   {en:'The party is on Friday. Are you ready?',he:'המסיבה ביום שישי. את מוכנה?'}
 ];
+const SPEAK_SENTENCES_BARRY = [
+  {en:'I scored the winning goal in the final minute.',he:'הבקעתי את שער הניצחון בדקה האחרונה.'},
+  {en:'Our team played in a huge football stadium.',he:'הקבוצה שלנו שיחקה באצטדיון כדורגל ענק.'},
+  {en:'The cheetah is faster than any other land animal.',he:'הברדלס מהיר יותר מכל חיית יבשה אחרת.'},
+  {en:'Peregrine falcons dive at incredible speeds.',he:'בזים נודדים צוללים במהירויות מדהימות.'},
+  {en:'We are going to explore the active volcano next week.',he:'אנחנו הולכים לחקור את הר הגעש הפעיל בשבוע הבא.'},
+  {en:'Scientists discovered ice on distant planets.',he:'מדענים גילו קרח בכוכבי לכת רחוקים.'},
+  {en:'Gravity on the Moon is much weaker than on Earth.',he:'כוח הכבידה על הירח חלש בהרבה מאשר בכדור הארץ.'},
+  {en:'Can you pass the ball to your teammate quickly?',he:'אתה יכול למסור את הכדור לחבר שלך לקבוצה במהירות?'}
+];
 function getProfileSpeakSentences(){
+  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && (CURRENT_LEARNER_PROFILE.learningLanguage||'English')==='English');
+  if(isBarry){
+    return SPEAK_SENTENCES_BARRY;
+  }
   const unitSentences=UNITS.flatMap(u=>(u.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe})));
   const adaptiveWords=(ensureAdaptiveState().lastBooster?.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe}));
   const combined=[...adaptiveWords,...unitSentences];

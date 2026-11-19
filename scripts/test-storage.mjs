@@ -49,7 +49,7 @@ assert.deepEqual(
   STUDENTS.map(({ username, level, targetLevel, gender, interests }) => ({ username, level, targetLevel, gender, interests })),
   [
     { username: 'גפן', level: 'A1', targetLevel: undefined, gender: 'female', interests: ['ריקוד', 'חיות', 'טבע'] },
-    { username: 'בארי', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['כדורגל', 'ספורט', 'חיות', 'טבע'] },
+    { username: 'בארי', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['כדורגל', 'ספורט', 'חיות', 'טבע', 'מדע', 'עובדות מעניינות'] },
     { username: 'שקד', level: 'A1', targetLevel: undefined, gender: 'female', interests: ['ריקוד', 'חיות', 'טבע'] },
     { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
     { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
@@ -523,7 +523,7 @@ try {
   assert.equal(barryProfile.level, 'A2');
   assert.equal(barryProfile.targetLevel, 'B1');
   assert.equal(barryProfile.gender, 'male');
-  assert.deepEqual(barryProfile.interests, ['כדורגל', 'ספורט', 'חיות', 'טבע']);
+  assert.deepEqual(barryProfile.interests, ['כדורגל', 'ספורט', 'חיות', 'טבע', 'מדע', 'עובדות מעניינות']);
   assert.match(barryProfile.profilePrompt, /מתקרב ל-B1/);
   const gefenDashboard = dashboard.body.students.find((student) => student.key === 'GEFEN');
   assert.equal(gefenDashboard.xp, 5);
