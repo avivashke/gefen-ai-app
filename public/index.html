@@ -110,6 +110,8 @@ a{color:var(--cyan)}
   white-space:nowrap;transition:.15s;
 }
 .topbar-action:hover{background:var(--card3);transform:translateY(-1px)}
+.topbar-action.primary{background:linear-gradient(135deg,var(--lime),var(--lime-d));color:#07140e;border-color:transparent;font-weight:900}
+.topbar-action.primary:hover{opacity:.92;transform:translateY(-1px)}
 .hbtn{
   width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;
   background:rgba(22,36,58,.85);border:1px solid var(--line);flex:none;transition:.15s;
@@ -1029,9 +1031,11 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
       <div class="topbar-nav">
         <button class="topbar-action" data-act="nav-back" aria-label="חזרה למסך הקודם">→ <span>חזרה</span></button>
         <button class="topbar-action" data-go="#/home" aria-label="חזרה לדף הבית">🏠 <span>בית</span></button>
+        <button class="topbar-action primary" id="topbar-login-btn" data-act="student-login-open" aria-label="כניסה לחשבון">🔑 <span>כניסה</span></button>
         <button class="topbar-action danger" data-act="student-logout" aria-label="יציאה מהחשבון">🚪 יציאה</button>
       </div>
       <div class="hstats">
+        <div class="hpill sync-indicator" id="topbar-sync-indicator" title="מצב סנכרון בענן" style="cursor:pointer" data-act="settings">☁️</div>
         <div class="hpill streak" title="ימים ברצף">🔥 <b id="h-streak">0</b></div>
         <div class="hpill" title="נקודות ניסיון">⭐ <b id="h-xp">0</b></div>
       </div>
@@ -3464,10 +3468,27 @@ function updateHeader(){
   const dot=$('#nav-dot-review'); if(dot) dot.classList.toggle('hide', dueWords().length===0);
   const dotMob=$('#nav-dot-review-mobile'); if(dotMob) dotMob.classList.toggle('hide', dueWords().length===0);
   
-  // Show/hide logout button based on login state
+  // Show/hide logout and login buttons based on login state
   const account=window.apiSync&&window.apiSync.user?window.apiSync.user():null;
   const logoutBtn=$$('button[data-act="student-logout"]');
   logoutBtn.forEach(b=>b.style.display=account?'inline-flex':'none');
+  const loginBtn=$('#topbar-login-btn');
+  if(loginBtn) loginBtn.style.display=account?'none':'inline-flex';
+
+  // Update sync indicator in topbar
+  const syncInd=$('#topbar-sync-indicator');
+  if(syncInd){
+    if(account){
+      const isCloud=window.apiSync?.storage()==='netlify-blobs';
+      syncInd.innerHTML=isCloud?'☁️ <span style="color:var(--lime);font-size:.72rem;font-weight:900">ענן</span>':'💾 <span style="color:var(--gold);font-size:.72rem;font-weight:900">שרת</span>';
+      syncInd.title=isCloud?'מסונכרן בענן (Netlify Blobs) — ההתקדמות נשמרת חוצה מכשירים':'נשמר בשרת מקומי';
+      syncInd.style.borderColor='rgba(34,197,94,.4)';
+    }else{
+      syncInd.innerHTML='⚠️ <span style="color:var(--gold);font-size:.72rem;font-weight:900">לא מחובר</span>';
+      syncInd.title='לא מחובר לחשבון תלמיד — לחץ כאן להתחברות כדי לשמור את ההתקדמות בענן';
+      syncInd.style.borderColor='rgba(255,201,77,.4)';
+    }
+  }
 
   // Update sidebar
   const sidebarName=$('#sidebar-name'); if(sidebarName) sidebarName.textContent=S.name||'תלמידה';
@@ -5287,8 +5308,8 @@ function renderSyncPanel(){
       <button class="btn xs danger" data-act="student-logout">יציאה</button></div></div>
       <p class="tiny muted">${window.apiSync.storage()==='netlify-blobs'?'ההתקדמות נשמרת בחשבון האישי ב-Netlify Blobs ומסתנכרנת בין מכשירים.':'האחסון הנוכחי הוא קובץ מקומי בשרת, ללא סנכרון בין מכשירים. בשרת ללא דיסק מתמיד, הנתונים עלולים להימחק באתחול.'}</p>`;
   }
-  return `<div class="field"><p class="tiny muted">יש להתחבר עם שם משתמש וסיסמה כדי לצפות בהתקדמות האישית.</p>
-    <button class="btn primary wide" data-act="student-login-open">כניסה</button></div>`;
+  return `<div class="field"><p class="tiny muted">יש להתחבר עם שם משתמש וסיסמה כדי לשמור את ההתקדמות בענן ולסנכרן אותה בין הטלפון למחשב.</p>
+    <button class="btn primary wide" data-act="student-login-open">כניסה לחשבון תלמיד</button></div>`;
 }
 function openSettings(){
   openModal(`<button class="x" data-close>✕</button>
