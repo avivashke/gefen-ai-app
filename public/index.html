@@ -909,6 +909,140 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   .sidebar-overlay{display:none}
 }
 
+/* ============ 3D flashcards & memory module ============ */
+.cards-container{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.cards-toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(18,30,48,.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--line2);border-radius:18px;padding:10px 14px;
+}
+.cards-mode-pills{display:flex;background:rgba(10,18,30,.8);border-radius:12px;padding:3px;gap:3px;border:1px solid var(--line)}
+.mode-pill{
+  border:none;background:transparent;color:var(--mu);padding:7px 12px;border-radius:9px;
+  font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.18s;
+}
+.mode-pill.active{background:var(--lime);color:#0a121e;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.cards-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* 3D Flashcard Stage */
+.flashcard-stage{
+  perspective:1200px;width:100%;max-width:540px;margin:8px auto;position:relative;
+}
+.flashcard-3d{
+  position:relative;width:100%;min-height:360px;transform-style:preserve-3d;
+  transition:transform .65s cubic-bezier(.34,1.56,.64,1);cursor:pointer;border-radius:24px;
+  user-select:none;-webkit-user-select:none;
+}
+.flashcard-3d.flipped{transform:rotateY(180deg)}
+.flashcard-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:24px;padding:24px 22px;display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 18px 45px rgba(0,0,0,.45),inset 0 1px 1px rgba(255,255,255,.15);
+  background:linear-gradient(155deg,#16263e 0%,#0e1929 100%);
+  border:1px solid rgba(255,255,255,.12);overflow:hidden;
+}
+.flashcard-back{
+  transform:rotateY(180deg);
+  background:linear-gradient(155deg,#1c2f4a 0%,#101c2e 100%);
+  border:1px solid rgba(var(--primary-rgb),.4);
+}
+.flashcard-timer-bar{
+  position:absolute;top:0;left:0;right:0;height:4px;border-radius:24px 24px 0 0;overflow:hidden;
+  background:rgba(255,255,255,.08);
+}
+.flashcard-timer-fill{
+  height:100%;background:linear-gradient(90deg,var(--cyan),var(--lime));
+  transition:width .15s linear;
+}
+.flashcard-top-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.flashcard-badge{
+  font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:99px;
+  background:rgba(255,255,255,.08);color:var(--mu);display:flex;align-items:center;gap:4px;
+}
+.flashcard-star{
+  background:none;border:none;font-size:1.35rem;cursor:pointer;padding:4px;
+  filter:grayscale(1);opacity:.45;transition:.2s;line-height:1;
+}
+.flashcard-star.active{filter:none;opacity:1;transform:scale(1.15)}
+.flashcard-body{text-align:center;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.flashcard-word{
+  font-size:2.35rem;font-weight:900;letter-spacing:-.5px;color:var(--tx);line-height:1.15;
+  background:linear-gradient(135deg,#ffffff 20%,var(--lime) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.flashcard-pron{font-family:monospace;font-size:.92rem;color:var(--cyan);opacity:.85;direction:ltr}
+.flashcard-ex{
+  font-size:.92rem;color:var(--tx);opacity:.9;line-height:1.6;max-width:440px;margin:0 auto;
+  background:rgba(10,18,30,.4);padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.06);
+}
+.flashcard-ex mark{background:rgba(var(--primary-rgb),.28);color:var(--lime);font-weight:800;border-radius:4px;padding:0 4px}
+.flashcard-hint-text{font-size:.82rem;color:var(--gold);background:rgba(245,166,35,.1);padding:6px 12px;border-radius:8px;border:1px dashed rgba(245,166,35,.35)}
+.flashcard-flip-prompt{
+  text-align:center;font-size:.76rem;color:var(--mu2);display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.flashcard-rating-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;
+}
+.btn-rate{
+  border:none;border-radius:12px;padding:10px 4px;font-size:.78rem;font-weight:800;
+  display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:.18s;
+  color:#fff;
+}
+.btn-rate:active{transform:scale(.95)}
+.btn-rate.again{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);color:#fca5a5}
+.btn-rate.hard{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fde047}
+.btn-rate.good{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.4);color:#93c5fd}
+.btn-rate.easy{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#86efac}
+.btn-rate .rate-time{font-size:.65rem;font-weight:600;opacity:.8}
+
+/* Match Game 3D Grid */
+.match-header{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(18,30,48,.6);border:1px solid var(--line2);border-radius:16px;padding:12px 18px;
+}
+.match-stat-item{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:800}
+.match-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;perspective:1000px;
+}
+@media(max-width:600px){
+  .match-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+}
+.match-tile{
+  aspect-ratio:1.25;perspective:800px;cursor:pointer;user-select:none;-webkit-user-select:none;
+}
+.match-tile-inner{
+  position:relative;width:100%;height:100%;transform-style:preserve-3d;
+  transition:transform .48s cubic-bezier(.34,1.56,.64,1);border-radius:16px;
+}
+.match-tile.flipped .match-tile-inner{transform:rotateY(180deg)}
+.match-tile.matched .match-tile-inner{transform:rotateY(180deg);opacity:.68;pointer-events:none}
+.match-tile-front, .match-tile-back{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:16px;display:flex;align-items:center;justify-content:center;padding:10px;
+  text-align:center;font-weight:800;font-size:.9rem;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);
+}
+.match-tile-front{
+  background:linear-gradient(135deg,#1a2b42,#101c2c);color:var(--mu);font-size:1.6rem;
+}
+.match-tile-back{
+  transform:rotateY(180deg);background:linear-gradient(135deg,#203552,#132236);
+  border:1px solid rgba(var(--primary-rgb),.5);color:var(--tx);line-height:1.3;
+}
+.match-tile.matched .match-tile-back{
+  background:linear-gradient(135deg,rgba(74,222,128,.2),rgba(16,28,44,.9));
+  border-color:rgba(74,222,128,.6);color:#86efac;
+}
+.match-tile.mismatch .match-tile-back{
+  animation:shake .45s ease;
+  background:linear-gradient(135deg,rgba(248,113,113,.25),rgba(16,28,44,.9));
+  border-color:rgba(248,113,113,.7);color:#fca5a5;
+}
+@keyframes shake{
+  0%,100%{transform:rotateY(180deg) translateX(0)}
+  20%,60%{transform:rotateY(180deg) translateX(-6px)}
+  40%,80%{transform:rotateY(180deg) translateX(6px)}
+}
+
 /* ============ mobile bottom navigation ============ */
 .mobile-nav{display:none}
 @media(max-width:899px){
@@ -1062,6 +1196,7 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
     <nav class="sidebar-nav">
       <a class="nav-item" data-nav="home" href="#/home"><span class="ic">🏠</span><span>בית</span></a>
       <a class="nav-item" data-nav="learn" href="#/learn"><span class="ic">📚</span><span>מסלול</span></a>
+      <a class="nav-item" data-nav="cards" href="#/cards"><span class="ic">🃏</span><span>כרטיסיות</span></a>
       <a class="nav-item" data-nav="review" href="#/review"><span class="ic">🔁</span><span>חזרה</span><span class="badge hide" id="nav-dot-review"></span></a>
       <a class="nav-item" data-nav="chat" href="#/chat"><span class="ic">💬</span><span>מאמנת AI</span></a>
       <a class="nav-item" data-nav="stats" href="#/stats"><span class="ic">📈</span><span>התקדמות</span></a>
@@ -1100,6 +1235,7 @@ html[dir="ltr"] .word-translation-bubble{direction:ltr}
   <nav class="mobile-nav" id="mobile-nav" aria-label="ניווט תחתון">
     <button class="navbtn" data-nav="home"><span class="ic">🏠</span><span>בית</span></button>
     <button class="navbtn" data-nav="learn"><span class="ic">📚</span><span>מסלול</span></button>
+    <button class="navbtn" data-nav="cards"><span class="ic">🃏</span><span>כרטיסיות</span></button>
     <button class="navbtn" data-nav="review"><span class="ic">🔁</span><span>חזרה</span><span class="badge hide" id="nav-dot-review-mobile"></span></button>
     <button class="navbtn" data-nav="chat"><span class="ic">💬</span><span>מאמנת AI</span></button>
     <button class="navbtn" data-nav="stats"><span class="ic">📈</span><span>התקדמות</span></button>
@@ -4365,6 +4501,7 @@ function pageHome(){
           <p>${accuracy()?`דיוק כללי ${accuracy()}% · ${ds.mastered} מילים יציבות · ${ds.due} ממתינות לחזרה`:`הכל מתחיל בצעד אחד. עשר דקות ביום ואת מרגיש את ההבדל.`}</p>
           <div class="hero-actions">
             <button class="btn primary" data-go="#/unit/${u.id}/practice">▶ המשיכי ללמוד</button>
+            <button class="btn ghost" data-go="#/cards">🃏 כרטיסיות</button>
             <button class="btn ghost" data-go="#/chat">💬 שיחה עם המאמנת</button>
           </div>
         </div>
@@ -4533,7 +4670,10 @@ function pageUnit(unitId, section){
         ${speakBtn(w.ex,w.en)}
       </div>`).join('')}
     </div>
-    <button class="btn primary wide" style="margin-top:12px" data-go="#/unit/${u.id}/practice">✏️ תרגלי את המילים בהקשר</button>`;
+    <div class="row" style="margin-top:12px;gap:8px">
+      <button class="btn primary" style="flex:1" data-go="#/cards?unit=${u.id}">🃏 כרטיסיות תלת-ממדיות</button>
+      <button class="btn ghost" style="flex:1" data-go="#/unit/${u.id}/practice">✏️ תרגול בהקשר</button>
+    </div>`;
   }else if(section==='practice'){
     inner=`<div id="practice-host">${practiceHTML(u)}</div>`;
   }else{
@@ -4935,6 +5075,7 @@ function reviewOverviewHTML(){
       <div class="card">
         <div class="section-head"><h2>🎯 אימונים קצרים</h2></div>
         <div class="col">
+          <button class="continue" data-go="#/cards" style="border:1px solid rgba(var(--primary-rgb),.4);background:rgba(var(--primary-rgb),.08)"><span class="ic">🃏</span><span style="flex:1"><b>כרטיסי זיכרון תלת-ממדיים</b><span>כרטיסיות מסתובבות 3D, טיימר מהיר ומשחק התאמה</span></span><span class="tag lime">חדש!</span><span class="arr">←</span></button>
           <button class="continue" data-act="adaptive-generate-open"><span class="ic">🧠</span><span style="flex:1"><b>אימון AI מותאם אישית</b><span>תרגול חכם שנבנה מהטעויות והמילים שלך בזמן אמת</span></span><span class="arr">←</span></button>
           <button class="continue" data-go="#/drill/sprint"><span class="ic">⚡</span><span style="flex:1"><b>ספרינט 5 דקות</b><span>10 תרגילים מעורבים מכל מה שלמדת</span></span><span class="arr">←</span></button>
           <button class="continue" data-go="#/drill/listen"><span class="ic">👂</span><span style="flex:1"><b>אוזן חדה</b><span>שמיעה – מילה שנשמעת, את מזהה</span></span><span class="arr">←</span></button>
@@ -5068,6 +5209,812 @@ function mountDrill(){
 function nextDrill(){
   if(!DRILL) return;
   DRILL.idx++; save(); render();
+}
+
+/* ================= 3D flashcards & memory card matching module ================= */
+const CARDS_STATE = {
+  mode: 'flip', // 'flip' | 'match'
+  unitFilter: 'all',
+  deck: [],
+  index: 0,
+  flipped: false,
+  timerSeconds: 10, // 0 = off, 5, 10, 15
+  timeLeft: 10,
+  timerInterval: null,
+  sessionSeconds: 0,
+  sessionInterval: null,
+  autoPlay: false,
+  autoPlayTimer: null,
+  autoSpeak: true,
+  hintVisible: false,
+  starredKeys: new Set(),
+  stats: { again: 0, hard: 0, good: 0, easy: 0, reviewed: 0 },
+  match: {
+    tiles: [],
+    selected: [],
+    moves: 0,
+    matches: 0,
+    totalPairs: 6,
+    startTime: 0,
+    elapsedMs: 0,
+    timerInterval: null,
+    combo: 0,
+    maxCombo: 0,
+    isBusy: false,
+    finished: false,
+    bestTimeMs: null
+  }
+};
+
+function playCardAudio(kind){
+  if(S.settings && !S.settings.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime;
+    if(kind==='flip'){
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.frequency.setValueAtTime(320, t);
+      o.frequency.exponentialRampToValueAtTime(560, t+0.06);
+      g.gain.setValueAtTime(0.04, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.07);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t+0.07);
+    } else if(kind==='match'){
+      [[523.25, 0], [659.25, 0.08], [783.99, 0.16]].forEach(([f, d]) => {
+        const o=AC.createOscillator(), g=AC.createGain();
+        o.type='sine'; o.frequency.value=f;
+        g.gain.setValueAtTime(0.05, t+d);
+        g.gain.exponentialRampToValueAtTime(0.001, t+d+0.22);
+        o.connect(g); g.connect(AC.destination);
+        o.start(t+d); o.stop(t+d+0.24);
+      });
+    } else if(kind==='wrong'){
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.type='triangle'; o.frequency.setValueAtTime(180, t);
+      o.frequency.linearRampToValueAtTime(130, t+0.16);
+      g.gain.setValueAtTime(0.06, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.18);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t+0.18);
+    } else if(kind==='combo'){
+      [[587.33, 0], [739.99, 0.07], [880, 0.14], [1046.5, 0.21]].forEach(([f, d]) => {
+        const o=AC.createOscillator(), g=AC.createGain();
+        o.type='sine'; o.frequency.value=f;
+        g.gain.setValueAtTime(0.06, t+d);
+        g.gain.exponentialRampToValueAtTime(0.001, t+d+0.2);
+        o.connect(g); g.connect(AC.destination);
+        o.start(t+d); o.stop(t+d+0.22);
+      });
+    } else if(kind==='victory'){
+      [[523.25,0],[659.25,.1],[783.99,.2],[1046.5,.32]].forEach(([f,d])=>{
+        const o=AC.createOscillator(), g=AC.createGain();
+        o.type='triangle'; o.frequency.value=f;
+        g.gain.setValueAtTime(0.07, t+d);
+        g.gain.exponentialRampToValueAtTime(0.001, t+d+0.35);
+        o.connect(g); g.connect(AC.destination);
+        o.start(t+d); o.stop(t+d+0.38);
+      });
+    }
+  }catch(e){}
+}
+
+function loadStarredCards(){
+  if(Array.isArray(S.starredCards)){
+    CARDS_STATE.starredKeys = new Set(S.starredCards);
+  }
+}
+
+function saveStarredCards(){
+  S.starredCards = Array.from(CARDS_STATE.starredKeys);
+  save();
+}
+
+function getCardsDeck(unitFilter){
+  const pool = [];
+  UNITS.forEach(u => {
+    if(unitFilter !== 'all' && unitFilter !== 'starred' && u.id !== unitFilter) return;
+    (u.words || []).forEach(w => {
+      const key = String(w.en || '').toLowerCase();
+      if(unitFilter === 'starred' && !CARDS_STATE.starredKeys.has(key)) return;
+      pool.push({
+        ...w,
+        key,
+        unitId: u.id,
+        unitTitle: u.title,
+        unitHe: u.he,
+        unitIcon: u.icon
+      });
+    });
+  });
+  return pool;
+}
+
+function initCards(unitFilter, mode){
+  loadStarredCards();
+  if(unitFilter !== undefined) CARDS_STATE.unitFilter = unitFilter;
+  if(mode !== undefined) CARDS_STATE.mode = mode;
+  CARDS_STATE.deck = shuffle(getCardsDeck(CARDS_STATE.unitFilter));
+  CARDS_STATE.index = 0;
+  CARDS_STATE.flipped = false;
+  CARDS_STATE.hintVisible = false;
+  CARDS_STATE.timeLeft = CARDS_STATE.timerSeconds;
+  CARDS_STATE.stats = { again: 0, hard: 0, good: 0, easy: 0, reviewed: 0 };
+  
+  if(CARDS_STATE.mode === 'match'){
+    initMatchGame(CARDS_STATE.unitFilter);
+  } else {
+    startCardsSessionTimer();
+    restartCardTimer();
+    if(CARDS_STATE.autoSpeak && CARDS_STATE.deck.length > 0){
+      setTimeout(()=>{ if(CARDS_STATE.deck[0]) speak(CARDS_STATE.deck[0].en); }, 350);
+    }
+  }
+}
+
+function cleanupCardsTimers(){
+  if(CARDS_STATE.timerInterval){ clearInterval(CARDS_STATE.timerInterval); CARDS_STATE.timerInterval = null; }
+  if(CARDS_STATE.sessionInterval){ clearInterval(CARDS_STATE.sessionInterval); CARDS_STATE.sessionInterval = null; }
+  if(CARDS_STATE.autoPlayTimer){ clearTimeout(CARDS_STATE.autoPlayTimer); CARDS_STATE.autoPlayTimer = null; }
+  if(CARDS_STATE.match.timerInterval){ clearInterval(CARDS_STATE.match.timerInterval); CARDS_STATE.match.timerInterval = null; }
+}
+
+function startCardsSessionTimer(){
+  if(CARDS_STATE.sessionInterval) clearInterval(CARDS_STATE.sessionInterval);
+  CARDS_STATE.sessionInterval = setInterval(()=>{
+    CARDS_STATE.sessionSeconds++;
+    const el = $('#cards-session-time');
+    if(el) el.textContent = formatCardsSec(CARDS_STATE.sessionSeconds);
+  }, 1000);
+}
+
+function formatCardsSec(totalSec){
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+}
+
+function restartCardTimer(){
+  if(CARDS_STATE.timerInterval){ clearInterval(CARDS_STATE.timerInterval); CARDS_STATE.timerInterval = null; }
+  if(CARDS_STATE.autoPlayTimer){ clearTimeout(CARDS_STATE.autoPlayTimer); CARDS_STATE.autoPlayTimer = null; }
+  
+  if(CARDS_STATE.timerSeconds <= 0){
+    const bar = $('#flashcard-timer-fill');
+    if(bar) bar.style.width = '0%';
+    const txt = $('#card-timer-num');
+    if(txt) txt.textContent = 'חופשי';
+    return;
+  }
+  
+  CARDS_STATE.timeLeft = CARDS_STATE.timerSeconds;
+  updateTimerUI();
+  
+  const stepMs = 100;
+  CARDS_STATE.timerInterval = setInterval(()=>{
+    if(CARDS_STATE.flipped){
+      clearInterval(CARDS_STATE.timerInterval);
+      CARDS_STATE.timerInterval = null;
+      return;
+    }
+    CARDS_STATE.timeLeft -= (stepMs / 1000);
+    if(CARDS_STATE.timeLeft <= 0){
+      CARDS_STATE.timeLeft = 0;
+      updateTimerUI();
+      clearInterval(CARDS_STATE.timerInterval);
+      CARDS_STATE.timerInterval = null;
+      // Auto flip on timeout
+      flipCurrentCard(true);
+    } else {
+      updateTimerUI();
+    }
+  }, stepMs);
+  
+  if(CARDS_STATE.autoPlay && !CARDS_STATE.flipped){
+    CARDS_STATE.autoPlayTimer = setTimeout(()=>{
+      if(!CARDS_STATE.flipped) flipCurrentCard();
+    }, 4000);
+  }
+}
+
+function updateTimerUI(){
+  const bar = $('#flashcard-timer-fill');
+  const txt = $('#card-timer-num');
+  if(bar && CARDS_STATE.timerSeconds > 0){
+    const pct = Math.max(0, Math.min(100, (CARDS_STATE.timeLeft / CARDS_STATE.timerSeconds) * 100));
+    bar.style.width = `${pct}%`;
+  }
+  if(txt){
+    txt.textContent = `${Math.ceil(CARDS_STATE.timeLeft)}s`;
+  }
+}
+
+function flipCurrentCard(isTimeout = false){
+  const cardEl = $('#active-flashcard');
+  if(!cardEl) return;
+  CARDS_STATE.flipped = !CARDS_STATE.flipped;
+  cardEl.classList.toggle('flipped', CARDS_STATE.flipped);
+  playCardAudio('flip');
+  
+  if(isTimeout){
+    cardEl.style.animation = 'shake .4s ease';
+    setTimeout(()=>{ if(cardEl) cardEl.style.animation = ''; }, 450);
+  }
+  
+  if(CARDS_STATE.flipped){
+    if(CARDS_STATE.timerInterval){ clearInterval(CARDS_STATE.timerInterval); CARDS_STATE.timerInterval = null; }
+    if(CARDS_STATE.autoPlay){
+      CARDS_STATE.autoPlayTimer = setTimeout(()=>{
+        rateCurrentCard('good');
+      }, 3500);
+    }
+  } else {
+    restartCardTimer();
+    if(CARDS_STATE.autoSpeak){
+      const card = CARDS_STATE.deck[CARDS_STATE.index];
+      if(card) speak(card.en);
+    }
+  }
+}
+
+function rateCurrentCard(grade){
+  if(CARDS_STATE.deck.length === 0) return;
+  const card = CARDS_STATE.deck[CARDS_STATE.index];
+  CARDS_STATE.stats[grade] = (CARDS_STATE.stats[grade] || 0) + 1;
+  CARDS_STATE.stats.reviewed++;
+  
+  const key = card.key;
+  S.words[key] = S.words[key] || { box: 0, due: Date.now(), seen: 0, correct: 0, wrong: 0, last: Date.now(), key, en: card.en, he: card.he };
+  S.words[key].seen++;
+  S.words[key].last = Date.now();
+  
+  if(grade === 'easy'){
+    S.words[key].box = Math.min(5, (S.words[key].box || 0) + 2);
+    S.words[key].correct++;
+    addXp(5);
+    confetti(12);
+  } else if(grade === 'good'){
+    S.words[key].box = Math.min(5, (S.words[key].box || 0) + 1);
+    S.words[key].correct++;
+    addXp(3);
+  } else if(grade === 'hard'){
+    S.words[key].box = Math.max(1, (S.words[key].box || 0));
+    S.words[key].correct++;
+    addXp(1);
+  } else if(grade === 'again'){
+    S.words[key].box = 0;
+    S.words[key].wrong++;
+    // Re-queue card to end of deck so it repeats
+    CARDS_STATE.deck.push(card);
+  }
+  save();
+  
+  // Advance to next card
+  CARDS_STATE.index++;
+  CARDS_STATE.flipped = false;
+  CARDS_STATE.hintVisible = false;
+  
+  renderCardsPage();
+  if(CARDS_STATE.autoSpeak && CARDS_STATE.index < CARDS_STATE.deck.length){
+    setTimeout(()=>{
+      const nextCard = CARDS_STATE.deck[CARDS_STATE.index];
+      if(nextCard) speak(nextCard.en);
+    }, 250);
+  }
+}
+
+function navigateCard(step){
+  if(CARDS_STATE.deck.length === 0) return;
+  CARDS_STATE.index = (CARDS_STATE.index + step + CARDS_STATE.deck.length) % CARDS_STATE.deck.length;
+  CARDS_STATE.flipped = false;
+  CARDS_STATE.hintVisible = false;
+  renderCardsPage();
+  if(CARDS_STATE.autoSpeak){
+    const card = CARDS_STATE.deck[CARDS_STATE.index];
+    if(card) speak(card.en);
+  }
+}
+
+function toggleCardStar(key){
+  if(CARDS_STATE.starredKeys.has(key)){
+    CARDS_STATE.starredKeys.delete(key);
+    toast('⭐ הוסר מהכרטיסיות המסומנות');
+  } else {
+    CARDS_STATE.starredKeys.add(key);
+    toast('⭐ נוסף לכרטיסיות המסומנות');
+  }
+  saveStarredCards();
+  const starBtn = $(`[data-act="card-star"][data-key="${escA(key)}"]`);
+  if(starBtn) starBtn.classList.toggle('active', CARDS_STATE.starredKeys.has(key));
+}
+
+function toggleCardHint(){
+  CARDS_STATE.hintVisible = !CARDS_STATE.hintVisible;
+  const hintEl = $('#card-hint-box');
+  if(hintEl) hintEl.classList.toggle('hide', !CARDS_STATE.hintVisible);
+}
+
+function cycleCardTimer(){
+  const durs = [10, 15, 5, 0];
+  const currIdx = durs.indexOf(CARDS_STATE.timerSeconds);
+  CARDS_STATE.timerSeconds = durs[(currIdx + 1) % durs.length];
+  toast(`⏱️ טיימר כרטיס: ${CARDS_STATE.timerSeconds ? CARDS_STATE.timerSeconds + ' שניות' : 'ללא טיימר'}`);
+  restartCardTimer();
+  renderCardsPage();
+}
+
+function toggleAutoPlay(){
+  CARDS_STATE.autoPlay = !CARDS_STATE.autoPlay;
+  toast(CARDS_STATE.autoPlay ? '▶️ ניגון אוטומטי הופעל' : '⏸️ ניגון אוטומטי הופסק');
+  restartCardTimer();
+  renderCardsPage();
+}
+
+function toggleAutoSpeak(){
+  CARDS_STATE.autoSpeak = !CARDS_STATE.autoSpeak;
+  toast(CARDS_STATE.autoSpeak ? '🔊 הקראה אוטומטית פעילה' : '🔇 הקראה אוטומטית כבויה');
+  renderCardsPage();
+}
+
+/* ================= Speed Match Memory Game ================= */
+function initMatchGame(unitFilter){
+  cleanupCardsTimers();
+  const pool = getCardsDeck(unitFilter || CARDS_STATE.unitFilter);
+  const selectedWords = shuffle(pool).slice(0, 6);
+  
+  const tiles = [];
+  selectedWords.forEach((w, idx) => {
+    tiles.push({
+      id: `en-${idx}`,
+      pairId: idx,
+      text: w.en,
+      sub: w.pron || '',
+      isTarget: true,
+      flipped: false,
+      matched: false,
+      mismatch: false
+    });
+    tiles.push({
+      id: `he-${idx}`,
+      pairId: idx,
+      text: w.he,
+      sub: '',
+      isTarget: false,
+      flipped: false,
+      matched: false,
+      mismatch: false
+    });
+  });
+  
+  CARDS_STATE.match = {
+    tiles: shuffle(tiles),
+    selected: [],
+    moves: 0,
+    matches: 0,
+    totalPairs: selectedWords.length,
+    startTime: Date.now(),
+    elapsedMs: 0,
+    timerInterval: null,
+    combo: 0,
+    maxCombo: 0,
+    isBusy: false,
+    finished: false,
+    bestTimeMs: S.matchBestTime || null
+  };
+  
+  CARDS_STATE.match.timerInterval = setInterval(()=>{
+    if(CARDS_STATE.match.finished) return;
+    CARDS_STATE.match.elapsedMs = Date.now() - CARDS_STATE.match.startTime;
+    const el = $('#match-timer');
+    if(el) el.textContent = formatMatchTimer(CARDS_STATE.match.elapsedMs);
+  }, 100);
+}
+
+function formatMatchTimer(ms){
+  const totalSec = Math.floor(ms / 1000);
+  const tenths = Math.floor((ms % 1000) / 100);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m<10?'0':''}${m}:${s<10?'0':''}${s}.${tenths}`;
+}
+
+function handleMatchTileClick(index){
+  const m = CARDS_STATE.match;
+  if(m.isBusy || m.finished) return;
+  const tile = m.tiles[index];
+  if(!tile || tile.flipped || tile.matched) return;
+  
+  tile.flipped = true;
+  playCardAudio('flip');
+  m.selected.push(index);
+  updateMatchGridUI();
+  
+  if(m.selected.length === 2){
+    m.moves++;
+    const [idx1, idx2] = m.selected;
+    const tile1 = m.tiles[idx1];
+    const tile2 = m.tiles[idx2];
+    
+    if(tile1.pairId === tile2.pairId){
+      // Correct Match!
+      tile1.matched = true;
+      tile2.matched = true;
+      m.matches++;
+      m.combo++;
+      if(m.combo > m.maxCombo) m.maxCombo = m.combo;
+      m.selected = [];
+      
+      if(m.combo > 1){
+        playCardAudio('combo');
+        toast(`🔥 קומבו x${m.combo}!`);
+      } else {
+        playCardAudio('match');
+      }
+      
+      if(m.matches === m.totalPairs){
+        // Game complete!
+        m.finished = true;
+        clearInterval(m.timerInterval);
+        playCardAudio('victory');
+        confetti(35);
+        addXp(25);
+        if(!m.bestTimeMs || m.elapsedMs < m.bestTimeMs){
+          m.bestTimeMs = m.elapsedMs;
+          S.matchBestTime = m.bestTimeMs;
+          save();
+        }
+      }
+      updateMatchGridUI();
+    } else {
+      // Mismatch
+      m.isBusy = true;
+      m.combo = 0;
+      playCardAudio('wrong');
+      tile1.mismatch = true;
+      tile2.mismatch = true;
+      updateMatchGridUI();
+      
+      setTimeout(()=>{
+        tile1.flipped = false;
+        tile2.flipped = false;
+        tile1.mismatch = false;
+        tile2.mismatch = false;
+        m.selected = [];
+        m.isBusy = false;
+        updateMatchGridUI();
+      }, 750);
+    }
+  }
+}
+
+function updateMatchGridUI(){
+  const host = $('#cards-main-view');
+  if(!host) return;
+  if(CARDS_STATE.mode === 'match'){
+    host.innerHTML = matchGameHTML();
+  }
+}
+
+function pageMemoryCards(subroute){
+  if(subroute === 'match') CARDS_STATE.mode = 'match';
+  else if(subroute === 'flip') CARDS_STATE.mode = 'flip';
+  
+  const hash = location.hash;
+  if(hash.includes('unit=')){
+    const uMatch = hash.match(/unit=([^&]+)/);
+    if(uMatch && uMatch[1]) CARDS_STATE.unitFilter = uMatch[1];
+  }
+  
+  if(!CARDS_STATE.deck.length && CARDS_STATE.mode === 'flip'){
+    initCards(CARDS_STATE.unitFilter, CARDS_STATE.mode);
+  } else if(!CARDS_STATE.match.tiles.length && CARDS_STATE.mode === 'match'){
+    initMatchGame(CARDS_STATE.unitFilter);
+  }
+  
+  const isSpanish = CURRENT_UI_LANGUAGE === 'es';
+  const isFrench = CURRENT_LEARNER_PROFILE.learningLanguage === 'French';
+  const title = isSpanish ? 'Tarjetas de Memoria 3D' : isFrench ? 'כרטיסי זיכרון בצרפתית' : 'כרטיסי זיכרון תלת-ממדיים';
+  
+  return `<div class="page">
+    <div class="cards-container">
+      <div class="page-head" style="margin-bottom:0">
+        <button class="back" data-go="#/review" aria-label="חזרה">→</button>
+        <div>
+          <h1 class="page-title">🃏 ${esc(title)}</h1>
+          <p class="page-sub" style="margin:0">כרטיסיות מסתובבות ב-3D, טיימר מהיר ומשחק התאמה לכל הרמות</p>
+        </div>
+      </div>
+      
+      <!-- Top Toolbar -->
+      <div class="cards-toolbar">
+        <div class="cards-mode-pills">
+          <button class="mode-pill ${CARDS_STATE.mode==='flip'?'active':''}" data-act="card-mode-switch" data-mode="flip">
+            🗂️ כרטיסיות 3D
+          </button>
+          <button class="mode-pill ${CARDS_STATE.mode==='match'?'active':''}" data-act="card-mode-switch" data-mode="match">
+            ⏱️ משחק התאמה
+          </button>
+        </div>
+        
+        <div class="cards-controls">
+          <!-- Unit Filter -->
+          <select id="card-unit-select" class="txt sm" data-act="card-unit-filter" style="font-weight:700;border-radius:10px;padding:6px 10px;background:#0c1624">
+            <option value="all" ${CARDS_STATE.unitFilter==='all'?'selected':''}>🌟 כל היחידות (${ALL_WORD_LIST.length})</option>
+            ${UNITS.map(u=>`<option value="${u.id}" ${CARDS_STATE.unitFilter===u.id?'selected':''}>${u.icon} ${u.he} (${u.words.length})</option>`).join('')}
+            <option value="starred" ${CARDS_STATE.unitFilter==='starred'?'selected':''}>⭐ מסומנים (${CARDS_STATE.starredKeys.size})</option>
+          </select>
+          
+          ${CARDS_STATE.mode==='flip'?`
+            <button class="btn xs ghost" data-act="card-timer-cycle" title="שנה טיימר">
+              ⏱️ <span id="card-timer-label">${CARDS_STATE.timerSeconds?CARDS_STATE.timerSeconds+'s':'חופשי'}</span>
+            </button>
+            <button class="btn xs ${CARDS_STATE.autoPlay?'primary':'ghost'}" data-act="card-autoplay-toggle" title="ניגון אוטומטי">
+              ${CARDS_STATE.autoPlay?'⏸️ עוצר':'▶️ אוטומטי'}
+            </button>
+            <button class="btn xs ${CARDS_STATE.autoSpeak?'primary':'ghost'}" data-act="card-autospeak-toggle" title="הקראה אוטומטית">
+              ${CARDS_STATE.autoSpeak?'🔊':'🔇'}
+            </button>
+            <button class="btn xs ghost" data-act="card-shuffle" title="ערבב כרטיסים">🔀</button>
+          `:`
+            <button class="btn xs ghost" data-act="match-restart">🔄 משחק חדש</button>
+          `}
+        </div>
+      </div>
+      
+      <!-- Main Content Host -->
+      <div id="cards-main-view">
+        ${CARDS_STATE.mode === 'flip' ? flashcardViewHTML() : matchGameHTML()}
+      </div>
+    </div>
+  </div>`;
+}
+
+function flashcardViewHTML(){
+  const deck = CARDS_STATE.deck;
+  if(!deck.length){
+    return `<div class="card center" style="padding:40px 20px">
+      <div style="font-size:3rem">⭐</div>
+      <h3 style="margin:12px 0 6px">אין כרטיסיות להצגה בסינון זה</h3>
+      <p class="muted small">${CARDS_STATE.unitFilter==='starred'?'סמני כוכב על כרטיסיות כדי ליצור רשימת מילים אישית להתמקדות.':'בחרי יחידה אחרת או "כל היחידות".'}</p>
+      <button class="btn primary" style="margin-top:14px" data-act="card-unit-filter-reset">הצג את כל היחידות</button>
+    </div>`;
+  }
+  
+  if(CARDS_STATE.index >= deck.length){
+    const s = CARDS_STATE.stats;
+    return `<div class="card center" style="padding:36px 20px">
+      <div style="font-size:3.2rem">🏆</div>
+      <h2 style="margin:10px 0 6px">סיימת את הסיבוב בהצלחה!</h2>
+      <p class="muted small">תרגלת ${s.reviewed} כרטיסיות זיכרון בסיבוב זה.</p>
+      
+      <div class="grid four" style="margin:20px 0;gap:8px">
+        <div class="stat-chip" style="text-align:center"><b>${s.easy}</b><span class="tiny muted" style="color:#86efac">קלות ⭐</span></div>
+        <div class="stat-chip" style="text-align:center"><b>${s.good}</b><span class="tiny muted" style="color:#93c5fd">טובות 👍</span></div>
+        <div class="stat-chip" style="text-align:center"><b>${s.hard}</b><span class="tiny muted" style="color:#fde047">קשות ⚡</span></div>
+        <div class="stat-chip" style="text-align:center"><b>${s.again}</b><span class="tiny muted" style="color:#fca5a5">שוב 🔁</span></div>
+      </div>
+      
+      <div class="row" style="justify-content:center;gap:10px">
+        <button class="btn primary" data-act="card-restart">🔁 סיבוב חדש</button>
+        <button class="btn ghost" data-act="card-mode-switch" data-mode="match">⏱️ לעבור למשחק זיכרון</button>
+        <button class="btn ghost" data-go="#/review">לתפריט החזרות</button>
+      </div>
+    </div>`;
+  }
+  
+  const card = deck[CARDS_STATE.index];
+  const isStarred = CARDS_STATE.starredKeys.has(card.key);
+  const cardPos = `${CARDS_STATE.index + 1} / ${deck.length}`;
+  const highlightedEx = card.ex ? card.ex.replace(new RegExp(`\\b(${card.en})\\b`, 'gi'), '<mark>$1</mark>') : '';
+  const firstLetter = card.en ? card.en[0].toUpperCase() : '';
+  const hintText = `${card.en.length} אותיות · מתחילה באות "${firstLetter}"`;
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 6px;margin-bottom:8px">
+      <span class="tiny muted">כרטיס <b>${cardPos}</b></span>
+      <div class="row" style="gap:12px">
+        <span class="tiny muted" id="cards-session-time">⏱️ ${formatCardsSec(CARDS_STATE.sessionSeconds)}</span>
+        ${CARDS_STATE.timerSeconds > 0 ? `<span class="badge" id="card-timer-num" style="background:rgba(255,255,255,.08);font-family:monospace">${Math.ceil(CARDS_STATE.timeLeft)}s</span>` : ''}
+      </div>
+    </div>
+    
+    <div class="flashcard-stage">
+      <div class="flashcard-3d ${CARDS_STATE.flipped?'flipped':''}" id="active-flashcard" data-act="card-flip">
+        
+        <!-- FRONT FACE -->
+        <div class="flashcard-face flashcard-front">
+          <div class="flashcard-timer-bar">
+            <div class="flashcard-timer-fill" id="flashcard-timer-fill" style="width:${CARDS_STATE.timerSeconds>0?(CARDS_STATE.timeLeft/CARDS_STATE.timerSeconds)*100:0}%"></div>
+          </div>
+          
+          <div class="flashcard-top-row">
+            <span class="flashcard-badge">${card.unitIcon||'📚'} ${card.unitHe||card.unitTitle}</span>
+            <div class="row" style="gap:4px">
+              <button class="flashcard-star ${isStarred?'active':''}" data-act="card-star" data-key="${escA(card.key)}" title="סמן בכוכב">⭐</button>
+            </div>
+          </div>
+          
+          <div class="flashcard-body">
+            <div class="row" style="justify-content:center;gap:10px">
+              <span class="flashcard-word">${card.en}</span>
+              <button class="btn-voice sm" data-act="card-speak" data-word="${escA(card.en)}" title="השמעה" style="margin-top:4px">🔊</button>
+            </div>
+            ${card.pron ? `<div class="flashcard-pron">[ ${card.pron} ]</div>` : ''}
+            ${highlightedEx ? `<div class="flashcard-ex">${highlightedEx}</div>` : ''}
+            <div id="card-hint-box" class="flashcard-hint-text ${CARDS_STATE.hintVisible?'':'hide'}">${hintText}</div>
+          </div>
+          
+          <div>
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <button class="btn xs ghost" data-act="card-hint">💡 רמז</button>
+              <div class="flashcard-flip-prompt"><span>👆 לחצי כדי להפוך</span></div>
+              <button class="btn xs ghost" data-act="card-flip">🔄 הפוך</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- BACK FACE -->
+        <div class="flashcard-face flashcard-back">
+          <div class="flashcard-top-row">
+            <span class="flashcard-badge" style="background:rgba(var(--primary-rgb),.2);color:var(--lime)">תרגום ופירוש</span>
+            <button class="flashcard-star ${isStarred?'active':''}" data-act="card-star" data-key="${escA(card.key)}" title="סמן בכוכב">⭐</button>
+          </div>
+          
+          <div class="flashcard-body">
+            <div class="row" style="justify-content:center;gap:8px">
+              <span class="flashcard-word" style="background:none;-webkit-text-fill-color:initial;color:var(--lime);font-size:2.2rem">${card.he}</span>
+              <button class="btn-voice sm" data-act="card-speak" data-word="${escA(card.en)}" title="השמעה">🔊</button>
+            </div>
+            ${card.pron ? `<div class="flashcard-pron">${card.en} · [ ${card.pron} ]</div>` : `<div class="flashcard-pron">${card.en}</div>`}
+            ${card.exHe ? `<div class="flashcard-ex" style="border-color:rgba(var(--primary-rgb),.2)">${card.exHe}</div>` : ''}
+          </div>
+          
+          <div>
+            <div class="tiny muted" style="text-align:center;margin-bottom:4px">איך הרגשת עם המילה?</div>
+            <div class="flashcard-rating-grid">
+              <button class="btn-rate again" data-act="card-rate" data-grade="again">
+                <span>🔴 שוב</span>
+                <span class="rate-time">חוזר מיד</span>
+              </button>
+              <button class="btn-rate hard" data-act="card-rate" data-grade="hard">
+                <span>🟡 קשה</span>
+                <span class="rate-time">יום 1</span>
+              </button>
+              <button class="btn-rate good" data-act="card-rate" data-grade="good">
+                <span>🟢 טוב</span>
+                <span class="rate-time">3 ימים</span>
+              </button>
+              <button class="btn-rate easy" data-act="card-rate" data-grade="easy">
+                <span>🌟 קל (+5 XP)</span>
+                <span class="rate-time">יציב</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Deck Controls -->
+    <div class="row" style="justify-content:space-between;align-items:center;margin-top:14px">
+      <button class="btn ghost sm" data-act="card-prev" ${CARDS_STATE.index===0?'disabled':''}>⏮️ הקודם</button>
+      <div class="tiny muted" style="direction:ltr;font-family:monospace">
+        [Space] flip · [1-4] rate · [S] audio
+      </div>
+      <button class="btn ghost sm" data-act="card-next">הבא ⏭️</button>
+    </div>
+  `;
+}
+
+function matchGameHTML(){
+  const m = CARDS_STATE.match;
+  
+  if(m.finished){
+    const sec = (m.elapsedMs / 1000).toFixed(1);
+    const stars = m.moves <= 9 ? '⭐⭐⭐' : m.moves <= 13 ? '⭐⭐' : '⭐';
+    return `<div class="card center" style="padding:36px 20px">
+      <div style="font-size:3.2rem">🎉</div>
+      <h2 style="margin:10px 0 4px">ניצחון מעולה! כל הכבוד!</h2>
+      <div style="font-size:1.8rem;margin:6px 0">${stars}</div>
+      <p class="muted small">התאמת את כל הזוגות בזמן שיא!</p>
+      
+      <div class="grid three" style="margin:20px 0;gap:10px">
+        <div class="stat-chip" style="text-align:center"><div class="tiny muted">זמן</div><b>${sec}s</b></div>
+        <div class="stat-chip" style="text-align:center"><div class="tiny muted">מהלכים</div><b>${m.moves}</b></div>
+        <div class="stat-chip" style="text-align:center"><div class="tiny muted">קומבו שיא</div><b>x${m.maxCombo}</b></div>
+      </div>
+      
+      <div class="row" style="justify-content:center;gap:10px">
+        <button class="btn primary" data-act="match-restart">🔄 שחק שוב עם מילים חדשות</button>
+        <button class="btn ghost" data-act="card-mode-switch" data-mode="flip">🗂️ מעבר לכרטיסיות</button>
+      </div>
+    </div>`;
+  }
+  
+  return `
+    <div class="match-header" style="margin-bottom:14px">
+      <div class="match-stat-item">
+        <span>⏱️</span>
+        <span id="match-timer" style="font-family:monospace;font-size:1.1rem;color:var(--lime)">${formatMatchTimer(m.elapsedMs)}</span>
+      </div>
+      <div class="match-stat-item">
+        <span>🎯 זוגות:</span>
+        <b>${m.matches} / ${m.totalPairs}</b>
+      </div>
+      <div class="match-stat-item">
+        <span>👟 מהלכים:</span>
+        <b>${m.moves}</b>
+      </div>
+      ${m.combo > 1 ? `<div class="tag lime">🔥 COMBO x${m.combo}!</div>` : ''}
+    </div>
+    
+    <div class="match-grid">
+      ${m.tiles.map((tile, idx) => `
+        <div class="match-tile ${tile.flipped?'flipped':''} ${tile.matched?'matched':''} ${tile.mismatch?'mismatch':''}" data-act="match-tile-click" data-idx="${idx}">
+          <div class="match-tile-inner">
+            <div class="match-tile-front">🃏</div>
+            <div class="match-tile-back" style="${tile.isTarget?'color:var(--lime)':''}">
+              <div>
+                <div style="font-size:.95rem;line-height:1.2">${tile.text}</div>
+                ${tile.sub ? `<div class="tiny muted" style="margin-top:3px">${tile.sub}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCardsPage(){
+  const host = $('#cards-main-view');
+  if(host){
+    host.innerHTML = CARDS_STATE.mode === 'flip' ? flashcardViewHTML() : matchGameHTML();
+  } else {
+    render();
+  }
+}
+
+function mountCards(){
+  startCardsSessionTimer();
+  if(CARDS_STATE.mode === 'flip'){
+    restartCardTimer();
+  }
+  if(!window.__CARDS_KEY_BOUND){
+    window.__CARDS_KEY_BOUND = true;
+    document.addEventListener('keydown', handleCardsKeydown);
+  }
+}
+
+function handleCardsKeydown(e){
+  if(location.hash !== '#/cards' && !location.hash.startsWith('#/cards/')) return;
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+  
+  if(CARDS_STATE.mode === 'flip'){
+    if(e.code === 'Space' || e.key === 'Enter'){
+      e.preventDefault();
+      flipCurrentCard();
+    } else if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){
+      e.preventDefault();
+      navigateCard(1);
+    } else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      navigateCard(-1);
+    } else if(e.key === '1' && CARDS_STATE.flipped){
+      e.preventDefault(); rateCurrentCard('again');
+    } else if(e.key === '2' && CARDS_STATE.flipped){
+      e.preventDefault(); rateCurrentCard('hard');
+    } else if(e.key === '3' && CARDS_STATE.flipped){
+      e.preventDefault(); rateCurrentCard('good');
+    } else if(e.key === '4' && CARDS_STATE.flipped){
+      e.preventDefault(); rateCurrentCard('easy');
+    } else if(e.key === 's' || e.key === 'S' || e.key === 'ד'){
+      e.preventDefault();
+      const card = CARDS_STATE.deck[CARDS_STATE.index];
+      if(card) speak(card.en);
+    } else if(e.key === 'h' || e.key === 'H' || e.key === 'י'){
+      e.preventDefault();
+      toggleCardHint();
+    }
+  }
 }
 
 /* ================= speaking lab ================= */
@@ -6007,7 +6954,7 @@ function handleHashChange(){
 }
 function updateNav(){
   const p=parts(), root=p[0]||'home';
-  const map={home:'home',learn:'learn',unit:'learn',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
+  const map={home:'home',learn:'learn',unit:'learn',cards:'cards',review:'review',drill:'review',exam:'review',speak:'review',chat:'chat',stats:'stats',admin:'admin'};
   const activeNav=map[root]||'home';
   $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeNav));
   $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeNav));
@@ -6060,6 +7007,7 @@ function personalizedCoursePendingHTML(){
 }
 function render(){
   clearInterval(examTimer);
+  cleanupCardsTimers();
   const p=parts(), root=p[0]||'home';
   const main=$('#main'); if(!main) return;
   const personalizedCoursePending=false;
@@ -6070,6 +7018,7 @@ function render(){
     if(root==='home') html=pageHome();
     else if(root==='learn') html=pageLearn();
     else if(root==='unit') html=pageUnit(p[1],p[2]||'explain');
+    else if(root==='cards') html=pageMemoryCards(p[1]);
     else if(root==='review') html=p[1]==='session'?pageReviewSession():reviewOverviewHTML();
     else if(root==='drill') html=pageDrill(p[1]||'sprint');
     else if(root==='speak') html=pageSpeak();
@@ -6093,6 +7042,7 @@ function render(){
   updateHeader(); updateNav();
   if(!personalizedCoursePending){
     if(root==='unit' && p[2]==='practice'){ const u=UNITS.find(x=>x.id===p[1]); if(u) mountUnitPractice(u); }
+    if(root==='cards') mountCards();
     if(root==='review' && p[1]==='session' && !S.review.finished) mountReview();
     if(root==='drill') mountDrill();
     if(root==='speak') {} // rendered directly
@@ -6262,6 +7212,22 @@ function handleGlobalClick(e){
   if(!act) return;
   const a=act.dataset.act;
   switch(a){
+    case 'card-flip': flipCurrentCard(); break;
+    case 'card-rate': rateCurrentCard(act.dataset.grade); break;
+    case 'card-prev': navigateCard(-1); break;
+    case 'card-next': navigateCard(1); break;
+    case 'card-star': e.stopPropagation(); toggleCardStar(act.dataset.key); break;
+    case 'card-hint': e.stopPropagation(); toggleCardHint(); break;
+    case 'card-speak': e.stopPropagation(); speak(act.dataset.word); break;
+    case 'card-shuffle': initCards(CARDS_STATE.unitFilter, CARDS_STATE.mode); toast('🔀 הכרטיסיות עורבבו'); renderCardsPage(); break;
+    case 'card-timer-cycle': cycleCardTimer(); break;
+    case 'card-autoplay-toggle': toggleAutoPlay(); break;
+    case 'card-autospeak-toggle': toggleAutoSpeak(); break;
+    case 'card-unit-filter-reset': initCards('all', CARDS_STATE.mode); renderCardsPage(); break;
+    case 'card-restart': initCards(CARDS_STATE.unitFilter, CARDS_STATE.mode); renderCardsPage(); break;
+    case 'card-mode-switch': CARDS_STATE.mode = act.dataset.mode; initCards(CARDS_STATE.unitFilter, CARDS_STATE.mode); renderCardsPage(); break;
+    case 'match-tile-click': handleMatchTileClick(Number(act.dataset.idx)); break;
+    case 'match-restart': initMatchGame(CARDS_STATE.unitFilter); updateMatchGridUI(); break;
     case 'student-login': submitStudentLogin(); break;
     case 'nav-back': goBack(); break;
     case 'student-login-open': openStudentLogin(); break;
@@ -6352,6 +7318,13 @@ function boot(){
     history.replaceState(null,'',last);
   }
   document.addEventListener('click',handleGlobalClick);
+  document.addEventListener('change', e => {
+    const unitSelect = e.target.closest('#card-unit-select');
+    if(unitSelect){
+      initCards(unitSelect.value, CARDS_STATE.mode);
+      renderCardsPage();
+    }
+  });
   window.addEventListener('hashchange',handleHashChange);
   window.addEventListener('beforeunload',saveNow);
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); else if(cloudReady()) cloudPush(); });
