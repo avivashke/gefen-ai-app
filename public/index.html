@@ -49,6 +49,61 @@ html[data-theme="barry"] .hero::after{
   content:"⚽";
   position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.06;transform:rotate(-18deg);pointer-events:none;
 }
+/* Maayan Theme: Pokemon & Electric Adventure */
+html[data-theme="maayan"]{
+  --bg:#0f0f18; --bg2:#161626; --card:#1b1b30; --card2:#22223d; --card3:#2b2b4c;
+  --line:#313156; --line2:#434375; --tx:#fef9e7; --mu:#b8b4cf; --mu2:#9490b0;
+  --lime:#facc15; --lime-d:#eab308; --cyan:#38bdf8; --gold:#fbbf24; --pink:#ef4444;
+  --purple:#a855f7; --red:#ef4444; --green:#22c55e; --orange:#f97316;
+}
+html[data-theme="maayan"] body::before{background:var(--bg)}
+html[data-theme="maayan"] .brand-mark{background:linear-gradient(140deg,#facc15,#ef4444);color:#422006;box-shadow:0 8px 22px -10px rgba(250,204,21,.7)}
+html[data-theme="maayan"] ::selection{background:rgba(250,204,21,.3)}
+html[data-theme="maayan"] .tag.lime{background:rgba(250,204,21,.15);border-color:rgba(250,204,21,.35);color:#fde047}
+html[data-theme="maayan"] .hero{background:radial-gradient(600px 240px at 90% -30%,rgba(250,204,21,.25),transparent 70%),linear-gradient(135deg,#241f3b,#131122 60%);border-color:var(--line2)}
+html[data-theme="maayan"] .hero::after{content:"⚡";position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.07;transform:rotate(-18deg);pointer-events:none}
+
+/* Hadar Theme: Trends, Discovery & Future Tech */
+html[data-theme="hadar"]{
+  --bg:#090d16; --bg2:#0f1624; --card:#141e32; --card2:#1a2740; --card3:#233454;
+  --line:#273b5e; --line2:#375282; --tx:#f0f6ff; --mu:#a5b9d6; --mu2:#869dbf;
+  --lime:#06b6d4; --lime-d:#0891b2; --cyan:#38bdf8; --gold:#f59e0b; --pink:#f43f5e;
+  --purple:#8b5cf6; --red:#f43f5e; --green:#10b981; --orange:#f97316;
+}
+html[data-theme="hadar"] body::before{background:var(--bg)}
+html[data-theme="hadar"] .brand-mark{background:linear-gradient(140deg,#06b6d4,#f97316);color:#082f49;box-shadow:0 8px 22px -10px rgba(6,182,212,.7)}
+html[data-theme="hadar"] ::selection{background:rgba(6,182,212,.3)}
+html[data-theme="hadar"] .tag.lime{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.35);color:#22d3ee}
+html[data-theme="hadar"] .hero{background:radial-gradient(600px 240px at 90% -30%,rgba(6,182,212,.22),transparent 70%),linear-gradient(135deg,#132238,#0a1320 60%);border-color:var(--line2)}
+html[data-theme="hadar"] .hero::after{content:"🔥";position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.06;transform:rotate(-18deg);pointer-events:none}
+
+/* Yuli Theme: Editorial Culinary, Architecture & Design */
+html[data-theme="yuli"]{
+  --bg:#120c10; --bg2:#1a1218; --card:#221820; --card2:#2d1f2b; --card3:#3a2937;
+  --line:#422a3e; --line2:#5a3b54; --tx:#fdf4f8; --mu:#cbb4c4; --mu2:#a992a2;
+  --lime:#fb7185; --lime-d:#e11d48; --cyan:#38bdf8; --gold:#fbbf24; --pink:#f43f5e;
+  --purple:#c084fc; --red:#fb7185; --green:#34d399; --orange:#fb923c;
+}
+html[data-theme="yuli"] body::before{background:var(--bg)}
+html[data-theme="yuli"] .brand-mark{background:linear-gradient(140deg,#fb7185,#fbbf24);color:#4c0519;box-shadow:0 8px 22px -10px rgba(251,113,133,.7)}
+html[data-theme="yuli"] ::selection{background:rgba(251,113,133,.3)}
+html[data-theme="yuli"] .tag.lime{background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.35);color:#fda4af}
+html[data-theme="yuli"] .hero{background:radial-gradient(600px 240px at 90% -30%,rgba(251,113,133,.22),transparent 70%),linear-gradient(135deg,#2e1a2b,#170c16 60%);border-color:var(--line2)}
+html[data-theme="yuli"] .hero::after{content:"✨";position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.06;transform:rotate(-18deg);pointer-events:none}
+
+/* Aviv Theme: Parisian French */
+html[data-theme="aviv"]{
+  --bg:#090e1a; --bg2:#0f1729; --card:#141e36; --card2:#1a2847; --card3:#22345c;
+  --line:#283d6b; --line2:#385493; --tx:#f0f5ff; --mu:#a5b5d9; --mu2:#8697bf;
+  --lime:#3b82f6; --lime-d:#2563eb; --cyan:#60a5fa; --gold:#f59e0b; --pink:#ec4899;
+  --purple:#8b5cf6; --red:#ef4444; --green:#10b981; --orange:#f97316;
+}
+html[data-theme="aviv"] body::before{background:var(--bg)}
+html[data-theme="aviv"] .brand-mark{background:linear-gradient(140deg,#3b82f6,#ec4899);color:#ffffff;box-shadow:0 8px 22px -10px rgba(59,130,246,.7)}
+html[data-theme="aviv"] ::selection{background:rgba(59,130,246,.3)}
+html[data-theme="aviv"] .tag.lime{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.35);color:#93c5fd}
+html[data-theme="aviv"] .hero{background:radial-gradient(600px 240px at 90% -30%,rgba(59,130,246,.25),transparent 70%),linear-gradient(135deg,#162444,#0c1324 60%);border-color:var(--line2)}
+html[data-theme="aviv"] .hero::after{content:"🗼";position:absolute;left:-14px;bottom:-34px;font-size:9rem;opacity:.06;transform:rotate(-18deg);pointer-events:none}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
@@ -1816,6 +1871,376 @@ function defaultUnitsForProfile(){
       }
     ];
   }
+  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
+  if(isMaayan){
+    return [
+      {
+        id:'u1', n:1, icon:'⚡', color:'gold', cefr:'A1',
+        title:'My First Pokemon & Colors',
+        he:'הפוקימון הראשון שלי וצבעים (פוקימון A1)',
+        lead:'ברוך הבא לעולם הפוקימונים! ביחידה זו לומדים להציג את עצמך כמאמן, להציג את הפוקימון שלך ואת הצבעים שלו בעזרת הפועל To Be (am / is / are).',
+        canDo:['להציג את עצמי כמאמן: I am a Pokemon trainer','לתאר את הפוקימון שלי וצבעו: Pikachu is yellow','לשאול שאלות: Is Charmander red? Yes, it is!'],
+        fact:'פיקאצ\'ו אוגר אנרגיה חשמלית בלחיים האדומות שלו, וכאשר הוא שמח הוא משחרר ניצוצות עדינים ומקשקש בזנב הברק שלו!',
+        rules:[
+          {id:'a1-be-pokemon', title:'הפועל To Be עם פוקימונים: am / is / are', short:'I am · He/She/It is · We/They are',
+           formula:'I am a trainer.\nPikachu is fast.\nCharmander and Squirtle are starter Pokemon.\nIs it yellow? Yes, it is!',
+           body:'באנגלית משתמשים ב-<b>am</b> עם I, ב-<b>is</b> עם שם של פוקימון יחיד (It / Pikachu), וב-<b>are</b> כשמדובר בכמה פוקימונים (They / We). כדי לשאול שאלה, הופכים את הסדר: Is Pikachu fast?',
+           examples:[{en:'I am a Pokemon trainer.',he:'אני מאמן פוקימונים.'},{en:'Pikachu is an electric Pokemon.',he:'פיקאצ\'ו הוא פוקימון חשמלי.'},{en:'Charizard is very powerful.',he:'צ\'אריזרד חזק מאוד.'}],
+           mistake:'Pikachu <b>are</b> yellow. → Pikachu <b>is</b> yellow.',
+           hook:'פוקימון אחד מקבל is, קבוצה מקבלת are!'}
+        ],
+        words:[
+          {en:'trainer',he:'מאמן',pron:'TRAY-ner',ex:'Every trainer wants to become the champion.',exHe:'כל מאמן רוצה להפוך לאלוף.'},
+          {en:'electric',he:'חשמלי',pron:'ee-LEK-trik',ex:'Pikachu has powerful electric attacks.',exHe:'לפיקאצ\'ו יש מתקפות חשמליות חזקות.'},
+          {en:'creature',he:'יצור',pron:'KREE-cher',ex:'A Pokemon is a magical creature with special powers.',exHe:'פוקימון הוא יצור קסום עם כוחות מיוחדים.'},
+          {en:'adventure',he:'הרפתקה',pron:'ad-VEN-cher',ex:'We are ready for an exciting journey and adventure.',exHe:'אנחנו מוכנים למסע מרגש והרפתקה.'},
+          {en:'badge',he:'תג (מכון)',pron:'BADJ',ex:'Ash won the first gym badge today.',exHe:'אש זכה בתג המכון הראשון שלו היום.'},
+          {en:'battle',he:'קרב',pron:'BAT-l',ex:'The stadium battle was thrilling and fast.',exHe:'הקרב באצטדיון היה מותח ומהיר.'},
+          {en:'power',he:'כוח / עוצמה',pron:'POW-er',ex:'This dragon Pokemon has incredible power.',exHe:'לפוקימון הדרקון הזה יש עוצמה מדהימה.'}
+        ],
+        reading:{
+          title:'הפוקימון הראשון של מעיין',
+          passage:'Maayan is a new Pokemon trainer. Today, he visits Professor Oak at the research laboratory. On the table, there are three Poke Balls. Maayan looks at the starters: Charmander is red and fire type, Squirtle is blue and water type, and Bulbasaur is green. But suddenly, a small yellow Pikachu jumps from behind the desk. Pikachu looks at Maayan and says "Pika Pika!" Maayan smiles and says: "You are amazing. We are best friends now!"',
+          vocabulary:[
+            {en:'trainer',he:'מאמן'},{en:'visits',he:'מבקר'},{en:'laboratory',he:'מעבדה'},{en:'table',he:'שולחן'},
+            {en:'starters',he:'התחלתיים'},{en:'fire',he:'אש'},{en:'water',he:'מים'},{en:'suddenly',he:'פתאום'},
+            {en:'desk',he:'שולחן כתיבה'},{en:'smiles',he:'מחייך'},{en:'friends',he:'חברים'},{en:'amazing',he:'מדהים'}
+          ],
+          questions:[
+            {q:'איזה פוקימון קפץ פתאום מאחורי השולחן של הפרופסור?',opts:['פיקאצ\'ו צהוב וקטן','צ\'ארמנדר אדום','סקוורטל כחול'],ans:'פיקאצ\'ו צהוב וקטן',why:'בקטע כתוב: suddenly, a small yellow Pikachu jumps from behind the desk.'},
+            {q:'מה מעיין אמר לפיקאצ\'ו בסוף הקטע?',opts:['אתה מדהים. אנחנו החברים הכי טובים עכשיו!','תחזור לפוקדור שלך','אני רוצה פוקימון מים'],ans:'אתה מדהים. אנחנו החברים הכי טובים עכשיו!',why:'בקטע כתוב: You are amazing. We are best friends now!'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a1-be-pokemon',q:'Pikachu ___ an electric Pokemon.',opts:['is','are','am'],ans:'is',why:'נושא יחיד מקבל is: Pikachu is.',hint:'יחיד → is.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a1-be-pokemon',q:'I ___ a Pokemon trainer.',opts:['am','is','are'],ans:'am',why:'עם I תמיד בא am: I am a trainer.',hint:'I → am.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את הצבע באנגלית: Charmander is ___ (אדום).',ans:['red'],why:'אדום באנגלית = red.',hint:'red (3 אותיות).'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a1-be-pokemon',q:'סדר את המשפט: פיקאצ\'ו מהיר מאוד.',sentence:'Pikachu is very fast.',ans:['Pikachu is very fast.'],why:'Pikachu + is + very fast.',hint:'מתחילים ב-Pikachu.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את הפועל החסר: Squirtle and Bulbasaur ___ starter Pokemon.',ans:['are'],why:'שני פוקימונים זה רבים (They), לכן משתמשים ב-are.',hint:'רבים → are.'}
+        ]
+      },
+      {
+        id:'u2', n:2, icon:'🥊', color:'pink', cefr:'A1',
+        title:'Pokemon Powers & Abilities',
+        he:'כוחות ויכולות של פוקימונים (can / like)',
+        lead:'לכל פוקימון יש מתקפות מיוחדות: חלקם יכולים לעוף, לחפור או לירות ברקים. לומדים לדבר על יכולות עם can ו-can\'t ועל מה שאוהבים עם like.',
+        canDo:['לומר מה הפוקימון יכול לעשות: Pikachu can use Thunderbolt','לשאול על יכולות: Can Charizard fly? Yes, it can!','לומר מה אני אוהב: I like electric Pokemon'],
+        fact:'מיוטו (Mewtwo) נוצר במעבדה גנטית חשאית, ויש לו כוחות טלקינזיס אדירים שמאפשרים לו לרחף ולהזיז סלעי ענק בלי לגעת בהם!',
+        rules:[
+          {id:'a1-can-pokemon', title:'יכולות עם can ו-can\'t: ללא to', short:'can + פועל בסיסי · can\'t + פועל',
+           formula:'Subject + can / can\'t + base verb\nPikachu can jump high.\nCan it fly? No, it can\'t.',
+           body:'משתמשים ב-<b>can</b> כדי לומר מה הפוקימון מסוגל לעשות, וב-<b>can\'t</b> למה שאינו מסוגל. אחרי can הפועל נשאר פשוט וללא to לעולם!',
+           examples:[{en:'Pikachu can shock enemies with electricity.',he:'פיקאצ\'ו יכול לחשמל אויבים באנרגיה.'},{en:'Charizard can fly high in the sky.',he:'צ\'אריזרד יכול לעוף גבוה בשמיים.'}],
+           mistake:'Pikachu can <b>to</b> jump. → Pikachu can <b>jump</b>.',
+           hook:'אחרי can אין to לעולם!'}
+        ],
+        words:[
+          {en:'attack',he:'מתקפה',pron:'uh-TAK',ex:'Pikachu launched a surprise Thunderbolt attack.',exHe:'פיקאצ\'ו ביצע מתקפת מכת ברק בהפתעה.'},
+          {en:'fast',he:'מהיר',pron:'FAST',ex:'Electric Pokemon are extremely fast in battle.',exHe:'פוקימונים חשמליים מהירים בצורה קיצונית בקרב.'},
+          {en:'strong',he:'חזק',pron:'STRONG',ex:'Machamp is very strong and can lift big rocks.',exHe:'מאצ\'אמפ חזק מאוד ויכול להרים סלעים גדולים.'},
+          {en:'fly',he:'לעוף',pron:'FLY',ex:'Flying Pokemon can cross mountains easily.',exHe:'פוקימונים מעופפים יכולים לחצות הרים בקלות.'},
+          {en:'swim',he:'לשחות',pron:'SWIM',ex:'Water Pokemon swim with great speed in the river.',exHe:'פוקימוני מים שוחים במהירות גדולה בנהר.'},
+          {en:'dodge',he:'להתחמק',pron:'DODJ',ex:'The trainer told Pikachu to dodge the rock.',exHe:'המאמן אמר לפיקאצ\'ו להתחמק מהסלע.'},
+          {en:'protect',he:'להגן',pron:'pro-TEKT',ex:'The shield can protect the team from danger.',exHe:'המגן יכול להגן על הצוות מפני סכנה.'}
+        ],
+        reading:{
+          title:'קרב המכון הראשון',
+          passage:'Maayan and Pikachu enter the Pewter City Gym. The Gym Leader Brock stands across the arena with his giant rock Pokemon Onix. Brock smiles and says: "Can your electric Pokemon beat my rock defense?" Maayan gives a confident command: "Pikachu, you are faster! Dodge the attack and use Iron Tail!" Pikachu dodges the heavy tail, jumps in the air, and strikes the ground. The arena shakes, and Maayan wins his very first badge!',
+          vocabulary:[
+            {en:'enter',he:'נכנסים'},{en:'arena',he:'זירה'},{en:'giant',he:'ענק'},{en:'stands',he:'עומד'},
+            {en:'defense',he:'הגנה'},{en:'confident',he:'בטוח בעצמו'},{en:'command',he:'פקודה'},{en:'faster',he:'מהיר יותר'},
+            {en:'heavy',he:'כבד'},{en:'strikes',he:'מכה'},{en:'shakes',he:'רועדת'},{en:'wins',he:'מנצח'}
+          ],
+          questions:[
+            {q:'איזה פוקימון סלע ענק שייך למנהיג המכון ברוק?',opts:['אוניקס (Onix)','סקוורטל','פיקאצ\'ו'],ans:'אוניקס (Onix)',why:'בקטע כתוב: with his giant rock Pokemon Onix.'},
+            {q:'איזו פקודה מעיין נתן לפיקאצ\'ו כדי לנצח?',opts:['להתחמק מהמתקפה ולהשתמש בזנב ברזל','לברוח מהמכון','לשחות בנהר'],ans:'להתחמק מהמתקפה ולהשתמש בזנב ברזל',why:'בקטע כתוב: Dodge the attack and use Iron Tail!'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u2.x1',skill:'grammar',rule:'a1-can-pokemon',q:'Charizard ___ fly high in the clouds.',opts:['can','can to','is can'],ans:'can',why:'אחרי can בא פועל בסיסי ישירות ללא to.',hint:'can + פועל.'},
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'a1-can-pokemon',q:'Can Pikachu swim underwater? No, it ___ .',opts:['can\'t','isn\'t','don\'t'],ans:'can\'t',why:'שאלת Can נענית ב-No, it can\'t.',hint:'שלילה של can.'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את המילה החסרה: Pikachu can ___ (לקפוץ) very high.',ans:['jump'],why:'לקפוץ באנגלית = jump.',hint:'jump.'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'a1-can-pokemon',q:'סדר את המשפט: אני אוהב פוקימונים מהירים.',sentence:'I like fast Pokemon.',ans:['I like fast Pokemon.'],why:'I + like + fast Pokemon.',hint:'מתחילים ב-I.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את שאלת היכולת:',sentence:'___ your Pokemon use Thunderbolt?',ans:['Can'],why:'שאלת יכולת מתחילה ב-Can.',hint:'Can (3 אותיות).'}
+        ]
+      },
+      {
+        id:'u3', n:3, icon:'🎒', color:'cyan', cefr:'A1',
+        title:'The Trainer Backpack',
+        he:'תיק המאמן וחפצים במסע (have / has)',
+        lead:'לכל מאמן יש תרמיל מסע עם פוקדורים, שיקויים ופוקידע. לומדים להשתמש ב-have וב-has כדי לדבר על מה שיש ברשותך ומה יש לחברים.',
+        canDo:['לומר מה יש לי בתרמיל: I have five Poke Balls','לתאר מה יש לחברים: Ash has a Pokedex','לשאול שאלות: Do you have a potion? Yes, I do!'],
+        fact:'ברחבי עולם הפוקימונים קיימים כיום מעל 1,000 מינים שונים של פוקימונים המחולקים ל-18 סוגי אלמנטים שונים!',
+        rules:[
+          {id:'a1-have-pokemon', title:'שייכות: I have לעומת He/She/It has', short:'I/You/We/They have · He/She/It has',
+           formula:'I have three Poke Balls.\nThe trainer has a rare map.\nDo you have a potion? Yes, I do.',
+           body:'משתמשים ב-<b>have</b> עם I, You, We, They. כשמדברים על מאמן יחיד (Ash / He / She) משתמשים ב-<b>has</b>.',
+           examples:[{en:'I have five Poke Balls in my bag.',he:'יש לי חמישה פוקדורים בתיק שלי.'},{en:'The trainer has a helpful Pokedex.',he:'למאמן יש פוקידע מועיל.'}],
+           mistake:'He <b>have</b> a potion. → He <b>has</b> a potion.',
+           hook:'עם he/she/it אומרים has!'}
+        ],
+        words:[
+          {en:'backpack',he:'תרמיל / תיק גב',pron:'BAK-pak',ex:'I keep all my battle items in the backpack.',exHe:'אני שומר את כל פריטי הקרב שלי בתרמיל.'},
+          {en:'potion',he:'שיקוי ריפוי',pron:'POH-shun',ex:'A potion heals your tired Pokemon quickly.',exHe:'שיקוי מרפא את הפוקימון העייף שלך במהירות.'},
+          {en:'catch',he:'לתפוס',pron:'KATCH',ex:'Trainers use Poke Balls to catch wild creatures.',exHe:'מאמנים משתמשים בפוקדורים כדי לתפוס יצורי בר.'},
+          {en:'item',he:'חפץ / פריט',pron:'EYE-tem',ex:'Which rare item did you find in the cave?',exHe:'איזה חפץ נדיר מצאת במערה?'},
+          {en:'friend',he:'חבר',pron:'FREND',ex:'Pikachu is not just a partner, it is a true friend.',exHe:'פיקאצ\'ו הוא לא סתם שותף, הוא חבר אמיתי.'},
+          {en:'journey',he:'מסע',pron:'JER-nee',ex:'Our Pokemon journey starts at sunrise.',exHe:'מסע הפוקימון שלנו מתחיל בזריחה.'},
+          {en:'rare',he:'נדיר',pron:'RARE',ex:'Dragonite is a very rare and legendary sighting.',exHe:'דראגונייט הוא מראה נדיר ואגדי מאוד.'}
+        ],
+        reading:{
+          title:'הכנות למסע ביער ורדיאן',
+          passage:'Before entering the deep Viridian Forest, Maayan checks his backpack. He has ten Poke Balls, three healing potions, and a map of the region. His friend Brock has a warm camping tent and cooking supplies. "We have everything we need for the journey," says Maayan. Suddenly, they hear rustling in the tall grass. A rare Butterfree appears with shining wings! Maayan takes a Poke Ball and prepares for his next adventure.',
+          vocabulary:[
+            {en:'checks',he:'בודק'},{en:'backpack',he:'תרמיל'},{en:'healing',he:'מרפא'},{en:'region',he:'מחוז'},
+            {en:'tent',he:'אוהל'},{en:'supplies',he:'ציוד'},{en:'everything',he:'הכל'},{en:'rustling',he:'רשרוש'},
+            {en:'grass',he:'עשב'},{en:'appears',he:'מופיע'},{en:'wings',he:'כנפיים'},{en:'prepares',he:'מתכונן'}
+          ],
+          questions:[
+            {q:'כמה פוקדורים יש למעיין בתיק הגב?',opts:['עשרה פוקדורים','רק פוקדור אחד','מאה פוקדורים'],ans:'עשרה פוקדורים',why:'בקטע כתוב: He has ten Poke Balls.'},
+            {q:'איזה פוקימון נדיר עם כנפיים זוהרות הופיע בעשב?',opts:['באטרפרי (Butterfree)','צ\'אריזרד','פיקאצ\'ו'],ans:'באטרפרי (Butterfree)',why:'בקטע כתוב: A rare Butterfree appears with shining wings!'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a1-have-pokemon',q:'I ___ five Poke Balls in my backpack.',opts:['have','has','am have'],ans:'have',why:'עם I משתמשים ב-have.',hint:'I → have.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a1-have-pokemon',q:'The Pokemon trainer ___ a new Pokedex.',opts:['has','have','having'],ans:'has',why:'נושא יחיד (the trainer = he) מקבל has.',hint:'גוף שלישי → has.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'a1-have-pokemon',q:'השלם את צורת השייכות של have עבור He: He ___ a healing potion.',ans:['has'],why:'עם He הפועל have הופך ל-has.',hint:'has.'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a1-have-pokemon',q:'סדר את המשפט: יש לנו מפה של המחוז.',sentence:'We have a map of the region.',ans:['We have a map of the region.'],why:'We + have + a map of the region.',hint:'מתחילים ב-We.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a1-have-pokemon',q:'השלם את מילת השאלה לשייכות בהווה:',sentence:'Do you ___ a potion for Pikachu?',ans:['have'],why:'אחרי Do you משתמשים ב-have בצורת המקור.',hint:'have (4 אותיות).'}
+        ]
+      },
+      {
+        id:'u4', n:4, icon:'🏆', color:'lime', cefr:'A1',
+        title:'Pokemon Gym & Daily Routine',
+        he:'אימונים במכון ושגרת מאמן (Present Simple)',
+        lead:'מאמנים מתאמנים בכל יום, מטיילים בין ערים ודואגים לבריאות הפוקימונים במרכז הפוקימונים. לומדים הווה פשוט (Present Simple) עם סיומת s לפעלים בגוף שלישי.',
+        canDo:['לתאר את שגרת האימונים: Trainers practice every day','להשתמש בסיומת s בגוף שלישי: Pikachu runs fast','לדבר על ניצחונות ואליפות המחוז'],
+        fact:'מאמני פוקימון צועדים בממוצע מעל 10 קילומטרים ביום במהלך המסעות שלהם באזורים השונים!',
+        rules:[
+          {id:'a1-ps-pokemon', title:'הווה פשוט ושגרה: תוספת s בגוף שלישי', short:'I practice · He/She/It practices',
+           formula:'I/We/They + verb (train / walk / battle)\nHe/She/It + verb-s (trains / walks / battles)',
+           body:'כשמדברים על פעולה שחוזרת על עצמה בשגרה, משתמשים ב-Present Simple. אם הנושא הוא פוקימון יחיד או מאמן (He / She / It), הפועל מקבל תוספת <b>s</b> בסופו!',
+           examples:[{en:'We train together every morning.',he:'אנחנו מתאמנים יחד בכל בוקר.'},{en:'Pikachu runs fast in the arena.',he:'פיקאצ\'ו רץ מהר בזירה.'}],
+           mistake:'Pikachu <b>run</b> fast. → Pikachu <b>runs</b> fast.',
+           hook:'גוף שלישי יחיד אוהב s בסוף הפועל!'}
+        ],
+        words:[
+          {en:'champion',he:'אלוף',pron:'CHAM-pee-on',ex:'Only the most dedicated trainer becomes the champion.',exHe:'רק המאמן המסור ביותר הופך לאלוף.'},
+          {en:'victory',he:'ניצחון',pron:'VIK-tuh-ree',ex:'The hard battle ended in a glorious victory.',exHe:'הקרב הקשה הסתיים בניצחון מפואר.'},
+          {en:'practice',he:'להתאמן / תרגול',pron:'PRAK-tis',ex:'We practice new battle tactics every afternoon.',exHe:'אנחנו מתרגלים טקטיקות קרב חדשות בכל אחר צהריים.'},
+          {en:'team',he:'צוות / קבוצה',pron:'TEEM',ex:'A balanced team has six different Pokemon types.',exHe:'לצוות מאוזן יש שישה סוגי פוקימונים שונים.'},
+          {en:'forest',he:'יער',pron:'FOR-ist',ex:'Many grass and bug Pokemon live in the green forest.',exHe:'פוקימוני עשב וחרקים רבים חיים ביער הירוק.'},
+          {en:'center',he:'מרכז (פוקימונים)',pron:'SEN-ter',ex:'Nurse Joy restores all energy at the Pokemon Center.',exHe:'האחות ג\'וי מחדשת את כל האנרגיה במרכז הפוקימונים.'},
+          {en:'evolve',he:'להתפתח',pron:'ee-VOLV',ex:'With enough experience, your partner will evolve.',exHe:'עם מספיק ניסיון, השותף שלך יתפתח.'}
+        ],
+        reading:{
+          title:'יום אימונים בדרך לאליפות',
+          passage:'Every day starts early for Maayan and his Pokemon team. First, they run around the lake to build endurance. Next, Pikachu practices electric accuracy by aiming at target balloons. In the afternoon, they visit the Pokemon Center, where friendly Nurse Joy heals their energy. In the evening, the whole team rests by the campfire. Maayan looks up at the starry sky and dreams of winning the Pokemon League Championship trophy.',
+          vocabulary:[
+            {en:'starts',he:'מתחיל'},{en:'early',he:'מוקדם'},{en:'endurance',he:'סיבולת'},{en:'accuracy',he:'דיוק'},
+            {en:'aiming',he:'מכוון'},{en:'balloons',he:'בלונים'},{en:'afternoon',he:'אחר הצהריים'},{en:'friendly',he:'ידידותית'},
+            {en:'heals',he:'מרפאה'},{en:'evening',he:'ערב'},{en:'campfire',he:'מדורה'},{en:'trophy',he:'גביע'}
+          ],
+          questions:[
+            {q:'מה מעיין והצוות שלו עושים בתחילת כל יום סביב האגם?',opts:['רצים כדי לפתח סיבולת','הולכים לישון באוהל','דגים דגים במים'],ans:'רצים כדי לפתח סיבולת',why:'בקטע כתוב: First, they run around the lake to build endurance.'},
+            {q:'מי מרפאה את האנרגיה של הפוקימונים במרכז הפוקימונים?',opts:['האחות ג\'וי הידידותית','פרופסור אוק','המאמן ברוק'],ans:'האחות ג\'וי הידידותית',why:'בקטע כתוב: where friendly Nurse Joy heals their energy.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a1-ps-pokemon',q:'Pikachu ___ every day after lunch.',opts:['trains','train','is train'],ans:'trains',why:'נושא יחיד (Pikachu = it) מקבל s בסוף הפועל: trains.',hint:'יחיד → תוספת s.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a1-ps-pokemon',q:'Trainers ___ all around the Pokemon world.',opts:['travel','travels','is travel'],ans:'travel',why:'נושא ברבים (Trainers = they) מקבל פועל בסיסי: travel.',hint:'רבים → ללא s.'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'a1-ps-pokemon',q:'הוסף s לפועל עבור גוף שלישי: Ash ___ (battle) with passion.',ans:['battles'],why:'battle מקבל s בסוף: battles.',hint:'battles.'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'a1-ps-pokemon',q:'סדר את המשפט: אנחנו מתאמנים יחד בכל בוקר.',sentence:'We train together every morning.',ans:['We train together every morning.'],why:'We + train + together + every morning.',hint:'מתחילים ב-We.'},
+          {t:'gap',id:'u4.x5',skill:'grammar',rule:'a1-ps-pokemon',q:'השלם את הפועל ב-Present Simple עבור נושא ברבים:',sentence:'They ___ wild Pokemon in the forest.',ans:['catch'],why:'עם They הפועל נשאר בצורת המקור catch.',hint:'פועל בצורת המקור catch.'}
+        ]
+      }
+    ];
+  }
+  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.interests.includes('טרנדים');
+  if(isHadar){
+    return [
+      {
+        id:'u1', n:1, icon:'📱', color:'lime', cefr:'A2',
+        title:'Viral Trends & Content Creators',
+        he:'טרנדים ויראליים ויוצרי תוכן (טרנדים ורשתות A2)',
+        lead:'איך סרטון קצר הופך לטרנד עולמי תוך שעות בודדות? ביחידה זו לומדים לתאר תופעות רשת, סרטונים ויראליים ואירועים בעבר (Past Simple).',
+        canDo:['לספר על טרנד ויראלי וסרטון שהצליח ברשת','להשתמש בפעלים בעבר: created, uploaded, shared, watched','להביע דעה על אלגוריתמים ופלטפורמות תוכן'],
+        fact:'מעל 500 שעות של וידאו חדש מועלות ליוטיוב בכל דקה אחת בלבד – כמות שאי אפשר לצפות בה בכל החיים!',
+        rules:[
+          {id:'a2-past-trends', title:'פעלים בעבר לתיאור אירועים דיגיטליים (Past Simple)', short:'created · uploaded · watched · reached',
+           formula:'Subject + Past verb (-ed or irregular)\nHe uploaded a funny video yesterday.\nThe clip reached one million views in three hours.',
+           body:'משתמשים ב-<b>Past Simple</b> כדי לספר על סרטון שעלה או טרנד שהתפוצץ בעבר. לפעלים רגילים מוסיפים <b>-ed</b> (uploaded, shared), ולפעלים לא-רגילים יש צורות עבר ייחודיות (made, saw, went).',
+           examples:[{en:'The creator uploaded an amazing challenge video.',he:'היוצר העלה סרטון אתגר מדהים.'},{en:'The video went viral across social media.',he:'הסרטון הפך לוויראלי בכל הרשתות החברתיות.'}],
+           mistake:'He <b>upload</b> a video yesterday. → He <b>uploaded</b> a video yesterday.',
+           hook:'פעולה שהסתיימה בעבר מקבלת עבר: uploaded / shared!'}
+        ],
+        words:[
+          {en:'creator',he:'יוצר תוכן',pron:'kree-AY-ter',ex:'The creator edits videos with fast cuts and sound effects.',exHe:'יוצר התוכן עורך סרטונים עם חיתוכים מהירים ואפקטים קוליים.'},
+          {en:'viral',he:'ויראלי (מתפשט במהירות)',pron:'VY-rul',ex:'A clever concept can go viral in just a few minutes.',exHe:'רעיון חכם יכול להפוך לוויראלי בתוך דקות ספורות בלבד.'},
+          {en:'algorithm',he:'אלגוריתם',pron:'AL-guh-rith-um',ex:'The algorithm recommends content based on your watch time.',exHe:'האלגוריתם ממליץ על תוכן בהתבסס על זמן הצפייה שלך.'},
+          {en:'audience',he:'קהל צופים',pron:'AW-dee-ents',ex:'Engaging directly with your audience builds strong loyalty.',exHe:'אינטראקציה ישירה עם הקהל שלך בונה נאמנות חזקה.'},
+          {en:'creative',he:'יצירתי',pron:'kree-AY-tiv',ex:'Creative storytelling makes videos stand out in the feed.',exHe:'סיפור יצירתי גורם לסרטונים לבלוט בפיד.'},
+          {en:'trend',he:'טרנד / מגמה',pron:'TREND',ex:'Everyone joined the viral dance trend this week.',exHe:'כולם הצטרפו לטרנד הריקוד הוויראלי השבוע.'},
+          {en:'platform',he:'פלטפורמה דיגיטלית',pron:'PLAT-form',ex:'Short video platforms dominate mobile entertainment.',exHe:'פלטפורמות וידאו קצר שולטות בבידור הנייד.'}
+        ],
+        reading:{
+          title:'איך סרטון רשת הופך לוויראלי',
+          passage:'Last month, sixteen-year-old Hadar had a creative idea for a short video. He documented an incredible science experiment using magnets and colored neon liquid. Within twenty minutes of posting, the video received thousands of likes. The platform algorithm detected high audience retention, so it recommended the video to millions of feeds worldwide. By the following morning, the clip reached five million views and inspired thousands of creators to try the experiment themselves.',
+          vocabulary:[
+            {en:'documented',he:'תיעד'},{en:'magnets',he:'מגנטים'},{en:'liquid',he:'נוזל'},{en:'posting',he:'פרסום'},
+            {en:'retention',he:'שמירת עניין'},{en:'recommended',he:'המלצה'},{en:'worldwide',he:'ברחבי העולם'},{en:'following',he:'הבא'},
+            {en:'views',he:'צפיות'},{en:'inspired',he:'העניק השראה'},{en:'creators',he:'יוצרים'},{en:'themselves',he:'בעצמם'}
+          ],
+          questions:[
+            {q:'מה גרם לאלגוריתם להמליץ על הסרטון של הדר למיליוני משתמשים?',opts:['שמירת עניין גבוהה של הקהל (retention)','כי הסרטון היה ארוך מאוד','כי שילמו על פרסום ממומן'],ans:'שמירת עניין גבוהה של הקהל (retention)',why:'בקטע כתוב: The platform algorithm detected high audience retention, so it recommended the video.'},
+            {q:'לכמה צפיות הגיע הסרטון עד הבוקר שלמחרת?',opts:['חמישה מיליון צפיות','מאה צפיות','אלף צפיות'],ans:'חמישה מיליון צפיות',why:'בקטע כתוב: By the following morning, the clip reached five million views.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a2-past-trends',q:'Yesterday, the creator ___ a new tech video.',opts:['uploaded','upload','uploading'],ans:'uploaded',why:'yesterday מציין עבר → uploaded.',hint:'עבר של upload.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a2-past-trends',q:'The short clip ___ viral across the world last week.',opts:['went','go','gone'],ans:'went',why:'העבר של go הוא went (went viral).',hint:'עבר לא-רגיל של go.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'a2-past-trends',q:'השלם את צורת העבר של watch: Millions of people ___ the video.',ans:['watched'],why:'watch + ed = watched.',hint:'watched.'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a2-past-trends',q:'סדר את המשפט: הסרטון הגיע למיליון צפיות.',sentence:'The video reached one million views.',ans:['The video reached one million views.'],why:'The video + reached + one million views.',hint:'מתחילים ב-The video.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a2-past-trends',q:'השלם את מילת העבר:',sentence:'She ___ a very creative trend two days ago.',ans:['created'],why:'two days ago דורש עבר: created.',hint:'create + d.'}
+        ]
+      },
+      {
+        id:'u2', n:2, icon:'🌍', color:'gold', cefr:'A2',
+        title:'Extreme Nature & Wildlife Records',
+        he:'שיאי טבע פראי ועולם החי (עובדות מעניינות A2)',
+        lead:'הטבע מלא בשיאים קיצוניים: חיות שמחזיקות מעמד בלחץ אדיר במעמקים וטורפים עם כוחות על. לומדים להשוות בין שיאנים בעזרת דרגות השוואה.',
+        canDo:['להשוות בין תופעות טבע וחיות: deeper than, the most dangerous','לתאר שיאי טבע קיצוניים ועובדות מעניינות באנגלית','להשתמש באוצר מילים מדעי על מעמקי הים והישרדות'],
+        fact:'חסילון האקדח (Pistol Shrimp) סוגר את הצבת שלו במהירות מטורפת שיוצרת בועת חום בטמפרטורת פני השמש (4,700°C) וקול חזק ממטוס סילון!',
+        rules:[
+          {id:'a2-comp-hadar', title:'דרגות השוואה ושיאים: -er than לעומת the -est', short:'deeper than · the deepest · more extreme than · the most extreme',
+           formula:'Adjective-er + than (השוואה בין 2)\nThe + adjective-est (השיאן של כולם)',
+           body:'משתמשים בסיומת <b>-er + than</b> להשוואה בין שני דברים (deeper than). לתארים ארוכים שמים <b>more ... than</b>. כדי להכתיר את השיאן שמים <b>the + -est</b> או <b>the most</b>.',
+           examples:[{en:'The Mariana Trench is deeper than Mount Everest is tall.',he:'שקע מריאנה עמוק יותר מגובהו של הר האוורסט.'},{en:'The blue whale is the heaviest creature on Earth.',he:'הלווייתן הכחול הוא היצור הכבד ביותר בכדור הארץ.'}],
+           mistake:'It is the <b>most deep</b> trench. → It is the <b>deepest</b> trench.',
+           hook:'תואר קצר מקבל est בסוף, לא most!'}
+        ],
+        words:[
+          {en:'record',he:'שיא עולמי',pron:'REK-ord',ex:'The peregrine falcon holds the world speed record in the air.',exHe:'הבז הנודד מחזיק בשיא המהירות העולמי באוויר.'},
+          {en:'extreme',he:'קיצוני',pron:'ex-TREEM',ex:'Extreme pressure in deep ocean trenches crushes normal submarines.',exHe:'לחץ קיצוני בשקעי אוקיינוס עמוקים מוחץ צוללות רגילות.'},
+          {en:'depth',he:'עומק',pron:'DEPTH',ex:'Strange glowing fish live at a depth of four thousand meters.',exHe:'דגים זוהרים ומוזרים חיים בעומק של ארבעת אלפים מטרים.'},
+          {en:'pressure',he:'לחץ',pron:'PRESH-er',ex:'Deep sea creatures adapt to survive extreme water pressure.',exHe:'יצורי מעמקים מסתגלים כדי לשרוד לחץ מים קיצוני.'},
+          {en:'survive',he:'לשרוד',pron:'ser-VYV',ex:'Tardigrades can survive outer space and freezing ice.',exHe:'דובוני מים מסוגלים לשרוד בחלל החיצון ובקרח קפוא.'},
+          {en:'organism',he:'אורגניזם / יצור חי',pron:'OR-guh-niz-um',ex:'The honey mushroom is the largest single living organism on Earth.',exHe:'פטריית הדבש היא האורגניזם החי הבודד הגדול ביותר בכדור הארץ.'},
+          {en:'phenomenon',he:'תופעה מדעית',pron:'feh-NOM-eh-non',ex:'Bioluminescence is an incredible glowing natural phenomenon.',exHe:'ביולומינצנציה היא תופעת טבע מדהימה של פליטת אור.'}
+        ],
+        reading:{
+          title:'מסע אל מעמקי שקע מריאנה',
+          passage:'Eleven kilometers below the surface of the Pacific Ocean lies the Mariana Trench, the deepest point on our planet. In this pitch-black realm, water pressure is one thousand times stronger than at sea level. Scientists believed that no complex life could survive in such an extreme environment. However, robotic submersibles discovered transparent snailfish swimming effortlessly along the seabed. These fish have flexible bones and special chemical compounds in their cells, making them the deepest-living vertebrates ever discovered.',
+          vocabulary:[
+            {en:'surface',he:'פני השטח'},{en:'trench',he:'שקע'},{en:'realm',he:'ממלכה / תחום'},{en:'submersibles',he:'צוללות מחקר'},
+            {en:'transparent',he:'שקוף'},{en:'effortlessly',he:'ללא מאמץ'},{en:'seabed',he:'קרקעית הים'},{en:'flexible',he:'גמיש'},
+            {en:'compounds',he:'תרכובות'},{en:'cells',he:'תאים'},{en:'vertebrates',he:'בעלי חוליות'},{en:'discovered',he:'התגלו'}
+          ],
+          questions:[
+            {q:'מה עוצמת לחץ המים בשקע מריאנה בהשוואה לפני הים?',opts:['פי 1,000 חזק יותר מבלחץ פני הים','זהה בדיוק ללחץ פני הים','פי 2 בלבד'],ans:'פי 1,000 חזק יותר מבלחץ פני הים',why:'בקטע כתוב: water pressure is one thousand times stronger than at sea level.'},
+            {q:'איזה יצור שקוף התגלה שוחה בקלות בקרקעית השקע?',opts:['דג חילזון שקוף (transparent snailfish)','כריש ענק','דולפין'],ans:'דג חילזון שקוף (transparent snailfish)',why:'בקטע כתוב: robotic submersibles discovered transparent snailfish swimming effortlessly.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u2.x1',skill:'grammar',rule:'a2-comp-hadar',q:'The Mariana Trench is ___ than any other canyon on Earth.',opts:['deeper','deepest','more deep'],ans:'deeper',why:'השוואה בין שניים: deep + er + than.',hint:'deep + er.'},
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'a2-comp-hadar',q:'The blue whale is ___ creature on the planet.',opts:['the largest','larger','most large'],ans:'the largest',why:'השיאן המוחלט מקבל the + est: the largest.',hint:'the + est.'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'a2-comp-hadar',q:'השלם את תואר ההשוואה עבור heavy: An elephant is ___ than a rhino.',ans:['heavier'],why:'heavy מסתיים ב-y, ולכן הופך ל-heavier.',hint:'heavier.'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'a2-comp-hadar',q:'סדר את המשפט: זהו האורגניזם הקיצוני ביותר בטבע.',sentence:'This is the most extreme organism in nature.',ans:['This is the most extreme organism in nature.'],why:'This is + the most extreme organism + in nature.',hint:'מתחילים ב-This is.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'a2-comp-hadar',q:'השלם את המילה החסרה אחרי תואר השוואה:',sentence:'This deep fish is smaller ___ a human hand.',ans:['than'],why:'אחרי smaller שמים than (מ-).',hint:'than (4 אותיות).'}
+        ]
+      },
+      {
+        id:'u3', n:3, icon:'💡', color:'pink', cefr:'A2',
+        title:'Inventions & Future Technology',
+        he:'המצאות וטכנולוגיית העתיד (טכנולוגיה ומדע A2)',
+        lead:'רחפנים אוטונומיים, ערים חכמות ובינה מלאכותית מעצבים מחדש את חיינו. ביחידה זו לומדים לדבר על תוכניות עתידיות עם be going to ועל תוצאות אפשריות עם First Conditional.',
+        canDo:['לדבר על תוכניות טכנולוגיות עם be going to','להשתמש במשפטי תנאי ראשון (If we build... we will solve...)','להסביר חידושים בעולם ה-AI והרובוטיקה'],
+        fact:'שבבי מחשב מודרניים מכילים מיליארדי טרנזיסטורים זעירים שכל אחד מהם קטן פי 10,000 מעובי של שערה אנושית אחת!',
+        rules:[
+          {id:'a2-tech-future', title:'עתיד ותנאים טכנולוגיים: be going to & First Conditional', short:'is/are going to + פועל · If + Present, will + פועל',
+           formula:'Engineers are going to launch the prototype next month.\nIf smart grids optimize electricity, cities will reduce pollution.',
+           body:'משתמשים ב-<b>be going to</b> עבור תוכניות שכבר נכנסו לפיתוח. במשפטי תנאי (First Conditional) מתארים מה יקרה בעקבות טכנולוגיה חדשה: If + Present Simple, ו-will בתוצאה.',
+           examples:[{en:'Autonomous drones are going to deliver emergency medicine.',he:'רחפנים אוטונומיים הולכים להעביר תרופות חירום.'},{en:'If AI assists doctors, diagnoses will become faster.',he:'אם בינה מלאכותית תסייע לרופאים, האבחונים יהפכו למהירים יותר.'}],
+           mistake:'If engineers <b>will invent</b> new batteries, cars will drive further. → If engineers <b>invent</b> new batteries…',
+           hook:'אחרי If משתמשים ב-Present Simple, לא ב-will!'}
+        ],
+        words:[
+          {en:'invention',he:'המצאה',pron:'in-VEN-shun',ex:'The printing press was a revolutionary historical invention.',exHe:'דפוס הדפוס היה המצאה היסטורית מהפכנית.'},
+          {en:'future',he:'עתיד',pron:'FYOO-cher',ex:'Renewable solar panels will power the future of transportation.',exHe:'פאנלים סולאריים מתחדשים יספקו אנרגיה לעתיד התחבורה.'},
+          {en:'artificial',he:'מלאכותי (כמו AI)',pron:'ar-tih-FISH-ul',ex:'Artificial intelligence helps scientists analyze huge datasets.',exHe:'בינה מלאכותית עוזרת למדענים לנתח מאגרי נתונים ענקיים.'},
+          {en:'smart',he:'חכם (דיגיטלי)',pron:'SMART',ex:'Smart sensors adjust street lights automatically to save energy.',exHe:'חיישנים חכמים מתאימים את תאורת הרחוב אוטומטית כדי לחסוך באנרגיה.'},
+          {en:'develop',he:'לפתח',pron:'dih-VEL-up',ex:'Engineers work round the clock to develop cleaner energy sources.',exHe:'מהנדסים עובדים מסביב לשעון כדי לפתח מקורות אנרגיה נקיים יותר.'},
+          {en:'solution',he:'פתרון',pron:'suh-LOO-shun',ex:'Recycling ocean plastics offers an innovative green solution.',exHe:'מיחזור פלסטיק מהאוקיינוס מציע פתרון ירוק וחדשני.'},
+          {en:'energy',he:'אנרגיה',pron:'EN-er-jee',ex:'Fusion reactors might produce virtually unlimited clean energy.',exHe:'כורי היתוך עשויים לייצר אנרגיה נקייה כמעט ללא הגבלה.'}
+        ],
+        reading:{
+          title:'ערי העתיד בשנת 2050',
+          passage:'How are humans going to live thirty years from now? Architects and urban engineers are currently designing carbon-neutral vertical cities. In these futuristic hubs, buildings are going to grow their own fresh organic vegetables in aeroponic indoor farms. Flying electric taxis will transport commuters smoothly without traffic jams. If solar glass covers skyscraper windows, the buildings will generate all their own electricity. Most importantly, AI-controlled water purification systems will eliminate waste, making future cities clean, quiet, and sustainable.',
+          vocabulary:[
+            {en:'architects',he:'אדריכלים'},{en:'carbon-neutral',he:'ניטרלי מפחמן'},{en:'vertical',he:'אנכי'},{en:'futuristic',he:'עתידני'},
+            {en:'organic',he:'אורגני'},{en:'indoor',he:'בתוך מבנה'},{en:'commuters',he:'נוסעים יומיומיים'},{en:'traffic',he:'תנועה'},
+            {en:'generate',he:'לייצר'},{en:'purification',he:'טיהור'},{en:'eliminate',he:'לחסל / להעלים'},{en:'sustainable',he:'בר קיימא'}
+          ],
+          questions:[
+            {q:'איפה יגדלו ירקות טריים במגדלי העתיד?',opts:['בחוות אנכיות סגורות בתוך הבניינים','בשדות רחוקים מחוץ לעיר','לא יגדלו ירקות כלל'],ans:'בחוות אנכיות סגורות בתוך הבניינים',why:'בקטע כתוב: buildings are going to grow their own fresh organic vegetables in aeroponic indoor farms.'},
+            {q:'מה יקרה אם חלונות גורדי השחקים יצופו בזכוכית סולארית?',opts:['הבניינים ייצרו בעצמם את כל החשמל שלהם','הם יהיו חשוכים לחלוטין','החלונות יישברו בקלות'],ans:'הבניינים ייצרו בעצמם את כל החשמל שלהם',why:'בקטע כתוב: If solar glass covers skyscraper windows, the buildings will generate all their own electricity.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a2-tech-future',q:'Engineers ___ to test the flying taxi tomorrow.',opts:['are going','is going','going'],ans:'are going',why:'נושא ברבים (engineers = they) מקבל are going to.',hint:'רבים → are going.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a2-tech-future',q:'If we use solar glass, the skyscraper ___ its own electricity.',opts:['will generate','generated','generates to'],ans:'will generate',why:'תוצאה ב-First Conditional מקבלת will + פועל בסיסי.',hint:'will + פועל.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'a2-tech-future',q:'השלם את המילה החסרה: The team is ___ to build a smart robot.',ans:['going'],why:'התבנית היא is going to.',hint:'going.'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a2-tech-future',q:'סדר את המשפט: בינה מלאכותית תסייע לרופאים בעתיד.',sentence:'Artificial intelligence will assist doctors in the future.',ans:['Artificial intelligence will assist doctors in the future.'],why:'Artificial intelligence + will assist doctors + in the future.',hint:'מתחילים ב-Artificial intelligence.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a2-tech-future',q:'השלם את הפועל ב-Present Simple אחרי If:',sentence:'If cities ___ clean energy, pollution will decrease.',ans:['use'],why:'אחרי If משתמשים ב-Present Simple: cities use.',hint:'פועל בצורת המקור use.'}
+        ]
+      },
+      {
+        id:'u4', n:4, icon:'🧠', color:'cyan', cefr:'A2',
+        title:'Mind-Blowing Brain & Science Facts',
+        he:'סודות המוח ועובדות מדע מדהימות (מדעי המוח והיקום A2)',
+        lead:'למה אנחנו חולמים? איך עובדות אשליות אופטיות? ואיך המוח האנושי מאחסן מידע עצום? לומדים להסביר השערות ומסקנות עם מודאלים (can, might, must) ומילות קישור (because, so).',
+        canDo:['להסביר עובדות מדעיות מרתקות על המוח והאדם','להשתמש במודאלים להסקת מסקנות: must be, might happen','לחבר סיבה ותוצאה עם because ו-so'],
+        fact:'למוח האנושי יש קיבולת אחסון שוות ערך לכ-2.5 מיליון ג\'יגה-בייט – מספיק כדי להקליט 300 שנים רצופות של וידאו באיכות HD מלאה!',
+        rules:[
+          {id:'a2-modals-brain', title:'מודאלים להסקה ומילות קישור: must be · might · because · so', short:'must (בטוח) · might (אולי) · because (כי) · so (לכן)',
+           formula:'Optical illusions trick our eyes because the brain predicts patterns.\nThat memory must be very old.\nWe dream, so the brain organizes our memories.',
+           body:'משתמשים ב-<b>must be</b> כשיש מסקנה הגיונית כמעט ודאית, וב-<b>might</b> כשיש השערה לא ודאית. <b>because</b> מסביר את הסיבה ("בגלל ש"), ו-<b>so</b> מסביר את התוצאה ("לכן").',
+           examples:[{en:'Your brain must be processing visual signals right now.',he:'המוח שלך ודאי מעבד אותות חזותיים ברגע זה.'},{en:'Dreams might help our mind process emotions.',he:'חלומות עשויים לעזור למוחנו לעבד רגשות.'}],
+           mistake:'Because he was tired <b>so</b> he slept. → Because he was tired, he slept.',
+           hook:'משתמשים רק באחד: או because או so, לעולם לא שניהם יחד!'}
+        ],
+        words:[
+          {en:'memory',he:'זיכרון',pron:'MEM-uh-ree',ex:'The human brain consolidates memory while you sleep.',exHe:'המוח האנושי מגבש את הזיכרון בזמן שאתה ישן.'},
+          {en:'illusion',he:'אשליה (אופטית)',pron:'ih-LOO-zhun',ex:'An optical illusion proves that our eyes can be easily tricked.',exHe:'אשליה אופטית מוכיחה שקל להערים על העיניים שלנו.'},
+          {en:'mystery',he:'תעלומה / מסתורין',pron:'MIS-tuh-ree',ex:'Consciousness remains the greatest unsolved mystery of science.',exHe:'התודעה נותרת התעלומה הבלתי פתורה הגדולה ביותר של המדע.'},
+          {en:'curious',he:'סקרן',pron:'KYOOR-ee-us',ex:'Curious minds ask questions and discover breakthrough answers.',exHe:'מוחות סקרנים שואלים שאלות ומגלים תשובות פורצות דרך.'},
+          {en:'evidence',he:'ראיות / הוכחות',pron:'EV-ih-dents',ex:'Brain scans provide clear evidence of active neural pathways.',exHe:'סריקות מוח מספקות ראיות ברורות לנתיבים עצביים פעילים.'},
+          {en:'explain',he:'להסביר',pron:'ex-PLAYN',ex:'Psychologists try to explain why people experience deja vu.',exHe:'פסיכולוגים מנסים להסביר מדוע אנשים חווים דז\'ה וו.'},
+          {en:'brain',he:'מוח',pron:'BRAYN',ex:'The brain uses twenty percent of all oxygen in the human body.',exHe:'המוח משתמש בעשרים אחוזים מכלל החמצן בגוף האדם.'}
+        ],
+        reading:{
+          title:'למה המוח האנושי חולם בלילה?',
+          passage:'Every single night while we sleep, our brain creates vivid, colorful movies inside our head called dreams. For centuries, philosophers wondered why dreaming happens. Today, neuroscientists have fascinating evidence. When you enter REM sleep, your brain replays the emotional memories of the day, filing important information and clearing out unnecessary noise. Because neural pathways fire rapidly without physical movement, dreams might feel completely real. Scientists believe that dreaming is essential for creative problem-solving and psychological health.',
+          vocabulary:[
+            {en:'vivid',he:'חי / מוחשי'},{en:'philosophers',he:'פילוסופים'},{en:'neuroscientists',he:'חוקרי מוח'},{en:'fascinating',he:'מרתק'},
+            {en:'replays',he:'משחזר / מנגן שוב'},{en:'filing',he:'מתייק / מסדר'},{en:'unnecessary',he:'מיותר'},{en:'rapidly',he:'במהירות'},
+            {en:'physical',he:'פיזי'},{en:'essential',he:'חיוני'},{en:'problem-solving',he:'פתרון בעיות'},{en:'psychological',he:'פסיכולוגי'}
+          ],
+          questions:[
+            {q:'מה המוח עושה עם הזיכרונות של היום בזמן שנת חלום (REM)?',opts:['משחזר אותם, מתייק מידע חשוב ומנקה רעש מיותר','מוחק את כל הזיכרונות לצמיתות','מפסיק לפעול לחלוטין'],ans:'משחזר אותם, מתייק מידע חשוב ומנקה רעש מיותר',why:'בקטע כתוב: your brain replays the emotional memories of the day, filing important information and clearing out unnecessary noise.'},
+            {q:'למה חלומות יכולים להרגיש אמיתיים לחלוטין?',opts:['כי נתיבים עצביים מופעלים במהירות במוח גם ללא תנועה פיזית','כי אנחנו לא באמת ישנים','כי העיניים פקוחות'],ans:'כי נתיבים עצביים מופעלים במהירות במוח גם ללא תנועה פיזית',why:'בקטע כתוב: Because neural pathways fire rapidly without physical movement, dreams might feel completely real.'}
+          ]
+        },
+        grammar:[
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a2-modals-brain',q:'Our eyes see light, ___ the brain creates the actual image.',opts:['but','because to','although so'],ans:'but',why:'ניגוד רעיוני בין העין למוח מסומן ב-but.',hint:'ניגוד: but.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a2-modals-brain',q:'The brain needs sleep ___ it can organize daily memories.',opts:['so that','because so','although'],ans:'so that',why:'מטרת השינה: so that (כדי ש...).',hint:'כדי ש: so that.'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'a2-modals-brain',q:'השלם את המודאל שמביע הסקה ודאית הגיונית: That optical trick ___ be an illusion.',ans:['must'],why:'must be = חייב להיות (הסקה הגיונית).',hint:'must.'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'a2-modals-brain',q:'סדר את המשפט: המוח משתמש בעשרים אחוזים מהחמצן בגוף.',sentence:'The brain uses twenty percent of body oxygen.',ans:['The brain uses twenty percent of body oxygen.'],why:'The brain uses + twenty percent + of body oxygen.',hint:'מתחילים ב-The brain.'},
+          {t:'gap',id:'u4.x5',skill:'grammar',rule:'a2-modals-brain',q:'השלם את המודאל שמביע אפשרות ("עשוי / עלול"):',sentence:'Curious students ___ discover amazing new facts.',ans:['might'],why:'might = עשוי / ייתכן ש...',hint:'might (5 אותיות).'}
+        ]
+      }
+    ];
+  }
   return JSON.parse(JSON.stringify(DEFAULT_UNITS));
 }
 let UNITS = JSON.parse(JSON.stringify(DEFAULT_UNITS));
@@ -2021,6 +2446,76 @@ function defaultScenariosForProfile(){
         ],
         more:['How many stars do you think exist in our galaxy?','Why is Mars called the Red Planet?','Can solar energy power an entire space base on Mars?'],
         words:[{en:'universe',he:'יקום'},{en:'experiment',he:'ניסוי'},{en:'discover',he:'לגלות'}]
+      }
+    ];
+  }
+  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
+  if(isMaayan){
+    return [
+      {
+        id:'maayan-oak', icon:'⚡', title:'פגישה עם פרופסור אוק', en:'Meeting Professor Oak',
+        who:'Prof. Oak', role:'חוקר פוקימונים ראשי', level, focus:'Be & First Pokemon', unit:'u1',
+        desc:'פרופסור אוק פוגש אותך במעבדה לעזור לך לבחור את שותף הפוקימון הראשון שלך.',
+        opening:'Welcome to the world of Pokemon, Maayan! I am Professor Oak. Are you ready to become a great trainer?',
+        openingHe:'ברוך הבא לעולם הפוקימונים, מעיין! אני פרופסור אוק. אתה מוכן להפוך למאמן דגול?',
+        startWords:[{en:'trainer',he:'מאמן'},{en:'creature',he:'יצור'}],
+        steps:[
+          {bot:'Look at the three starter Poke Balls on the desk! Which element type is your favourite?',he:'הסתכל על שלושת הפוקדורים ההתחלתיים על השולחן! איזה סוג אלמנט הכי אהוב עליך?',suggestions:['I like electric Pokemon because they are fast.','I love fire Pokemon like Charmander.','Water Pokemon are cool because they swim so well.']},
+          {bot:'Look, a wild Pikachu just appeared! Can you say hello to it in English?',he:'תראה, פיקאצ\'ו פראי הרגע הופיע! אתה יכול להגיד לו שלום באנגלית?',suggestions:['Hello Pikachu, you are very cute and yellow!','Hi Pikachu! Are you ready for an exciting adventure?','Pikachu is my best partner and friend.']},
+          {bot:'Wonderful! What items do you have in your trainer backpack for the journey?',he:'נפלא! איזה פריטים יש לך בתרמיל המאמן שלך לקראת המסע?',suggestions:['I have five Poke Balls and two healing potions.','I have a map of the region and a Pokedex.','I have supplies and a tent for camping.']}
+        ],
+        more:['Is Pikachu fast in battle?','What is your favourite Pokemon type?','Can Charizard fly over mountains?'],
+        words:[{en:'electric',he:'חשמלי'},{en:'battle',he:'קרב'},{en:'backpack',he:'תרמיל'}]
+      },
+      {
+        id:'maayan-brock', icon:'🥊', title:'קרב מכון פיוטר', en:'Pewter Gym Battle',
+        who:'Gym Leader Brock', role:'מנהיג מכון סלע', level, focus:'can / can\'t & moves', unit:'u2',
+        desc:'מנהיג המכון ברוק מאתגר אותך בקרב על תג המכון הראשון.',
+        opening:'Welcome to the Pewter Gym, Maayan! I train giant Rock Pokemon. Can your electric Pikachu beat my rock defense?',
+        openingHe:'ברוך הבא למכון פיוטר, מעיין! אני מאמן פוקימוני סלע ענקיים. האם פיקאצ\'ו החשמלי שלך יכול לנצח את הגנת הסלע שלי?',
+        startWords:[{en:'attack',he:'מתקפה'},{en:'dodge',he:'להתחמק'}],
+        steps:[
+          {bot:'My Onix uses Rock Throw! What is your battle command for Pikachu?',he:'האוניקס שלי משתמש בהטלת סלעים! מהי פקודת הקרב שלך לפיקאצ\'ו?',suggestions:['Pikachu, dodge the rock and use Quick Attack!','Pikachu can jump high to avoid the falling stones!','Use Iron Tail directly on the ground to create an earthquake!']},
+          {bot:'That was an incredibly fast counter-move! Can Pikachu learn new elemental moves as it trains?',he:'זה היה מהלך נגדי מהיר בצורה מדהימה! פיקאצ\'ו יכול ללמוד מתקפות אלמנטים חדשות כשהוא מתאמן?',suggestions:['Yes, it can learn Thunderbolt and Volt Tackle!','With regular practice, my team gets stronger every single day.','Pikachu can also evolve into Raichu in the future.']},
+          {bot:'You earned my respect and the Boulder Badge! Where will your adventure take you next?',he:'הרווחת את הכבוד שלי ואת תג הסלע! לאן ההרפתקה שלך תיקח אותך הלאה?',suggestions:['We are going to Cerulean City to challenge the Water Gym.','We travel through Viridian Forest to catch new rare friends.','Our ultimate goal is winning the Pokemon League Championship!']}
+        ],
+        more:['Do you have a water Pokemon on your team?','Can flying Pokemon dodge ground attacks?','How many badges do you need for the league?'],
+        words:[{en:'badge',he:'תג'},{en:'strong',he:'חזק'},{en:'victory',he:'ניצחון'}]
+      }
+    ];
+  }
+  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.interests.includes('טרנדים');
+  if(isHadar){
+    return [
+      {
+        id:'hadar-trends', icon:'📱', title:'סטודיו יוצרי תוכן וטרנדים', en:'Viral Creators Studio',
+        who:'Creator Max', role:'יוצר תוכן ויראלי', level, focus:'Past Simple & Video trends', unit:'u1',
+        desc:'מקס משוחח איתך על סרטונים ויראליים, אלגוריתמים וטרנדים חדשים ברשת.',
+        opening:'Hey Hadar! Did you see the new viral tech challenge online today? It already reached two million views in six hours! Why do you think it became so popular?',
+        openingHe:'היי הדר! ראית את אתגר הטכנולוגיה הוויראלי החדש ברשת היום? הוא כבר הגיע לשני מיליון צפיות תוך שש שעות! למה לדעתך הוא הפך לכל כך פופולרי?',
+        startWords:[{en:'creator',he:'יוצר'},{en:'viral',he:'ויראלי'}],
+        steps:[
+          {bot:'You nailed it. The pacing was super engaging. What kind of creative videos do you enjoy watching most on your feed?',he:'קלעת בול. הקצב היה מרתק בטירוף. איזה סוג של סרטונים יצירתיים אתה הכי נהנה לראות בפיד שלך?',suggestions:['I love fast-paced science experiments and mind-blowing facts.','I enjoy watching creative tech reviews and smart futuristic gadgets.','I like comedy skits and trending challenges that make people laugh.']},
+          {bot:'How do you think algorithms decide which creator videos to push to the homepage?',he:'איך לדעתך אלגוריתמים מחליטים איזה סרטונים של יוצרים לקדם לעמוד הראשי?',suggestions:['The algorithm tracks how long audiences watch before swiping.','High retention, shares, and creative comments signal viral potential.','Videos that teach something surprising in three seconds perform best.']},
+          {bot:'If you uploaded your own video project tomorrow, what would your title and hook be?',he:'אם היית מעלה פרויקט וידאו משלך מחר, מה היו הכותרת והפתיח המסקרן שלך?',suggestions:['I would title it: "5 Impossible Animal Facts That Break Science!"','My video would test a crazy magnetic invention in a home laboratory.','I would show a before-and-after experiment that surprises the audience.']}
+        ],
+        more:['What is the most interesting viral trend you watched recently?','Do you think short videos help students learn faster?','How will artificial intelligence change future content creation?'],
+        words:[{en:'algorithm',he:'אלגוריתם'},{en:'creative',he:'יצירתי'},{en:'trend',he:'טרנד'}]
+      },
+      {
+        id:'hadar-records', icon:'🌍', title:'משלחת מעמקים ושיאי טבע', en:'Extreme Earth Expedition',
+        who:'Dr. Leo', role:'חוקר שיאי טבע ומעמקים', level, focus:'Comparatives & Extreme Nature', unit:'u2',
+        desc:'ד"ר ליאו לוקח אותך למסע מחקר בעקבות היצורים הקיצוניים ביותר בכדור הארץ.',
+        opening:'Welcome aboard our oceanic research submarine, Hadar! We are descending toward the deepest abyss on Earth. Did you know that deep-sea pressure can crush steel pipes like paper?',
+        openingHe:'ברוך הבא לצוללת המחקר הימית שלנו, הדר! אנחנו צוללים לעבר התהום העמוקה ביותר בכדור הארץ. ידעת שלחץ במעמקים יכול למעוך צינורות פלדה כמו נייר?',
+        startWords:[{en:'extreme',he:'קיצוני'},{en:'depth',he:'עומק'}],
+        steps:[
+          {bot:'Look outside our quartz viewing window! A transparent snailfish is swimming smoothly. Why can it survive at such an extreme depth?',he:'הסתכל מחוץ לחלון הקוורץ שלנו! דג חילזון שקוף שוחה בקלות. למה הוא מסוגל לשרוד בעומק כה קיצוני?',suggestions:['It has flexible cartilage bones instead of rigid hard bone.','Special cellular compounds protect its organs from high pressure.','It adapted over millions of years to thrive without sunlight.']},
+          {bot:'Incredible scientific deduction! Which extreme creature record on Earth surprises you the most?',he:'הסקה מדעית מדהימה! איזה שיא של יצור קיצוני בכדור הארץ הכי מפתיע אותך?',suggestions:['The pistol shrimp creates bubbles that flash hotter than the surface of the sun!','Tardigrades can survive outer space, radiation, and freezing cold!','The blue whale has a heart the size of a small car.']},
+          {bot:'Earth is packed with mind-blowing mysteries. If you led our next science expedition, where would we travel?',he:'כדור הארץ מלא בתעלומות שמפוצצות את המוח. אם היית מוביל את משלחת המדע הבאה שלנו, לאן היינו נוסעים?',suggestions:['I would explore hydrothermal vents at the bottom of the Arctic Ocean.','We should investigate glowing caves in deep rainforest underground rivers.','I would study microbes living inside active volcanic craters.']}
+        ],
+        more:['Why do deep sea creatures glow in the dark?','Which animal is more venomous: a box jellyfish or an inland taipan?','How does memory consolidate in the human brain during deep sleep?'],
+        words:[{en:'survive',he:'לשרוד'},{en:'phenomenon',he:'תופעה'},{en:'mystery',he:'תעלומה'}]
       }
     ];
   }
@@ -2687,29 +3182,52 @@ function setStudentIdentity(account){
   document.documentElement.dir=CURRENT_UI_LANGUAGE==='he'?'rtl':'ltr';
   document.title=`Lamda – ${name}`;
   const brand=$('#app-name'); if(brand) brand.textContent=`Lamda · ${name}`;
-  const isBarry = account.username==='בארי' || account.key==='BARRY' || (account.gender==='male' && Array.isArray(account.interests) && account.interests.includes('כדורגל'));
-  if(isBarry){
-    document.documentElement.dataset.theme='barry';
-    $$('.brand-mark').forEach(el=>el.textContent='⚽');
-    $$('.sidebar-user .avatar').forEach(el=>el.textContent='⚽');
-  }else{
-    delete document.documentElement.dataset.theme;
-    $$('.brand-mark').forEach(el=>el.textContent='💃');
-    $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
-  }
+  applyStudentTheme(account);
   S.name=name;
   S.settings.level=account.level||S.settings.level||'A1';
   updateHeader();
   personalizeVisibleText(document.body);
   return genderChanged;
 }
+function applyStudentTheme(account){
+  if(!account){
+    delete document.documentElement.dataset.theme;
+    $$('.brand-mark').forEach(el=>el.textContent='💃');
+    $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
+    return;
+  }
+  const u = account.username || '';
+  const k = account.key || '';
+  const interests = Array.isArray(account.interests) ? account.interests : [];
+  let theme = '', icon = '💃';
+
+  if(u === 'בארי' || k === 'BARRY' || interests.includes('כדורגל')){
+    theme = 'barry'; icon = '⚽';
+  }else if(u === 'מעיין' || k === 'MAAYAN' || interests.includes('פוקימון')){
+    theme = 'maayan'; icon = '⚡';
+  }else if(u === 'הדר' || k === 'HADAR' || interests.includes('טרנדים')){
+    theme = 'hadar'; icon = '🔥';
+  }else if(u === 'יולי' || k === 'YULI' || account.uiLanguage === 'es'){
+    theme = 'yuli'; icon = '✨';
+  }else if(u === 'אביב' || k === 'AVIV' || account.learningLanguage === 'French'){
+    theme = 'aviv'; icon = '🗼';
+  }else if(u === 'מיה' || k === 'MIA'){
+    theme = 'mia'; icon = '🎨';
+  }else{
+    theme = ''; icon = '💃';
+  }
+
+  if(theme) document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+
+  $$('.brand-mark').forEach(el=>el.textContent=icon);
+  $$('.sidebar-user .avatar').forEach(el=>el.textContent=icon);
+}
 function clearStudentIdentity(){
   CURRENT_LEARNER_GENDER='female';
   CURRENT_UI_LANGUAGE='he';
   CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
-  delete document.documentElement.dataset.theme;
-  $$('.brand-mark').forEach(el=>el.textContent='💃');
-  $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
+  applyStudentTheme(null);
   document.documentElement.lang='he';
   document.documentElement.dir='rtl';
   S.name='תלמידה';
@@ -3821,12 +4339,17 @@ function pageHome(){
   const lastPct=unitPct(lastUnit);
   const word=ALL_WORD_LIST[dayIndex()%ALL_WORD_LIST.length] || ALL_WORD_LIST[0];
   const unitFacts=UNITS.map(unit=>unit.fact).filter(Boolean);
-  const fact=(unitFacts.length&&(CURRENT_UI_LANGUAGE!=='he'||CURRENT_LEARNER_PROFILE.learningLanguage!=='English'))
-    ?unitFacts[dayIndex()%unitFacts.length]
-    :FACTS[dayIndex()%FACTS.length];
+  const fact=unitFacts.length
+    ? unitFacts[dayIndex()%unitFacts.length]
+    : FACTS[dayIndex()%FACTS.length];
   const isFrenchLearning=CURRENT_LEARNER_PROFILE.learningLanguage==='French';
-  const practiceHeading=isFrenchLearning?'מוכן לתרגל צרפתית?':'מוכנה לתרגל אנגלית?';
-  const chatTaskTitle=isFrenchLearning?'שיחה בצרפתית':'שיחה באנגלית';
+  const isSpanishUI=CURRENT_UI_LANGUAGE==='es';
+  const practiceHeading=isSpanishUI
+    ?'¿Lista para practicar inglés?'
+    :isFrenchLearning
+      ?'מוכן לתרגל צרפתית?'
+      :(CURRENT_LEARNER_GENDER==='male'?'מוכן לתרגל אנגלית?':'מוכנה לתרגל אנגלית?');
+  const chatTaskTitle=isSpanishUI?'Conversación en inglés':isFrenchLearning?'שיחה בצרפתית':'שיחה באנגלית';
   const reviewDone=S.review.doneToday||0;
   const tasks=[
     {done:reviewDone>=5, t:'חזרה חכמה', s:`${Math.min(reviewDone,5)}/5 מילים במעגל`, route:'#/review', btn:'לחזרה'},
@@ -4570,11 +5093,28 @@ const SPEAK_SENTENCES_BARRY = [
   {en:'Gravity on the Moon is much weaker than on Earth.',he:'כוח הכבידה על הירח חלש בהרבה מאשר בכדור הארץ.'},
   {en:'Can you pass the ball to your teammate quickly?',he:'אתה יכול למסור את הכדור לחבר שלך לקבוצה במהירות?'}
 ];
+const SPEAK_SENTENCES_MAAYAN = [
+  {en:'I am a Pokemon trainer and Pikachu is my best friend.',he:'אני מאמן פוקימונים ופיקאצ\'ו הוא החבר הכי טוב שלי.'},
+  {en:'Pikachu can use a powerful electric attack.',he:'פיקאצ\'ו יכול להשתמש במתקפה חשמלית חזקה.'},
+  {en:'I have five Poke Balls in my backpack.',he:'יש לי חמישה פוקדורים בתרמיל שלי.'},
+  {en:'Can Charizard fly over the mountains?',he:'האם צ\'אריזרד יכול לעוף מעל ההרים?'},
+  {en:'Trainers practice battle moves every day.',he:'מאמנים מתרגלים מהלכי קרב בכל יום.'},
+  {en:'We won the gym badge after a hard battle.',he:'זכינו בתג המכון אחרי קרב קשה.'}
+];
+const SPEAK_SENTENCES_HADAR = [
+  {en:'The creator uploaded a viral tech video yesterday.',he:'היוצר העלה סרטון טכנולוגיה ויראלי אתמול.'},
+  {en:'The algorithm recommended this clip to millions of viewers.',he:'האלגוריתם המליץ על הסרטון הזה למיליוני צופים.'},
+  {en:'The Mariana Trench is deeper than Mount Everest is tall.',he:'שקע מריאנה עמוק יותר מגובהו של הר האוורסט.'},
+  {en:'Pistol shrimps create bubbles as hot as the sun.',he:'חסילוני אקדח מייצרים בועות חמות כמו השמש.'},
+  {en:'Engineers are going to design smart future cities.',he:'מהנדסים הולכים לתכנן ערי עתיד חכמות.'},
+  {en:'The human brain consolidates memories during deep sleep.',he:'המוח האנושי מגבש זיכרונות במהלך שינה עמוקה.'}
+];
 function getProfileSpeakSentences(){
-  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && (CURRENT_LEARNER_PROFILE.learningLanguage||'English')==='English');
-  if(isBarry){
-    return SPEAK_SENTENCES_BARRY;
-  }
+  const u = S.name || '';
+  const interests = CURRENT_LEARNER_PROFILE.interests || [];
+  if(u==='בארי' || interests.includes('כדורגל')) return SPEAK_SENTENCES_BARRY;
+  if(u==='מעיין' || interests.includes('פוקימון')) return SPEAK_SENTENCES_MAAYAN;
+  if(u==='הדר' || interests.includes('טרנדים')) return SPEAK_SENTENCES_HADAR;
   const unitSentences=UNITS.flatMap(u=>(u.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe})));
   const adaptiveWords=(ensureAdaptiveState().lastBooster?.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe}));
   const combined=[...adaptiveWords,...unitSentences];
