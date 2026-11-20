@@ -2124,17 +2124,29 @@ function clearStudentIdentity(){
   personalizeVisibleText(document.body);
 }
 function openStudentLogin(message=''){
-  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}">${esc(studentDisplayName(name))}</option>`).join('');
-  openModal(`<h3>👋 כניסה לתלמידים</h3>
-    <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שלך.</p>
-    ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
-    <div class="field"><label for="student-username">שם משתמש</label><select id="student-username">${options}</select></div>
-    <div class="field"><label for="student-password">סיסמה</label><input id="student-password" type="password" autocomplete="current-password"></div>
-    <button class="btn primary wide" data-act="student-login">כניסה</button>
-    <button class="btn ghost wide" style="margin-top:8px" data-act="password-setup-open">הגדרת סיסמה / איפוס עם קוד</button>
-    <a class="btn ghost wide" style="margin-top:8px" id="whatsapp-reset-link" data-whatsapp-reset data-username="${escA(STUDENT_NAMES[0])}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
-    <button class="btn ghost wide" style="margin-top:8px" data-go="#/admin">כניסת מורה / אדמין</button>
-    <p class="tiny muted" style="margin-top:10px">ההתקדמות והרמה נשמרות בנפרד לכל תלמיד.</p>`);
+  const currentUser=$('#student-username')?.value||window.apiSync?.user?.()?.username||STUDENT_NAMES[0];
+  const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}" ${name===currentUser?'selected':''}>${esc(studentDisplayName(name))}</option>`).join('');
+  openModal(`<div class="auth-modal">
+    <div class="auth-head">
+      <h3>👋 כניסה לתלמידים</h3>
+      <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שלך.</p>
+    </div>
+    ${message?`<div class="auth-error" role="alert">${esc(message)}</div>`:''}
+    <form class="auth-form" data-submit-act="student-login" novalidate>
+      <div class="auth-fields">
+        <div class="field"><label for="student-username">שם משתמש</label><select id="student-username" name="username">${options}</select></div>
+        <div class="field"><label for="student-password">סיסמה</label><input id="student-password" name="password" type="password" autocomplete="current-password" placeholder="הקלידי סיסמה…"></div>
+      </div>
+      <button type="submit" class="btn primary wide auth-submit">כניסה</button>
+    </form>
+    <div class="auth-divider"><span>אפשרויות נוספות</span></div>
+    <div class="auth-secondary">
+      <button type="button" class="btn ghost wide" data-act="password-setup-open">הגדרת סיסמה / איפוס עם קוד</button>
+      <a class="btn ghost wide" id="whatsapp-reset-link" data-whatsapp-reset data-username="${escA(currentUser)}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
+      <button type="button" class="btn ghost wide" data-go="#/admin">כניסת מורה / אדמין</button>
+    </div>
+    <p class="tiny muted auth-foot">ההתקדמות והרמה נשמרות בנפרד לכל תלמיד · אפשר ללחוץ Enter לאישור.</p>
+  </div>`);
   $('#student-username')?.addEventListener('change',event=>{
     const link=$('#whatsapp-reset-link');
     if(link){ link.dataset.username=event.target.value; refreshWhatsAppLinks(link.parentElement); }
@@ -2145,21 +2157,33 @@ function openStudentLogin(message=''){
 function openPasswordSetup(message=''){
   const username=$('#activation-username')?.value||$('#student-username')?.value||STUDENT_NAMES[0];
   const options=STUDENT_NAMES.map(name=>`<option value="${escA(name)}" ${name===username?'selected':''}>${esc(studentDisplayName(name))}</option>`).join('');
-  openModal(`<h3>🔐 הגדרת סיסמה</h3>
-    <p class="small muted">הזיני את קוד ההפעלה שקיבלת מהמורה ובחרי סיסמה חדשה. לאיפוס, בקשי קוד חדש בוואטסאפ.</p>
-    ${message?`<div class="help" style="margin:8px 0">${esc(message)}</div>`:''}
-    <div class="field"><label for="activation-username">שם משתמש</label><select id="activation-username">${options}</select></div>
-    <div class="field"><label for="activation-code">קוד הפעלה / איפוס</label><input id="activation-code" autocomplete="one-time-code"></div>
-    <div class="field"><label for="activation-password">סיסמה חדשה (8 תווים לפחות)</label><input id="activation-password" type="password" autocomplete="new-password"></div>
-    <div class="field"><label for="activation-password-confirm">אימות סיסמה</label><input id="activation-password-confirm" type="password" autocomplete="new-password"></div>
-    <button class="btn primary wide" data-act="password-setup">שמירת הסיסמה</button>
-    <a class="btn ghost wide" style="margin-top:8px" data-whatsapp-reset data-username="${escA(username)}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
-    <button class="btn ghost wide" style="margin-top:8px" data-act="student-login-open">חזרה לכניסה</button>`);
+  openModal(`<div class="auth-modal">
+    <div class="auth-head">
+      <h3>🔐 הגדרת סיסמה</h3>
+      <p class="small muted">הזיני את קוד ההפעלה שקיבלת מהמורה ובחרי סיסמה חדשה. לאיפוס, בקשי קוד חדש בוואטסאפ.</p>
+    </div>
+    ${message?`<div class="auth-error" role="alert">${esc(message)}</div>`:''}
+    <form class="auth-form" data-submit-act="password-setup" novalidate>
+      <div class="auth-fields">
+        <div class="field"><label for="activation-username">שם משתמש</label><select id="activation-username" name="username">${options}</select></div>
+        <div class="field"><label for="activation-code">קוד הפעלה / איפוס</label><input id="activation-code" name="code" autocomplete="one-time-code" placeholder="הדביקי או הקלידי קוד מהמורה"></div>
+        <div class="field"><label for="activation-password">סיסמה חדשה (8 תווים לפחות)</label><input id="activation-password" name="new-password" type="password" autocomplete="new-password" placeholder="לפחות 8 תווים"></div>
+        <div class="field"><label for="activation-password-confirm">אימות סיסמה</label><input id="activation-password-confirm" name="confirm-password" type="password" autocomplete="new-password" placeholder="הקלידי את הסיסמה שוב"></div>
+      </div>
+      <button type="submit" class="btn primary wide auth-submit">שמירת הסיסמה</button>
+    </form>
+    <div class="auth-divider"><span>או</span></div>
+    <div class="auth-secondary">
+      <a class="btn ghost wide" data-whatsapp-reset data-username="${escA(username)}" href="#" target="_blank" rel="noopener" aria-disabled="true">בקשת קוד איפוס בוואטסאפ</a>
+      <button type="button" class="btn ghost wide" data-act="student-login-open">חזרה לכניסה</button>
+    </div>
+  </div>`);
   $('#activation-username')?.addEventListener('change',event=>{
     const link=$('#overlay [data-whatsapp-reset]');
     if(link){ link.dataset.username=event.target.value; refreshWhatsAppLinks($('#overlay')); }
   });
   refreshWhatsAppLinks($('#overlay'));
+  setTimeout(()=>$('#activation-code')?.focus(),0);
 }
 async function loadStudentAccount(account){
   S=freshState();
@@ -3902,7 +3926,13 @@ function renderQuestion(){
     if(shell) shell.outerHTML=exerciseCardHTML();
   }
   const inp=$('#answer-input');
-  if(inp){ inp.addEventListener('input',e=>{QS.typed=e.target.value}); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); checkTyped(); } }); }
+  if(inp){
+    inp.addEventListener('input',e=>{QS.typed=e.target.value});
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); checkTyped(); } });
+    if(window.matchMedia && window.matchMedia('(pointer: fine)').matches){
+      setTimeout(()=>{ if(document.activeElement!==inp && !inp.disabled) inp.focus(); },0);
+    }
+  }
 }
 function currentAccepted(){
   const ex=QS.ex;
@@ -5558,14 +5588,24 @@ function renderAdminAiModels(){
 function pageAdmin(){
   if(!window.adminApi?.isEnabled()){
     return `<div class="page">
-      <div class="page-head"><h1 class="page-title">🛡️ לוח אביב</h1><p class="page-sub">כניסת אדמין מאובטחת לצפייה בהתקדמות התלמידים ולניהול המאמנת.</p></div>
-      <div class="card" style="max-width:480px">
-        ${ADMIN_ERROR?`<div class="help">${esc(ADMIN_ERROR)}</div>`:''}
-        <div class="field"><label for="admin-username">שם משתמש אדמין</label><input id="admin-username" autocomplete="username"></div>
-        <div class="field"><label for="admin-password">סיסמת אדמין</label><input id="admin-password" type="password" autocomplete="current-password"></div>
-        <button class="btn primary wide" data-act="admin-login">כניסה ללוח אביב</button>
-        <p class="tiny muted" style="margin-top:10px">חשבון האדמין מוגדר כסוד בשרת ואינו אחד מחשבונות התלמידים.</p>
-        <button class="btn ghost wide" style="margin-top:8px" data-go="#/home">חזרה לאפליקציה</button>
+      <div class="card auth-card">
+        <div class="auth-head">
+          <h1 class="page-title" style="font-size:1.35rem">🛡️ לוח אביב</h1>
+          <p class="small muted">כניסת אדמין מאובטחת לצפייה בהתקדמות התלמידים ולניהול המאמנת.</p>
+        </div>
+        ${ADMIN_ERROR?`<div class="auth-error" role="alert">${esc(ADMIN_ERROR)}</div>`:''}
+        <form class="auth-form" data-submit-act="admin-login" novalidate>
+          <div class="auth-fields">
+            <div class="field"><label for="admin-username">שם משתמש אדמין</label><input id="admin-username" name="username" autocomplete="username" placeholder="שם משתמש"></div>
+            <div class="field"><label for="admin-password">סיסמת אדמין</label><input id="admin-password" name="password" type="password" autocomplete="current-password" placeholder="סיסמה"></div>
+          </div>
+          <button type="submit" class="btn primary wide auth-submit">כניסה ללוח אביב</button>
+        </form>
+        <div class="auth-divider"><span>או</span></div>
+        <div class="auth-secondary">
+          <button type="button" class="btn ghost wide" data-go="#/home">חזרה לאפליקציה</button>
+        </div>
+        <p class="tiny muted auth-foot">חשבון האדמין מוגדר כסוד בשרת ואינו אחד מחשבונות התלמידים · אפשר ללחוץ Enter לכניסה.</p>
       </div>
     </div>`;
   }
@@ -6118,19 +6158,21 @@ function openSettings(){
     </div>
 
     <div class="divider"></div>
-    <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
-    <div class="grid two">
-      <div class="field"><label>גודל טקסט</label><select id="set-fs">${[['.92','קטן'],['1','רגיל'],['1.1','גדול'],['1.2','גדול מאוד']].map(([v,l])=>`<option value="${v}" ${String(S.settings.fontScale)===v?'selected':''}>${l}</option>`).join('')}</select></div>
-      <div class="field"><label>מהירות השמעה</label><select id="set-rate">${[['0.82','איטי (0.82×)'],['0.95','טבעי (0.95×)'],['1.08','שוטף (1.08×)']].map(([v,l])=>`<option value="${v}" ${Math.abs((S.settings.ttsRate||0.95)-Number(v))<0.06?'selected':''}>${l}</option>`).join('')}</select></div>
-    </div>
-    <div class="field"><label>צלילי משוב</label><label class="radio-opt"><input type="checkbox" id="set-sound" ${S.settings.sound?'checked':''}> <span><b>הפעל צלילים</b><span>צליל קצר לתשובה נכונה/שגויה</span></span></label></div>
-    <div class="field"><label>תרגום אוטומטי בשיחה</label><label class="radio-opt"><input type="checkbox" id="set-tr" ${S.settings.showTr?'checked':''}> <span><b>הצג תרגום לעברית</b><span>אפשר להסתיר בכל הודעה בנפרד</span></span></label></div>
-    <div class="field"><label class="radio-opt"><input type="checkbox" id="set-autospeak" ${S.settings.autoSpeak?'checked':''}> <span><b>הקראה אוטומטית של תשובות המאמנת</b><span>המאמנת תקריא כל תשובה בקול טבעי</span></span></label></div>
+    <form data-submit-act="save-settings">
+      <div class="field"><label>יעד יומי (XP)</label><input type="number" id="set-goal" min="10" max="300" step="10" value="${S.settings.goal}"></div>
+      <div class="grid two">
+        <div class="field"><label>גודל טקסט</label><select id="set-fs">${[['.92','קטן'],['1','רגיל'],['1.1','גדול'],['1.2','גדול מאוד']].map(([v,l])=>`<option value="${v}" ${String(S.settings.fontScale)===v?'selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="field"><label>מהירות השמעה</label><select id="set-rate">${[['0.82','איטי (0.82×)'],['0.95','טבעי (0.95×)'],['1.08','שוטף (1.08×)']].map(([v,l])=>`<option value="${v}" ${Math.abs((S.settings.ttsRate||0.95)-Number(v))<0.06?'selected':''}>${l}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>צלילי משוב</label><label class="radio-opt"><input type="checkbox" id="set-sound" ${S.settings.sound?'checked':''}> <span><b>הפעל צלילים</b><span>צליל קצר לתשובה נכונה/שגויה</span></span></label></div>
+      <div class="field"><label>תרגום אוטומטי בשיחה</label><label class="radio-opt"><input type="checkbox" id="set-tr" ${S.settings.showTr?'checked':''}> <span><b>הצג תרגום לעברית</b><span>אפשר להסתיר בכל הודעה בנפרד</span></span></label></div>
+      <div class="field"><label class="radio-opt"><input type="checkbox" id="set-autospeak" ${S.settings.autoSpeak?'checked':''}> <span><b>הקראה אוטומטית של תשובות המאמנת</b><span>המאמנת תקריא כל תשובה בקול טבעי</span></span></label></div>
 
-    <div class="divider"></div>
-    <div class="row"><button class="btn primary" data-act="save-settings" style="flex:1">שמרי הגדרות</button><button class="btn ghost" data-close>סגור</button></div>
-    <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="export">⬇️ ייצוא גיבוי</button><button class="btn sm ghost" data-act="import-file">⬆️ ייבוא</button><button class="btn sm ghost" data-act="backup-link">🔗 קישור המשך</button></div>
-    <div class="row" style="margin-top:10px"><button class="btn sm danger" data-act="reset-all">🔄 איפוס כל ההתקדמות</button></div>`);
+      <div class="divider"></div>
+      <div class="row"><button type="submit" class="btn primary" style="flex:1">שמרי הגדרות</button><button type="button" class="btn ghost" data-close>סגור</button></div>
+    </form>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn sm ghost" data-act="export">⬇️ ייצוא גיבוי</button><button type="button" class="btn sm ghost" data-act="import-file">⬆️ ייבוא</button><button type="button" class="btn sm ghost" data-act="backup-link">🔗 קישור המשך</button></div>
+    <div class="row" style="margin-top:10px"><button type="button" class="btn sm danger" data-act="reset-all">🔄 איפוס כל ההתקדמות</button></div>`);
 }
 function readSettings(){
   S.settings.goal=clamp(Number($('#set-goal').value)||60,10,300);
@@ -6358,6 +6400,7 @@ function render(){
     if(root==='exam') mountExam();
     if(root==='chat' && typeof mountChat==='function') mountChat();
     if(root==='admin'&&window.adminApi?.isEnabled()&&!ADMIN_STUDENTS) loadAdminDashboard();
+    if(root==='admin'&&!window.adminApi?.isEnabled()){ setTimeout(()=>$('#admin-username')?.focus(),0); }
   }
   if(root!=='admin'){ S.last.route=location.hash||'#/home'; save(); }
   window.scrollTo({top:0,behavior:'instant'});
@@ -6656,6 +6699,97 @@ function openUnitRules(u){
     ${u.rules.map(r=>`<details class="rule" style="margin-top:10px"><summary><span class="n">📌</span>${r.title}<span class="chev">▾</span></summary><div class="rule-body"><p>${r.body}</p><div class="formula">${esc(r.formula)}</div><ul class="ex-list">${r.examples.map(ex=>`<li><span class="en">${ex.en}</span><span class="he">${ex.he}</span></li>`).join('')}</ul></div></details>`).join('')}
     <button class="btn primary wide" style="margin-top:12px" data-close>חזרה לתרגיל</button>`);
 }
+function handleGlobalSubmit(e){
+  const form=e.target.closest('form[data-submit-act]');
+  if(!form) return;
+  e.preventDefault();
+  const act=form.dataset.submitAct;
+  if(act==='student-login') submitStudentLogin();
+  else if(act==='password-setup') submitPasswordSetup();
+  else if(act==='admin-login') submitAdminLogin();
+  else if(act==='save-settings') readSettings();
+}
+function handleGlobalKeydown(e){
+  if(e.defaultPrevented||e.isComposing) return;
+  const overlay=$('#overlay');
+  const modalOpen=Boolean(overlay && !overlay.hidden);
+  const target=e.target;
+  const tag=(target?.tagName||'').toUpperCase();
+  const isTextarea=tag==='TEXTAREA';
+  const isInput=tag==='INPUT';
+  const isSelect=tag==='SELECT';
+  const isButton=tag==='BUTTON'||tag==='A';
+
+  if(e.key==='Escape'){
+    if(modalOpen){ e.preventDefault(); closeModal(); return; }
+    const sidebar=$('#sidebar'), sideOv=$('#sidebar-overlay');
+    if(sidebar?.classList.contains('open')){
+      sidebar.classList.remove('open');
+      sideOv?.classList.remove('show');
+      const btn=$('#menu-toggle');
+      if(btn){ btn.setAttribute('aria-expanded','false'); btn.textContent='☰'; }
+    }
+    return;
+  }
+
+  if(e.key!=='Enter') return;
+  if(e.shiftKey||e.altKey) return;
+
+  // Inside a <textarea>: only Ctrl/Cmd+Enter submits modals/forms (chat-input has its own Enter handler)
+  if(isTextarea){
+    if((e.ctrlKey||e.metaKey) && modalOpen){
+      const primary=$('#overlay .btn.primary:not([disabled])');
+      if(primary){ e.preventDefault(); primary.click(); }
+    }
+    return;
+  }
+
+  // Pressing Enter on a <select> or <input> inside any semantic form submits it naturally
+  if(isInput||isSelect){
+    const form=target.closest('form[data-submit-act]');
+    if(form){
+      e.preventDefault();
+      if(typeof form.requestSubmit==='function') form.requestSubmit();
+      else form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+      return;
+    }
+    // Pressing Enter inside Admin AI Model inputs saves model settings
+    if(target.closest('[data-admin-model-provider]')){
+      e.preventDefault();
+      saveAdminAiModels();
+      return;
+    }
+    // Pressing Enter inside any open modal triggers its primary action button
+    if(modalOpen){
+      const primary=$('#overlay .btn.primary:not([disabled])');
+      if(primary){ e.preventDefault(); primary.click(); }
+      return;
+    }
+    return;
+  }
+
+  // When a modal is open and focus is not on a specific button/link, Enter confirms the primary button
+  if(modalOpen){
+    if(!isButton){
+      const primary=$('#overlay .btn.primary:not([disabled])');
+      if(primary){ e.preventDefault(); primary.click(); }
+    }
+    return;
+  }
+
+  // Natural Enter during Exercises / Review / Drills / Exam (when not typing in a field or focusing another control)
+  if(!isButton && typeof QS!=='undefined' && QS && $('#fb-slot')){
+    if(QS.answered){
+      const nextBtn=$('[data-act="next"]:not([disabled])');
+      if(nextBtn){ e.preventDefault(); nextBtn.click(); }
+      return;
+    }
+    if(QS.ex?.t==='scr' && Array.isArray(QS.zone) && QS.zone.length>0){
+      e.preventDefault();
+      checkCurrent();
+    }
+  }
+}
 function boot(){
   if(window.apiSync?.config){
     window.apiSync.config().then(config=>{
@@ -6677,6 +6811,8 @@ function boot(){
     history.replaceState(null,'',last);
   }
   document.addEventListener('click',handleGlobalClick);
+  document.addEventListener('submit',handleGlobalSubmit);
+  document.addEventListener('keydown',handleGlobalKeydown);
   document.addEventListener('change', e => {
     const unitSelect = e.target.closest('#card-unit-select');
     if(unitSelect){
