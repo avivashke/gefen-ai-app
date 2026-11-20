@@ -46,9 +46,9 @@
             title: 'עבר פשוט – Past Simple (+ed ופעלים נפוצים)',
             short: 'פועל + ed / went, saw, had, played',
             formula: 'I / You / He / She / We / They + Verb-ed\nשאלה: Did + גוף + פועל בסיסי?\nשלילה: didn\'t + פועל בסיסי',
-            body: 'כדי לספר על פעולה שהסתיימה בעבר (אתמול, בשבוע שעבר), מוסיפים <b>-ed</b> לפעלים רגילים (played, danced, visited). יש גם פעלים יוצאי דופן חשובים שכדאי להכיר: <b>go → went</b>, <b>see → saw</b>, <b>have → had</b>.',
+            body: 'כדי לספר על פעולה שהסתיימה בעבר (אתמול, בשבוע שעבר), מוסיפים <b>-ed</b> לפעלים רגילים (played, jumped, visited). יש גם פעלים יוצאי דופן חשובים שכדאי להכיר: <b>go → went</b>, <b>see → saw</b>, <b>have → had</b>.',
             examples: [
-              { en: 'Yesterday I danced with my friends.', he: 'אתמול רקדתי עם החברות שלי.' },
+              { en: 'Yesterday I played a funny game with my friends.', he: 'אתמול שיחקתי במשחק מצחיק עם החברים שלי.' },
               { en: 'We went to the park and saw two cute dogs.', he: 'הלכנו לפארק וראינו שני כלבים חמודים.' },
               { en: 'Did you enjoy the movie?', he: 'האם נהנית מהסרט?' },
             ],
@@ -112,7 +112,7 @@
             formula: 'I am going to + פועל\nHe / She / It is going to + פועל\nYou / We / They are going to + פועל',
             body: 'כשיש לנו תוכנית או כוונה לעתיד, משתמשים בפועל <b>to be</b> (am/is/are), מוסיפים <b>going to</b>, ואז את הפועל בצורת הבסיס.',
             examples: [
-              { en: 'Tomorrow I am going to practice a new routine.', he: 'מחר אני מתכוונת לתרגל ריקוד חדש.' },
+              { en: 'Tomorrow I am going to try a fun new challenge.', he: 'מחר אני מתכוונת לנסות אתגר חדש וכיפי.' },
               { en: 'We are going to visit the zoo next Friday.', he: 'אנחנו הולכים לבקר בגן החיות ביום שישי הבא.' },
               { en: 'Are you going to join us?', he: 'האם את מתכוונת להצטרף אלינו?' },
             ],
@@ -130,14 +130,14 @@
         ],
         reading: {
           title: 'Planning the Perfect Day',
-          passage: 'Next week is a school holiday, and Noa has a big plan. On Tuesday morning, she is going to invite her two best friends over. First, they are going to bake chocolate cookies together. Then, they are going to walk to the park and film a fun dance video. Noa is super excited because everyone is going to help prepare.',
+          passage: 'Next week is a school holiday, and Tom has a big plan. On Tuesday morning, he is going to invite his two best friends over. First, they are going to bake chocolate cookies together. Then, they are going to walk to the park and play a funny treasure hunt game. Tom is super excited because everyone is going to help prepare.',
           vocabulary: [
             { en: 'holiday', he: 'חופשה / חג' }, { en: 'invite', he: 'להזמין' }, { en: 'bake', he: 'לאפות' },
-            { en: 'together', he: 'ביחד' }, { en: 'film', he: 'לצלם' }, { en: 'excited', he: 'מתרגשת' }, { en: 'prepare', he: 'להכין' },
+            { en: 'together', he: 'ביחד' }, { en: 'treasure', he: 'אוצר' }, { en: 'excited', he: 'נרגש' }, { en: 'prepare', he: 'להכין' },
           ],
           questions: [
-            { q: 'What are Noa and her friends going to do first?', opts: ['Bake chocolate cookies', 'Go to the beach', 'Study math'], ans: 'Bake chocolate cookies', why: 'כתוב: First, they are going to bake chocolate cookies together.' },
-            { q: 'Why is Noa excited?', opts: ['Everyone is going to help prepare', 'She bought a new phone', 'It is raining outside'], ans: 'Everyone is going to help prepare', why: 'כתוב: because everyone is going to help prepare.' },
+            { q: 'What are Tom and his friends going to do first?', opts: ['Bake chocolate cookies', 'Go to the beach', 'Study math'], ans: 'Bake chocolate cookies', why: 'כתוב: First, they are going to bake chocolate cookies together.' },
+            { q: 'Why is Tom excited?', opts: ['Everyone is going to help prepare', 'He bought a new phone', 'It is raining outside'], ans: 'Everyone is going to help prepare', why: 'כתוב: because everyone is going to help prepare.' },
           ],
         },
         grammar: [
@@ -205,7 +205,7 @@
         },
         grammar: [
           { t: 'mcq', id: 'm2u3.x1', skill: 'grammar', rule: 'm2-comp', q: 'A lion is ___ than a cat.', opts: ['stronger', 'more strong', 'strongest'], ans: 'stronger', why: 'strong הוא תואר קצר → stronger than.', hint: 'strong + er.' },
-          { t: 'mcq', id: 'm2u3.x2', skill: 'grammar', rule: 'm2-comp', q: 'Dancing is ___ than sitting on the sofa.', opts: ['more exciting', 'excitinger', 'most exciting'], ans: 'more exciting', why: 'exciting הוא תואר ארוך → more exciting.', hint: 'תואר ארוך מקבל more.' },
+          { t: 'mcq', id: 'm2u3.x2', skill: 'grammar', rule: 'm2-comp', q: 'Playing sports is ___ than sitting on the sofa.', opts: ['more exciting', 'excitinger', 'most exciting'], ans: 'more exciting', why: 'exciting הוא תואר ארוך → more exciting.', hint: 'תואר ארוך מקבל more.' },
           { t: 'gap', id: 'm2u3.x3', skill: 'grammar', rule: 'm2-comp', q: 'השלימי את מילת ההשוואה:', sentence: 'Summer is hotter ___ winter.', ans: ['than'], why: 'אחרי השוואה משתמשים ב-than.', hint: 'than.' },
           { t: 'type', id: 'm2u3.x4', skill: 'grammar', rule: 'm2-comp', q: 'מה ההשוואה של good? This song is ___ than the old one.', ans: ['better'], why: 'good → better (יוצא דופן חשוב).', hint: 'מתחיל ב-b.' },
           { t: 'scr', id: 'm2u3.x5', skill: 'grammar', rule: 'm2-comp', q: 'סדרי את המשפט: היער שקט יותר מהעיר.', sentence: 'The forest is quieter than the city.', ans: ['The forest is quieter than the city.'], why: 'The forest is + quieter than + the city.', hint: 'מתחילים ב-The forest is.' },
@@ -515,14 +515,14 @@
         ],
         reading: {
           title: 'The Unforgettable Match',
-          passage: 'It was the final minute of a rainy evening match. While the crowd was cheering loudly, the youngest player on the field noticed an open space near the right corner. She was running at full speed when her teammate passed the ball. Suddenly, she took a calm, confident shot — and scored! Everyone agreed it was an unforgettable moment.',
+          passage: 'It was the final minute of a rainy evening match. While the crowd was cheering loudly, the youngest player on the field noticed an open space near the right corner. He was running at full speed when his teammate passed the ball. Suddenly, he took a calm, confident shot — and scored! Everyone agreed it was an unforgettable moment.',
           vocabulary: [
-            { en: 'crowd', he: 'קהל' }, { en: 'cheering', he: 'מעודד' }, { en: 'noticed', he: 'הבחינה' },
-            { en: 'teammate', he: 'חברה לקבוצה' }, { en: 'suddenly', he: 'לפתע' }, { en: 'confident', he: 'בטוחה בעצמה' }, { en: 'unforgettable', he: 'בלתי נשכח' },
+            { en: 'crowd', he: 'קהל' }, { en: 'cheering', he: 'מעודד' }, { en: 'noticed', he: 'הבחין' },
+            { en: 'teammate', he: 'חבר לקבוצה' }, { en: 'suddenly', he: 'לפתע' }, { en: 'confident', he: 'בטוח בעצמו' }, { en: 'unforgettable', he: 'בלתי נשכח' },
           ],
           questions: [
             { q: 'What was the crowd doing during the final minute?', opts: ['Cheering loudly', 'Leaving the stadium', 'Sitting quietly'], ans: 'Cheering loudly', why: 'כתוב: While the crowd was cheering loudly.' },
-            { q: 'What happened while she was running at full speed?', opts: ['Her teammate passed the ball', 'The referee stopped the game', 'She lost her shoe'], ans: 'Her teammate passed the ball', why: 'כתוב: when her teammate passed the ball.' },
+            { q: 'What happened while he was running at full speed?', opts: ['His teammate passed the ball', 'The referee stopped the game', 'He lost his shoe'], ans: 'His teammate passed the ball', why: 'כתוב: when his teammate passed the ball.' },
           ],
         },
         grammar: [

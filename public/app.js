@@ -759,186 +759,186 @@ function defaultUnitsForProfile(){
       }
     ];
   }
-  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
+  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.id==='MAAYAN' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
   if(isMaayan){
     return [
       {
         id:'u1', n:1, icon:'⚡', color:'gold', cefr:'A1',
-        title:'My First Pokemon & Colors',
-        he:'הפוקימון הראשון שלי וצבעים (פוקימון A1)',
-        lead:'ברוך הבא לעולם הפוקימונים! ביחידה זו לומדים להציג את עצמך כמאמן, להציג את הפוקימון שלך ואת הצבעים שלו בעזרת הפועל To Be (am / is / are).',
-        canDo:['להציג את עצמי כמאמן: I am a Pokemon trainer','לתאר את הפוקימון שלי וצבעו: Pikachu is yellow','לשאול שאלות: Is Charmander red? Yes, it is!'],
-        fact:'פיקאצ\'ו אוגר אנרגיה חשמלית בלחיים האדומות שלו, וכאשר הוא שמח הוא משחרר ניצוצות עדינים ומקשקש בזנב הברק שלו!',
+        title:'My First Pokemon & Funny Friends',
+        he:'הפוקימון הראשון שלי וחברים מצחיקים (פוקימון והומור A1)',
+        lead:'ברוך הבא לעולם הפוקימונים והצחוקים! ביחידה זו אתה לומד להציג את עצמך כמאמן, לתאר פוקימונים מצחיקים וצבעים בעזרת הפועל To Be (am / is / are).',
+        canDo:['להציג את עצמי כמאמן: I am a Pokemon trainer','לתאר פוקימון מצחיק וצבעו: Pikachu is yellow and funny','לשאול שאלות: Is Psyduck silly? Yes, it is!'],
+        fact:'סנורלקס (Snorlax) אוכל כמעט 400 קילו אוכל ביום — ואז נרדם באמצע הכביש וחוסם את כל התנועה עד שמישהו מנגן לו בחליל!',
         rules:[
-          {id:'a1-be-pokemon', title:'הפועל To Be עם פוקימונים: am / is / are', short:'I am · He/She/It is · We/They are',
-           formula:'I am a trainer.\nPikachu is fast.\nCharmander and Squirtle are starter Pokemon.\nIs it yellow? Yes, it is!',
-           body:'באנגלית משתמשים ב-<b>am</b> עם I, ב-<b>is</b> עם שם של פוקימון יחיד (It / Pikachu), וב-<b>are</b> כשמדובר בכמה פוקימונים (They / We). כדי לשאול שאלה, הופכים את הסדר: Is Pikachu fast?',
-           examples:[{en:'I am a Pokemon trainer.',he:'אני מאמן פוקימונים.'},{en:'Pikachu is an electric Pokemon.',he:'פיקאצ\'ו הוא פוקימון חשמלי.'},{en:'Charizard is very powerful.',he:'צ\'אריזרד חזק מאוד.'}],
+          {id:'a1-be-pokemon', title:'הפועל To Be עם פוקימונים מצחיקים: am / is / are', short:'I am · He/She/It is · We/They are',
+           formula:'I am a trainer.\nPikachu is fast and funny.\nPsyduck and Snorlax are silly Pokemon.\nIs it yellow? Yes, it is!',
+           body:'באנגלית משתמשים ב-<b>am</b> עם I, ב-<b>is</b> עם שם של פוקימון יחיד (It / Pikachu / Psyduck), וב-<b>are</b> כשמדובר בכמה פוקימונים (They / We). כדי לשאול שאלה, הופכים את הסדר: Is Snorlax sleepy?',
+           examples:[{en:'I am a Pokemon trainer.',he:'אני מאמן פוקימונים.'},{en:'Psyduck is a very funny yellow duck.',he:'פסיידאק הוא ברווז צהוב ומצחיק מאוד.'},{en:'Snorlax is huge and always sleepy.',he:'סנורלקס ענק ותמיד ישנוני.'}],
            mistake:'Pikachu <b>are</b> yellow. → Pikachu <b>is</b> yellow.',
            hook:'פוקימון אחד מקבל is, קבוצה מקבלת are!'}
         ],
         words:[
           {en:'trainer',he:'מאמן',pron:'TRAY-ner',ex:'Every trainer wants to become the champion.',exHe:'כל מאמן רוצה להפוך לאלוף.'},
+          {en:'funny',he:'מצחיק',pron:'FUN-ee',ex:'Psyduck makes funny faces every time it gets confused.',exHe:'פסיידאק עושה פרצופים מצחיקים בכל פעם שהוא מתבלבל.'},
           {en:'electric',he:'חשמלי',pron:'ee-LEK-trik',ex:'Pikachu has powerful electric attacks.',exHe:'לפיקאצ\'ו יש מתקפות חשמליות חזקות.'},
-          {en:'creature',he:'יצור',pron:'KREE-cher',ex:'A Pokemon is a magical creature with special powers.',exHe:'פוקימון הוא יצור קסום עם כוחות מיוחדים.'},
-          {en:'adventure',he:'הרפתקה',pron:'ad-VEN-cher',ex:'We are ready for an exciting journey and adventure.',exHe:'אנחנו מוכנים למסע מרגש והרפתקה.'},
-          {en:'badge',he:'תג (מכון)',pron:'BADJ',ex:'Ash won the first gym badge today.',exHe:'אש זכה בתג המכון הראשון שלו היום.'},
-          {en:'battle',he:'קרב',pron:'BAT-l',ex:'The stadium battle was thrilling and fast.',exHe:'הקרב באצטדיון היה מותח ומהיר.'},
-          {en:'power',he:'כוח / עוצמה',pron:'POW-er',ex:'This dragon Pokemon has incredible power.',exHe:'לפוקימון הדרקון הזה יש עוצמה מדהימה.'}
+          {en:'silly',he:'שטותי / מצחיקול',pron:'SIL-ee',ex:'That silly Pokemon put a bucket on its head!',exHe:'הפוקימון השטותי הזה שם דלי על הראש שלו!'},
+          {en:'sleepy',he:'ישנוני',pron:'SLEE-pee',ex:'Snorlax is too sleepy to wake up for breakfast.',exHe:'סנורלקס ישנוני מדי מכדי לקום לארוחת בוקר.'},
+          {en:'laugh',he:'לצחוק',pron:'LAF',ex:'Maayan and Pikachu laugh together at every joke.',exHe:'מעיין ופיקאצ\'ו צוחקים ביחד מכל בדיחה.'},
+          {en:'creature',he:'יצור',pron:'KREE-cher',ex:'A Pokemon is a cool creature with wild surprises.',exHe:'פוקימון הוא יצור מגניב עם הפתעות פרועות.'}
         ],
         reading:{
-          title:'הפוקימון הראשון של מעיין',
-          passage:'Maayan is a new Pokemon trainer. Today, he visits Professor Oak at the research laboratory. On the table, there are three Poke Balls. Maayan looks at the starters: Charmander is red and fire type, Squirtle is blue and water type, and Bulbasaur is green. But suddenly, a small yellow Pikachu jumps from behind the desk. Pikachu looks at Maayan and says "Pika Pika!" Maayan smiles and says: "You are amazing. We are best friends now!"',
+          title:'הפוקימון הראשון והמצחיק של מעיין',
+          passage:'Maayan is a new Pokemon trainer. Today, he visits Professor Oak at the laboratory. On the table, there are three Poke Balls: red, blue, and green. Suddenly, a silly Psyduck sneezes and drops a box of banana snacks on the Professor’s hat! Everyone laughs out loud. Then a small yellow Pikachu jumps out, puts on funny sunglasses, and says "Pika Pika!" Maayan smiles and says: "You are hilarious. We are best friends now!"',
           vocabulary:[
-            {en:'trainer',he:'מאמן'},{en:'visits',he:'מבקר'},{en:'laboratory',he:'מעבדה'},{en:'table',he:'שולחן'},
-            {en:'starters',he:'התחלתיים'},{en:'fire',he:'אש'},{en:'water',he:'מים'},{en:'suddenly',he:'פתאום'},
-            {en:'desk',he:'שולחן כתיבה'},{en:'smiles',he:'מחייך'},{en:'friends',he:'חברים'},{en:'amazing',he:'מדהים'}
+            {en:'trainer',he:'מאמן'},{en:'laboratory',he:'מעבדה'},{en:'silly',he:'שטותי / מצחיקול'},{en:'sneezes',he:'מתעטש'},
+            {en:'drops',he:'מפיל'},{en:'snacks',he:'חטיפים'},{en:'laughs',he:'צוחק'},{en:'sunglasses',he:'משקפי שמש'},
+            {en:'smiles',he:'מחייך'},{en:'hilarious',he:'קורע מצחוק'},{en:'friends',he:'חברים'},{en:'suddenly',he:'פתאום'}
           ],
           questions:[
-            {q:'איזה פוקימון קפץ פתאום מאחורי השולחן של הפרופסור?',opts:['פיקאצ\'ו צהוב וקטן','צ\'ארמנדר אדום','סקוורטל כחול'],ans:'פיקאצ\'ו צהוב וקטן',why:'בקטע כתוב: suddenly, a small yellow Pikachu jumps from behind the desk.'},
-            {q:'מה מעיין אמר לפיקאצ\'ו בסוף הקטע?',opts:['אתה מדהים. אנחנו החברים הכי טובים עכשיו!','תחזור לפוקדור שלך','אני רוצה פוקימון מים'],ans:'אתה מדהים. אנחנו החברים הכי טובים עכשיו!',why:'בקטע כתוב: You are amazing. We are best friends now!'}
+            {q:'מה קרה כשפסיידאק השטותי התעטש במעבדה?',opts:['הוא הפיל קופסת חטיפי בננה על הכובע של הפרופסור','הוא נרדם על הרצפה','הוא עף דרך החלון'],ans:'הוא הפיל קופסת חטיפי בננה על הכובע של הפרופסור',why:'בקטע כתוב: a silly Psyduck sneezes and drops a box of banana snacks on the Professor’s hat!'},
+            {q:'מה פיקאצ\'ו שם על עצמו כשקפץ החוצה?',opts:['משקפי שמש מצחיקים','כובע של שף','נעלי ספורט ענקיות'],ans:'משקפי שמש מצחיקים',why:'בקטע כתוב: a small yellow Pikachu jumps out, puts on funny sunglasses.'}
           ]
         },
         grammar:[
-          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a1-be-pokemon',q:'Pikachu ___ an electric Pokemon.',opts:['is','are','am'],ans:'is',why:'נושא יחיד מקבל is: Pikachu is.',hint:'יחיד → is.'},
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a1-be-pokemon',q:'Pikachu ___ fast and super funny.',opts:['is','are','am'],ans:'is',why:'נושא יחיד מקבל is: Pikachu is.',hint:'יחיד → is.'},
           {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a1-be-pokemon',q:'I ___ a Pokemon trainer.',opts:['am','is','are'],ans:'am',why:'עם I תמיד בא am: I am a trainer.',hint:'I → am.'},
-          {t:'type',id:'u1.x3',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את הצבע באנגלית: Charmander is ___ (אדום).',ans:['red'],why:'אדום באנגלית = red.',hint:'red (3 אותיות).'},
-          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a1-be-pokemon',q:'סדר את המשפט: פיקאצ\'ו מהיר מאוד.',sentence:'Pikachu is very fast.',ans:['Pikachu is very fast.'],why:'Pikachu + is + very fast.',hint:'מתחילים ב-Pikachu.'},
-          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את הפועל החסר: Squirtle and Bulbasaur ___ starter Pokemon.',ans:['are'],why:'שני פוקימונים זה רבים (They), לכן משתמשים ב-are.',hint:'רבים → are.'}
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את המילה באנגלית: Psyduck is very ___ (מצחיק).',ans:['funny'],why:'מצחיק באנגלית = funny.',hint:'מתחיל ב-f (5 אותיות).'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a1-be-pokemon',q:'סדר את המשפט: סנורלקס ענק ותמיד ישנוני.',sentence:'Snorlax is huge and sleepy.',ans:['Snorlax is huge and sleepy.'],why:'Snorlax + is + huge and sleepy.',hint:'מתחילים ב-Snorlax.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a1-be-pokemon',q:'השלם את הפועל החסר: Psyduck and Pikachu ___ funny friends.',ans:['are'],why:'שני פוקימונים זה רבים (They), לכן משתמשים ב-are.',hint:'רבים → are.'}
         ]
       },
       {
-        id:'u2', n:2, icon:'🥊', color:'pink', cefr:'A1',
-        title:'Pokemon Powers & Abilities',
-        he:'כוחות ויכולות של פוקימונים (can / like)',
-        lead:'לכל פוקימון יש מתקפות מיוחדות: חלקם יכולים לעוף, לחפור או לירות ברקים. לומדים לדבר על יכולות עם can ו-can\'t ועל מה שאוהבים עם like.',
-        canDo:['לומר מה הפוקימון יכול לעשות: Pikachu can use Thunderbolt','לשאול על יכולות: Can Charizard fly? Yes, it can!','לומר מה אני אוהב: I like electric Pokemon'],
-        fact:'מיוטו (Mewtwo) נוצר במעבדה גנטית חשאית, ויש לו כוחות טלקינזיס אדירים שמאפשרים לו לרחף ולהזיז סלעי ענק בלי לגעת בהם!',
+        id:'u2', n:2, icon:'😂', color:'pink', cefr:'A1',
+        title:'Funny Pokemon Powers & Silly Tricks',
+        he:'כוחות פוקימון ותעלולים מצחיקים (can / like)',
+        lead:'לכל פוקימון יש כוחות מגניבים וגם תעלולים קורעים מצחוק: צ\'אריזרד יכול לעוף, סנורלקס יכול לישון שבוע שלם וג\'יגליפאף מצייר שפמים על מי שנרדם! לומדים לדבר על יכולות עם can ו-can\'t.',
+        canDo:['לומר מה הפוקימון יכול לעשות: Pikachu can jump super high','לספר מה מצחיק שהוא לא יכול לעשות: Snorlax can\'t run fast!','לומר מה אני אוהב: I like funny Pokemon tricks'],
+        fact:'ג\'יגליפאף (Jigglypuff) שר שיר ערש שמרדים את כולם — ואז מתעצבן ומצייר שפמים מצחיקים בטוש על הפרצוף של כל מי שנרדם!',
         rules:[
-          {id:'a1-can-pokemon', title:'יכולות עם can ו-can\'t: ללא to', short:'can + פועל בסיסי · can\'t + פועל',
-           formula:'Subject + can / can\'t + base verb\nPikachu can jump high.\nCan it fly? No, it can\'t.',
-           body:'משתמשים ב-<b>can</b> כדי לומר מה הפוקימון מסוגל לעשות, וב-<b>can\'t</b> למה שאינו מסוגל. אחרי can הפועל נשאר פשוט וללא to לעולם!',
-           examples:[{en:'Pikachu can shock enemies with electricity.',he:'פיקאצ\'ו יכול לחשמל אויבים באנרגיה.'},{en:'Charizard can fly high in the sky.',he:'צ\'אריזרד יכול לעוף גבוה בשמיים.'}],
+          {id:'a1-can-pokemon', title:'יכולות ותעלולים עם can ו-can\'t: ללא to', short:'can + פועל בסיסי · can\'t + פועל',
+           formula:'Subject + can / can\'t + base verb\nPikachu can do funny tricks.\nCan Snorlax run fast? No, it can\'t!',
+           body:'משתמשים ב-<b>can</b> כדי לומר מה הפוקימון מסוגל לעשות, וב-<b>can\'t</b> למה שהוא לא מסוגל (ולפעמים זה ממש מצחיק!). אחרי can הפועל נשאר פשוט וללא to לעולם!',
+           examples:[{en:'Charizard can fly high above the clouds.',he:'צ\'אריזרד יכול לעוף גבוה מעל העננים.'},{en:'Snorlax can sleep all day, but it can\'t jump high!',he:'סנורלקס יכול לישון כל היום, אבל הוא לא יכול לקפוץ גבוה!'}],
            mistake:'Pikachu can <b>to</b> jump. → Pikachu can <b>jump</b>.',
            hook:'אחרי can אין to לעולם!'}
         ],
         words:[
-          {en:'attack',he:'מתקפה',pron:'uh-TAK',ex:'Pikachu launched a surprise Thunderbolt attack.',exHe:'פיקאצ\'ו ביצע מתקפת מכת ברק בהפתעה.'},
-          {en:'fast',he:'מהיר',pron:'FAST',ex:'Electric Pokemon are extremely fast in battle.',exHe:'פוקימונים חשמליים מהירים בצורה קיצונית בקרב.'},
-          {en:'strong',he:'חזק',pron:'STRONG',ex:'Machamp is very strong and can lift big rocks.',exHe:'מאצ\'אמפ חזק מאוד ויכול להרים סלעים גדולים.'},
+          {en:'joke',he:'בדיחה',pron:'JOHK',ex:'Meowth told a silly joke and nobody stopped laughing.',exHe:'מיאו סיפר בדיחה שטותית ואף אחד לא הפסיק לצחוק.'},
+          {en:'trick',he:'טריק / תעלול',pron:'TRIK',ex:'Pikachu can do a cool backflip trick in the air.',exHe:'פיקאצ\'ו יכול לעשות טריק סלטה מגניב באוויר.'},
+          {en:'fast',he:'מהיר',pron:'FAST',ex:'Electric Pokemon are super fast in battle.',exHe:'פוקימונים חשמליים מהירים במיוחד בקרב.'},
+          {en:'strong',he:'חזק',pron:'STRONG',ex:'Machamp is very strong and can lift four pizzas at once!',exHe:'מאצ\'אמפ חזק מאוד ויכול להרים ארבע פיצות בבת אחת!'},
           {en:'fly',he:'לעוף',pron:'FLY',ex:'Flying Pokemon can cross mountains easily.',exHe:'פוקימונים מעופפים יכולים לחצות הרים בקלות.'},
-          {en:'swim',he:'לשחות',pron:'SWIM',ex:'Water Pokemon swim with great speed in the river.',exHe:'פוקימוני מים שוחים במהירות גדולה בנהר.'},
-          {en:'dodge',he:'להתחמק',pron:'DODJ',ex:'The trainer told Pikachu to dodge the rock.',exHe:'המאמן אמר לפיקאצ\'ו להתחמק מהסלע.'},
-          {en:'protect',he:'להגן',pron:'pro-TEKT',ex:'The shield can protect the team from danger.',exHe:'המגן יכול להגן על הצוות מפני סכנה.'}
+          {en:'dodge',he:'להתחמק',pron:'DODJ',ex:'Pikachu can dodge flying rocks like a ninja.',exHe:'פיקאצ\'ו יכול להתחמק מאבנים מעופפות כמו נינג\'ה.'},
+          {en:'smile',he:'לחייך / חיוך',pron:'SMYL',ex:'Funny cartoons always make me smile.',exHe:'סרטונים מצחיקים תמיד גורמים לי לחייך.'}
         ],
         reading:{
-          title:'קרב המכון הראשון',
-          passage:'Maayan and Pikachu enter the Pewter City Gym. The Gym Leader Brock stands across the arena with his giant rock Pokemon Onix. Brock smiles and says: "Can your electric Pokemon beat my rock defense?" Maayan gives a confident command: "Pikachu, you are faster! Dodge the attack and use Iron Tail!" Pikachu dodges the heavy tail, jumps in the air, and strikes the ground. The arena shakes, and Maayan wins his very first badge!',
+          title:'קרב המכון הכי מצחיק בעולם',
+          passage:'Maayan and Pikachu enter the Pewter City Gym. Gym Leader Brock calls out his giant rock Pokemon, Onix. Suddenly, Onix steps on a tiny slippery banana peel from lunch and slides across the arena like a giant bowling ball! Brock tries not to laugh, but even Onix looks funny. Maayan shouts: "Pikachu, dodge the slide and use Quick Tickle Attack!" Pikachu jumps high, tickles Onix’s nose, and Onix sneezes so hard it rolls over. Everyone laughs, and Maayan wins his first badge!',
           vocabulary:[
-            {en:'enter',he:'נכנסים'},{en:'arena',he:'זירה'},{en:'giant',he:'ענק'},{en:'stands',he:'עומד'},
-            {en:'defense',he:'הגנה'},{en:'confident',he:'בטוח בעצמו'},{en:'command',he:'פקודה'},{en:'faster',he:'מהיר יותר'},
-            {en:'heavy',he:'כבד'},{en:'strikes',he:'מכה'},{en:'shakes',he:'רועדת'},{en:'wins',he:'מנצח'}
+            {en:'enter',he:'נכנסים'},{en:'giant',he:'ענק'},{en:'slippery',he:'חלקלק'},{en:'peel',he:'קליפה'},
+            {en:'slides',he:'מחליק'},{en:'bowling',he:'באולינג'},{en:'shouts',he:'צועק'},{en:'dodge',he:'להתחמק'},
+            {en:'tickles',he:'מדגדג'},{en:'nose',he:'אף'},{en:'rolls',he:'מתגלגל'},{en:'wins',he:'מנצח'}
           ],
           questions:[
-            {q:'איזה פוקימון סלע ענק שייך למנהיג המכון ברוק?',opts:['אוניקס (Onix)','סקוורטל','פיקאצ\'ו'],ans:'אוניקס (Onix)',why:'בקטע כתוב: with his giant rock Pokemon Onix.'},
-            {q:'איזו פקודה מעיין נתן לפיקאצ\'ו כדי לנצח?',opts:['להתחמק מהמתקפה ולהשתמש בזנב ברזל','לברוח מהמכון','לשחות בנהר'],ans:'להתחמק מהמתקפה ולהשתמש בזנב ברזל',why:'בקטע כתוב: Dodge the attack and use Iron Tail!'}
+            {q:'על מה אוניקס הענק דרך בטעות באמצע הזירה?',opts:['על קליפת בננה קטנה וחלקלקה','על אבן קסומה','על הפוקדור של ברוק'],ans:'על קליפת בננה קטנה וחלקלקה',why:'בקטע כתוב: Onix steps on a tiny slippery banana peel from lunch.'},
+            {q:'מה פיקאצ\'ו עשה כדי לנצח את הקרב בצורה מצחיקה?',opts:['קפץ גבוה ודגדג את האף של אוניקס עד שהתעטש','ברח מהמכון','שר לו שיר ערש'],ans:'קפץ גבוה ודגדג את האף של אוניקס עד שהתעטש',why:'בקטע כתוב: Pikachu jumps high, tickles Onix’s nose, and Onix sneezes so hard it rolls over.'}
           ]
         },
         grammar:[
           {t:'mcq',id:'u2.x1',skill:'grammar',rule:'a1-can-pokemon',q:'Charizard ___ fly high in the clouds.',opts:['can','can to','is can'],ans:'can',why:'אחרי can בא פועל בסיסי ישירות ללא to.',hint:'can + פועל.'},
-          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'a1-can-pokemon',q:'Can Pikachu swim underwater? No, it ___ .',opts:['can\'t','isn\'t','don\'t'],ans:'can\'t',why:'שאלת Can נענית ב-No, it can\'t.',hint:'שלילה של can.'},
-          {t:'type',id:'u2.x3',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את המילה החסרה: Pikachu can ___ (לקפוץ) very high.',ans:['jump'],why:'לקפוץ באנגלית = jump.',hint:'jump.'},
-          {t:'scr',id:'u2.x4',skill:'grammar',rule:'a1-can-pokemon',q:'סדר את המשפט: אני אוהב פוקימונים מהירים.',sentence:'I like fast Pokemon.',ans:['I like fast Pokemon.'],why:'I + like + fast Pokemon.',hint:'מתחילים ב-I.'},
-          {t:'gap',id:'u2.x5',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את שאלת היכולת:',sentence:'___ your Pokemon use Thunderbolt?',ans:['Can'],why:'שאלת יכולת מתחילה ב-Can.',hint:'Can (3 אותיות).'}
+          {t:'mcq',id:'u2.x2',skill:'grammar',rule:'a1-can-pokemon',q:'Can Snorlax run super fast? No, it ___ !',opts:['can\'t','isn\'t','don\'t'],ans:'can\'t',why:'שאלת Can נענית ב-No, it can\'t.',hint:'שלילה של can.'},
+          {t:'type',id:'u2.x3',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את המילה החסרה: Pikachu can ___ (לקפוץ) over the giant rock.',ans:['jump'],why:'לקפוץ באנגלית = jump.',hint:'jump.'},
+          {t:'scr',id:'u2.x4',skill:'grammar',rule:'a1-can-pokemon',q:'סדר את המשפט: אני אוהב בדיחות פוקימון מצחיקות.',sentence:'I like funny Pokemon jokes.',ans:['I like funny Pokemon jokes.'],why:'I + like + funny Pokemon jokes.',hint:'מתחילים ב-I.'},
+          {t:'gap',id:'u2.x5',skill:'grammar',rule:'a1-can-pokemon',q:'השלם את שאלת היכולת:',sentence:'___ your Pokemon do a funny trick?',ans:['Can'],why:'שאלת יכולת מתחילה ב-Can.',hint:'Can (3 אותיות).'}
         ]
       },
       {
         id:'u3', n:3, icon:'🎒', color:'cyan', cefr:'A1',
-        title:'The Trainer Backpack',
-        he:'תיק המאמן וחפצים במסע (have / has)',
-        lead:'לכל מאמן יש תרמיל מסע עם פוקדורים, שיקויים ופוקידע. לומדים להשתמש ב-have וב-has כדי לדבר על מה שיש ברשותך ומה יש לחברים.',
-        canDo:['לומר מה יש לי בתרמיל: I have five Poke Balls','לתאר מה יש לחברים: Ash has a Pokedex','לשאול שאלות: Do you have a potion? Yes, I do!'],
-        fact:'ברחבי עולם הפוקימונים קיימים כיום מעל 1,000 מינים שונים של פוקימונים המחולקים ל-18 סוגי אלמנטים שונים!',
+        title:'The Crazy Backpack & Funny Surprises',
+        he:'התרמיל המשוגע והפתעות מצחיקות (have / has)',
+        lead:'מה מסתתר בתרמיל של מאמן פוקימונים? פוקדורים, שיקויים, כריכים ענקיים ואפילו ברווז גומי מצפצף! לומדים להשתמש ב-have וב-has כדי לספר מה יש לך ומה יש לחברים.',
+        canDo:['לומר מה יש לי בתרמיל: I have five Poke Balls and a giant snack','לתאר מה יש לחברים: Pikachu has a funny hat','לשאול שאלות: Do you have a sandwich? Yes, I do!'],
+        fact:'סלואופוק (Slowpoke) כל כך איטי שלוקח לו חמש שניות שלמות להבין שמישהו דיגדג לו את הזנב!',
         rules:[
           {id:'a1-have-pokemon', title:'שייכות: I have לעומת He/She/It has', short:'I/You/We/They have · He/She/It has',
-           formula:'I have three Poke Balls.\nThe trainer has a rare map.\nDo you have a potion? Yes, I do.',
-           body:'משתמשים ב-<b>have</b> עם I, You, We, They. כשמדברים על מאמן יחיד (Ash / He / She) משתמשים ב-<b>has</b>.',
-           examples:[{en:'I have five Poke Balls in my bag.',he:'יש לי חמישה פוקדורים בתיק שלי.'},{en:'The trainer has a helpful Pokedex.',he:'למאמן יש פוקידע מועיל.'}],
-           mistake:'He <b>have</b> a potion. → He <b>has</b> a potion.',
+           formula:'I have five Poke Balls and a funny hat.\nSnorlax has a giant sandwich.\nDo you have a potion? Yes, I do.',
+           body:'משתמשים ב-<b>have</b> עם I, You, We, They. כשמדברים על מאמן יחיד או פוקימון אחד (Maayan / He / It) משתמשים ב-<b>has</b>.',
+           examples:[{en:'I have five Poke Balls and three cheese snacks.',he:'יש לי חמישה פוקדורים ושלושה חטיפי גבינה.'},{en:'Squirtle has super cool sunglasses.',he:'לסקוורטל יש משקפי שמש מגניבים במיוחד.'}],
+           mistake:'He <b>have</b> a funny hat. → He <b>has</b> a funny hat.',
            hook:'עם he/she/it אומרים has!'}
         ],
         words:[
-          {en:'backpack',he:'תרמיל / תיק גב',pron:'BAK-pak',ex:'I keep all my battle items in the backpack.',exHe:'אני שומר את כל פריטי הקרב שלי בתרמיל.'},
-          {en:'potion',he:'שיקוי ריפוי',pron:'POH-shun',ex:'A potion heals your tired Pokemon quickly.',exHe:'שיקוי מרפא את הפוקימון העייף שלך במהירות.'},
+          {en:'backpack',he:'תרמיל / תיק גב',pron:'BAK-pak',ex:'I keep Poke Balls and funny snacks in my backpack.',exHe:'אני שומר פוקדורים וחטיפים מצחיקים בתרמיל שלי.'},
+          {en:'snack',he:'חטיף / נשנוש',pron:'SNAK',ex:'Snorlax ate my giant pizza snack in one second!',exHe:'סנורלקס אכל את חטיף הפיצה הענק שלי בשנייה אחת!'},
+          {en:'surprise',he:'הפתעה',pron:'ser-PRYZ',ex:'Open the box for a super funny surprise!',exHe:'פתח את הקופסה להפתעה מצחיקה במיוחד!'},
           {en:'catch',he:'לתפוס',pron:'KATCH',ex:'Trainers use Poke Balls to catch wild creatures.',exHe:'מאמנים משתמשים בפוקדורים כדי לתפוס יצורי בר.'},
-          {en:'item',he:'חפץ / פריט',pron:'EYE-tem',ex:'Which rare item did you find in the cave?',exHe:'איזה חפץ נדיר מצאת במערה?'},
-          {en:'friend',he:'חבר',pron:'FREND',ex:'Pikachu is not just a partner, it is a true friend.',exHe:'פיקאצ\'ו הוא לא סתם שותף, הוא חבר אמיתי.'},
-          {en:'journey',he:'מסע',pron:'JER-nee',ex:'Our Pokemon journey starts at sunrise.',exHe:'מסע הפוקימון שלנו מתחיל בזריחה.'},
-          {en:'rare',he:'נדיר',pron:'RARE',ex:'Dragonite is a very rare and legendary sighting.',exHe:'דראגונייט הוא מראה נדיר ואגדי מאוד.'}
+          {en:'potion',he:'שיקוי ריפוי',pron:'POH-shun',ex:'A potion heals your tired Pokemon quickly.',exHe:'שיקוי מרפא את הפוקימון העייף שלך במהירות.'},
+          {en:'friend',he:'חבר',pron:'FREND',ex:'Pikachu is not just a partner, it is a funny best friend.',exHe:'פיקאצ\'ו הוא לא סתם שותף, הוא חבר הכי טוב ומצחיק.'},
+          {en:'giant',he:'ענקי',pron:'JY-unt',ex:'We have a giant sandwich for the forest picnic.',exHe:'יש לנו כריך ענקי לפיקניק ביער.'}
         ],
         reading:{
-          title:'הכנות למסע ביער ורדיאן',
-          passage:'Before entering the deep Viridian Forest, Maayan checks his backpack. He has ten Poke Balls, three healing potions, and a map of the region. His friend Brock has a warm camping tent and cooking supplies. "We have everything we need for the journey," says Maayan. Suddenly, they hear rustling in the tall grass. A rare Butterfree appears with shining wings! Maayan takes a Poke Ball and prepares for his next adventure.',
+          title:'תעלומת הכריך הנעלם ביער ורדיאן',
+          passage:'Before walking into Viridian Forest, Maayan checks his backpack. He has ten Poke Balls, two potions, and one giant cheese sandwich. Suddenly, he opens his bag for lunch — and the sandwich is gone! "Who has my lunch?" asks Maayan. Pikachu points behind a big tree. There sits a giant Snorlax with yellow cheese crumbs on its nose and a huge happy smile! Maayan starts laughing and says: "Okay Snorlax, you have the cheese, so now you are on my team!"',
           vocabulary:[
-            {en:'checks',he:'בודק'},{en:'backpack',he:'תרמיל'},{en:'healing',he:'מרפא'},{en:'region',he:'מחוז'},
-            {en:'tent',he:'אוהל'},{en:'supplies',he:'ציוד'},{en:'everything',he:'הכל'},{en:'rustling',he:'רשרוש'},
-            {en:'grass',he:'עשב'},{en:'appears',he:'מופיע'},{en:'wings',he:'כנפיים'},{en:'prepares',he:'מתכונן'}
+            {en:'checks',he:'בודק'},{en:'backpack',he:'תרמיל'},{en:'giant',he:'ענקי'},{en:'sandwich',he:'כריך'},
+            {en:'lunch',he:'ארוחת צהריים'},{en:'gone',he:'נעלם'},{en:'points',he:'מצביע'},{en:'behind',he:'מאחורי'},
+            {en:'crumbs',he:'פירורים'},{en:'nose',he:'אף'},{en:'laughing',he:'צוחק'},{en:'team',he:'צוות'}
           ],
           questions:[
-            {q:'כמה פוקדורים יש למעיין בתיק הגב?',opts:['עשרה פוקדורים','רק פוקדור אחד','מאה פוקדורים'],ans:'עשרה פוקדורים',why:'בקטע כתוב: He has ten Poke Balls.'},
-            {q:'איזה פוקימון נדיר עם כנפיים זוהרות הופיע בעשב?',opts:['באטרפרי (Butterfree)','צ\'אריזרד','פיקאצ\'ו'],ans:'באטרפרי (Butterfree)',why:'בקטע כתוב: A rare Butterfree appears with shining wings!'}
+            {q:'מה נעלם פתאום מהתרמיל של מעיין ביער?',opts:['כריך הגבינה הענקי שלו','הפוקדורים שלו','האוהל של ברוק'],ans:'כריך הגבינה הענקי שלו',why:'בקטע כתוב: one giant cheese sandwich... and the sandwich is gone!'},
+            {q:'איך מעיין ופיקאצ\'ו גילו שסנורלקס אכל את הכריך?',opts:['היו לו פירורי גבינה צהובה על האף וחיוך ענק','הוא כתב פתק','הוא ברח על אופניים'],ans:'היו לו פירורי גבינה צהובה על האף וחיוך ענק',why:'בקטע כתוב: There sits a giant Snorlax with yellow cheese crumbs on its nose and a huge happy smile!'}
           ]
         },
         grammar:[
-          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a1-have-pokemon',q:'I ___ five Poke Balls in my backpack.',opts:['have','has','am have'],ans:'have',why:'עם I משתמשים ב-have.',hint:'I → have.'},
-          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a1-have-pokemon',q:'The Pokemon trainer ___ a new Pokedex.',opts:['has','have','having'],ans:'has',why:'נושא יחיד (the trainer = he) מקבל has.',hint:'גוף שלישי → has.'},
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a1-have-pokemon',q:'I ___ five Poke Balls and a funny hat in my backpack.',opts:['have','has','am have'],ans:'have',why:'עם I משתמשים ב-have.',hint:'I → have.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a1-have-pokemon',q:'Snorlax ___ cheese crumbs on its nose!',opts:['has','have','having'],ans:'has',why:'נושא יחיד (Snorlax = it) מקבל has.',hint:'גוף שלישי → has.'},
           {t:'type',id:'u3.x3',skill:'grammar',rule:'a1-have-pokemon',q:'השלם את צורת השייכות של have עבור He: He ___ a healing potion.',ans:['has'],why:'עם He הפועל have הופך ל-has.',hint:'has.'},
-          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a1-have-pokemon',q:'סדר את המשפט: יש לנו מפה של המחוז.',sentence:'We have a map of the region.',ans:['We have a map of the region.'],why:'We + have + a map of the region.',hint:'מתחילים ב-We.'},
-          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a1-have-pokemon',q:'השלם את מילת השאלה לשייכות בהווה:',sentence:'Do you ___ a potion for Pikachu?',ans:['have'],why:'אחרי Do you משתמשים ב-have בצורת המקור.',hint:'have (4 אותיות).'}
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a1-have-pokemon',q:'סדר את המשפט: יש לנו הפתעה מצחיקה בתיק.',sentence:'We have a funny surprise in the bag.',ans:['We have a funny surprise in the bag.'],why:'We + have + a funny surprise + in the bag.',hint:'מתחילים ב-We.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a1-have-pokemon',q:'השלם את מילת השאלה לשייכות בהווה:',sentence:'Do you ___ a snack for Pikachu?',ans:['have'],why:'אחרי Do you משתמשים ב-have בצורת המקור.',hint:'have (4 אותיות).'}
         ]
       },
       {
         id:'u4', n:4, icon:'🏆', color:'lime', cefr:'A1',
-        title:'Pokemon Gym & Daily Routine',
-        he:'אימונים במכון ושגרת מאמן (Present Simple)',
-        lead:'מאמנים מתאמנים בכל יום, מטיילים בין ערים ודואגים לבריאות הפוקימונים במרכז הפוקימונים. לומדים הווה פשוט (Present Simple) עם סיומת s לפעלים בגוף שלישי.',
-        canDo:['לתאר את שגרת האימונים: Trainers practice every day','להשתמש בסיומת s בגוף שלישי: Pikachu runs fast','לדבר על ניצחונות ואליפות המחוז'],
-        fact:'מאמני פוקימון צועדים בממוצע מעל 10 קילומטרים ביום במהלך המסעות שלהם באזורים השונים!',
+        title:'Pokemon Gym & Comedy Adventures',
+        he:'אימונים במכון והרפתקאות מצחיקות (Present Simple)',
+        lead:'בכל בוקר הצוות של מעיין מתאמן, צוחק מההרפתקאות הכי משוגעות ומנצח בקרבות! לומדים הווה פשוט (Present Simple) עם סיומת s לפעלים בגוף שלישי.',
+        canDo:['לתאר שגרת אימונים מצחיקה: Pikachu runs after balloons every day','להשתמש בסיומת s בגוף שלישי: Psyduck forgets its shoes!','לדבר על ניצחונות, צחוקים ואליפות המחוז'],
+        fact:'צוות רוקט (Team Rocket) עף לשמיים בצעקת "אנחנו ממריאים שוב!" יותר מ-700 פעמים לאורך הסדרה — ובכל פעם הם מופתעים מחדש!',
         rules:[
-          {id:'a1-ps-pokemon', title:'הווה פשוט ושגרה: תוספת s בגוף שלישי', short:'I practice · He/She/It practices',
-           formula:'I/We/They + verb (train / walk / battle)\nHe/She/It + verb-s (trains / walks / battles)',
+          {id:'a1-ps-pokemon', title:'הווה פשוט ושגרה: תוספת s בגוף שלישי', short:'I laugh · He/She/It laughs · Pikachu runs',
+           formula:'I/We/They + verb (train / laugh / battle)\nHe/She/It + verb-s (trains / laughs / battles)',
            body:'כשמדברים על פעולה שחוזרת על עצמה בשגרה, משתמשים ב-Present Simple. אם הנושא הוא פוקימון יחיד או מאמן (He / She / It), הפועל מקבל תוספת <b>s</b> בסופו!',
-           examples:[{en:'We train together every morning.',he:'אנחנו מתאמנים יחד בכל בוקר.'},{en:'Pikachu runs fast in the arena.',he:'פיקאצ\'ו רץ מהר בזירה.'}],
+           examples:[{en:'We train and laugh together every morning.',he:'אנחנו מתאמנים וצוחקים יחד בכל בוקר.'},{en:'Pikachu runs fast and chases soap bubbles.',he:'פיקאצ\'ו רץ מהר ורודף אחרי בועות סבון.'}],
            mistake:'Pikachu <b>run</b> fast. → Pikachu <b>runs</b> fast.',
            hook:'גוף שלישי יחיד אוהב s בסוף הפועל!'}
         ],
         words:[
-          {en:'champion',he:'אלוף',pron:'CHAM-pee-on',ex:'Only the most dedicated trainer becomes the champion.',exHe:'רק המאמן המסור ביותר הופך לאלוף.'},
-          {en:'victory',he:'ניצחון',pron:'VIK-tuh-ree',ex:'The hard battle ended in a glorious victory.',exHe:'הקרב הקשה הסתיים בניצחון מפואר.'},
-          {en:'practice',he:'להתאמן / תרגול',pron:'PRAK-tis',ex:'We practice new battle tactics every afternoon.',exHe:'אנחנו מתרגלים טקטיקות קרב חדשות בכל אחר צהריים.'},
-          {en:'team',he:'צוות / קבוצה',pron:'TEEM',ex:'A balanced team has six different Pokemon types.',exHe:'לצוות מאוזן יש שישה סוגי פוקימונים שונים.'},
-          {en:'forest',he:'יער',pron:'FOR-ist',ex:'Many grass and bug Pokemon live in the green forest.',exHe:'פוקימוני עשב וחרקים רבים חיים ביער הירוק.'},
-          {en:'center',he:'מרכז (פוקימונים)',pron:'SEN-ter',ex:'Nurse Joy restores all energy at the Pokemon Center.',exHe:'האחות ג\'וי מחדשת את כל האנרגיה במרכז הפוקימונים.'},
-          {en:'evolve',he:'להתפתח',pron:'ee-VOLV',ex:'With enough experience, your partner will evolve.',exHe:'עם מספיק ניסיון, השותף שלך יתפתח.'}
+          {en:'champion',he:'אלוף',pron:'CHAM-pee-on',ex:'A happy trainer with a funny team becomes the champion.',exHe:'מאמן שמח עם צוות מצחיק הופך לאלוף.'},
+          {en:'giggle',he:'לצחקק',pron:'GIG-ul',ex:'The whole team starts to giggle when Squirtle sprays water.',exHe:'כל הצוות מתחיל לצחקק כשסקוורטל משפריץ מים.'},
+          {en:'practice',he:'להתאמן / תרגול',pron:'PRAK-tis',ex:'We practice cool battle moves every afternoon.',exHe:'אנחנו מתרגלים מהלכי קרב מגניבים בכל אחר צהריים.'},
+          {en:'team',he:'צוות / קבוצה',pron:'TEEM',ex:'My Pokemon team has six super funny heroes.',exHe:'לצוות הפוקימונים שלי יש שישה גיבורים מצחיקים במיוחד.'},
+          {en:'adventure',he:'הרפתקה',pron:'ad-VEN-cher',ex:'Every day brings a crazy new Pokemon adventure.',exHe:'כל יום מביא הרפתקת פוקימון משוגעת וחדשה.'},
+          {en:'victory',he:'ניצחון',pron:'VIK-tuh-ree',ex:'We celebrate every victory with pizza and jokes.',exHe:'אנחנו חוגגים כל ניצחון עם פיצה ובדיחות.'},
+          {en:'evolve',he:'להתפתח',pron:'ee-VOLV',ex:'With enough practice, your partner will evolve.',exHe:'עם מספיק תרגול, השותף שלך יתפתח.'}
         ],
         reading:{
-          title:'יום אימונים בדרך לאליפות',
-          passage:'Every day starts early for Maayan and his Pokemon team. First, they run around the lake to build endurance. Next, Pikachu practices electric accuracy by aiming at target balloons. In the afternoon, they visit the Pokemon Center, where friendly Nurse Joy heals their energy. In the evening, the whole team rests by the campfire. Maayan looks up at the starry sky and dreams of winning the Pokemon League Championship trophy.',
+          title:'יום אימונים מצחיק בדרך לאליפות',
+          passage:'Every morning starts with energy and laughter for Maayan and his Pokemon team. First, Pikachu runs around the lake chasing giant soap bubbles to practice speed. Next, Squirtle aims its Water Gun at target cans — but accidentally splashes Maayan’s hair instead! Everyone giggles, and Maayan shakes water off his head like a puppy. In the evening, the whole team sits by the campfire, eats warm snacks, and tells funny stories before dreaming about winning the Pokemon League Championship trophy.',
           vocabulary:[
-            {en:'starts',he:'מתחיל'},{en:'early',he:'מוקדם'},{en:'endurance',he:'סיבולת'},{en:'accuracy',he:'דיוק'},
-            {en:'aiming',he:'מכוון'},{en:'balloons',he:'בלונים'},{en:'afternoon',he:'אחר הצהריים'},{en:'friendly',he:'ידידותית'},
-            {en:'heals',he:'מרפאה'},{en:'evening',he:'ערב'},{en:'campfire',he:'מדורה'},{en:'trophy',he:'גביע'}
+            {en:'laughter',he:'צחוק'},{en:'chasing',he:'רודף אחרי'},{en:'bubbles',he:'בועות'},{en:'aims',he:'מכוון'},
+            {en:'accidentally',he:'בטעות'},{en:'splashes',he:'משפריץ'},{en:'giggles',he:'מצחקק'},{en:'shakes',he:'מנער'},
+            {en:'campfire',he:'מדורה'},{en:'snacks',he:'חטיפים'},{en:'stories',he:'סיפורים'},{en:'trophy',he:'גביע'}
           ],
           questions:[
-            {q:'מה מעיין והצוות שלו עושים בתחילת כל יום סביב האגם?',opts:['רצים כדי לפתח סיבולת','הולכים לישון באוהל','דגים דגים במים'],ans:'רצים כדי לפתח סיבולת',why:'בקטע כתוב: First, they run around the lake to build endurance.'},
-            {q:'מי מרפאה את האנרגיה של הפוקימונים במרכז הפוקימונים?',opts:['האחות ג\'וי הידידותית','פרופסור אוק','המאמן ברוק'],ans:'האחות ג\'וי הידידותית',why:'בקטע כתוב: where friendly Nurse Joy heals their energy.'}
+            {q:'מה קורה בטעות כשסקוורטל מתאמן עם אקדח המים שלו?',opts:['הוא משפריץ בטעות על השיער של מעיין וכולם מצחקקים','הוא נרדם ליד האגם','הוא קופץ לתוך תיק הגב'],ans:'הוא משפריץ בטעות על השיער של מעיין וכולם מצחקקים',why:'בקטע כתוב: accidentally splashes Maayan’s hair instead! Everyone giggles.'},
+            {q:'מה הצוות עושה בערב ליד המדורה?',opts:['אוכלים חטיפים חמים ומספרים סיפורים מצחיקים','לומדים מתמטיקה','הולכים לקניות בקניון'],ans:'אוכלים חטיפים חמים ומספרים סיפורים מצחיקים',why:'בקטע כתוב: eats warm snacks, and tells funny stories.'}
           ]
         },
         grammar:[
-          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a1-ps-pokemon',q:'Pikachu ___ every day after lunch.',opts:['trains','train','is train'],ans:'trains',why:'נושא יחיד (Pikachu = it) מקבל s בסוף הפועל: trains.',hint:'יחיד → תוספת s.'},
-          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a1-ps-pokemon',q:'Trainers ___ all around the Pokemon world.',opts:['travel','travels','is travel'],ans:'travel',why:'נושא ברבים (Trainers = they) מקבל פועל בסיסי: travel.',hint:'רבים → ללא s.'},
-          {t:'type',id:'u4.x3',skill:'grammar',rule:'a1-ps-pokemon',q:'הוסף s לפועל עבור גוף שלישי: Ash ___ (battle) with passion.',ans:['battles'],why:'battle מקבל s בסוף: battles.',hint:'battles.'},
-          {t:'scr',id:'u4.x4',skill:'grammar',rule:'a1-ps-pokemon',q:'סדר את המשפט: אנחנו מתאמנים יחד בכל בוקר.',sentence:'We train together every morning.',ans:['We train together every morning.'],why:'We + train + together + every morning.',hint:'מתחילים ב-We.'},
+          {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a1-ps-pokemon',q:'Pikachu ___ after giant bubbles every morning.',opts:['runs','run','is run'],ans:'runs',why:'נושא יחיד (Pikachu = it) מקבל s בסוף הפועל: runs.',hint:'יחיד → תוספת s.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a1-ps-pokemon',q:'Maayan and his friends ___ at funny Pokemon jokes.',opts:['laugh','laughs','is laugh'],ans:'laugh',why:'נושא ברבים (they) מקבל פועל בסיסי ללא s: laugh.',hint:'רבים → ללא s.'},
+          {t:'type',id:'u4.x3',skill:'grammar',rule:'a1-ps-pokemon',q:'הוסף s לפועל עבור גוף שלישי: Squirtle ___ (giggle) after every splash.',ans:['giggles'],why:'giggle מקבל s בסוף: giggles.',hint:'giggles.'},
+          {t:'scr',id:'u4.x4',skill:'grammar',rule:'a1-ps-pokemon',q:'סדר את המשפט: אנחנו מתאמנים וצוחקים בכל בוקר.',sentence:'We train and laugh every morning.',ans:['We train and laugh every morning.'],why:'We + train and laugh + every morning.',hint:'מתחילים ב-We.'},
           {t:'gap',id:'u4.x5',skill:'grammar',rule:'a1-ps-pokemon',q:'השלם את הפועל ב-Present Simple עבור נושא ברבים:',sentence:'They ___ wild Pokemon in the forest.',ans:['catch'],why:'עם They הפועל נשאר בצורת המקור catch.',hint:'פועל בצורת המקור catch.'}
         ]
       }
@@ -1334,41 +1334,71 @@ function defaultScenariosForProfile(){
         ],
         more:['How many stars do you think exist in our galaxy?','Why is Mars called the Red Planet?','Can solar energy power an entire space base on Mars?'],
         words:[{en:'universe',he:'יקום'},{en:'experiment',he:'ניסוי'},{en:'discover',he:'לגלות'}]
+      },
+      {
+        id:'barry-world', icon:'🌍', title:'שיאים ועובדות מדהימות בעולם', en:'Amazing World & Earth Facts',
+        who:'Explorer Sam', role:'חוקר פלאי עולם ומדע', level, focus:'First Conditional & World Facts', unit:'u3',
+        desc:'סאם לוקח אותך למסע סביב העולם בין הרי געש, אוקיינוסים עמוקים ועובדות שיאים מפתיעות.',
+        opening:'Welcome aboard the world exploration ship, Barry! Here is a wild fact: over eighty percent of Earth’s oceans are still unexplored! If you could explore any extreme place on Earth, where would we go first?',
+        openingHe:'ברוך הבא לספינת המחקר העולמית שלנו, בארי! הנה עובדה מטורפת: מעל שמונים אחוזים מהאוקיינוסים בכדור הארץ עדיין לא נחקרו! אם היית יכול לחקור כל מקום קיצוני בעולם, לאן היינו נוסעים קודם?',
+        startWords:[{en:'expedition',he:'משלחת מחקר'},{en:'volcano',he:'הר געש'}],
+        steps:[
+          {bot:'Awesome destination! What surprising nature or science fact about our planet blows your mind the most?',he:'יעד אדיר! איזו עובדה מפתיעה על הטבע או המדע בכדור הארץ הכי מפוצצת לך את המוח?',suggestions:['Underwater volcanoes form entire new islands in the middle of the ocean!','The Mariana Trench is deeper than Mount Everest is tall.','Lightning is five times hotter than the surface of the Sun!']},
+          {bot:'That is an unforgettable fact! If we pack our scientific expedition gear tomorrow, what tools are we going to bring?',he:'זו עובדה בלתי נשכחת! אם נארוז מחר את ציוד משלחת המחקר שלנו, אילו כלים אנחנו הולכים להביא?',suggestions:['We are going to bring deep-sea cameras and heat-proof sensors.','We should pack a drone to map the rainforest and volcano crater.','We will need strong flashlights and waterproof notebooks.']},
+          {bot:'You are ready to lead a real National Geographic expedition, Barry! Which sport or outdoor challenge would you combine with world travel?',he:'אתה מוכן להוביל משלחת אמיתית של נשיונל ג\'יאוגרפיק, בארי! איזה ספורט או אתגר שטח היית משלב עם מסע בעולם?',suggestions:['I would climb giant glaciers and play football with local teams in every country!','Scuba diving near coral reefs to spot rare ocean predators would be epic.','Running a trail race near waterfalls and mountains sounds awesome.']}
+        ],
+        more:['Which continent has the wildest weather on Earth?','Why do glaciers slowly shape whole mountain valleys?','What is the coolest world record you know?'],
+        words:[{en:'glacier',he:'קרחון'},{en:'ocean',he:'אוקיינוס'},{en:'explore',he:'לחקור'}]
       }
     ];
   }
-  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
+  const isMaayan = S.name==='מעיין' || CURRENT_LEARNER_PROFILE.id==='MAAYAN' || CURRENT_LEARNER_PROFILE.interests.includes('פוקימון');
   if(isMaayan){
     return [
       {
-        id:'maayan-oak', icon:'⚡', title:'פגישה עם פרופסור אוק', en:'Meeting Professor Oak',
-        who:'Prof. Oak', role:'חוקר פוקימונים ראשי', level, focus:'Be & First Pokemon', unit:'u1',
-        desc:'פרופסור אוק פוגש אותך במעבדה לעזור לך לבחור את שותף הפוקימון הראשון שלך.',
-        opening:'Welcome to the world of Pokemon, Maayan! I am Professor Oak. Are you ready to become a great trainer?',
-        openingHe:'ברוך הבא לעולם הפוקימונים, מעיין! אני פרופסור אוק. אתה מוכן להפוך למאמן דגול?',
-        startWords:[{en:'trainer',he:'מאמן'},{en:'creature',he:'יצור'}],
+        id:'maayan-oak', icon:'⚡', title:'פגישה מצחיקה עם פרופסור אוק', en:'Funny Lab Visit with Prof. Oak',
+        who:'Prof. Oak', role:'חוקר פוקימונים מצחיק ומפוזר', level, focus:'Be & Funny Pokemon', unit:'u1',
+        desc:'פרופסור אוק פוגש אותך במעבדה — ופסיידאק בדיוק עשה בלגן מצחיק! בחר את הפוקימון שלך.',
+        opening:'Welcome to the Pokemon Lab, Maayan! Oops — Psyduck just put my glasses on Snorlax! Are you ready to pick your first funny Pokemon partner?',
+        openingHe:'ברוך הבא למעבדת הפוקימונים, מעיין! אופס — פסיידאק הרגע שם את המשקפיים שלי על סנורלקס! אתה מוכן לבחור את שותף הפוקימון המצחיק הראשון שלך?',
+        startWords:[{en:'trainer',he:'מאמן'},{en:'funny',he:'מצחיק'}],
         steps:[
-          {bot:'Look at the three starter Poke Balls on the desk! Which element type is your favourite?',he:'הסתכל על שלושת הפוקדורים ההתחלתיים על השולחן! איזה סוג אלמנט הכי אהוב עליך?',suggestions:['I like electric Pokemon because they are fast.','I love fire Pokemon like Charmander.','Water Pokemon are cool because they swim so well.']},
-          {bot:'Look, a wild Pikachu just appeared! Can you say hello to it in English?',he:'תראה, פיקאצ\'ו פראי הרגע הופיע! אתה יכול להגיד לו שלום באנגלית?',suggestions:['Hello Pikachu, you are very cute and yellow!','Hi Pikachu! Are you ready for an exciting adventure?','Pikachu is my best partner and friend.']},
-          {bot:'Wonderful! What items do you have in your trainer backpack for the journey?',he:'נפלא! איזה פריטים יש לך בתרמיל המאמן שלך לקראת המסע?',suggestions:['I have five Poke Balls and two healing potions.','I have a map of the region and a Pokedex.','I have supplies and a tent for camping.']}
+          {bot:'Haha! Look at the starters on the desk! Which funny Pokemon is your favourite?',he:'חחח! הסתכל על הפוקימונים על השולחן! איזה פוקימון מצחיק הכי אהוב עליך?',suggestions:['I like Pikachu because it is fast and super funny!','Snorlax is hilarious because it is huge and always sleepy.','I love Squirtle with its cool sunglasses!']},
+          {bot:'Wait, Pikachu just jumped on my head and stole a banana snack! What do you say to it in English?',he:'רגע, פיקאצ\'ו הרגע קפץ לי על הראש וגנב חטיף בננה! מה אתה אומר לו באנגלית?',suggestions:['Hey Pikachu, you are so silly!','Hahaha, Pikachu is my funniest best friend!','Pikachu, give the banana back and smile!']},
+          {bot:'That made me laugh! What funny items do you have in your trainer backpack today?',he:'זה הצחיק אותי! אילו חפצים מצחיקים יש לך בתרמיל המאמן שלך היום?',suggestions:['I have five Poke Balls and a giant cheese sandwich!','I have a funny hat and snacks for Pikachu.','I have potions and a squeaky rubber duck!']}
         ],
-        more:['Is Pikachu fast in battle?','What is your favourite Pokemon type?','Can Charizard fly over mountains?'],
-        words:[{en:'electric',he:'חשמלי'},{en:'battle',he:'קרב'},{en:'backpack',he:'תרמיל'}]
+        more:['Is Psyduck silly or smart?','Who is the sleepiest Pokemon in the world?','What snack does your Pokemon love most?'],
+        words:[{en:'silly',he:'שטותי'},{en:'sleepy',he:'ישנוני'},{en:'laugh',he:'לצחוק'}]
       },
       {
-        id:'maayan-brock', icon:'🥊', title:'קרב מכון פיוטר', en:'Pewter Gym Battle',
-        who:'Gym Leader Brock', role:'מנהיג מכון סלע', level, focus:'can / can\'t & moves', unit:'u2',
-        desc:'מנהיג המכון ברוק מאתגר אותך בקרב על תג המכון הראשון.',
-        opening:'Welcome to the Pewter Gym, Maayan! I train giant Rock Pokemon. Can your electric Pikachu beat my rock defense?',
-        openingHe:'ברוך הבא למכון פיוטר, מעיין! אני מאמן פוקימוני סלע ענקיים. האם פיקאצ\'ו החשמלי שלך יכול לנצח את הגנת הסלע שלי?',
-        startWords:[{en:'attack',he:'מתקפה'},{en:'dodge',he:'להתחמק'}],
+        id:'maayan-comedy', icon:'😂', title:'מועדון הבדיחות של פיקאצ\'ו', en:'Pikachu Comedy Club',
+        who:'Comic Max', role:'מנחה סטנדאפ לפוקימונים', level, focus:'can / can\'t & Funny Jokes', unit:'u2',
+        desc:'מקס מזמין אותך למועדון הצחוקים של הפוקימונים — ממציאים בדיחות ותעלולים מטורפים באנגלית!',
+        opening:'Welcome to the Pikachu Comedy Club, Maayan! Here is joke number one: why can’t Snorlax win a running race? Because it falls asleep at the start line! Haha! Can your Pokemon do a funny trick?',
+        openingHe:'ברוך הבא למועדון הצחוקים של פיקאצ\'ו, מעיין! הנה בדיחה מספר אחת: למה סנורלקס לא יכול לנצח במרוץ ריצה? כי הוא נרדם על קו הזינוק! חחח! הפוקימון שלך יכול לעשות טריק מצחיק?',
+        startWords:[{en:'joke',he:'בדיחה'},{en:'trick',he:'תעלול'}],
         steps:[
-          {bot:'My Onix uses Rock Throw! What is your battle command for Pikachu?',he:'האוניקס שלי משתמש בהטלת סלעים! מהי פקודת הקרב שלך לפיקאצ\'ו?',suggestions:['Pikachu, dodge the rock and use Quick Attack!','Pikachu can jump high to avoid the falling stones!','Use Iron Tail directly on the ground to create an earthquake!']},
-          {bot:'That was an incredibly fast counter-move! Can Pikachu learn new elemental moves as it trains?',he:'זה היה מהלך נגדי מהיר בצורה מדהימה! פיקאצ\'ו יכול ללמוד מתקפות אלמנטים חדשות כשהוא מתאמן?',suggestions:['Yes, it can learn Thunderbolt and Volt Tackle!','With regular practice, my team gets stronger every single day.','Pikachu can also evolve into Raichu in the future.']},
-          {bot:'You earned my respect and the Boulder Badge! Where will your adventure take you next?',he:'הרווחת את הכבוד שלי ואת תג הסלע! לאן ההרפתקה שלך תיקח אותך הלאה?',suggestions:['We are going to Cerulean City to challenge the Water Gym.','We travel through Viridian Forest to catch new rare friends.','Our ultimate goal is winning the Pokemon League Championship!']}
+          {bot:'Hahaha that is brilliant! Imagine Jigglypuff sings and everyone falls asleep. What funny face would it draw on Team Rocket?',he:'חחח זה גאוני! דמיין שג\'יגליפאף שר וכולם נרדמים. איזה פרצוף מצחיק הוא יצייר על צוות רוקט?',suggestions:['It can draw giant curly mustaches and funny glasses!','Jigglypuff draws silly stars and a clown nose!','Meowth wakes up and looks like a funny panda!']},
+          {bot:'I am crying from laughing! What is one crazy thing a Pokemon CANNOT do?',he:'אני בוכה מצחוק! מהו דבר מטורף אחד שפוקימון לא יכול לעשות?',suggestions:['Snorlax can’t jump high or climb a tiny tree!','Psyduck can’t remember where it hid its snacks!','Squirtle can’t fly, so it rides a skateboard instead!']},
+          {bot:'You are a true comedy champion, Maayan! Tell me one funny adventure you want to have with Pikachu tomorrow.',he:'אתה אלוף הומור אמיתי, מעיין! ספר לי על הרפתקה מצחיקה אחת שאתה רוצה לעבור עם פיקאצ\'ו מחר.',suggestions:['We want to chase giant soap bubbles in the park!','We have a pizza party and Snorlax eats ten boxes!','Pikachu and I play a funny prank on Brock!']}
         ],
-        more:['Do you have a water Pokemon on your team?','Can flying Pokemon dodge ground attacks?','How many badges do you need for the league?'],
-        words:[{en:'badge',he:'תג'},{en:'strong',he:'חזק'},{en:'victory',he:'ניצחון'}]
+        more:['What is the funniest Pokemon you know?','Can Pikachu juggle three Poke Balls?','What makes you laugh the loudest?'],
+        words:[{en:'giggle',he:'לצחקק'},{en:'surprise',he:'הפתעה'},{en:'smile',he:'לחייך'}]
+      },
+      {
+        id:'maayan-brock', icon:'🥊', title:'קרב מכון פיוטר המצחיק', en:'Pewter Gym Fun Battle',
+        who:'Gym Leader Brock', role:'מנהיג מכון סלע עם חוש הומור', level, focus:'can / can\'t & Present Simple', unit:'u4',
+        desc:'מנהיג המכון ברוק מאתגר אותך בקרב משעשע במכון הסלע על התג הראשון.',
+        opening:'Welcome to the Pewter Gym, Maayan! Watch out for that banana peel — Onix just slipped on it! Are you and Pikachu ready for a fun battle?',
+        openingHe:'ברוך הבא למכון פיוטר, מעיין! תיזהר מקליפת הבננה הזאת — אוניקס הרגע החליק עליה! אתה ופיקאצ\'ו מוכנים לקרב כיפי?',
+        startWords:[{en:'dodge',he:'להתחמק'},{en:'team',he:'צוות'}],
+        steps:[
+          {bot:'My Onix rolls toward you like a giant bowling ball! What is your battle command for Pikachu?',he:'האוניקס שלי מתגלגל אליך כמו כדור באולינג ענק! מה פקודת הקרב שלך לפיקאצ\'ו?',suggestions:['Pikachu, jump high and dodge the giant rock!','Use Quick Tickle Attack on Onix’s nose!','Pikachu runs super fast and surprises Onix!']},
+          {bot:'Haha, Onix sneezed so loudly the whole gym shook! How do you and Pikachu practice every day?',he:'חחח, אוניקס התעטש כל כך חזק שכל המכון רעד! איך אתה ופיקאצ\'ו מתאמנים כל יום?',suggestions:['Every morning we train, laugh, and chase bubbles!','Pikachu runs fast and practices cool electric tricks.','We train hard and then eat giant snacks together!']},
+          {bot:'You earned my respect and the Boulder Badge! Where does your funny team go next?',he:'הרווחת את הכבוד שלי ואת תג הסלע! לאן הצוות המצחיק שלך ממשיך הלאה?',suggestions:['We go to the forest to find Snorlax and my sandwich!','We travel to the next gym for another crazy adventure!','We celebrate our victory with pizza and funny jokes!']}
+        ],
+        more:['Do you have snacks in your backpack?','Can flying Pokemon dodge water splashes?','Who is the funniest trainer in your team?'],
+        words:[{en:'champion',he:'אלוף'},{en:'victory',he:'ניצחון'},{en:'adventure',he:'הרפתקה'}]
       }
     ];
   }
@@ -5313,12 +5343,14 @@ const SPEAK_SENTENCES_BARRY = [
   {en:'Can you pass the ball to your teammate quickly?',he:'אתה יכול למסור את הכדור לחבר שלך לקבוצה במהירות?'}
 ];
 const SPEAK_SENTENCES_MAAYAN = [
-  {en:'I am a Pokemon trainer and Pikachu is my best friend.',he:'אני מאמן פוקימונים ופיקאצ\'ו הוא החבר הכי טוב שלי.'},
-  {en:'Pikachu can use a powerful electric attack.',he:'פיקאצ\'ו יכול להשתמש במתקפה חשמלית חזקה.'},
-  {en:'I have five Poke Balls in my backpack.',he:'יש לי חמישה פוקדורים בתרמיל שלי.'},
+  {en:'I am a Pokemon trainer and Pikachu is my funniest friend.',he:'אני מאמן פוקימונים ופיקאצ\'ו הוא החבר הכי מצחיק שלי.'},
+  {en:'Snorlax is huge, sleepy, and ate my giant cheese sandwich.',he:'סנורלקס ענק, ישנוני, ואכל את כריך הגבינה הענק שלי.'},
+  {en:'Psyduck makes silly faces and makes everyone laugh.',he:'פסיידאק עושה פרצופים שטותיים ומצחיק את כולם.'},
+  {en:'I have five Poke Balls and a funny hat in my backpack.',he:'יש לי חמישה פוקדורים וכובע מצחיק בתרמיל שלי.'},
   {en:'Can Charizard fly over the mountains?',he:'האם צ\'אריזרד יכול לעוף מעל ההרים?'},
-  {en:'Trainers practice battle moves every day.',he:'מאמנים מתרגלים מהלכי קרב בכל יום.'},
-  {en:'We won the gym badge after a hard battle.',he:'זכינו בתג המכון אחרי קרב קשה.'}
+  {en:'Snorlax can sleep all day, but it cannot run fast!',he:'סנורלקס יכול לישון כל היום, אבל הוא לא יכול לרוץ מהר!'},
+  {en:'Pikachu runs fast and chases giant soap bubbles every morning.',he:'פיקאצ\'ו רץ מהר ורודף אחרי בועות סבון ענקיות בכל בוקר.'},
+  {en:'We celebrate every victory with pizza and funny jokes.',he:'אנחנו חוגגים כל ניצחון עם פיצה ובדיחות מצחיקות.'}
 ];
 const SPEAK_SENTENCES_HADAR = [
   {en:'The Olympic sprinter broke the world record yesterday.',he:'האצן האולימפי שבר את שיא העולם אתמול.'},
