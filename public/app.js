@@ -550,7 +550,7 @@ function defaultUnitsForProfile(){
       }
     ];
   }
-  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && lang==='English');
+  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.id==='BARRY' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל');
   if(isBarry){
     return [
       {
@@ -944,60 +944,60 @@ function defaultUnitsForProfile(){
       }
     ];
   }
-  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.interests.includes('טרנדים');
+  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.id==='HADAR' || (CURRENT_LEARNER_PROFILE.interests.includes('ספורט') && CURRENT_LEARNER_PROFILE.interests.includes('העולם'));
   if(isHadar){
     return [
       {
-        id:'u1', n:1, icon:'📱', color:'lime', cefr:'A2',
-        title:'Viral Trends & Content Creators',
-        he:'טרנדים ויראליים ויוצרי תוכן (טרנדים ורשתות A2)',
-        lead:'איך סרטון קצר הופך לטרנד עולמי תוך שעות בודדות? ביחידה זו לומדים לתאר תופעות רשת, סרטונים ויראליים ואירועים בעבר (Past Simple).',
-        canDo:['לספר על טרנד ויראלי וסרטון שהצליח ברשת','להשתמש בפעלים בעבר: created, uploaded, shared, watched','להביע דעה על אלגוריתמים ופלטפורמות תוכן'],
-        fact:'מעל 500 שעות של וידאו חדש מועלות ליוטיוב בכל דקה אחת בלבד – כמות שאי אפשר לצפות בה בכל החיים!',
+        id:'u1', n:1, icon:'🏀', color:'lime', cefr:'A2',
+        title:'World Sports & Athletic Records',
+        he:'שיאי ספורט ועולם האתלטיקה (ספורט A2)',
+        lead:'איך ספורטאים שוברים שיאי עולם באולימפיאדה, בכדורסל ובריצה? ביחידה זו אתה לומד לספר על תחרויות, ניצחונות והישגים בספורט בעבר (Past Simple).',
+        canDo:['לספר על משחקי ספורט, מרוצים ושיאי עולם בעבר באנגלית','להשתמש בפעלים רגילים ולא-רגילים בעבר (broke, won, ran, competed, trained)','לתאר כושר גופני, התמדה ומדע הספורט'],
+        fact:'יוסיין בולט הגיע בשיא העולם שלו ל-100 מטר למהירות שיא של 44.72 קמ"ש – מהר יותר מהמהירות המותרת ברחוב עירוני!',
         rules:[
-          {id:'a2-past-trends', title:'פעלים בעבר לתיאור אירועים דיגיטליים (Past Simple)', short:'created · uploaded · watched · reached',
-           formula:'Subject + Past verb (-ed or irregular)\nHe uploaded a funny video yesterday.\nThe clip reached one million views in three hours.',
-           body:'משתמשים ב-<b>Past Simple</b> כדי לספר על סרטון שעלה או טרנד שהתפוצץ בעבר. לפעלים רגילים מוסיפים <b>-ed</b> (uploaded, shared), ולפעלים לא-רגילים יש צורות עבר ייחודיות (made, saw, went).',
-           examples:[{en:'The creator uploaded an amazing challenge video.',he:'היוצר העלה סרטון אתגר מדהים.'},{en:'The video went viral across social media.',he:'הסרטון הפך לוויראלי בכל הרשתות החברתיות.'}],
-           mistake:'He <b>upload</b> a video yesterday. → He <b>uploaded</b> a video yesterday.',
-           hook:'פעולה שהסתיימה בעבר מקבלת עבר: uploaded / shared!'}
+          {id:'a2-past-sports', title:'פעלים בעבר לתיאור שיאי ספורט (Past Simple)', short:'broke · won · ran · competed · trained',
+           formula:'Subject + Past verb (-ed or irregular)\nHe broke the world record in 2009.\nOur team trained hard and won the championship.',
+           body:'משתמשים ב-<b>Past Simple</b> כדי לספר על משחק, מרוץ או שיא עולם שהתרחשו בעבר. לפעלים רגילים מוסיפים <b>-ed</b> (trained, competed, scored), ולפעלים לא-רגילים יש צורות עבר ייחודיות (<b>break → broke</b>, <b>win → won</b>, <b>run → ran</b>).',
+           examples:[{en:'The sprinter broke the Olympic record yesterday.',he:'האצן שבר את השיא האולימפי אתמול.'},{en:'Both teams competed fiercely until the final buzzer.',he:'שתי הקבוצות התחרו בנחישות עד הבאזר האחרון.'}],
+           mistake:'He <b>breaked</b> the world record. → He <b>broke</b> the world record.',
+           hook:'העבר של break הוא broke, ושל win הוא won — ככה שוברים שיאים!'}
         ],
         words:[
-          {en:'creator',he:'יוצר תוכן',pron:'kree-AY-ter',ex:'The creator edits videos with fast cuts and sound effects.',exHe:'יוצר התוכן עורך סרטונים עם חיתוכים מהירים ואפקטים קוליים.'},
-          {en:'viral',he:'ויראלי (מתפשט במהירות)',pron:'VY-rul',ex:'A clever concept can go viral in just a few minutes.',exHe:'רעיון חכם יכול להפוך לוויראלי בתוך דקות ספורות בלבד.'},
-          {en:'algorithm',he:'אלגוריתם',pron:'AL-guh-rith-um',ex:'The algorithm recommends content based on your watch time.',exHe:'האלגוריתם ממליץ על תוכן בהתבסס על זמן הצפייה שלך.'},
-          {en:'audience',he:'קהל צופים',pron:'AW-dee-ents',ex:'Engaging directly with your audience builds strong loyalty.',exHe:'אינטראקציה ישירה עם הקהל שלך בונה נאמנות חזקה.'},
-          {en:'creative',he:'יצירתי',pron:'kree-AY-tiv',ex:'Creative storytelling makes videos stand out in the feed.',exHe:'סיפור יצירתי גורם לסרטונים לבלוט בפיד.'},
-          {en:'trend',he:'טרנד / מגמה',pron:'TREND',ex:'Everyone joined the viral dance trend this week.',exHe:'כולם הצטרפו לטרנד הריקוד הוויראלי השבוע.'},
-          {en:'platform',he:'פלטפורמה דיגיטלית',pron:'PLAT-form',ex:'Short video platforms dominate mobile entertainment.',exHe:'פלטפורמות וידאו קצר שולטות בבידור הנייד.'}
+          {en:'athlete',he:'ספורטאי / אתלט',pron:'ATH-leet',ex:'Every top athlete combines daily training with proper sleep.',exHe:'כל ספורטאי צמרת משלב אימון יומי עם שינה טובה.'},
+          {en:'championship',he:'אליפות',pron:'CHAM-pee-un-ship',ex:'The basketball team won the national championship in overtime.',exHe:'קבוצת הכדורסל זכתה באליפות הארצית בהארכה.'},
+          {en:'stamina',he:'סיבולת / כושר גופני',pron:'STAM-ih-nuh',ex:'Marathon runners need incredible stamina to finish forty-two kilometers.',exHe:'רצי מרתון צריכים סיבולת מדהימה כדי לסיים ארבעים ושניים קילומטרים.'},
+          {en:'sprint',he:'ריצת ספרינט / לרוץ מהר',pron:'SPRINT',ex:'The runner started his final sprint fifty meters before the finish line.',exHe:'האצן פתח בספרינט האחרון חמישים מטרים לפני קו הסיום.'},
+          {en:'victory',he:'ניצחון',pron:'VIK-tuh-ree',ex:'Smart teamwork brought the squad a historic victory.',exHe:'עבודת צוות חכמה הביאה לנבחרת ניצחון היסטורי.'},
+          {en:'compete',he:'להתחרות',pron:'kum-PEET',ex:'Athletes from over two hundred countries compete in the Olympic Games.',exHe:'ספורטאים מיותר ממאתיים מדינות מתחרים במשחקים האולימפיים.'},
+          {en:'record',he:'שיא עולמי',pron:'REK-ord',ex:'The swimmer set a new world record by a fraction of a second.',exHe:'השחיין קבע שיא עולמי חדש בשבריר שנייה.'}
         ],
         reading:{
-          title:'איך סרטון רשת הופך לוויראלי',
-          passage:'Last month, sixteen-year-old Hadar had a creative idea for a short video. He documented an incredible science experiment using magnets and colored neon liquid. Within twenty minutes of posting, the video received thousands of likes. The platform algorithm detected high audience retention, so it recommended the video to millions of feeds worldwide. By the following morning, the clip reached five million views and inspired thousands of creators to try the experiment themselves.',
+          title:'איך מדע הספורט עוזר לשבור שיאי עולם',
+          passage:'Last summer, Hadar watched an international track and field championship and noticed something fascinating. Modern athletes run faster and jump higher than champions from fifty years ago. Why? Sports scientists studied how muscles use oxygen and designed lighter running shoes and smarter recovery plans. In the final race, the youngest sprinter trained for months, stayed calm under pressure, and ran the hundred meters in under ten seconds. When he crossed the finish line, the entire stadium erupted in cheers because he broke the championship record!',
           vocabulary:[
-            {en:'documented',he:'תיעד'},{en:'magnets',he:'מגנטים'},{en:'liquid',he:'נוזל'},{en:'posting',he:'פרסום'},
-            {en:'retention',he:'שמירת עניין'},{en:'recommended',he:'המלצה'},{en:'worldwide',he:'ברחבי העולם'},{en:'following',he:'הבא'},
-            {en:'views',he:'צפיות'},{en:'inspired',he:'העניק השראה'},{en:'creators',he:'יוצרים'},{en:'themselves',he:'בעצמם'}
+            {en:'international',he:'בינלאומי'},{en:'fascinating',he:'מרתק'},{en:'modern',he:'מודרני'},{en:'muscles',he:'שרירים'},
+            {en:'oxygen',he:'חמצן'},{en:'designed',he:'תכננו / עיצבו'},{en:'recovery',he:'התאוששות'},{en:'sprinter',he:'אצן'},
+            {en:'pressure',he:'לחץ'},{en:'crossed',he:'חצה'},{en:'erupted',he:'פרץ / הריע'},{en:'record',he:'שיא'}
           ],
           questions:[
-            {q:'מה גרם לאלגוריתם להמליץ על הסרטון של הדר למיליוני משתמשים?',opts:['שמירת עניין גבוהה של הקהל (retention)','כי הסרטון היה ארוך מאוד','כי שילמו על פרסום ממומן'],ans:'שמירת עניין גבוהה של הקהל (retention)',why:'בקטע כתוב: The platform algorithm detected high audience retention, so it recommended the video.'},
-            {q:'לכמה צפיות הגיע הסרטון עד הבוקר שלמחרת?',opts:['חמישה מיליון צפיות','מאה צפיות','אלף צפיות'],ans:'חמישה מיליון צפיות',why:'בקטע כתוב: By the following morning, the clip reached five million views.'}
+            {q:'איך מדעני הספורט עזרו לספורטאים מודרניים להשתפר?',opts:['חקרו שימוש בחמצן בשרירים ותכננו נעליים קלות ותוכניות התאוששות','קיצרו את מסלול הריצה בחצי','ביטלו את האימונים לפני תחרויות'],ans:'חקרו שימוש בחמצן בשרירים ותכננו נעליים קלות ותוכניות התאוששות',why:'בקטע כתוב: Sports scientists studied how muscles use oxygen and designed lighter running shoes and smarter recovery plans.'},
+            {q:'למה כל האצטדיון הריע כשהאצן חצה את קו הסיום?',opts:['כי הוא שבר את שיא האליפות','כי המשחק בוטל בגלל גשם','כי הוא קיבל נעליים חדשות'],ans:'כי הוא שבר את שיא האליפות',why:'בקטע כתוב: the entire stadium erupted in cheers because he broke the championship record!'}
           ]
         },
         grammar:[
-          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a2-past-trends',q:'Yesterday, the creator ___ a new tech video.',opts:['uploaded','upload','uploading'],ans:'uploaded',why:'yesterday מציין עבר → uploaded.',hint:'עבר של upload.'},
-          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a2-past-trends',q:'The short clip ___ viral across the world last week.',opts:['went','go','gone'],ans:'went',why:'העבר של go הוא went (went viral).',hint:'עבר לא-רגיל של go.'},
-          {t:'type',id:'u1.x3',skill:'grammar',rule:'a2-past-trends',q:'השלם את צורת העבר של watch: Millions of people ___ the video.',ans:['watched'],why:'watch + ed = watched.',hint:'watched.'},
-          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a2-past-trends',q:'סדר את המשפט: הסרטון הגיע למיליון צפיות.',sentence:'The video reached one million views.',ans:['The video reached one million views.'],why:'The video + reached + one million views.',hint:'מתחילים ב-The video.'},
-          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a2-past-trends',q:'השלם את מילת העבר:',sentence:'She ___ a very creative trend two days ago.',ans:['created'],why:'two days ago דורש עבר: created.',hint:'create + d.'}
+          {t:'mcq',id:'u1.x1',skill:'grammar',rule:'a2-past-sports',q:'Yesterday, the Olympic swimmer ___ a brand new world record.',opts:['broke','breaked','breaks'],ans:'broke',why:'העבר הלא-רגיל של break הוא broke.',hint:'עבר לא-רגיל של break.'},
+          {t:'mcq',id:'u1.x2',skill:'grammar',rule:'a2-past-sports',q:'Our basketball team played smartly and ___ the tournament last week.',opts:['won','winned','winning'],ans:'won',why:'העבר של win הוא won.',hint:'עבר לא-רגיל של win.'},
+          {t:'type',id:'u1.x3',skill:'grammar',rule:'a2-past-sports',q:'השלם את צורת העבר של train: The athletes ___ every morning before the race.',ans:['trained'],why:'train + ed = trained.',hint:'trained.'},
+          {t:'scr',id:'u1.x4',skill:'grammar',rule:'a2-past-sports',q:'סדר את המשפט: האצן רץ מהר מאוד וזכה בניצחון.',sentence:'The sprinter ran very fast and won the victory.',ans:['The sprinter ran very fast and won the victory.'],why:'The sprinter + ran very fast + and won the victory.',hint:'מתחילים ב-The sprinter.'},
+          {t:'gap',id:'u1.x5',skill:'grammar',rule:'a2-past-sports',q:'השלם את הפועל בעבר (compete):',sentence:'Two hundred countries ___ in the games two years ago.',ans:['competed'],why:'two years ago דורש עבר: compete → competed.',hint:'compete + d.'}
         ]
       },
       {
         id:'u2', n:2, icon:'🌍', color:'gold', cefr:'A2',
         title:'Extreme Nature & Wildlife Records',
-        he:'שיאי טבע פראי ועולם החי (עובדות מעניינות A2)',
-        lead:'הטבע מלא בשיאים קיצוניים: חיות שמחזיקות מעמד בלחץ אדיר במעמקים וטורפים עם כוחות על. לומדים להשוות בין שיאנים בעזרת דרגות השוואה.',
-        canDo:['להשוות בין תופעות טבע וחיות: deeper than, the most dangerous','לתאר שיאי טבע קיצוניים ועובדות מעניינות באנגלית','להשתמש באוצר מילים מדעי על מעמקי הים והישרדות'],
+        he:'שיאי טבע פראי ועולם החי (טבע ועובדות מעניינות A2)',
+        lead:'הטבע בעולם מלא בשיאים בלתי נתפסים: יצורים שחיים בלחץ אדיר במעמקי הים וטורפים עם כוחות-על. כאן אתה לומד להשוות בין שיאני הטבע בעזרת דרגות השוואה.',
+        canDo:['להשוות בין תופעות טבע וחיות: deeper than, the most extreme','לתאר שיאי טבע קיצוניים ועובדות מעניינות על העולם באנגלית','להשתמש באוצר מילים מדעי על מעמקי האוקיינוס והישרדות'],
         fact:'חסילון האקדח (Pistol Shrimp) סוגר את הצבת שלו במהירות מטורפת שיוצרת בועת חום בטמפרטורת פני השמש (4,700°C) וקול חזק ממטוס סילון!',
         rules:[
           {id:'a2-comp-hadar', title:'דרגות השוואה ושיאים: -er than לעומת the -est', short:'deeper than · the deepest · more extreme than · the most extreme',
@@ -1008,13 +1008,13 @@ function defaultUnitsForProfile(){
            hook:'תואר קצר מקבל est בסוף, לא most!'}
         ],
         words:[
-          {en:'record',he:'שיא עולמי',pron:'REK-ord',ex:'The peregrine falcon holds the world speed record in the air.',exHe:'הבז הנודד מחזיק בשיא המהירות העולמי באוויר.'},
+          {en:'wildlife',he:'חיות בר',pron:'WYLD-lyf',ex:'The Amazon rainforest protects millions of unique wildlife species.',exHe:'יער הגשם של האמזונס מגן על מיליוני מינים ייחודיים של חיות בר.'},
           {en:'extreme',he:'קיצוני',pron:'ex-TREEM',ex:'Extreme pressure in deep ocean trenches crushes normal submarines.',exHe:'לחץ קיצוני בשקעי אוקיינוס עמוקים מוחץ צוללות רגילות.'},
           {en:'depth',he:'עומק',pron:'DEPTH',ex:'Strange glowing fish live at a depth of four thousand meters.',exHe:'דגים זוהרים ומוזרים חיים בעומק של ארבעת אלפים מטרים.'},
           {en:'pressure',he:'לחץ',pron:'PRESH-er',ex:'Deep sea creatures adapt to survive extreme water pressure.',exHe:'יצורי מעמקים מסתגלים כדי לשרוד לחץ מים קיצוני.'},
           {en:'survive',he:'לשרוד',pron:'ser-VYV',ex:'Tardigrades can survive outer space and freezing ice.',exHe:'דובוני מים מסוגלים לשרוד בחלל החיצון ובקרח קפוא.'},
           {en:'organism',he:'אורגניזם / יצור חי',pron:'OR-guh-niz-um',ex:'The honey mushroom is the largest single living organism on Earth.',exHe:'פטריית הדבש היא האורגניזם החי הבודד הגדול ביותר בכדור הארץ.'},
-          {en:'phenomenon',he:'תופעה מדעית',pron:'feh-NOM-eh-non',ex:'Bioluminescence is an incredible glowing natural phenomenon.',exHe:'ביולומינצנציה היא תופעת טבע מדהימה של פליטת אור.'}
+          {en:'phenomenon',he:'תופעת טבע מדעית',pron:'feh-NOM-eh-non',ex:'Bioluminescence is an incredible glowing natural phenomenon.',exHe:'ביולומינצנציה היא תופעת טבע מדהימה של פליטת אור.'}
         ],
         reading:{
           title:'מסע אל מעמקי שקע מריאנה',
@@ -1025,7 +1025,7 @@ function defaultUnitsForProfile(){
             {en:'compounds',he:'תרכובות'},{en:'cells',he:'תאים'},{en:'vertebrates',he:'בעלי חוליות'},{en:'discovered',he:'התגלו'}
           ],
           questions:[
-            {q:'מה עוצמת לחץ המים בשקע מריאנה בהשוואה לפני הים?',opts:['פי 1,000 חזק יותר מבלחץ פני הים','זהה בדיוק ללחץ פני הים','פי 2 בלבד'],ans:'פי 1,000 חזק יותר מבלחץ פני הים',why:'בקטע כתוב: water pressure is one thousand times stronger than at sea level.'},
+            {q:'מה עוצמת לחץ המים בשקע מריאנה בהשוואה לפני הים?',opts:['פי 1,000 חזק יותר מלחץ פני הים','זהה בדיוק ללחץ פני הים','פי 2 בלבד'],ans:'פי 1,000 חזק יותר מלחץ פני הים',why:'בקטע כתוב: water pressure is one thousand times stronger than at sea level.'},
             {q:'איזה יצור שקוף התגלה שוחה בקלות בקרקעית השקע?',opts:['דג חילזון שקוף (transparent snailfish)','כריש ענק','דולפין'],ans:'דג חילזון שקוף (transparent snailfish)',why:'בקטע כתוב: robotic submersibles discovered transparent snailfish swimming effortlessly.'}
           ]
         },
@@ -1038,90 +1038,90 @@ function defaultUnitsForProfile(){
         ]
       },
       {
-        id:'u3', n:3, icon:'💡', color:'pink', cefr:'A2',
-        title:'Inventions & Future Technology',
-        he:'המצאות וטכנולוגיית העתיד (טכנולוגיה ומדע A2)',
-        lead:'רחפנים אוטונומיים, ערים חכמות ובינה מלאכותית מעצבים מחדש את חיינו. ביחידה זו לומדים לדבר על תוכניות עתידיות עם be going to ועל תוצאות אפשריות עם First Conditional.',
-        canDo:['לדבר על תוכניות טכנולוגיות עם be going to','להשתמש במשפטי תנאי ראשון (If we build... we will solve...)','להסביר חידושים בעולם ה-AI והרובוטיקה'],
-        fact:'שבבי מחשב מודרניים מכילים מיליארדי טרנזיסטורים זעירים שכל אחד מהם קטן פי 10,000 מעובי של שערה אנושית אחת!',
+        id:'u3', n:3, icon:'🔬', color:'pink', cefr:'A2',
+        title:'Science, Space & Earth Mysteries',
+        he:'תעלומות מדע, חלל וכדור הארץ (מדע והעולם A2)',
+        lead:'גשושיות בחלל, אנרגיה נקייה ותופעות גיאולוגיות מדהימות ברחבי כדור הארץ. ביחידה זו אתה לומד לדבר על תוכניות מדעיות לעתיד עם be going to ועל סיבה ותוצאה עם First Conditional.',
+        canDo:['לדבר על משימות חלל וניסויים מדעיים עתידיים עם be going to','להשתמש במשפטי תנאי ראשון (If scientists discover... we will learn...)','להסביר תופעות מדעיות על כדור הארץ והיקום'],
+        fact:'על כוכב הלכת צדק ושבתאי יורד גשם אמיתי של יהלומים! לחץ האטמוספירה העצום הופך שם גז פחמן ליהלומים נופלים.',
         rules:[
-          {id:'a2-tech-future', title:'עתיד ותנאים טכנולוגיים: be going to & First Conditional', short:'is/are going to + פועל · If + Present, will + פועל',
-           formula:'Engineers are going to launch the prototype next month.\nIf smart grids optimize electricity, cities will reduce pollution.',
-           body:'משתמשים ב-<b>be going to</b> עבור תוכניות שכבר נכנסו לפיתוח. במשפטי תנאי (First Conditional) מתארים מה יקרה בעקבות טכנולוגיה חדשה: If + Present Simple, ו-will בתוצאה.',
-           examples:[{en:'Autonomous drones are going to deliver emergency medicine.',he:'רחפנים אוטונומיים הולכים להעביר תרופות חירום.'},{en:'If AI assists doctors, diagnoses will become faster.',he:'אם בינה מלאכותית תסייע לרופאים, האבחונים יהפכו למהירים יותר.'}],
-           mistake:'If engineers <b>will invent</b> new batteries, cars will drive further. → If engineers <b>invent</b> new batteries…',
+          {id:'a2-science-future', title:'עתיד ותנאים במדע: be going to & First Conditional', short:'is/are going to + פועל · If + Present, will + פועל',
+           formula:'Scientists are going to launch a new telescope next month.\nIf we protect the oceans, marine ecosystems will recover.',
+           body:'משתמשים ב-<b>be going to</b> עבור תוכניות מדעיות ומשימות שכבר מתוכננות. במשפטי תנאי (First Conditional) מתארים מה יקרה כתוצאה מניסוי או פעולה: If + Present Simple, ו-will בתוצאה.',
+           examples:[{en:'NASA is going to send a robotic probe to Europa.',he:'נאס"א הולכת לשלוח גשושית רובוטית לירח אירופה.'},{en:'If clean solar energy expands, global air will become much cleaner.',he:'אם אנרגיה סולארית נקייה תתרחב, האוויר בעולם יהפוך לנקי בהרבה.'}],
+           mistake:'If scientists <b>will find</b> ice on Mars, astronauts will use it. → If scientists <b>find</b> ice on Mars…',
            hook:'אחרי If משתמשים ב-Present Simple, לא ב-will!'}
         ],
         words:[
-          {en:'invention',he:'המצאה',pron:'in-VEN-shun',ex:'The printing press was a revolutionary historical invention.',exHe:'דפוס הדפוס היה המצאה היסטורית מהפכנית.'},
-          {en:'future',he:'עתיד',pron:'FYOO-cher',ex:'Renewable solar panels will power the future of transportation.',exHe:'פאנלים סולאריים מתחדשים יספקו אנרגיה לעתיד התחבורה.'},
-          {en:'artificial',he:'מלאכותי (כמו AI)',pron:'ar-tih-FISH-ul',ex:'Artificial intelligence helps scientists analyze huge datasets.',exHe:'בינה מלאכותית עוזרת למדענים לנתח מאגרי נתונים ענקיים.'},
-          {en:'smart',he:'חכם (דיגיטלי)',pron:'SMART',ex:'Smart sensors adjust street lights automatically to save energy.',exHe:'חיישנים חכמים מתאימים את תאורת הרחוב אוטומטית כדי לחסוך באנרגיה.'},
-          {en:'develop',he:'לפתח',pron:'dih-VEL-up',ex:'Engineers work round the clock to develop cleaner energy sources.',exHe:'מהנדסים עובדים מסביב לשעון כדי לפתח מקורות אנרגיה נקיים יותר.'},
-          {en:'solution',he:'פתרון',pron:'suh-LOO-shun',ex:'Recycling ocean plastics offers an innovative green solution.',exHe:'מיחזור פלסטיק מהאוקיינוס מציע פתרון ירוק וחדשני.'},
-          {en:'energy',he:'אנרגיה',pron:'EN-er-jee',ex:'Fusion reactors might produce virtually unlimited clean energy.',exHe:'כורי היתוך עשויים לייצר אנרגיה נקייה כמעט ללא הגבלה.'}
+          {en:'gravity',he:'כוח כבידה',pron:'GRAV-ih-tee',ex:'Gravity keeps all the planets orbiting around the Sun.',exHe:'כוח הכבידה שומר את כל כוכבי הלכת במסלול סביב השמש.'},
+          {en:'atmosphere',he:'אטמוספירה',pron:'AT-mus-feer',ex:'Earth’s atmosphere protects living creatures from space radiation.',exHe:'האטמוספירה של כדור הארץ מגנה על יצורים חיים מקרינת חלל.'},
+          {en:'experiment',he:'ניסוי מדעי',pron:'ex-PEER-ih-ment',ex:'The team is going to run a physics experiment in zero gravity.',exHe:'הצוות הולך להריץ ניסוי פיזיקה באפס כבידה.'},
+          {en:'volcano',he:'הר געש',pron:'vol-KAY-noh',ex:'Over seventy percent of Earth’s active volcanoes lie underwater.',exHe:'מעל שבעים אחוזים מהרי הגעש הפעילים בכדור הארץ נמצאים מתחת למים.'},
+          {en:'discover',he:'לגלות',pron:'dih-SKUV-er',ex:'Space telescopes help astronomers discover new planets every year.',exHe:'טלסקופי חלל עוזרים לאסטרונומים לגלות כוכבי לכת חדשים בכל שנה.'},
+          {en:'solution',he:'פתרון מדעי',pron:'suh-LOO-shun',ex:'Turning ocean waves into electricity offers a clean energy solution.',exHe:'הפיכת גלי אוקיינוס לחשמל מציעה פתרון אנרגיה נקי.'},
+          {en:'energy',he:'אנרגיה',pron:'EN-er-jee',ex:'One bolt of lightning carries enough energy to toast a hundred thousand slices of bread.',exHe:'ברק אחד נושא מספיק אנרגיה כדי לקלות מאה אלף פרוסות לחם.'}
         ],
         reading:{
-          title:'ערי העתיד בשנת 2050',
-          passage:'How are humans going to live thirty years from now? Architects and urban engineers are currently designing carbon-neutral vertical cities. In these futuristic hubs, buildings are going to grow their own fresh organic vegetables in aeroponic indoor farms. Flying electric taxis will transport commuters smoothly without traffic jams. If solar glass covers skyscraper windows, the buildings will generate all their own electricity. Most importantly, AI-controlled water purification systems will eliminate waste, making future cities clean, quiet, and sustainable.',
+          title:'משימת העתיד אל הירח הקפוא של צדק',
+          passage:'Within the next decade, space agencies are going to explore Europa, an icy moon orbiting planet Jupiter. Underneath its thick frozen crust, scientists believe there is a massive salty ocean with twice as much water as all of Earth’s oceans combined. Engineers are going to send a specialized spacecraft equipped with radar sensors to scan through the ice. "If we detect warm volcanic vents on Europa’s ocean floor, we will find the best place outside Earth to search for life," explains a lead planetary scientist. Every new mission teaches us astonishing facts about our universe.',
           vocabulary:[
-            {en:'architects',he:'אדריכלים'},{en:'carbon-neutral',he:'ניטרלי מפחמן'},{en:'vertical',he:'אנכי'},{en:'futuristic',he:'עתידני'},
-            {en:'organic',he:'אורגני'},{en:'indoor',he:'בתוך מבנה'},{en:'commuters',he:'נוסעים יומיומיים'},{en:'traffic',he:'תנועה'},
-            {en:'generate',he:'לייצר'},{en:'purification',he:'טיהור'},{en:'eliminate',he:'לחסל / להעלים'},{en:'sustainable',he:'בר קיימא'}
+            {en:'decade',he:'עשור'},{en:'agencies',he:'סוכנויות'},{en:'orbiting',he:'מקיף'},{en:'crust',he:'קרום'},
+            {en:'massive',he:'עצום'},{en:'combined',he:'יחד / משולב'},{en:'equipped',he:'מצויד'},{en:'sensors',he:'חיישנים'},
+            {en:'detect',he:'לזהות'},{en:'vents',he:'ארובות תת-ימיות'},{en:'planetary',he:'פלנטרי'},{en:'astonishing',he:'מדהים / מפתיע'}
           ],
           questions:[
-            {q:'איפה יגדלו ירקות טריים במגדלי העתיד?',opts:['בחוות אנכיות סגורות בתוך הבניינים','בשדות רחוקים מחוץ לעיר','לא יגדלו ירקות כלל'],ans:'בחוות אנכיות סגורות בתוך הבניינים',why:'בקטע כתוב: buildings are going to grow their own fresh organic vegetables in aeroponic indoor farms.'},
-            {q:'מה יקרה אם חלונות גורדי השחקים יצופו בזכוכית סולארית?',opts:['הבניינים ייצרו בעצמם את כל החשמל שלהם','הם יהיו חשוכים לחלוטין','החלונות יישברו בקלות'],ans:'הבניינים ייצרו בעצמם את כל החשמל שלהם',why:'בקטע כתוב: If solar glass covers skyscraper windows, the buildings will generate all their own electricity.'}
+            {q:'מה לדעת המדענים מסתתר מתחת לקרום הקרח של הירח אירופה?',opts:['אוקיינוס מלוח עצום עם פי שניים יותר מים מכל אוקיינוסי כדור הארץ','מדבר חם ויבש','יער טרופי ענק'],ans:'אוקיינוס מלוח עצום עם פי שניים יותר מים מכל אוקיינוסי כדור הארץ',why:'בקטע כתוב: there is a massive salty ocean with twice as much water as all of Earth’s oceans combined.'},
+            {q:'מה יקרה אם החללית תזהה ארובות געשיות חמות בקרקעית האוקיינוס של אירופה?',opts:['המדענים ימצאו את המקום הטוב ביותר מחוץ לכדור הארץ לחפש בו חיים','הירח יפסיק להקיף את צדק','הקרח יימס תוך יום אחד'],ans:'המדענים ימצאו את המקום הטוב ביותר מחוץ לכדור הארץ לחפש בו חיים',why:'בקטע כתוב: If we detect warm volcanic vents... we will find the best place outside Earth to search for life.'}
           ]
         },
         grammar:[
-          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a2-tech-future',q:'Engineers ___ to test the flying taxi tomorrow.',opts:['are going','is going','going'],ans:'are going',why:'נושא ברבים (engineers = they) מקבל are going to.',hint:'רבים → are going.'},
-          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a2-tech-future',q:'If we use solar glass, the skyscraper ___ its own electricity.',opts:['will generate','generated','generates to'],ans:'will generate',why:'תוצאה ב-First Conditional מקבלת will + פועל בסיסי.',hint:'will + פועל.'},
-          {t:'type',id:'u3.x3',skill:'grammar',rule:'a2-tech-future',q:'השלם את המילה החסרה: The team is ___ to build a smart robot.',ans:['going'],why:'התבנית היא is going to.',hint:'going.'},
-          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a2-tech-future',q:'סדר את המשפט: בינה מלאכותית תסייע לרופאים בעתיד.',sentence:'Artificial intelligence will assist doctors in the future.',ans:['Artificial intelligence will assist doctors in the future.'],why:'Artificial intelligence + will assist doctors + in the future.',hint:'מתחילים ב-Artificial intelligence.'},
-          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a2-tech-future',q:'השלם את הפועל ב-Present Simple אחרי If:',sentence:'If cities ___ clean energy, pollution will decrease.',ans:['use'],why:'אחרי If משתמשים ב-Present Simple: cities use.',hint:'פועל בצורת המקור use.'}
+          {t:'mcq',id:'u3.x1',skill:'grammar',rule:'a2-science-future',q:'Space engineers ___ to launch the new exploration probe next year.',opts:['are going','is going','going'],ans:'are going',why:'נושא ברבים (engineers = they) מקבל are going to.',hint:'רבים → are going.'},
+          {t:'mcq',id:'u3.x2',skill:'grammar',rule:'a2-science-future',q:'If scientists detect water on Mars, future astronauts ___ build a base there.',opts:['will','would to','building'],ans:'will',why:'תוצאה ב-First Conditional מקבלת will + פועל בסיסי.',hint:'will + פועל.'},
+          {t:'type',id:'u3.x3',skill:'grammar',rule:'a2-science-future',q:'השלם את המילה החסרה: Our team is ___ to test a solar battery tomorrow.',ans:['going'],why:'התבנית היא is going to.',hint:'going.'},
+          {t:'scr',id:'u3.x4',skill:'grammar',rule:'a2-science-future',q:'סדר את המשפט: טלסקופים חדשים יגלו כוכבי לכת מדהימים בעתיד.',sentence:'New telescopes will discover amazing planets in the future.',ans:['New telescopes will discover amazing planets in the future.'],why:'New telescopes + will discover amazing planets + in the future.',hint:'מתחילים ב-New telescopes.'},
+          {t:'gap',id:'u3.x5',skill:'grammar',rule:'a2-science-future',q:'השלם את הפועל ב-Present Simple אחרי If:',sentence:'If countries ___ clean energy, the planet will stay healthier.',ans:['use'],why:'אחרי If משתמשים ב-Present Simple: countries use.',hint:'פועל בצורת המקור use.'}
         ]
       },
       {
         id:'u4', n:4, icon:'🧠', color:'cyan', cefr:'A2',
-        title:'Mind-Blowing Brain & Science Facts',
-        he:'סודות המוח ועובדות מדע מדהימות (מדעי המוח והיקום A2)',
-        lead:'למה אנחנו חולמים? איך עובדות אשליות אופטיות? ואיך המוח האנושי מאחסן מידע עצום? לומדים להסביר השערות ומסקנות עם מודאלים (can, might, must) ומילות קישור (because, so).',
-        canDo:['להסביר עובדות מדעיות מרתקות על המוח והאדם','להשתמש במודאלים להסקת מסקנות: must be, might happen','לחבר סיבה ותוצאה עם because ו-so'],
-        fact:'למוח האנושי יש קיבולת אחסון שוות ערך לכ-2.5 מיליון ג\'יגה-בייט – מספיק כדי להקליט 300 שנים רצופות של וידאו באיכות HD מלאה!',
+        title:'Amazing World & Human Brain Facts',
+        he:'עובדות מדהימות על העולם והמוח האנושי (עובדות ומדע A2–B1)',
+        lead:'למה אנחנו חולמים? איך המוח והגוף מגיבים בזמן ספורט תוך אלפיות שנייה? ואיך עובדות אשליות אופטיות? כאן אתה לומד להסביר השערות ומסקנות עם מודאלים (can, might, must) ומילות קישור (because, so).',
+        canDo:['להסביר עובדות מרתקות על המוח, גוף האדם והעולם','להשתמש במודאלים להסקת מסקנות: must be, might happen','לחבר סיבה ותוצאה בצורה טבעית עם because ו-so'],
+        fact:'למוח האנושי יש קיבולת אחסון שוות ערך לכ-2.5 מיליון ג\'יגה-בייט, והאותות העצביים בו נעים במהירות של מעל 400 קמ"ש – מהר יותר ממכונית פורמולה 1!',
         rules:[
           {id:'a2-modals-brain', title:'מודאלים להסקה ומילות קישור: must be · might · because · so', short:'must (בטוח) · might (אולי) · because (כי) · so (לכן)',
-           formula:'Optical illusions trick our eyes because the brain predicts patterns.\nThat memory must be very old.\nWe dream, so the brain organizes our memories.',
+           formula:'Optical illusions trick our eyes because the brain predicts patterns.\nThat reaction speed must be super fast.\nWe sleep deeply, so the brain organizes our memories.',
            body:'משתמשים ב-<b>must be</b> כשיש מסקנה הגיונית כמעט ודאית, וב-<b>might</b> כשיש השערה לא ודאית. <b>because</b> מסביר את הסיבה ("בגלל ש"), ו-<b>so</b> מסביר את התוצאה ("לכן").',
-           examples:[{en:'Your brain must be processing visual signals right now.',he:'המוח שלך ודאי מעבד אותות חזותיים ברגע זה.'},{en:'Dreams might help our mind process emotions.',he:'חלומות עשויים לעזור למוחנו לעבד רגשות.'}],
+           examples:[{en:'Your brain must be processing thousands of signals right now.',he:'המוח שלך ודאי מעבד אלפי אותות ברגע זה.'},{en:'Regular exercise might improve memory and reaction speed.',he:'פעילות גופנית קבועה עשויה לשפר את הזיכרון ואת מהירות התגובה.'}],
            mistake:'Because he was tired <b>so</b> he slept. → Because he was tired, he slept.',
-           hook:'משתמשים רק באחד: או because או so, לעולם לא שניהם יחד!'}
+           hook:'בוחרים רק אחד: או because או so, לעולם לא שניהם יחד!'}
         ],
         words:[
-          {en:'memory',he:'זיכרון',pron:'MEM-uh-ree',ex:'The human brain consolidates memory while you sleep.',exHe:'המוח האנושי מגבש את הזיכרון בזמן שאתה ישן.'},
+          {en:'memory',he:'זיכרון',pron:'MEM-uh-ree',ex:'The human brain strengthens memory while you sleep.',exHe:'המוח האנושי מחזק את הזיכרון בזמן שאתה ישן.'},
           {en:'illusion',he:'אשליה (אופטית)',pron:'ih-LOO-zhun',ex:'An optical illusion proves that our eyes can be easily tricked.',exHe:'אשליה אופטית מוכיחה שקל להערים על העיניים שלנו.'},
-          {en:'mystery',he:'תעלומה / מסתורין',pron:'MIS-tuh-ree',ex:'Consciousness remains the greatest unsolved mystery of science.',exHe:'התודעה נותרת התעלומה הבלתי פתורה הגדולה ביותר של המדע.'},
-          {en:'curious',he:'סקרן',pron:'KYOOR-ee-us',ex:'Curious minds ask questions and discover breakthrough answers.',exHe:'מוחות סקרנים שואלים שאלות ומגלים תשובות פורצות דרך.'},
-          {en:'evidence',he:'ראיות / הוכחות',pron:'EV-ih-dents',ex:'Brain scans provide clear evidence of active neural pathways.',exHe:'סריקות מוח מספקות ראיות ברורות לנתיבים עצביים פעילים.'},
-          {en:'explain',he:'להסביר',pron:'ex-PLAYN',ex:'Psychologists try to explain why people experience deja vu.',exHe:'פסיכולוגים מנסים להסביר מדוע אנשים חווים דז\'ה וו.'},
+          {en:'mystery',he:'תעלומה / מסתורין',pron:'MIS-tuh-ree',ex:'How birds navigate across entire oceans is a fascinating mystery.',exHe:'איך ציפורים מנווטות על פני אוקיינוסים שלמים היא תעלומה מרתקת.'},
+          {en:'curious',he:'סקרן',pron:'KYOOR-ee-us',ex:'Curious minds ask bold questions and uncover breakthrough facts.',exHe:'מוחות סקרנים שואלים שאלות אמיצות וחושפים עובדות פורצות דרך.'},
+          {en:'evidence',he:'ראיות / הוכחות',pron:'EV-ih-dents',ex:'Fossils and brain scans give scientists clear evidence.',exHe:'מאובנים וסריקות מוח נותנים למדענים ראיות ברורות.'},
+          {en:'explain',he:'להסביר',pron:'ex-PLAYN',ex:'Physicists can explain why the sky turns red at sunset.',exHe:'פיזיקאים יכולים להסביר מדוע השמיים הופכים אדומים בשקיעה.'},
           {en:'brain',he:'מוח',pron:'BRAYN',ex:'The brain uses twenty percent of all oxygen in the human body.',exHe:'המוח משתמש בעשרים אחוזים מכלל החמצן בגוף האדם.'}
         ],
         reading:{
-          title:'למה המוח האנושי חולם בלילה?',
-          passage:'Every single night while we sleep, our brain creates vivid, colorful movies inside our head called dreams. For centuries, philosophers wondered why dreaming happens. Today, neuroscientists have fascinating evidence. When you enter REM sleep, your brain replays the emotional memories of the day, filing important information and clearing out unnecessary noise. Because neural pathways fire rapidly without physical movement, dreams might feel completely real. Scientists believe that dreaming is essential for creative problem-solving and psychological health.',
+          title:'איך המוח עובד בזמן ספורט ובזמן שינה',
+          passage:'The human brain is the most powerful supercomputer on Earth, weighing less than one and a half kilograms. During fast sports like table tennis or basketball, your brain calculates the ball’s speed, spin, and angle in milliseconds so your body can react instantly. Even more surprising: your brain never truly switches off at night. While you sleep, it replays skills you practiced during the day, strengthens neural pathways, and clears out mental clutter. Scientists have clear evidence that athletes who get enough sleep react faster and remember complex strategies much better.',
           vocabulary:[
-            {en:'vivid',he:'חי / מוחשי'},{en:'philosophers',he:'פילוסופים'},{en:'neuroscientists',he:'חוקרי מוח'},{en:'fascinating',he:'מרתק'},
-            {en:'replays',he:'משחזר / מנגן שוב'},{en:'filing',he:'מתייק / מסדר'},{en:'unnecessary',he:'מיותר'},{en:'rapidly',he:'במהירות'},
-            {en:'physical',he:'פיזי'},{en:'essential',he:'חיוני'},{en:'problem-solving',he:'פתרון בעיות'},{en:'psychological',he:'פסיכולוגי'}
+            {en:'supercomputer',he:'מחשב-על'},{en:'weighing',he:'שוקל'},{en:'calculates',he:'מחשב'},{en:'angle',he:'זווית'},
+            {en:'milliseconds',he:'אלפיות שנייה'},{en:'instantly',he:'באופן מיידי'},{en:'replays',he:'משחזר'},{en:'pathways',he:'נתיבים עצביים'},
+            {en:'clutter',he:'עומס / בלגן'},{en:'evidence',he:'ראיות'},{en:'react',he:'להגיב'},{en:'strategies',he:'אסטרטגיות'}
           ],
           questions:[
-            {q:'מה המוח עושה עם הזיכרונות של היום בזמן שנת חלום (REM)?',opts:['משחזר אותם, מתייק מידע חשוב ומנקה רעש מיותר','מוחק את כל הזיכרונות לצמיתות','מפסיק לפעול לחלוטין'],ans:'משחזר אותם, מתייק מידע חשוב ומנקה רעש מיותר',why:'בקטע כתוב: your brain replays the emotional memories of the day, filing important information and clearing out unnecessary noise.'},
-            {q:'למה חלומות יכולים להרגיש אמיתיים לחלוטין?',opts:['כי נתיבים עצביים מופעלים במהירות במוח גם ללא תנועה פיזית','כי אנחנו לא באמת ישנים','כי העיניים פקוחות'],ans:'כי נתיבים עצביים מופעלים במהירות במוח גם ללא תנועה פיזית',why:'בקטע כתוב: Because neural pathways fire rapidly without physical movement, dreams might feel completely real.'}
+            {q:'מה המוח מחשב תוך אלפיות שנייה בזמן משחקים מהירים כמו פינג פונג או כדורסל?',opts:['את המהירות, הסיבוב והזווית של הכדור','את מספר האוהדים ביציע','את מזג האוויר בעיר אחרת'],ans:'את המהירות, הסיבוב והזווית של הכדור',why:'בקטע כתוב: your brain calculates the ball’s speed, spin, and angle in milliseconds.'},
+            {q:'איך שינה טובה עוזרת לספורטאים לפי המחקרים?',opts:['המוח משחזר מיומנויות, מחזק קשרים עצביים ומשפר מהירות תגובה וזיכרון','היא גורמת למוח להיכבות לגמרי','היא מחליפה את הצורך בשתיית מים'],ans:'המוח משחזר מיומנויות, מחזק קשרים עצביים ומשפר מהירות תגובה וזיכרון',why:'בקטע כתוב: it replays skills you practiced... athletes who get enough sleep react faster and remember complex strategies much better.'}
           ]
         },
         grammar:[
           {t:'mcq',id:'u4.x1',skill:'grammar',rule:'a2-modals-brain',q:'Our eyes see light, ___ the brain creates the actual image.',opts:['but','because to','although so'],ans:'but',why:'ניגוד רעיוני בין העין למוח מסומן ב-but.',hint:'ניגוד: but.'},
-          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a2-modals-brain',q:'The brain needs sleep ___ it can organize daily memories.',opts:['so that','because so','although'],ans:'so that',why:'מטרת השינה: so that (כדי ש...).',hint:'כדי ש: so that.'},
+          {t:'mcq',id:'u4.x2',skill:'grammar',rule:'a2-modals-brain',q:'Athletes need deep sleep ___ the brain can strengthen new skills.',opts:['so that','because so','although'],ans:'so that',why:'מטרת השינה: so that (כדי ש...).',hint:'כדי ש: so that.'},
           {t:'type',id:'u4.x3',skill:'grammar',rule:'a2-modals-brain',q:'השלם את המודאל שמביע הסקה ודאית הגיונית: That optical trick ___ be an illusion.',ans:['must'],why:'must be = חייב להיות (הסקה הגיונית).',hint:'must.'},
           {t:'scr',id:'u4.x4',skill:'grammar',rule:'a2-modals-brain',q:'סדר את המשפט: המוח משתמש בעשרים אחוזים מהחמצן בגוף.',sentence:'The brain uses twenty percent of body oxygen.',ans:['The brain uses twenty percent of body oxygen.'],why:'The brain uses + twenty percent + of body oxygen.',hint:'מתחילים ב-The brain.'},
           {t:'gap',id:'u4.x5',skill:'grammar',rule:'a2-modals-brain',q:'השלם את המודאל שמביע אפשרות ("עשוי / עלול"):',sentence:'Curious students ___ discover amazing new facts.',ans:['might'],why:'might = עשוי / ייתכן ש...',hint:'might (5 אותיות).'}
@@ -1287,7 +1287,7 @@ function defaultScenariosForProfile(){
       }
     ];
   }
-  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל') || (CURRENT_LEARNER_PROFILE.gender==='male' && CURRENT_LEARNER_PROFILE.level==='A2' && lang==='English');
+  const isBarry = S.name==='בארי' || CURRENT_LEARNER_PROFILE.id==='BARRY' || CURRENT_LEARNER_PROFILE.interests.includes('כדורגל');
   if(isBarry){
     return [
       {
@@ -1372,23 +1372,23 @@ function defaultScenariosForProfile(){
       }
     ];
   }
-  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.interests.includes('טרנדים');
+  const isHadar = S.name==='הדר' || CURRENT_LEARNER_PROFILE.id==='HADAR' || (CURRENT_LEARNER_PROFILE.interests.includes('ספורט') && CURRENT_LEARNER_PROFILE.interests.includes('העולם'));
   if(isHadar){
     return [
       {
-        id:'hadar-trends', icon:'📱', title:'סטודיו יוצרי תוכן וטרנדים', en:'Viral Creators Studio',
-        who:'Creator Max', role:'יוצר תוכן ויראלי', level, focus:'Past Simple & Video trends', unit:'u1',
-        desc:'מקס משוחח איתך על סרטונים ויראליים, אלגוריתמים וטרנדים חדשים ברשת.',
-        opening:'Hey Hadar! Did you see the new viral tech challenge online today? It already reached two million views in six hours! Why do you think it became so popular?',
-        openingHe:'היי הדר! ראית את אתגר הטכנולוגיה הוויראלי החדש ברשת היום? הוא כבר הגיע לשני מיליון צפיות תוך שש שעות! למה לדעתך הוא הפך לכל כך פופולרי?',
-        startWords:[{en:'creator',he:'יוצר'},{en:'viral',he:'ויראלי'}],
+        id:'hadar-sports', icon:'🏀', title:'אולפן שיאי ספורט ואתלטיקה', en:'World Sports & Records Studio',
+        who:'Coach Alex', role:'פרשן ומאמן מדע הספורט', level, focus:'Past Simple & Sports Science', unit:'u1',
+        desc:'אלכס מנתח איתך שיאי עולם באולימפיאדה, כושר גופני ורגעים גדולים בספורט.',
+        opening:'Hey Hadar! Welcome to the Sports Science Studio. Did you know Usain Bolt reached over forty-four kilometers per hour during his world record sprint? What sport excites you the most?',
+        openingHe:'היי הדר! ברוך הבא לאולפן מדע הספורט. ידעת שיוסיין בולט הגיע ליותר מ-44 קמ"ש בריצת שיא העולם שלו? איזה ענף ספורט הכי מלהיב אותך?',
+        startWords:[{en:'athlete',he:'ספורטאי'},{en:'record',he:'שיא עולמי'}],
         steps:[
-          {bot:'You nailed it. The pacing was super engaging. What kind of creative videos do you enjoy watching most on your feed?',he:'קלעת בול. הקצב היה מרתק בטירוף. איזה סוג של סרטונים יצירתיים אתה הכי נהנה לראות בפיד שלך?',suggestions:['I love fast-paced science experiments and mind-blowing facts.','I enjoy watching creative tech reviews and smart futuristic gadgets.','I like comedy skits and trending challenges that make people laugh.']},
-          {bot:'How do you think algorithms decide which creator videos to push to the homepage?',he:'איך לדעתך אלגוריתמים מחליטים איזה סרטונים של יוצרים לקדם לעמוד הראשי?',suggestions:['The algorithm tracks how long audiences watch before swiping.','High retention, shares, and creative comments signal viral potential.','Videos that teach something surprising in three seconds perform best.']},
-          {bot:'If you uploaded your own video project tomorrow, what would your title and hook be?',he:'אם היית מעלה פרויקט וידאו משלך מחר, מה היו הכותרת והפתיח המסקרן שלך?',suggestions:['I would title it: "5 Impossible Animal Facts That Break Science!"','My video would test a crazy magnetic invention in a home laboratory.','I would show a before-and-after experiment that surprises the audience.']}
+          {bot:'Awesome choice! What was the most exciting game or sports moment you watched or played recently?',he:'בחירה אדירה! מה היה המשחק או רגע הספורט הכי מותח שראית או שיחקת בו לאחרונה?',suggestions:['I watched a crazy basketball game that ended in overtime!','Last week my team trained hard and won a tough match.','I love watching Olympic races where athletes break world records.']},
+          {bot:'That sounds intense! Why do you think modern athletes keep breaking older records?',he:'נשמע מותח בטירוף! למה לדעתך ספורטאים מודרניים ממשיכים לשבור שיאים ישנים?',suggestions:['Sports scientists study muscles, nutrition, and sleep to improve stamina.','Lighter gear and smarter training plans make a huge difference.','Athletes analyze every movement with cameras and data now.']},
+          {bot:'If you could compete in any Olympic event or world championship, which one would you pick and why?',he:'אם היית יכול להתחרות בכל ענף אולימפי או אליפות עולם, במה היית בוחר ולמה?',suggestions:['I would compete in the hundred-meter sprint because I love speed.','I would play basketball because teamwork and quick strategy are awesome.','I would try swimming or cycling to test my stamina!']}
         ],
-        more:['What is the most interesting viral trend you watched recently?','Do you think short videos help students learn faster?','How will artificial intelligence change future content creation?'],
-        words:[{en:'algorithm',he:'אלגוריתם'},{en:'creative',he:'יצירתי'},{en:'trend',he:'טרנד'}]
+        more:['Who is the greatest athlete in history in your opinion?','How does sleep help the brain and body recover after sports?','Which world record do you think will never be broken?'],
+        words:[{en:'stamina',he:'סיבולת'},{en:'championship',he:'אליפות'},{en:'victory',he:'ניצחון'}]
       },
       {
         id:'hadar-records', icon:'🌍', title:'משלחת מעמקים ושיאי טבע', en:'Extreme Earth Expedition',
@@ -1400,10 +1400,25 @@ function defaultScenariosForProfile(){
         steps:[
           {bot:'Look outside our quartz viewing window! A transparent snailfish is swimming smoothly. Why can it survive at such an extreme depth?',he:'הסתכל מחוץ לחלון הקוורץ שלנו! דג חילזון שקוף שוחה בקלות. למה הוא מסוגל לשרוד בעומק כה קיצוני?',suggestions:['It has flexible cartilage bones instead of rigid hard bone.','Special cellular compounds protect its organs from high pressure.','It adapted over millions of years to thrive without sunlight.']},
           {bot:'Incredible scientific deduction! Which extreme creature record on Earth surprises you the most?',he:'הסקה מדעית מדהימה! איזה שיא של יצור קיצוני בכדור הארץ הכי מפתיע אותך?',suggestions:['The pistol shrimp creates bubbles that flash hotter than the surface of the sun!','Tardigrades can survive outer space, radiation, and freezing cold!','The blue whale has a heart the size of a small car.']},
-          {bot:'Earth is packed with mind-blowing mysteries. If you led our next science expedition, where would we travel?',he:'כדור הארץ מלא בתעלומות שמפוצצות את המוח. אם היית מוביל את משלחת המדע הבאה שלנו, לאן היינו נוסעים?',suggestions:['I would explore hydrothermal vents at the bottom of the Arctic Ocean.','We should investigate glowing caves in deep rainforest underground rivers.','I would study microbes living inside active volcanic craters.']}
+          {bot:'Earth is packed with mind-blowing mysteries. If you led our next science expedition, where would we travel?',he:'כדור הארץ מלא בתעלומות מרתקות. אם היית מוביל את משלחת המדע הבאה שלנו, לאן היינו נוסעים?',suggestions:['I would explore hydrothermal vents at the bottom of the Arctic Ocean.','We should investigate glowing caves in deep rainforest underground rivers.','I would study microbes living inside active volcanic craters.']}
         ],
-        more:['Why do deep sea creatures glow in the dark?','Which animal is more venomous: a box jellyfish or an inland taipan?','How does memory consolidate in the human brain during deep sleep?'],
-        words:[{en:'survive',he:'לשרוד'},{en:'phenomenon',he:'תופעה'},{en:'mystery',he:'תעלומה'}]
+        more:['Why do deep sea creatures glow in the dark?','Which animal is faster: a cheetah on land or a falcon in the air?','What is the most surprising wildlife fact you know?'],
+        words:[{en:'survive',he:'לשרוד'},{en:'phenomenon',he:'תופעה'},{en:'wildlife',he:'חיות בר'}]
+      },
+      {
+        id:'hadar-world', icon:'🔬', title:'מעבדת עובדות מדע והעולם', en:'Science & World Facts Lab',
+        who:'Prof. Dan', role:'מדען וחוקר עובדות מפתיעות על העולם', level, focus:'Modals & World Science Facts', unit:'u3',
+        desc:'פרופ\' דן מאתגר אותך בעובדות מדע מדהימות על החלל, כדור הארץ וגוף האדם.',
+        opening:'Hey Hadar! Ready for a mind-blowing fact from our science lab? On Jupiter and Saturn, intense pressure actually makes it rain real diamonds! What is the coolest science or world fact you have ever heard?',
+        openingHe:'היי הדר! מוכן לעובדה מדהימה ממעבדת המדע שלנו? על צדק ושבתאי הלחץ האדיר ממש גורם לגשם של יהלומים אמיתיים! מה העובדה הכי מגניבה על מדע או על העולם ששמעת אי פעם?',
+        startWords:[{en:'gravity',he:'כוח כבידה'},{en:'discover',he:'לגלות'}],
+        steps:[
+          {bot:'Whoa, that is a brilliant fact! Speaking of space, engineers are going to send a probe to Jupiter’s icy moon Europa. What do you think they might discover under the ice?',he:'וואו, זו עובדה מבריקה! ואם כבר חלל, מהנדסים הולכים לשלוח גשושית לירח הקפוא אירופה של צדק. מה לדעתך הם עשויים לגלות מתחת לקרח?',suggestions:['They might discover a huge ocean with warm volcanic vents.','Scientists could find tiny organisms living in the dark water.','Every new space probe teaches us something unexpected about the universe.']},
+          {bot:'Great scientific thinking! Now think about our own planet: if we use more clean solar and wave energy, how will the world change in twenty years?',he:'חשיבה מדעית מעולה! עכשיו תחשוב על כדור הארץ שלנו: אם נשתמש יותר באנרגיה נקייה מהשמש ומהים, איך העולם ישתנה בעוד עשרים שנה?',suggestions:['Cities will have cleaner air and much healthier ecosystems.','If countries invest in clean energy, wildlife habitats will recover.','We will power electric transport without polluting the atmosphere.']},
+          {bot:'You think like a real explorer, Hadar! If you could run one big science experiment anywhere in the world, what would you test?',he:'אתה חושב כמו חוקר אמיתי, הדר! אם היית יכול להריץ ניסוי מדעי גדול אחד בכל מקום בעולם, מה היית בודק?',suggestions:['I would test how athletes react and jump in lower gravity!','I would study how migrating birds navigate across entire continents.','I would map the unexplored underwater volcanoes in the Pacific Ocean.']}
+        ],
+        more:['Why does the sky look blue during the day and red at sunset?','How fast do nerve signals travel inside the human brain?','Which natural wonder in the world would you love to visit first?'],
+        words:[{en:'atmosphere',he:'אטמוספירה'},{en:'experiment',he:'ניסוי מדעי'},{en:'evidence',he:'ראיות'}]
       }
     ];
   }
@@ -1487,7 +1502,7 @@ const ACHIEVEMENTS = [
   {id:'chat5',icon:'🗣️',name:'5 שיחות',desc:'5 שיחות עם המאמנת',test:S=>S.stats.chats>=5},
   {id:'exam85',icon:'📝',name:'מבחן מצוין',desc:'85+ במבחן מסכם',test:S=>S.exam.best>=85},
   {id:'review50',icon:'🔁',name:'50 חזרות',desc:'50 חזרות חכמות',test:S=>S.stats.reviews>=50},
-  {id:'speak',icon:'🎤',name:'קול של רקדנית',desc:'תרגול דיבור ראשון',test:S=>S.stats.speak>=1},
+  {id:'speak',icon:'🎤',name:'קול בטוח',desc:'תרגול דיבור ראשון',test:S=>S.stats.speak>=1},
   {id:'perfect10',icon:'💎',name:'בלי טעויות',desc:'10 תשובות נכונות ברצף',test:S=>S.stats.bestStreak>=10}
 ];
 const RULES = new Set();
@@ -1851,9 +1866,43 @@ const MASCULINE_UI_PHRASES=[
   ['ברוכה הבאה','ברוך הבא'],
   ['תמשיכי כך','תמשיך כך'],
   ['תראי למעלה','תראה למעלה'],
+  ['בואי נתרגל','בוא נתרגל'],
+  ['את לומדת, זוכרת ומדברת','אתה לומד, זוכר ומדבר'],
+  ['מוכנה – את מדברת ובוטחת','מוכן – אתה מדבר ובוטח'],
+  ['רק אם את רוצה','רק אם אתה רוצה'],
+  ['אני אוהבת שאת שואלת','אני אוהב שאתה שואל'],
+  ['את לא צריכה','אתה לא צריך'],
+  ['את תקועה','אתה תקוע'],
+  ['את מזהה','אתה מזהה'],
+  ['כשאת פוגשת','כשאתה פוגש'],
+  ['שאת חושבת','שאתה חושב'],
+  ['שאת שואלת','שאתה שואל'],
+  ['את/ה הופכ/ת ליותר שוטפ/ת','אתה הופך ליותר שוטף'],
+  ['את/ה נהנה/נהנית','אתה נהנה'],
+  ['את/ה יכול/ה','אתה יכול'],
+  ['מסכים/מסכימה','מסכים'],
+  ['תן/תני','תן'],
+  ['שלו/ה','שלו'],
+  ['תראה/י','תראה'],
+  ['תמשיכ/י','תמשיך'],
+  ['תתרגל/י','תתרגל'],
+  ['תרגל/י','תרגל'],
+  ['שוחח/י','שוחח'],
+  ['בחר/י','בחר'],
+  ['שמע/י','שמע'],
+  ['תוכל/י','תוכל'],
+  ['יכול/ה','יכול'],
+  ['נוסע/ת','נוסע'],
+  ['סקרן / סקרנית','סקרן'],
+  ['יצירתי / יצירתית','יצירתי'],
+  ['מתרגשת / נרגש','נרגש'],
+  ['הגיבור/ה הגיב/ה','הגיבור הגיב'],
+  ['🎧 מקשיבה…','🎧 מקשיב…'],
   ['התלמידה','התלמיד'],
   ['תלמידה','תלמיד'],
+  ['אלופה','אלוף'],
   ['מוכנה','מוכן'],
+  ['תקועה','תקוע'],
   ['את לומדת','אתה לומד'],
   ['את מתאמנת','אתה מתאמן'],
   ['את רוקדת','אתה רוקד'],
@@ -1868,12 +1917,23 @@ const MASCULINE_UI_PHRASES=[
   ['את צריכה','אתה צריך'],
   ['את משתמשת','אתה משתמש'],
   ['את מרגישה','אתה מרגיש'],
+  ['את חושבת','אתה חושב'],
+  ['את שואלת','אתה שואל'],
+  ['את בוחרת','אתה בוחר'],
+  ['את מבקרת','אתה מבקר'],
+  ['את מתכוונת','אתה מתכוון'],
+  ['את הולכת','אתה הולך'],
   ['אני לומדת','אני לומד'],
   ['אני מתאמנת','אני מתאמן'],
   ['אני רוקדת','אני רוקד'],
   ['אני מחייכת','אני מחייך'],
   ['אני מקשיבה','אני מקשיב'],
   ['אני מוכנה','אני מוכן'],
+  ['אני מתכוונת','אני מתכוון'],
+  ['אני הולכת','אני הולך'],
+  ['אני מסכימה','אני מסכים'],
+  ['אני מעדיפה','אני מעדיף'],
+  ['אני מתרגשת','אני מתרגש'],
   ['אנחנו יכולות','אנחנו יכולים'],
   ['אנחנו מוחאות','אנחנו מוחאים'],
   ['אנחנו נפגשות','אנחנו נפגשים'],
@@ -1881,8 +1941,20 @@ const MASCULINE_UI_PHRASES=[
   ['אנחנו מתאמנות','אנחנו מתאמנים'],
   ['אנחנו יודעות','אנחנו יודעים'],
   ['אנחנו אוהבות','אנחנו אוהבים'],
+  ['אם תמשיכי','אם תמשיך'],
+  ['אם תוכלי','אם תוכל'],
+  ['מה תוכלי','מה תוכל'],
+  ['לפני שתצאי','לפני שתצא'],
+  ['לא כדאי שתשכחי','לא כדאי שתשכח'],
+  ['פוגשת','פוגש'],
+  ['כותבת','כותב'],
+  ['משתמשת','משתמש'],
+  ['זוכרת','זוכר'],
+  ['בוטחת','בוטח'],
   ['בחרי','בחר'],
+  ['ובחרי','ובחר'],
   ['כתבי','כתוב'],
+  ['וכתבי','וכתוב'],
   ['התחילי','התחל'],
   ['המשיכי','המשך'],
   ['השלימי','השלם'],
@@ -1891,6 +1963,7 @@ const MASCULINE_UI_PHRASES=[
   ['הקלידי','הקלד'],
   ['לחצי','לחץ'],
   ['נסי','נסה'],
+  ['ונסי','ונסה'],
   ['קחי','קח'],
   ['שימי','שים'],
   ['דברי','דבר'],
@@ -1901,8 +1974,47 @@ const MASCULINE_UI_PHRASES=[
   ['התחברי','התחבר'],
   ['היכנסי','היכנס'],
   ['פני','פנה'],
+  ['ופני','ופנה'],
   ['תמשיכי','תמשיך'],
-  ['תראי','תראה']
+  ['תראי','תראה'],
+  ['ספרי','ספר'],
+  ['קבלי','קבל'],
+  ['וקבלי','וקבל'],
+  ['תקבלי','תקבל'],
+  ['הקשיבי','הקשב'],
+  ['אמרי','אמור'],
+  ['שמעי','שמע'],
+  ['קראי','קרא'],
+  ['האזיני','האזן'],
+  ['עני','ענה'],
+  ['שאלי','שאל'],
+  ['ושאלי','ושאל'],
+  ['שלחי','שלח'],
+  ['הוסיפי','הוסף'],
+  ['המתיני','המתן'],
+  ['בקשי','בקש'],
+  ['הדביקי','הדבק'],
+  ['סדרי','סדר'],
+  ['תכנני','תכנן'],
+  ['שחקי','שחק'],
+  ['לכי','לך'],
+  ['שמרי','שמור'],
+  ['דמייני','דמיין'],
+  ['סיימי','סיים'],
+  ['סמני','סמן'],
+  ['תרגלי','תרגל'],
+  ['ותתרגלי','ותתרגל'],
+  ['זהי','זהה'],
+  ['אשרי','אשר'],
+  ['סגרי','סגור'],
+  ['פתחי','פתח'],
+  ['בואי','בוא'],
+  ['תרצי','תרצה'],
+  ['צריכה','צריך'],
+  ['תני','תן'],
+  ['עלייך','עליך'],
+  ['בעינייך','בעיניך'],
+  ['אלייך','אליך']
 ];
 const MASCULINE_CURRICULUM_PHRASES=[
   ['מכירות חברות חדשות','מכירים חברים חדשים'],
@@ -1968,15 +2080,30 @@ const MASCULINE_CURRICULUM_PHRASES=[
   ['אנחנו מחייכות','אנחנו מחייכים'],
   ['אנחנו מקשיבות','אנחנו מקשיבים']
 ];
-function replaceMasculinePhrases(value,phrases){
+function compileMasculineRules(phrases){
+  return phrases.map(([feminine,masculine])=>{
+    const escaped=feminine.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const startsHe=/^[\u0590-\u05FF]/.test(feminine);
+    const endsHe=/[\u0590-\u05FF]$/.test(feminine);
+    const pattern=(startsHe?'(^|[^\\u0590-\\u05FF])':'')+escaped+(endsHe?'(?=$|[^\\u0590-\\u05FF])':'');
+    return {re:new RegExp(pattern,'g'),startsHe,masculine};
+  });
+}
+const COMPILED_MASCULINE_UI=compileMasculineRules(MASCULINE_UI_PHRASES);
+const COMPILED_MASCULINE_CURRICULUM=compileMasculineRules(MASCULINE_CURRICULUM_PHRASES);
+function applyMasculineRules(value,rules){
   if(typeof value!=='string') return value;
-  return phrases.reduce((text,[feminine,masculine])=>text.split(feminine).join(masculine),value);
+  return rules.reduce((text,{re,startsHe,masculine})=>
+    startsHe
+      ? text.replace(re,(_,prefix)=>(prefix||'')+masculine)
+      : text.replace(re,masculine),
+    value);
 }
 function masculineHebrew(value){
-  return replaceMasculinePhrases(value,MASCULINE_UI_PHRASES);
+  return applyMasculineRules(value,COMPILED_MASCULINE_UI);
 }
 function masculineCurriculumText(value){
-  return replaceMasculinePhrases(replaceMasculinePhrases(value,MASCULINE_UI_PHRASES),MASCULINE_CURRICULUM_PHRASES);
+  return applyMasculineRules(applyMasculineRules(value,COMPILED_MASCULINE_UI),COMPILED_MASCULINE_CURRICULUM);
 }
 function masculineCurriculum(value){
   if(typeof value==='string') return masculineCurriculumText(value);
@@ -2051,17 +2178,19 @@ function refreshWhatsAppLinks(root=document){
 }
 function setStudentIdentity(account){
   if(!account) return;
-  const name=account.displayName||account.username||'תלמידה';
+  const name=account.displayName||account.username||'תלמיד';
   const gender=account.gender==='male'?'male':'female';
   const genderChanged=CURRENT_LEARNER_GENDER!==gender;
   CURRENT_LEARNER_GENDER=gender;
   CURRENT_UI_LANGUAGE=account.uiLanguage||'he';
   CURRENT_LEARNER_PROFILE={
+    id:account.id||account.key||'',
     gender,
     interests:Array.isArray(account.interests)?account.interests:[],
     level:account.level||'A1',
     targetLevel:account.targetLevel||account.level||'A1',
     levelStage:account.levelStage||'',
+    moduleStage:Math.max(1,Number(account.moduleStage)||1),
     uiLanguage:CURRENT_UI_LANGUAGE,
     learningLanguage:account.learningLanguage||'English',
     nativeLanguage:account.nativeLanguage||'Hebrew'
@@ -2080,28 +2209,28 @@ function setStudentIdentity(account){
 function applyStudentTheme(account){
   if(!account){
     delete document.documentElement.dataset.theme;
-    $$('.brand-mark').forEach(el=>el.textContent='💃');
-    $$('.sidebar-user .avatar').forEach(el=>el.textContent='💃');
+    $$('.brand-mark').forEach(el=>el.textContent='✨');
+    $$('.sidebar-user .avatar').forEach(el=>el.textContent='✨');
     return;
   }
   const u = account.username || '';
-  const k = account.key || '';
+  const k = account.key || account.id || '';
   const interests = Array.isArray(account.interests) ? account.interests : [];
-  let theme = '', icon = '💃';
+  let theme = '', icon = '✨';
 
-  if(u === 'בארי' || k === 'BARRY' || interests.includes('כדורגל')){
+  if(u === 'הדר' || k === 'HADAR'){
+    theme = 'hadar'; icon = '🌍';
+  }else if(u === 'בארי' || k === 'BARRY' || interests.includes('כדורגל')){
     theme = 'barry'; icon = '⚽';
   }else if(u === 'מעיין' || k === 'MAAYAN' || interests.includes('פוקימון')){
     theme = 'maayan'; icon = '⚡';
-  }else if(u === 'הדר' || k === 'HADAR' || interests.includes('טרנדים')){
-    theme = 'hadar'; icon = '🔥';
   }else if(u === 'יולי' || k === 'YULI' || account.uiLanguage === 'es'){
     theme = 'yuli'; icon = '✨';
   }else if(u === 'אביב' || k === 'AVIV' || account.learningLanguage === 'French'){
     theme = 'aviv'; icon = '🗼';
   }else if(u === 'מיה' || k === 'MIA'){
     theme = 'mia'; icon = '🎨';
-  }else{
+  }else if(u === 'גפן' || k === 'GEFEN' || u === 'שקד' || k === 'SHAKED' || interests.includes('ריקוד')){
     theme = ''; icon = '💃';
   }
 
@@ -2114,11 +2243,11 @@ function applyStudentTheme(account){
 function clearStudentIdentity(){
   CURRENT_LEARNER_GENDER='female';
   CURRENT_UI_LANGUAGE='he';
-  CURRENT_LEARNER_PROFILE={gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
+  CURRENT_LEARNER_PROFILE={id:'',gender:'female',interests:[],level:'A1',levelStage:'תחילת A1',moduleStage:1,uiLanguage:'he',learningLanguage:'English',nativeLanguage:'Hebrew'};
   applyStudentTheme(null);
   document.documentElement.lang='he';
   document.documentElement.dir='rtl';
-  S.name='תלמידה';
+  S.name='תלמיד';
   document.title='Lamda — English learning';
   const brand=$('#app-name'); if(brand) brand.textContent='Lamda';
   personalizeVisibleText(document.body);
@@ -2129,13 +2258,13 @@ function openStudentLogin(message=''){
   openModal(`<div class="auth-modal">
     <div class="auth-head">
       <h3>👋 כניסה לתלמידים</h3>
-      <p class="small muted">בחרי את שם המשתמש והקלידי את הסיסמה שלך.</p>
+      <p class="small muted">יש לבחור שם משתמש ולהקליד סיסמה.</p>
     </div>
     ${message?`<div class="auth-error" role="alert">${esc(message)}</div>`:''}
     <form class="auth-form" data-submit-act="student-login" novalidate>
       <div class="auth-fields">
         <div class="field"><label for="student-username">שם משתמש</label><select id="student-username" name="username">${options}</select></div>
-        <div class="field"><label for="student-password">סיסמה</label><input id="student-password" name="password" type="password" autocomplete="current-password" placeholder="הקלידי סיסמה…"></div>
+        <div class="field"><label for="student-password">סיסמה</label><input id="student-password" name="password" type="password" autocomplete="current-password" placeholder="הקלדת סיסמה…"></div>
       </div>
       <button type="submit" class="btn primary wide auth-submit">כניסה</button>
     </form>
@@ -2160,15 +2289,15 @@ function openPasswordSetup(message=''){
   openModal(`<div class="auth-modal">
     <div class="auth-head">
       <h3>🔐 הגדרת סיסמה</h3>
-      <p class="small muted">הזיני את קוד ההפעלה שקיבלת מהמורה ובחרי סיסמה חדשה. לאיפוס, בקשי קוד חדש בוואטסאפ.</p>
+      <p class="small muted">יש להזין את קוד ההפעלה מהמורה ולבחור סיסמה חדשה. לאיפוס, אפשר לבקש קוד חדש בוואטסאפ.</p>
     </div>
     ${message?`<div class="auth-error" role="alert">${esc(message)}</div>`:''}
     <form class="auth-form" data-submit-act="password-setup" novalidate>
       <div class="auth-fields">
         <div class="field"><label for="activation-username">שם משתמש</label><select id="activation-username" name="username">${options}</select></div>
-        <div class="field"><label for="activation-code">קוד הפעלה / איפוס</label><input id="activation-code" name="code" autocomplete="one-time-code" placeholder="הדביקי או הקלידי קוד מהמורה"></div>
+        <div class="field"><label for="activation-code">קוד הפעלה / איפוס</label><input id="activation-code" name="code" autocomplete="one-time-code" placeholder="הדבקה או הקלדת קוד מהמורה"></div>
         <div class="field"><label for="activation-password">סיסמה חדשה (8 תווים לפחות)</label><input id="activation-password" name="new-password" type="password" autocomplete="new-password" placeholder="לפחות 8 תווים"></div>
-        <div class="field"><label for="activation-password-confirm">אימות סיסמה</label><input id="activation-password-confirm" name="confirm-password" type="password" autocomplete="new-password" placeholder="הקלידי את הסיסמה שוב"></div>
+        <div class="field"><label for="activation-password-confirm">אימות סיסמה</label><input id="activation-password-confirm" name="confirm-password" type="password" autocomplete="new-password" placeholder="הקלדת הסיסמה שוב"></div>
       </div>
       <button type="submit" class="btn primary wide auth-submit">שמירת הסיסמה</button>
     </form>
@@ -2204,6 +2333,7 @@ async function loadStudentAccount(account){
     }
   }catch(e){
     console.warn('[sync] progress load after login failed:',e.message);
+    installCurriculum({curriculum:null,courseId:'default',moduleStage:account.moduleStage||1},true);
     updateSyncBadge('error');
   }
 }
@@ -2215,14 +2345,14 @@ async function submitPasswordSetup(){
   if(password.length<8){ openPasswordSetup('הסיסמה חייבת להכיל 8 תווים לפחות.'); return; }
   if(password!==confirmation){ openPasswordSetup('הסיסמאות אינן זהות.'); return; }
   try{
-    toast('שומרת סיסמה...');
+    toast('שומר סיסמה...');
     const account=await window.apiSync.activate(username,code,password);
     await loadStudentAccount(account);
     closeModal();
     render(); updateHeader();
-    toast(`הסיסמה נשמרה. ברוכה הבאה, ${account.username} ✓`);
+    toast(`${CURRENT_LEARNER_GENDER==='male'?'הסיסמה נשמרה. ברוך הבא':'הסיסמה נשמרה. ברוכה הבאה'}, ${account.username} ✓`);
   }catch(e){
-    openPasswordSetup(e.status===401?'הקוד שגוי, נוצל או שפג תוקפו. בקשי קוד חדש מהמורה.':'לא הצלחתי לשמור את הסיסמה. בדקי חיבור ונסי שוב.');
+    openPasswordSetup(e.status===401?'הקוד שגוי, נוצל או שפג תוקפו. יש לבקש קוד חדש מהמורה.':'לא הצלחתי לשמור את הסיסמה. יש לבדוק חיבור ולנסות שוב.');
   }
 }
 async function submitStudentLogin(){
@@ -2230,15 +2360,15 @@ async function submitStudentLogin(){
   const password=$('#student-password')?.value;
   if(!username||!password){ openStudentLogin('יש לבחור שם משתמש ולהקליד סיסמה.'); return; }
   try{
-    toast('מתחברת...');
+    toast('מתחבר...');
     const account=await window.apiSync.login(username,password);
     await loadStudentAccount(account);
     closeModal();
     render();
     updateHeader();
-    toast(`ברוכה הבאה, ${account.username} ✓`);
+    toast(`${CURRENT_LEARNER_GENDER==='male'?'ברוך הבא':'ברוכה הבאה'}, ${account.username} ✓`);
   }catch(e){
-    openStudentLogin(e.status===401?'שם המשתמש או הסיסמה שגויים.':'לא הצלחתי להתחבר. בדקי חיבור ונסי שוב.');
+    openStudentLogin(e.status===401?'שם המשתמש או הסיסמה שגויים.':'לא הצלחתי להתחבר. יש לבדוק חיבור ולנסות שוב.');
   }
 }
 function logoutStudent(){
@@ -2251,7 +2381,7 @@ function logoutStudent(){
     window.apiSync.logout();
     S=freshState();
     clearStudentIdentity();
-    installCurriculum({curriculum:null,courseId:'default'});
+    installCurriculum({curriculum:null,courseId:'default'},true);
     render();
     openStudentLogin();
   });
@@ -2894,6 +3024,16 @@ async function advanceToContinuationModule(requestedStage){
   go('#/learn');
 }
 let PENDING_NEXT_CURRICULUM=null;
+let CURRENT_PROFILE_SIGNATURE='';
+function currentProfileSignature(){
+  return [
+    CURRENT_LEARNER_PROFILE?.id||S.name||'',
+    CURRENT_LEARNER_GENDER,
+    CURRENT_UI_LANGUAGE,
+    CURRENT_LEARNER_PROFILE?.level||'',
+    CURRENT_LEARNER_PROFILE?.learningLanguage||'English'
+  ].join('|');
+}
 function installCurriculum(result,force=false){
   const sourceCurriculum=result?.curriculum||null;
   PENDING_NEXT_CURRICULUM=result?.pendingNextCurriculum||null;
@@ -2904,8 +3044,10 @@ function installCurriculum(result,force=false){
   const stageFromId=/^stage-(\d+)$/.test(String(result?.courseId||''))?Number(String(result.courseId).split('-')[1]):0;
   const targetStage=Math.max(1,Math.min(3,stageFromId||stageFromResult||1));
   const courseId=result?.courseId||curriculum?.id||(targetStage>1?`stage-${targetStage}`:'default');
+  const profileSig=currentProfileSignature();
+  const profileChanged=profileSig!==CURRENT_PROFILE_SIGNATURE;
   const courseChanged=courseId!==CURRENT_COURSE_ID||courseId!==(S.courseId||'default')||targetStage!==CURRENT_MODULE_STAGE;
-  const changed=force||courseChanged;
+  const changed=force||courseChanged||profileChanged;
   if(!changed){
     if(curriculum) ACTIVE_CURRICULUM=curriculum;
     S.courseId=courseId;
@@ -2913,6 +3055,7 @@ function installCurriculum(result,force=false){
     S.courseSnapshot=courseSnapshot();
     return false;
   }
+  CURRENT_PROFILE_SIGNATURE=profileSig;
   CURRENT_COURSE_ID=courseId;
   CURRENT_MODULE_STAGE=targetStage;
   ACTIVE_CURRICULUM=curriculum;
@@ -2950,9 +3093,11 @@ function installCurriculum(result,force=false){
     baseScenarios=defaultScenariosForProfile();
   }
 
+  const shouldMasculinize=CURRENT_LEARNER_GENDER==='male'&&CURRENT_UI_LANGUAGE==='he';
   const courseUnits=JSON.parse(JSON.stringify(baseUnits));
-  UNITS=CURRENT_LEARNER_GENDER==='male'&&CURRENT_UI_LANGUAGE==='he'&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
-  SCENARIOS=JSON.parse(JSON.stringify(baseScenarios));
+  UNITS=shouldMasculinize&&!sourceCurriculum?masculineCurriculum(courseUnits):courseUnits;
+  const courseScenarios=JSON.parse(JSON.stringify(baseScenarios));
+  SCENARIOS=shouldMasculinize?masculineCurriculum(courseScenarios):courseScenarios;
 
   Object.keys(RULE_MAP).forEach(key=>delete RULE_MAP[key]);
   Object.keys(EX_MAP).forEach(key=>delete EX_MAP[key]);
@@ -3022,10 +3167,11 @@ function buildVocabExercises(u){
     if(!m) return null;
     return {w, form:m[0], sentence:w.ex.replace(m[0],'___')};
   }).filter(Boolean).slice(0,3);
+  const isMale=CURRENT_LEARNER_GENDER==='male';
   gapWords.forEach(g=>{
     exs.push({
       t:'gap', id:`${u.id}.g.${g.w.en}`, unit:u.id, skill:'vocab', word:g.w.en, rule:'',
-      q:isSpanish?`Completa con la forma correcta de <b class="en">${g.w.en}</b> (${g.w.he}):`:`השלימי עם הצורה הנכונה של <b class="en">${g.w.en}</b> (${g.w.he}):`,
+      q:isSpanish?`Completa con la forma correcta de <b class="en">${g.w.en}</b> (${g.w.he}):`:`${isMale?'השלם':'השלימי'} עם הצורה הנכונה של <b class="en">${g.w.en}</b> (${g.w.he}):`,
       sentence:g.sentence, ans:[g.form],
       why:isSpanish?`Frase completa: ${g.w.ex} — ${g.w.exHe}. En esta frase la forma es <b>${g.form}</b>.`:`המשפט המלא: ${g.w.ex} — ${g.w.exHe} במשפט הזה הצורה היא <b>${g.form}</b>.`,
       hint:isSpanish?`La palabra empieza por ${g.form[0]}.`:`הצורה במשפט מתחילה ב-${g.form[0]}.`
@@ -3034,14 +3180,14 @@ function buildVocabExercises(u){
   const l1=u.words[0], l2=u.words[Math.min(6,u.words.length-1)];
   if(l1) exs.push({
     t:'listenmcq', id:`${u.id}.lc.${l1.en}`, unit:u.id, skill:'listening', word:l1.en, rule:'', audio:l1.en,
-    q:isSpanish?'Pulsa el botón para escuchar la palabra y elige su significado.':'לחצי על הכפתור, הקשיבי למילה – ובחרי את המשמעות.',
+    q:isSpanish?'Pulsa el botón para escuchar la palabra y elige su significado.':(isMale?'לחץ על הכפתור, הקשב למילה – ובחר את המשמעות.':'לחצי על הכפתור, הקשיבי למילה – ובחרי את המשמעות.'),
     opts:shuffle([l1.he,...distractors(l1.he,3)]), ans:l1.he,
     why:isSpanish?`Escuchaste <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`:`שמעת <b class="en">${l1.en}</b> = ${l1.he}. ${l1.ex}`,
     hint:isSpanish?`La palabra empieza por ${l1.en[0].toUpperCase()} (${l1.en.length} letras).`:`המילה מתחילה ב-${l1.en[0].toUpperCase()} (${l1.en.length} אותיות).`
   });
   if(l2) exs.push({
     t:'listen', id:`${u.id}.lw.${l2.en}`, unit:u.id, skill:'listening', word:l2.en, rule:'', audio:l2.en,
-    q:isSpanish?'Pulsa el botón y escribe la palabra que escuchaste.':'לחצי על הכפתור וכתבי את המילה ששמעת.',
+    q:isSpanish?'Pulsa el botón y escribe la palabra que escuchaste.':(isMale?'לחץ על הכפתור וכתוב את המילה ששמעת.':'לחצי על הכפתור וכתבי את המילה ששמעת.'),
     ans:[l2.en], why:`<b class="en">${l2.en}</b> = ${l2.he}. ${l2.ex}`,
     hint:isSpanish?`${l2.en.length} letras, empieza por ${l2.en[0].toUpperCase()}.`:`${l2.en.length} אותיות, מתחילה ב-${l2.en[0].toUpperCase()}.`
   });
@@ -3446,8 +3592,15 @@ function adaptiveCoachRadarHTML(){
     </div>
   </div>`;
 }
-function praise(){ return rnd([`מעולה, ${S.name||'תלמידה'}!`,'בול!','מדויק!',`וואו, ${S.name||'תלמידה'}!`,'יפה מאוד!','אלופה! 🏆','בדיוק כך!']) }
-function nope(){ return rnd([`כמעט, ${S.name||'תלמידה'} 💪`,'לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']) }
+function praise(){
+  const isMale=CURRENT_LEARNER_GENDER==='male';
+  const fallback=isMale?'תלמיד':'תלמידה';
+  return rnd([`מעולה, ${S.name||fallback}!`,'בול!','מדויק!',`וואו, ${S.name||fallback}!`,'יפה מאוד!',isMale?'אלוף! 🏆':'אלופה! 🏆','בדיוק כך!']);
+}
+function nope(){
+  const fallback=CURRENT_LEARNER_GENDER==='male'?'תלמיד':'תלמידה';
+  return rnd([`כמעט, ${S.name||fallback} 💪`,'לא נורא – מכאן לומדים','קרוב מאוד!','עוד ניסיון קטן','טעות טובה – עכשיו נבין']);
+}
 
 function continuationUnlockCardHTML(compact=false){
   const isEs=CURRENT_UI_LANGUAGE==='es';
@@ -4265,7 +4418,7 @@ function mountReview(){
 let DRILL=null;
 const DRILL_META={
   sprint:{icon:'⚡',title:'ספרינט 5 דקות',desc:'10 שאלות מעורבות מכל המסלול. תרגול מהיר לכל המוחות.'},
-  listen:{icon:'👂',title:'אוזן חדה',desc:'שמיעה בלבד: הקשיבי, זהי ובחרי. תרגול לאוזן של רקדנית.'},
+  listen:{icon:'👂',title:'אוזן חדה',desc:'שמיעה בלבד: הקשיבי, זהי ובחרי. תרגול לשמיעה חדה ומהירה.'},
   errors:{icon:'🕵️',title:'ציד טעויות',desc:'בכל שאלה מחכים שלושה משפטים – רק אחד נכון.'},
   adaptive:{icon:'🧠',title:'אימון AI מותאם אישית',desc:'תרגילים שהבינה המלאכותית בנתה במיוחד עבורך לפי הטעויות, המילים והנושאים שדורשים חיזוק תוך כדי תנועה.'}
 };
@@ -5168,19 +5321,22 @@ const SPEAK_SENTENCES_MAAYAN = [
   {en:'We won the gym badge after a hard battle.',he:'זכינו בתג המכון אחרי קרב קשה.'}
 ];
 const SPEAK_SENTENCES_HADAR = [
-  {en:'The creator uploaded a viral tech video yesterday.',he:'היוצר העלה סרטון טכנולוגיה ויראלי אתמול.'},
-  {en:'The algorithm recommended this clip to millions of viewers.',he:'האלגוריתם המליץ על הסרטון הזה למיליוני צופים.'},
+  {en:'The Olympic sprinter broke the world record yesterday.',he:'האצן האולימפי שבר את שיא העולם אתמול.'},
+  {en:'Marathon athletes need incredible stamina to finish the race.',he:'רצי מרתון צריכים סיבולת מדהימה כדי לסיים את המרוץ.'},
   {en:'The Mariana Trench is deeper than Mount Everest is tall.',he:'שקע מריאנה עמוק יותר מגובהו של הר האוורסט.'},
   {en:'Pistol shrimps create bubbles as hot as the sun.',he:'חסילוני אקדח מייצרים בועות חמות כמו השמש.'},
-  {en:'Engineers are going to design smart future cities.',he:'מהנדסים הולכים לתכנן ערי עתיד חכמות.'},
-  {en:'The human brain consolidates memories during deep sleep.',he:'המוח האנושי מגבש זיכרונות במהלך שינה עמוקה.'}
+  {en:'Most active volcanoes on Earth lie under the ocean.',he:'רוב הרי הגעש הפעילים בכדור הארץ נמצאים מתחת לאוקיינוס.'},
+  {en:'Space agencies are going to explore Jupiter’s icy moon Europa.',he:'סוכנויות חלל הולכות לחקור את אירופה, הירח הקפוא של צדק.'},
+  {en:'Gravity keeps all the planets orbiting around the Sun.',he:'כוח הכבידה שומר את כל כוכבי הלכת במסלול סביב השמש.'},
+  {en:'The human brain strengthens memory and reaction speed during sleep.',he:'המוח האנושי מחזק את הזיכרון ומהירות התגובה במהלך השינה.'}
 ];
 function getProfileSpeakSentences(){
   const u = S.name || '';
+  const id = CURRENT_LEARNER_PROFILE.id || '';
   const interests = CURRENT_LEARNER_PROFILE.interests || [];
-  if(u==='בארי' || interests.includes('כדורגל')) return SPEAK_SENTENCES_BARRY;
-  if(u==='מעיין' || interests.includes('פוקימון')) return SPEAK_SENTENCES_MAAYAN;
-  if(u==='הדר' || interests.includes('טרנדים')) return SPEAK_SENTENCES_HADAR;
+  if(u==='הדר' || id==='HADAR') return SPEAK_SENTENCES_HADAR;
+  if(u==='בארי' || id==='BARRY' || interests.includes('כדורגל')) return SPEAK_SENTENCES_BARRY;
+  if(u==='מעיין' || id==='MAAYAN' || interests.includes('פוקימון')) return SPEAK_SENTENCES_MAAYAN;
   const unitSentences=UNITS.flatMap(u=>(u.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe})));
   const adaptiveWords=(ensureAdaptiveState().lastBooster?.words||[]).filter(w=>w.ex&&w.exHe).map(w=>({en:w.ex,he:w.exHe}));
   const combined=[...adaptiveWords,...unitSentences];
@@ -6384,8 +6540,9 @@ function render(){
     html=`<div class="page"><div class="card"><h3>משהו נתקע 🙂</h3><p class="small muted">נסי לרענן. השגיאה לא מוחקת את ההתקדמות.</p><button class="btn primary" data-go="#/home">לבית</button></div></div>`;
   }
   const impersonated=window.adminApi?.impersonatingStudent?.();
+  const impMale=impersonated?.gender==='male';
   const banner=impersonated?`<div class="admin-impersonation-banner" role="status">
-    <span>⚠️ אדמין במצב תלמידה: <b>${esc(impersonated.username||'תלמידה')}</b>. ${impersonated.activated?'הפעולות נשמרות בחשבון שלה.':'חשבון התלמידה עדיין לא הופעל; בדיקות יישמרו כהתקדמות שלה.'}</span>
+    <span>⚠️ אדמין במצב ${impMale?'תלמיד':'תלמידה'}: <b>${esc(impersonated.username||(impMale?'תלמיד':'תלמידה'))}</b>. ${impersonated.activated?`הפעולות נשמרות בחשבון ${impMale?'שלו':'שלה'}.`:`חשבון ${impMale?'התלמיד':'התלמידה'} עדיין לא הופעל; בדיקות יישמרו כהתקדמות ${impMale?'שלו':'שלה'}.`}</span>
     <button class="btn sm" data-act="admin-impersonation-exit">חזרה ללוח האדמין</button>
   </div>`:'';
   main.innerHTML=banner+html;

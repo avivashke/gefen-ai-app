@@ -54,7 +54,7 @@ assert.deepEqual(
     { username: 'בארי', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['כדורגל', 'ספורט', 'חיות', 'טבע', 'מדע', 'עובדות מעניינות'] },
     { username: 'שקד', level: 'A1', targetLevel: undefined, gender: 'female', interests: ['ריקוד', 'חיות', 'טבע'] },
     { username: 'מעיין', level: 'A1', targetLevel: undefined, gender: 'male', interests: ['פוקימון'] },
-    { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['עובדות מעניינות', 'טבע', 'חיות', 'טרנדים'] },
+    { username: 'הדר', level: 'A2', targetLevel: 'B1', gender: 'male', interests: ['ספורט', 'עובדות מעניינות', 'מדע', 'טבע', 'העולם'] },
     { username: 'מיה', level: 'A1', targetLevel: undefined, gender: 'female', interests: [] },
     { username: 'יולי', level: 'B1', targetLevel: undefined, gender: 'female', interests: ['cocina', 'negocios', 'arquitectura', 'moda'] },
     { username: 'אביב', level: 'A2', targetLevel: undefined, gender: 'male', interests: [] },

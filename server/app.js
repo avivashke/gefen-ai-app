@@ -958,7 +958,9 @@ function curriculumExerciseCount(unit) {
 }
 
 function learnerProfilePrompt(student) {
-  const learner = student.gender === 'male' ? 'boy; address him respectfully' : 'girl; address her respectfully';
+  const learner = student.gender === 'male'
+    ? 'boy; address him respectfully — always use masculine singular Hebrew (לשון זכר) in all instructions, explanations, questions, and translations, never feminine Hebrew'
+    : 'girl; address her respectfully — use feminine singular Hebrew (לשון נקבה) when writing in Hebrew';
   const learningLanguage = student.learningLanguage || 'English';
   const interfaceLanguage = student.uiLanguage === 'es'
     ? 'Spanish'
